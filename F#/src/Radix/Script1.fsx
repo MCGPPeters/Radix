@@ -1,3 +1,4 @@
+﻿namespace Radix
 
 open System.Collections.Concurrent
 open System.IO
@@ -63,7 +64,7 @@ module Actor =
 
     type Behavior<'s, 'm> = 's -> 'm -> Async<'s>
 
-    type Create = 
+    type Create<'s, 'm> = Node -> Behavior<'s, 'm> -> Address
 
 
 
