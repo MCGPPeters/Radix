@@ -2,14 +2,37 @@
 
 open System.Security.Principal
 open System
+open System.IO
+open System.Security.Cryptography
 
 type Undefined = exn
 
-type Address = private Address of Guid
+type Hash = Hash of byte[]
+
+type Address = private Address of Hash
 
 module Address = 
-    let create guid = Ok (Address guid)
+
+    let create = 
+        let sha1 = SHA1.Create();
+        Address (Hash (sha1.ComputeHash(Guid.NewGuid().ToByteArray())))
+
     let value (Address address) = address
+
+type Agent = MailboxProcessor<Stream>
+
+type Actor = {
+    Address: Address
+    Agent: Agent
+}
+
+type Registry = Registry of Map<Address, Agent>
+
+type Node = {
+    Registry: Registry
+}
+
+type Node = Registry -> MailboxProcessor<Envelope>
 
 type Command<'a> = {
     Payload: 'a
