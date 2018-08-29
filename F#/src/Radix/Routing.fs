@@ -5,8 +5,8 @@ open Radix
 open System.IO
 open System.Net
 open System.Security.Principal
-open FSharp.Control.Reactive
 open Microsoft.FSharp.Control
+open System.Collections.Generic
 
 type Envelope = {
         Origin: Address
@@ -30,6 +30,7 @@ type LocallyRoutableEnvelope = {
     Destination: Address
     Principal: IPrincipal
     Payload: Stream
+    MailboxProcessor: MailboxProcessor<Stream>
 }
 
 type RouteableEnvelope = 
@@ -97,3 +98,16 @@ let route
        |> resolve resolveLocalAddress resolveRemoteAddress
        |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToDeliverEnvelopeError error)
        |> AsyncResult.bind (deliver mailboxes forward post)
+
+let resolveLocalAddress (mailboxes: Map<Address, MailboxProcessor<Stream>>) : ResolveLocalAddress = 
+    fun envelope -> 
+        match mailboxes.TryFind envelope.Destination with
+        | Some mailboxProcessor -> 
+            Some {
+                Origin = envelope.Origin
+                Destination = envelope.Destination
+                Principal = envelope.Principal
+                Payload = envelope.Payload
+                MailboxProcessor = mailboxProcessor
+            }
+        | _ -> None        
