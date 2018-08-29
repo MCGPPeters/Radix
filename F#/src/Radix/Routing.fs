@@ -44,13 +44,7 @@ type ResolveRemoteAddress = Envelope -> AsyncResult<RemoteRouteableEnvelope, Add
 
 type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Envelope -> AsyncResult<RouteableEnvelope, AddressNotFoundError>
 
-type UnableToForwardEnvelopeError = UnableToForwardEnvelopeError of string
-
-type UnableToPostEnvelopeError = UnableToPostEnvelopeError of string
-
-type UnableToDeliverEnvelopeError = 
-    | UnableToForwardEnvelopeError of string
-    | UnableToPostEnvelopeError of string
+type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
 type EnvelopePosted = Event<LocallyRoutableEnvelope>
 
@@ -67,7 +61,7 @@ type MailBox = {
 
 type Post = MailBox list -> LocallyRoutableEnvelope -> EnvelopePosted
 
-type Forward = Uri -> RemoteRouteableEnvelope -> AsyncResult<EnvelopeForwarded, UnableToForwardEnvelopeError>
+type Forward = Uri -> RemoteRouteableEnvelope -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
 
 type Deliver = Forward -> Post -> RouteableEnvelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
 
@@ -91,7 +85,6 @@ let deliver mailboxes : Deliver =
             | RemoteRouteableEnvelope envelope ->
                 forward envelope.Uri envelope
                     |> AsyncResult.map EnvelopeForwarded
-                    |> AsyncResult.mapError (fun error -> UnableToForwardEnvelopeError "")
 
 let route 
     resolveLocalAddress
@@ -102,5 +95,5 @@ let route
     : Route = fun envelope ->
        envelope
        |> resolve resolveLocalAddress resolveRemoteAddress
-       |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToForwardEnvelopeError error)
+       |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToDeliverEnvelopeError error)
        |> AsyncResult.bind (deliver mailboxes forward post)
