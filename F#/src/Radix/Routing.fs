@@ -36,21 +36,23 @@ type RouteableEnvelope =
     | LocallyRoutableEnvelope of LocallyRoutableEnvelope
     | RemoteRouteableEnvelope of RemoteRouteableEnvelope
 
-type AddressNotFoundError = AddressNotFoundError of string
+type AddressNotFoundError = 
+    | LocalAddressNotFoundError of string
+    | RemoteAddressNotFoundError of string
 
 type ResolveLocalAddress = Envelope -> Option<LocallyRoutableEnvelope>
 
 type ResolveRemoteAddress = Envelope -> Option<RemoteRouteableEnvelope>
 
-type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Envelope -> Result<RouteableEnvelope, AddressNotFoundError>
+type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Envelope -> AsyncResult<RouteableEnvelope, AddressNotFoundError>
 
 type UnableToForwardEnvelopeError = UnableToForwardEnvelopeError of string
 
 type UnableToPostEnvelopeError = UnableToPostEnvelopeError of string
 
 type UnableToDeliverEnvelopeError = 
-    | UnableToForwardEnvelopeError of UnableToForwardEnvelopeError
-    | UnableToPostEnvelopeError of UnableToPostEnvelopeError
+    | UnableToForwardEnvelopeError of string
+    | UnableToPostEnvelopeError of string
 
 type EnvelopePosted = Event<LocallyRoutableEnvelope>
 
@@ -76,10 +78,10 @@ type Route = Envelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeE
 let resolve : Resolve = 
     fun resolveLocalAddress resolveRemoteAddress envelope ->
         match resolveLocalAddress envelope with
-            | Some locallyRoutableEnvelope -> Ok (LocallyRoutableEnvelope locallyRoutableEnvelope)
+            | Some locallyRoutableEnvelope -> AsyncResult.retn (LocallyRoutableEnvelope locallyRoutableEnvelope)
             | None -> match resolveRemoteAddress envelope with
-                        | Some remoteRouteableEnvelope -> Ok (RemoteRouteableEnvelope remoteRouteableEnvelope)
-                        | None -> Error (AddressNotFoundError "")
+                        | Some remoteRouteableEnvelope -> AsyncResult.retn (RemoteRouteableEnvelope remoteRouteableEnvelope)
+                        | None -> AsyncResult.ofError (RemoteAddressNotFoundError "")
 
 let deliver mailboxes : Deliver =
     fun forward post routeableEnvelope ->
@@ -91,23 +93,19 @@ let deliver mailboxes : Deliver =
             | RemoteRouteableEnvelope envelope ->
                 forward envelope.Uri envelope
                     |> AsyncResult.map EnvelopeForwarded
-                    |> AsyncResult.mapError UnableToForwardEnvelopeError
+                    |> AsyncResult.mapError (fun error -> UnableToForwardEnvelopeError "")
 
 let route 
     resolveLocalAddress
     resolveRemoteAddress
+    mailboxes
     forward
     post
     : Route = fun envelope ->
        envelope
        |> resolve resolveLocalAddress resolveRemoteAddress
-       |> (deliver forward post)
-
-
-module Actor = 
-    
-    type AuthorizationResult = 
-    | Authorized
-    | NotAuthorized
-
-    type Authorize = IPrincipal -> AuthorizationResult
+       |> AsyncResult.mapError (fun  error -> 
+            match error with
+            | RemoteAddressNotFoundError e -> UnableToForwardEnvelopeError e
+            | LocalAddressNotFoundError e -> UnableToPostEnvelopeError e)
+       |> AsyncResult.bind (deliver mailboxes forward post)
