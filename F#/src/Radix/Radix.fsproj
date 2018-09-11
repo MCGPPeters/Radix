@@ -7,7 +7,6 @@
     <Compile Include="Routing.fs" />
     <Compile Include="Routing.Implementation.fs" />
     <Compile Include="Primitives.fs" />
-    <Compile Include="Library.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Control.Reactive" Version="4.1.0" />

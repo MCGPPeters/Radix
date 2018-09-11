@@ -1,4 +1,4 @@
-﻿module Radix
+﻿namespace Radix
 
 open System.Security.Principal
 open System
@@ -19,21 +19,6 @@ module Address =
 
     let value (Address address) = address
 
-type Agent = MailboxProcessor<Stream>
-
-type Actor = {
-    Address: Address
-    Agent: Agent
-}
-
-type Registry = Registry of Map<Address, Agent>
-
-type Node = {
-    Registry: Registry
-}
-
-type Node = Registry -> MailboxProcessor<Envelope>
-
 type Command<'a> = {
     Payload: 'a
     Principal: IPrincipal
@@ -45,6 +30,16 @@ type Event<'a> = {
     Payload: 'a
     Timestamp: DateTimeOffset
 }
+
+type Agent = MailboxProcessor<Stream>
+
+type Actor = {
+    Address: Address
+    Agent: Agent
+}
+
+type Registry = Registry of Map<Address, Agent>
+
 
 [<RequireQualifiedAccess>] 
 module Async =
