@@ -1,62 +1,64 @@
-﻿module internal Routing
+﻿namespace Radix
 
-open System
-open Radix
-open System.IO
-open System.Net
-open System.Security.Principal
-open Microsoft.FSharp.Control
+module internal Routing =
 
-type Envelope = {
+    open System
+    open Radix
+    open System.IO
+    open System.Net
+    open System.Security.Principal
+    open Microsoft.FSharp.Control
+
+    type Envelope = {
+            Destination: Address
+            Principal: IPrincipal
+            Payload: Stream
+        }
+
+    type Listen = IPEndPoint -> IObservable<Envelope>
+
+    type RemoteRoutableEnvelope = {
         Destination: Address
         Principal: IPrincipal
         Payload: Stream
+        Uri: Uri
     }
 
-type Listen = IPEndPoint -> IObservable<Envelope>
+    type LocallyRoutableEnvelope = {
+        Destination: Address
+        Principal: IPrincipal
+        Payload: Stream
+        Agent: Agent
+    }
 
-type RemoteRouteableEnvelope = {
-    Destination: Address
-    Principal: IPrincipal
-    Payload: Stream
-    Uri: Uri
-}
+    type RoutableEnvelope = 
+        | LocallyRoutableEnvelope of LocallyRoutableEnvelope
+        | RemoteRouteableEnvelope of RemoteRoutableEnvelope
 
-type LocallyRoutableEnvelope = {
-    Destination: Address
-    Principal: IPrincipal
-    Payload: Stream
-    MailboxProcessor: MailboxProcessor<Stream>
-}
+    type AddressNotFoundError = AddressNotFoundError of string
 
-type RouteableEnvelope = 
-    | LocallyRoutableEnvelope of LocallyRoutableEnvelope
-    | RemoteRouteableEnvelope of RemoteRouteableEnvelope
+    type ResolveLocalAddress = Envelope -> Option<LocallyRoutableEnvelope>
 
-type AddressNotFoundError = AddressNotFoundError of string
+    type ResolveRemoteAddress = Envelope -> AsyncResult<RemoteRoutableEnvelope, AddressNotFoundError>
 
-type ResolveLocalAddress = Envelope -> Option<LocallyRoutableEnvelope>
+    type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Envelope -> AsyncResult<RoutableEnvelope, AddressNotFoundError>
 
-type ResolveRemoteAddress = Envelope -> AsyncResult<RemoteRouteableEnvelope, AddressNotFoundError>
+    type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
-type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Envelope -> AsyncResult<RouteableEnvelope, AddressNotFoundError>
+    type EnvelopePosted = Event<LocallyRoutableEnvelope>
 
-type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
+    type EnvelopeForwarded = Event<RemoteRoutableEnvelope>
 
-type EnvelopePosted = Event<LocallyRoutableEnvelope>
+    type EnvelopeDelivered = 
+        | EnvelopePosted of EnvelopePosted
+        | EnvelopeForwarded of EnvelopeForwarded
 
-type EnvelopeForwarded = Event<RemoteRouteableEnvelope>
+    type Post = Registry -> LocallyRoutableEnvelope -> EnvelopePosted
 
-type EnvelopeDelivered = 
-    | EnvelopePosted of EnvelopePosted
-    | EnvelopeForwarded of EnvelopeForwarded
+    type Forward = Uri -> RemoteRoutableEnvelope -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
 
-type Post = Registry -> LocallyRoutableEnvelope -> EnvelopePosted
+    type Deliver = Forward -> Post -> RoutableEnvelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
 
-type Forward = Uri -> RemoteRouteableEnvelope -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
+    type Route = Envelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
 
-type Deliver = Forward -> Post -> RouteableEnvelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
-
-type Route = Envelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
-
-        
+            
