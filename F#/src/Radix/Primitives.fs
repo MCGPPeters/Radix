@@ -15,62 +15,84 @@ module Primitives =
 
     type Serialize<'message> = 'message -> AsyncResult<Stream, SerializationError>
 
-    type Behavior<'state, 'message> = Deserialize<'message> -> 'state -> 'message -> Async<'state>
-
-    type ActorCreated = {
-        Actor: Actor
-    }
-
-    type ActorCreatedEvent = Event<ActorCreated>
-
-    type ActorEvent = 
-    | ActorCreated of ActorCreatedEvent
-
-    type NodeMessage =
-    | ActorEvent of ActorEvent
-    | Envelope of Envelope
-
-    type Node = private Node of MailboxProcessor<NodeMessage>
+    type Behavior<'state, 'message> = 'state -> 'message -> Async<'state>
 
     let post: Post =
                 fun (Registry registry') envelope -> 
-                    let entry = registry'.Item envelope.Destination
+                    let (Agent entry) = registry'.Item envelope.Destination
                     entry.Post envelope.Payload
                     {
                         Aggregate = envelope.Destination
+                        Timestamp = DateTimeOffset.Now
                         Payload = envelope
-                        Timestamp = DateTime.Now
                     } 
 
-    module Node = 
-        let create (Registry registry) (forward: Forward) =
-            
+    type NodeMessage =
+    | Envelope of Envelope
 
-            MailboxProcessor.Start(fun inbox ->
-                let rec messageLoop state = async {
-                    let! message = inbox.Receive()
+    type Node = Node of MailboxProcessor<NodeMessage>
 
-                    match message with
-                    | ActorEvent actorEvent ->
-                        match actorEvent with
-                        | ActorCreated actorCreated ->
-                             return! messageLoop (registry.Add (actorCreated.Actor.Address, actorCreated.Actor.Agent))
-                    | Envelope envelope ->
-                        let agent = deliver registry envelope                          
-                }
+    type Send<'message> = 'message -> Async<unit>
 
-                messageLoop registry
-            )
+    type SendMessage<'message> = Node -> Serialize<'message> -> Address -> 'message -> Async<unit>
+    
+    type New<'state, 'message> = Behavior<'state, 'message> -> Send<'message> 
+
+    type InitialState<'s> = InitialState of 's
 
     
 
-    type InitialState<'state> = 'state
+    type Create<'state, 'message> = Deserialize<'message> -> Serialize<'message> -> Behavior<'state, 'message> -> InitialState<'state> -> Agent
 
-    type Create<'state,'message> = Behavior<'state,'message> -> ActorCreated
+    let create : Create<'state, 'message> = fun deserialize serialize behavior (InitialState initialState) ->
+         Agent (MailboxProcessor.Start(fun inbox ->
+                let rec messageLoop state = async {
+                    let! stream = inbox.Receive()
+                    let! deserializationResult = deserialize stream
+                    match deserializationResult with
+                    | Ok message -> 
+                        let! newState = behavior state message
+                        return! messageLoop newState
+                    | Error error -> //log
+                        return! messageLoop state                                 
+                }
 
-    type Register = Registry -> Actor -> Registry
+                messageLoop initialState
+            ))
 
-    type Send<'message> = Serialize<'message> -> Route -> Address -> 'message -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
+    module Node = 
 
-    let register : Register = fun (Registry registry) actor ->
-        Registry (registry.Add (actor.Address, actor.Agent))
+        let create registry (resolveRemoteAddress: ResolveRemoteAddress) (forward: Forward) =
+            
+            Node (MailboxProcessor.Start(fun inbox ->
+                let rec messageLoop (Registry state) = async {
+                    let! message = inbox.Receive()
+
+                    match message with
+                    | Envelope envelope ->
+                        asyncResult {
+                            let! deliveryResult = route (resolveLocalAddress registry) resolveRemoteAddress registry forward post envelope
+                            match deliveryResult with
+                            | EnvelopePosted posted ->  posted |> ignore //logging
+                            | EnvelopeForwarded forwarded ->  forwarded |> ignore //logging
+                        } |> ignore
+                        return! messageLoop (Registry state)
+                }
+
+                messageLoop registry
+            ))     
+
+    let send : SendMessage<'message> = fun (Node node) serialize address message ->
+            asyncResult {
+                let! payload = serialize message
+                let envelope = Envelope {
+                    Destination =  address
+                    Principal = Threading.Thread.CurrentPrincipal
+                    Payload = payload
+                }
+                node.Post envelope
+             }
+             |> Async.map (fun x-> 
+                match x with
+                | Ok ok -> ok |> ignore
+                | Error error -> error |> ignore) //logging

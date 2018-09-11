@@ -1,21 +1,18 @@
 ﻿namespace Radix
 
-module internal Routing =
+module Routing =
 
     open System
     open Radix
     open System.IO
-    open System.Net
     open System.Security.Principal
-    open Microsoft.FSharp.Control
 
+    
     type Envelope = {
-            Destination: Address
-            Principal: IPrincipal
-            Payload: Stream
-        }
-
-    type Listen = IPEndPoint -> IObservable<Envelope>
+        Destination: Address
+        Principal: IPrincipal
+        Payload: Stream
+    }
 
     type RemoteRoutableEnvelope = {
         Destination: Address

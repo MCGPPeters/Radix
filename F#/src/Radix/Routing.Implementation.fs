@@ -27,14 +27,14 @@ module internal Implementation =
     let route 
         resolveLocalAddress
         resolveRemoteAddress
-        mailboxes
+        registry
         forward
         post
         : Route = fun envelope ->
            envelope
            |> resolve resolveLocalAddress resolveRemoteAddress
            |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToDeliverEnvelopeError error)
-           |> AsyncResult.bind (deliver mailboxes forward post)
+           |> AsyncResult.bind (deliver registry forward post)
 
     let resolveLocalAddress (Registry registry) : ResolveLocalAddress = 
         fun envelope -> 
