@@ -1,6 +1,6 @@
-﻿namespace Radix
+﻿namespace Radix.Routing
 
-module Routing =
+module Types =
 
     open System
     open Radix
