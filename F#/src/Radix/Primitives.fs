@@ -1,7 +1,7 @@
 namespace Radix
 
 open System.IO
-open Radix.Routing
+open Radix.Routing.Types
 open Radix.Routing.Implementation
 open System
 

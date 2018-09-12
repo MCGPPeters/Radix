@@ -3,7 +3,7 @@ namespace Radix.Routing
 module internal Implementation =
 
     open Radix
-    open Radix.Routing
+    open Radix.Routing.Types
 
     let resolve : Resolve = 
         fun resolveLocalAddress resolveRemoteAddress envelope ->
