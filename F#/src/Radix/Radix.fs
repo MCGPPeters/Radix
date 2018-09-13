@@ -11,12 +11,11 @@ type Hash = Hash of byte[]
 
 type Address = private Address of Hash
 
-
 module Address = 
 
-    let create = 
+    let create (guid: Guid) = 
         let sha1 = SHA1.Create();
-        Address (Hash (sha1.ComputeHash(Guid.NewGuid().ToByteArray())))
+        Address (Hash (sha1.ComputeHash(guid.ToByteArray())))
 
     let value (Address address) = address
 

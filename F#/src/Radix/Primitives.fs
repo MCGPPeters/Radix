@@ -9,17 +9,17 @@ module Primitives =
 
     type DeserializationError = DeserializationError of string
 
-    type Deserialize<'message> = Stream -> AsyncResult<'message, DeserializationError>
+    type Deserialize<'message> = Stream -> 'message
 
     type SerializationError = SerializationError of string
 
-    type Serialize<'message> = 'message -> AsyncResult<Stream, SerializationError>
+    type Serialize<'message> = 'message -> Stream
 
-    type Behavior<'state, 'message> = 'state -> 'message -> Async<'state>
+    type Behavior<'state, 'message> = 'state -> 'message -> 'state
 
     type InitialState<'s> = InitialState of 's
 
-    type Create<'state, 'message> = Behavior<'state, 'message> -> InitialState<'state> -> Address
+    type Create<'state, 'message> = Behavior<'state, 'message> -> 'state -> Address
 
     type Send<'message> = Address -> 'message -> unit
 
@@ -56,7 +56,7 @@ module Primitives =
 
     module Node = 
 
-        let create registry deserialize serialize (resolveRemoteAddress: ResolveRemoteAddress) (forward: Forward) =
+        let create registry (deserialize: Deserialize<'message>) (serialize: Serialize<'message>) (resolveRemoteAddress: ResolveRemoteAddress) (forward: Forward) =
             
             let node = MailboxProcessor.Start(fun inbox ->
                 let rec messageLoop (Registry state) = async {
@@ -64,24 +64,25 @@ module Primitives =
 
                     match message with
                     | Envelope envelope ->
-                        asyncResult {
-                            let! deliveryResult = route (resolveLocalAddress registry) resolveRemoteAddress registry forward post envelope
-                            match deliveryResult with
-                            | EnvelopePosted posted ->  posted |> ignore //logging
-                            | EnvelopeForwarded forwarded ->  forwarded |> ignore //logging
-                        } |> ignore
+                        let! deliveryResult = route (resolveLocalAddress (Registry state)) resolveRemoteAddress (Registry state) forward post envelope
+
+                        //match deliveryResult with
+                        //| Ok (EnvelopePosted posted) ->  posted //logging
+                        //| Ok (EnvelopeForwarded forwarded) ->  forwarded //logging
                         return! messageLoop (Registry state)
                     | RegisterAgent (command, replyChannel) ->
-                        let address = Address.create
+                        let address = Address.create (Guid.NewGuid())
                         let newState = state.Add (address, command.Payload.Agent)
-                        return! messageLoop (Registry newState)
+                       
                         
                         let agentRegistered: AgentRegistered = {
                             Payload = address
                             Timestamp = DateTimeOffset.Now
-                            Aggregate = Address.create //???
+                            Aggregate = Address.create (Guid.NewGuid())//???
                         }
                         replyChannel.Reply agentRegistered
+                        return! messageLoop (Registry newState)
+                        
                 }
 
                 messageLoop registry
@@ -96,17 +97,13 @@ module Primitives =
                 }
                 node.Post (Envelope envelope)
 
-            let create : Create<'state, 'message> = fun behavior (InitialState initialState) ->
+            let create : Create<'state, 'message> = fun behavior initialState ->
                 let agent = MailboxProcessor.Start(fun inbox ->
                     let rec messageLoop state = async {
                         let! stream = inbox.Receive()
-                        let! deserializationResult = deserialize stream
-                        match deserializationResult with
-                        | Ok message -> 
-                            let! newState = behavior state message
-                            return! messageLoop newState
-                        | Error error -> //log
-                            return! messageLoop state                                 
+                        let message = deserialize stream
+                        let newState = behavior state message
+                        return! messageLoop newState                              
                     }
 
                     messageLoop initialState
