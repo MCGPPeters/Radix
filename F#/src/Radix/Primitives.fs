@@ -13,7 +13,7 @@ module Primitives =
 
     type SerializationError = SerializationError of string
 
-    type Serialize<'message> = 'message -> Stream
+    type Serialize<'message> = 'message -> Stream -> unit
 
     type Behavior<'state, 'message> = 'state -> 'message -> 'state
 
@@ -89,7 +89,8 @@ module Primitives =
             )
 
             let send : Send<'message> = fun address message ->
-                let stream = serialize message
+                let stream = System.IO.MemoryStream()
+                serialize message stream
                 let envelope : Envelope = {
                     Payload = stream
                     Destination = address

@@ -15,21 +15,21 @@ type CellMessage<'a> =
 | Get of Address
 | Reply of 'a
 
-let serialize: Serialize<'message> = fun message ->
-    use stream = System.IO.MemoryStream()
-    use writer = new StreamWriter(stream)
-    use jsonWriter = new JsonTextWriter(writer)
+let serialize: Serialize<'message> = fun message stream ->
+    
+    let writer = new StreamWriter(stream)
+    let jsonWriter = new JsonTextWriter(writer)
     let ser = new JsonSerializer();
     ser.Serialize(jsonWriter, message);
     jsonWriter.Flush();
-    upcast stream
 
 let deserialize : Deserialize<'message> = fun stream ->
-    stream.CanRead = true
+    stream.Seek (int64(0), SeekOrigin.Begin);
     use reader = new StreamReader(stream)
     use jsonReader = new JsonTextReader(reader)
     let ser = new JsonSerializer();
-    ser.Deserialize<'message>(jsonReader);
+    let m = ser.Deserialize<'message>(jsonReader);
+    m
     
 
 let forward: Forward = fun _ __ ->
@@ -51,7 +51,7 @@ let cellBehavior = fun state message ->
         value
 
 [<Property>]
-let ``Getting the value of a cell returns the expected value`` () =
+let ``Getting the value of a cell returns the expected value`` (value: int) =
     let cell = primitives.Create cellBehavior 1
     let customer = primitives.Create (fun state message ->
             match message with
@@ -61,6 +61,6 @@ let ``Getting the value of a cell returns the expected value`` () =
             | _ -> 
                 Assert.False(true)
                 state) 0
-    primitives.Send cell (Set 2)
+    primitives.Send cell (Set value)
     primitives.Send cell (Get customer)
     

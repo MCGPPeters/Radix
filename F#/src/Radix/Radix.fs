@@ -9,7 +9,7 @@ type Undefined = exn
 
 type Hash = Hash of byte[]
 
-type Address = private Address of Hash
+type Address = Address of Hash
 
 module Address = 
 
