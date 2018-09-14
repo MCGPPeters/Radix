@@ -9,8 +9,6 @@ module Primitives =
 
     type DeserializationError = DeserializationError of string
 
-    type Deserialize<'message> = Stream -> 'message
-
     type SerializationError = SerializationError of string
 
     type Serialize<'message> = 'message -> Stream -> unit
@@ -23,8 +21,8 @@ module Primitives =
 
     type Send<'message> = Address -> 'message -> unit
 
-    let post: Post =
-                fun (Registry registry') envelope -> 
+    let post: Post<'message> =
+                fun (Registry registry') deserialize envelope -> 
                     let (Agent entry) = registry'.Item envelope.Destination
                     entry.Post envelope.Payload
                     {
@@ -33,21 +31,21 @@ module Primitives =
                         Payload = envelope
                     } 
 
-    type RegisterAgent = {
-        Agent: Agent
+    type RegisterAgent<'message> = {
+        Agent: Agent<'message>
     }
     
     type AgentRegistered = Event<Address>
     
-    type RegisterAgentCommand = Command<RegisterAgent>
+    type RegisterAgentCommand<'message> = Command<RegisterAgent<'message>>
 
-    type NodeMessage =
-    | Envelope of Envelope
-    | RegisterAgent of RegisterAgentCommand * AsyncReplyChannel<AgentRegistered>    
+    type NodeMessage<'message> =
+    | Envelope of Envelope<'message>
+    | RegisterAgent of RegisterAgentCommand<'message> * AsyncReplyChannel<AgentRegistered> 
 
-    type Node = Node of MailboxProcessor<NodeMessage>
+    type Node<'message> = Node of MailboxProcessor<NodeMessage<'message>>
 
-    type SendMessage<'message> = Node -> Serialize<'message> -> Address -> 'message -> Async<unit>
+    type SendMessage<'message> = Node<'message> -> Serialize<'message> -> Address -> 'message -> Async<unit>
     
     type Primitives<'state, 'message> = {
         Send: Send<'message>
@@ -56,7 +54,7 @@ module Primitives =
 
     module Node = 
 
-        let create registry (deserialize: Deserialize<'message>) (serialize: Serialize<'message>) (resolveRemoteAddress: ResolveRemoteAddress) (forward: Forward) =
+        let create registry (deserialize: Deserialize<'message>) (serialize: Serialize<'message>) (resolveRemoteAddress: ResolveRemoteAddress<'message>) (forward: Forward) =
             
             let node = MailboxProcessor.Start(fun inbox ->
                 let rec messageLoop (Registry state) = async {
@@ -64,7 +62,7 @@ module Primitives =
 
                     match message with
                     | Envelope envelope ->
-                        let! deliveryResult = route (resolveLocalAddress (Registry state)) resolveRemoteAddress (Registry state) forward post envelope
+                        let! deliveryResult = route (resolveLocalAddress (Registry state)) resolveRemoteAddress (Registry state) forward deserialize post envelope
 
                         //match deliveryResult with
                         //| Ok (EnvelopePosted posted) ->  posted //logging
@@ -89,10 +87,9 @@ module Primitives =
             )
 
             let send : Send<'message> = fun address message ->
-                let stream = System.IO.MemoryStream()
-                serialize message stream
-                let envelope : Envelope = {
-                    Payload = stream
+
+                let envelope : Envelope<'message> = {
+                    Payload = message
                     Destination = address
                     Principal = Threading.Thread.CurrentPrincipal                 
                 }
@@ -101,8 +98,7 @@ module Primitives =
             let create : Create<'state, 'message> = fun behavior initialState ->
                 let agent = MailboxProcessor.Start(fun inbox ->
                     let rec messageLoop state = async {
-                        let! stream = inbox.Receive()
-                        let message = deserialize stream
+                        let! message = inbox.Receive()
                         let newState = behavior state message
                         return! messageLoop newState                              
                     }
@@ -110,7 +106,7 @@ module Primitives =
                     messageLoop initialState
                 )
 
-                let registerAgentCommand: RegisterAgentCommand = {
+                let registerAgentCommand: RegisterAgentCommand<'message> = {
                     Payload = {Agent = Agent agent}
                     Timestamp = DateTimeOffset.Now
                     Principal = Threading.Thread.CurrentPrincipal 

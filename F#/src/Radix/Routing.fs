@@ -7,11 +7,11 @@ module Types =
     open System.IO
     open System.Security.Principal
 
-    
-    type Envelope = {
+
+    type Envelope<'message> = {
         Destination: Address
         Principal: IPrincipal
-        Payload: Stream
+        Payload: 'message
     }
 
     type RemoteRoutableEnvelope = {
@@ -21,41 +21,43 @@ module Types =
         Uri: Uri
     }
 
-    type LocallyRoutableEnvelope = {
+    type LocallyRoutableEnvelope<'message> = {
         Destination: Address
         Principal: IPrincipal
-        Payload: Stream
-        Agent: Agent
+        Payload: 'message
+        Agent: Agent<'message>
     }
 
-    type RoutableEnvelope = 
-        | LocallyRoutableEnvelope of LocallyRoutableEnvelope
+    type RoutableEnvelope<'message> = 
+        | LocallyRoutableEnvelope of LocallyRoutableEnvelope<'message>
         | RemoteRouteableEnvelope of RemoteRoutableEnvelope
 
     type AddressNotFoundError = AddressNotFoundError of string
 
-    type ResolveLocalAddress = Envelope -> Option<LocallyRoutableEnvelope>
+    type ResolveLocalAddress<'message> = Envelope<'message> -> Option<LocallyRoutableEnvelope<'message>>
 
-    type ResolveRemoteAddress = Envelope -> AsyncResult<RemoteRoutableEnvelope, AddressNotFoundError>
+    type ResolveRemoteAddress<'message> = Envelope<'message> -> AsyncResult<RemoteRoutableEnvelope, AddressNotFoundError>
 
-    type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Envelope -> AsyncResult<RoutableEnvelope, AddressNotFoundError>
+    type Resolve<'message> = ResolveLocalAddress<'message> -> ResolveRemoteAddress<'message> -> Envelope<'message> -> AsyncResult<RoutableEnvelope<'message>, AddressNotFoundError>
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
-    type EnvelopePosted = Event<LocallyRoutableEnvelope>
+    type EnvelopePosted<'message> = Event<LocallyRoutableEnvelope<'message>>
 
     type EnvelopeForwarded = Event<RemoteRoutableEnvelope>
 
-    type EnvelopeDelivered = 
-        | EnvelopePosted of EnvelopePosted
+    type EnvelopeDelivered<'message> = 
+        | EnvelopePosted of EnvelopePosted<'message>
         | EnvelopeForwarded of EnvelopeForwarded
 
-    type Post = Registry -> LocallyRoutableEnvelope -> EnvelopePosted
+    type Deserialize<'message> = Stream -> 'message
+
+    type Post<'message> = Registry<'message> -> Deserialize<'message> -> LocallyRoutableEnvelope<'message> -> EnvelopePosted<'message>
 
     type Forward = Uri -> RemoteRoutableEnvelope -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
 
-    type Deliver = Forward -> Post -> RoutableEnvelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
+    type Deliver<'message> = Forward -> Post<'message> -> RoutableEnvelope<'message> -> AsyncResult<EnvelopeDelivered<'message>, UnableToDeliverEnvelopeError>
 
-    type Route = Envelope -> AsyncResult<EnvelopeDelivered, UnableToDeliverEnvelopeError>
+    type Route<'message> = Envelope<'message> -> AsyncResult<EnvelopeDelivered<'message>, UnableToDeliverEnvelopeError>
 
             
