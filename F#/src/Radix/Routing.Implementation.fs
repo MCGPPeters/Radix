@@ -5,7 +5,7 @@ module internal Implementation =
     open Radix
     open Radix.Routing.Types
 
-    let resolve : Resolve = 
+    let resolve : Resolve<'message> = 
         fun resolveLocalAddress resolveRemoteAddress envelope ->
             match resolveLocalAddress envelope with
                 | Some locallyRoutableEnvelope -> AsyncResult.retn (LocallyRoutableEnvelope locallyRoutableEnvelope)
@@ -13,11 +13,11 @@ module internal Implementation =
                     resolveRemoteAddress envelope 
                     |> AsyncResult.map RemoteRouteableEnvelope
 
-    let deliver mailboxes : Deliver =
+    let deliver deserialize mailboxes : Deliver<'message> =
         fun forward post routeableEnvelope ->
             match routeableEnvelope with
                 | LocallyRoutableEnvelope envelope -> 
-                    post mailboxes envelope
+                    post mailboxes deserialize envelope
                     |> EnvelopePosted
                     |> AsyncResult.retn
                 | RemoteRouteableEnvelope envelope ->
@@ -29,14 +29,15 @@ module internal Implementation =
         resolveRemoteAddress
         registry
         forward
+        deserialize
         post
-        : Route = fun envelope ->
+        : Route<'message> = fun envelope ->
            envelope
            |> resolve resolveLocalAddress resolveRemoteAddress
            |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToDeliverEnvelopeError error)
-           |> AsyncResult.bind (deliver registry forward post)
+           |> AsyncResult.bind (deliver deserialize registry forward post)
 
-    let resolveLocalAddress (Registry registry) : ResolveLocalAddress = 
+    let resolveLocalAddress (Registry registry) : ResolveLocalAddress<'message> = 
         fun envelope -> 
             match registry.TryFind envelope.Destination with
             | Some agent -> 

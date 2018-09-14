@@ -38,7 +38,7 @@ let forward: Forward = fun _ __ ->
 
 let registry = Registry (Map.empty)
 
-let resolveRemoteAddress: ResolveRemoteAddress = fun _ ->
+let resolveRemoteAddress: ResolveRemoteAddress<'message> = fun _ ->
     AsyncResult.ofError (AddressNotFoundError "")
 
 let primitives = Node.create registry deserialize serialize resolveRemoteAddress forward

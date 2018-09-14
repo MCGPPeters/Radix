@@ -19,9 +19,9 @@ module Address =
 
     let value (Address address) = address
 
-type Agent = Agent of MailboxProcessor<Stream>
+type Agent<'message> = Agent of MailboxProcessor<'message>
 
-type Registry = Registry of Map<Address, Agent>
+type Registry<'message> = Registry of Map<Address, Agent<'message>>
 
 type Command<'a> = {
     Payload: 'a
