@@ -4,38 +4,41 @@ module internal Implementation =
 
     open Radix
     open Radix.Routing.Types
+    open System
+    open System.IO
 
-    let resolve : Resolve<'message> = 
-        fun resolveLocalAddress resolveRemoteAddress envelope ->
-            match resolveLocalAddress envelope with
-                | Some locallyRoutableEnvelope -> AsyncResult.retn (LocallyRoutableEnvelope locallyRoutableEnvelope)
-                | None -> 
-                    resolveRemoteAddress envelope 
-                    |> AsyncResult.map RemoteRouteableEnvelope
+    
 
-    let deliver deserialize mailboxes : Deliver<'message> =
-        fun forward post routeableEnvelope ->
+    let post: Post<'message> =
+            fun (Registry registry') message destination -> 
+                let (Agent entry) = registry'.Item destination
+                entry.Post message
+
+    let deliver mailboxes : Deliver<'message> =
+        fun serialize deserialize forward post routeableEnvelope ->
             match routeableEnvelope with
                 | LocallyRoutableEnvelope envelope -> 
-                    post mailboxes deserialize envelope
-                    |> EnvelopePosted
+                    let message = match envelope.Payload with
+                                  | Stream stream -> deserialize stream
+                                  | Message message' -> message'
+                    post mailboxes message envelope.Destination
+                    {
+                        Aggregate = envelope.Destination
+                        Timestamp = DateTimeOffset.Now
+                        Payload = envelope
+                    } 
+                    |> EnvelopePosted 
                     |> AsyncResult.retn
                 | RemoteRouteableEnvelope envelope ->
-                    forward envelope.Uri envelope
+                    let stream = new MemoryStream() 
+                    let envelope' = match envelope.Payload with
+                                    | Stream _ -> envelope
+                                    | Message message' -> 
+                                        let s = serialize message' stream
+                                        {envelope with Payload = (Radix.Stream s)}
+                    
+                    forward envelope.Uri envelope'
                         |> AsyncResult.map EnvelopeForwarded
-
-    let route 
-        resolveLocalAddress
-        resolveRemoteAddress
-        registry
-        forward
-        deserialize
-        post
-        : Route<'message> = fun envelope ->
-           envelope
-           |> resolve resolveLocalAddress resolveRemoteAddress
-           |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToDeliverEnvelopeError error)
-           |> AsyncResult.bind (deliver deserialize registry forward post)
 
     let resolveLocalAddress (Registry registry) : ResolveLocalAddress<'message> = 
         fun envelope -> 
@@ -48,3 +51,25 @@ module internal Implementation =
                     Agent = agent
                 }
             | _ -> None
+
+    let resolve : Resolve<'message> = 
+        fun resolveLocalAddress resolveRemoteAddress envelope ->
+            match resolveLocalAddress envelope with
+                | Some locallyRoutableEnvelope -> AsyncResult.retn (LocallyRoutableEnvelope locallyRoutableEnvelope)
+                | None -> 
+                    resolveRemoteAddress envelope 
+                    |> AsyncResult.map RemoteRouteableEnvelope
+
+    let route 
+        resolveRemoteAddress
+        registry
+        forward
+        serialize
+        deserialize
+        : Route<'message> = fun envelope ->
+           envelope
+           |> resolve (resolveLocalAddress registry) resolveRemoteAddress
+           |> AsyncResult.mapError (fun  (AddressNotFoundError error) -> UnableToDeliverEnvelopeError error)
+           |> AsyncResult.bind (deliver registry forward serialize deserialize post)
+
+    

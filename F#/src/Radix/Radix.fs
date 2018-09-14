@@ -18,6 +18,11 @@ module Address =
         Address (Hash (sha1.ComputeHash(guid.ToByteArray())))
 
     let value (Address address) = address
+    
+
+type Payload<'message> =
+    | Message of 'message
+    | Stream of Stream
 
 type Agent<'message> = Agent of MailboxProcessor<'message>
 
