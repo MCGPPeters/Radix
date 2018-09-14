@@ -7,6 +7,7 @@ open Radix.Routing.Types
 open System.IO
 open Newtonsoft.Json
 open Xunit
+open System.Threading.Tasks
 
 type Set<'a> = Set of 'a
 
@@ -24,7 +25,7 @@ let serialize: Serialize<'message> = fun message stream ->
     jsonWriter.Flush();
 
 let deserialize : Deserialize<'message> = fun stream ->
-    stream.Seek (int64(0), SeekOrigin.Begin);
+    stream.Seek (int64(0), SeekOrigin.Begin) |> ignore
     use reader = new StreamReader(stream)
     use jsonReader = new JsonTextReader(reader)
     let ser = new JsonSerializer();
@@ -50,17 +51,22 @@ let cellBehavior = fun state message ->
     | Set value -> 
         value
 
-[<Property>]
+let exposeBehavior (taskCompletionSource: TaskCompletionSource<'state *' message>) : Behavior<'state, 'message> = fun state message ->
+    taskCompletionSource.SetResult(state, message)
+    state
+
+
+
+[<Property(Verbose = true)>]
 let ``Getting the value of a cell returns the expected value`` (value: int) =
+    let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
+
     let cell = primitives.Create cellBehavior 1
-    let customer = primitives.Create (fun state message ->
-            match message with
-            | Reply value -> 
-                Assert.Equal(2, value)
-                value
-            | _ -> 
-                Assert.False(true)
-                state) 0
+    let customer = primitives.Create (exposeBehavior taskCompletionSource) 0
+    
     primitives.Send cell (Set value)
     primitives.Send cell (Get customer)
+
+    let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
+    Assert.Equal(value, reply)
     
