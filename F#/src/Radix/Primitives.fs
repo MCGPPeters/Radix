@@ -5,13 +5,7 @@ open Radix.Routing.Types
 open Radix.Routing.Implementation
 open System
 
-module Primitives =
-
-    type DeserializationError = DeserializationError of string
-
-    type SerializationError = SerializationError of string
-
-    type Serialize<'message> = 'message -> Stream -> unit
+module Primitives =   
 
     type Behavior<'state, 'message> = 'state -> 'message -> 'state
 
@@ -21,15 +15,7 @@ module Primitives =
 
     type Send<'message> = Address -> 'message -> unit
 
-    let post: Post<'message> =
-                fun (Registry registry') deserialize envelope -> 
-                    let (Agent entry) = registry'.Item envelope.Destination
-                    entry.Post envelope.Payload
-                    {
-                        Aggregate = envelope.Destination
-                        Timestamp = DateTimeOffset.Now
-                        Payload = envelope
-                    } 
+    type Receive<'message> = Envelope<'message> -> unit
 
     type RegisterAgent<'message> = {
         Agent: Agent<'message>
@@ -45,16 +31,17 @@ module Primitives =
 
     type Node<'message> = Node of MailboxProcessor<NodeMessage<'message>>
 
-    type SendMessage<'message> = Node<'message> -> Serialize<'message> -> Address -> 'message -> Async<unit>
-    
     type Primitives<'state, 'message> = {
         Send: Send<'message>
         Create: Create<'state, 'message>
+        Receive: Receive<'message>
     }        
 
     module Node = 
 
-        let create registry (deserialize: Deserialize<'message>) (serialize: Serialize<'message>) (resolveRemoteAddress: ResolveRemoteAddress<'message>) (forward: Forward) =
+        let create (deserialize: Deserialize<'message>) (serialize: Serialize<'message>) (resolveRemoteAddress: ResolveRemoteAddress<'message>) (forward: Forward<'message>) =
+            
+            let registry = Registry (Map.empty)
             
             let node = MailboxProcessor.Start(fun inbox ->
                 let rec messageLoop (Registry state) = async {
@@ -62,7 +49,7 @@ module Primitives =
 
                     match message with
                     | Envelope envelope ->
-                        let! deliveryResult = route (resolveLocalAddress (Registry state)) resolveRemoteAddress (Registry state) forward deserialize post envelope
+                        let! deliveryResult = route resolveRemoteAddress (Registry state)  serialize deserialize forward envelope
 
                         //match deliveryResult with
                         //| Ok (EnvelopePosted posted) ->  posted //logging
@@ -89,7 +76,7 @@ module Primitives =
             let send : Send<'message> = fun address message ->
 
                 let envelope : Envelope<'message> = {
-                    Payload = message
+                    Payload = (Message message)
                     Destination = address
                     Principal = Threading.Thread.CurrentPrincipal                 
                 }
@@ -118,4 +105,6 @@ module Primitives =
             {
                 Create = create
                 Send = send
+                Receive = fun envelope ->
+                    node.Post (Envelope envelope)
             }            
