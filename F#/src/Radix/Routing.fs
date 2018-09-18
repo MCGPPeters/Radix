@@ -8,20 +8,20 @@ module Types =
     open System.Security.Principal
 
     type Envelope<'message> = {
-        Destination: Address
+        Destination: Address<'message>
         Principal: IPrincipal
         Payload: Payload<'message>
     }
 
     type RemoteRoutableEnvelope<'message> = {
-        Destination: Address
+        Destination: Address<'message>
         Principal: IPrincipal
         Payload: Payload<'message>
         Uri: Uri
     }
 
     type LocallyRoutableEnvelope<'message> = {
-        Destination: Address
+        Destination: Address<'message>
         Principal: IPrincipal
         Payload: Payload<'message>
         Agent: Agent<'message>
@@ -41,9 +41,9 @@ module Types =
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
-    type EnvelopePosted<'message> = Event<LocallyRoutableEnvelope<'message>>
+    type EnvelopePosted<'message> = Event<'message>
 
-    type EnvelopeForwarded<'message> = Event<RemoteRoutableEnvelope<'message>>
+    type EnvelopeForwarded<'message> = Event<'message>
 
     type EnvelopeDelivered<'message> = 
         | EnvelopePosted of EnvelopePosted<'message>
@@ -53,7 +53,7 @@ module Types =
 
     type Serialize<'message> = 'message -> Stream -> Stream
 
-    type Post<'message> = Registry<'message> -> 'message -> Address -> unit
+    type Post<'message> = Registry<'message> -> 'message -> Address<'message> -> unit
 
     type Forward<'message> = Uri -> RemoteRoutableEnvelope<'message> -> AsyncResult<EnvelopeForwarded<'message>, UnableToDeliverEnvelopeError>
 

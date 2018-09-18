@@ -9,16 +9,26 @@ type Undefined = exn
 
 type Hash = Hash of byte[]
 
-type Address = Address of Hash
-
-module Address = 
-
-    let create (guid: Guid) = 
-        let sha1 = SHA1.Create();
-        Address (Hash (sha1.ComputeHash(guid.ToByteArray())))
-
-    let value (Address address) = address
+[<AbstractClass>]
+type Address<'message>(guid: Guid) = 
+    member private this.Hash = 
+        let sha1 = SHA1.Create()
+        Hash (sha1.ComputeHash(guid.ToByteArray()))
     
+    interface IComparable<Address<'message>> with
+        member x.CompareTo(y) = 
+            let (Hash x) = x.Hash
+            let (Hash y) = y.Hash
+            BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
+
+    interface IComparable with 
+        member x.CompareTo(y) = 
+            let (Hash x) = x.Hash
+            let address: Address<'message> = (downcast y) 
+            let (Hash y) = address.Hash
+            BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
+
+    abstract member Send : 'message -> unit 
 
 type Payload<'message> =
     | Message of 'message
@@ -26,17 +36,16 @@ type Payload<'message> =
 
 type Agent<'message> = Agent of MailboxProcessor<'message>
 
-type Registry<'message> = Registry of Map<Address, Agent<'message>>
+type Registry<'message> = Registry of Map<Address<'message>, Agent<'message>>
 
-type Command<'a> = {
-    Payload: 'a
+type Command<'message> = {
+    Payload: 'message
     Principal: IPrincipal
     Timestamp: DateTimeOffset
 }
 
-type Event<'a> = {
-    Aggregate: Address
-    Payload: 'a
+type Event<'message> = {
+    Payload: 'message
     Timestamp: DateTimeOffset
 }
 

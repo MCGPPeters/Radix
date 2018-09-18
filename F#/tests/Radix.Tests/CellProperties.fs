@@ -14,7 +14,7 @@ type Set<'a> = Set of 'a
 
 type CellMessage<'a> = 
 | Set of 'a
-| Get of Address
+| Get of Address<CellMessage<'a>>
 | Reply of 'a
 
 let serialize: Serialize<'message> = fun message stream ->
@@ -46,7 +46,7 @@ let primitives = Node.create deserialize serialize resolveRemoteAddress forward
 let cellBehavior = fun state message ->
     match message with
     | Get customer -> 
-        primitives.Send customer (Reply state)
+        customer <-- (Reply state)
         state
     | Set value -> 
         value
@@ -64,8 +64,8 @@ let ``Getting the value of a cell returns the expected value`` (value: int) =
     let cell = primitives.Create cellBehavior 1
     let customer = primitives.Create (exposeBehavior taskCompletionSource) 0
     
-    primitives.Send cell (Set value)
-    primitives.Send cell (Get customer)
+    cell <-- (Set value)
+    cell <-- (Get customer)
 
     let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
     Assert.Equal(value, reply)
@@ -85,7 +85,7 @@ let ``Getting the value of a cell returns the expected value when message is rec
         }
 
     primitives.Receive envelope
-    primitives.Send cell (Get customer)
+    cell <-- (Get customer)
 
     let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
     Assert.Equal(value, reply)

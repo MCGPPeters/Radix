@@ -11,31 +11,37 @@ module Primitives =
 
     type InitialState<'s> = InitialState of 's
 
-    type Create<'state, 'message> = Behavior<'state, 'message> -> 'state -> Address
+    type Create<'state, 'message> = Behavior<'state, 'message> -> 'state -> Address<'message>
 
-    type Send<'message> = Address -> 'message -> unit
+    type Send<'message> = Address<'message> -> 'message -> unit
 
     type Receive<'message> = Envelope<'message> -> unit
 
     type RegisterAgent<'message> = {
+        Address: Address<'message>
         Agent: Agent<'message>
     }
     
-    type AgentRegistered = Event<Address>
+    type AgentRegistered<'message> = {
+        Address: Address<'message>
+        Agent: Agent<'message>
+    }
+
+    type AgentRegisteredEvent<'message> = Event<AgentRegistered<'message>>
     
     type RegisterAgentCommand<'message> = Command<RegisterAgent<'message>>
 
     type NodeMessage<'message> =
     | Envelope of Envelope<'message>
-    | RegisterAgent of RegisterAgentCommand<'message> * AsyncReplyChannel<AgentRegistered> 
-
-    type Node<'message> = Node of MailboxProcessor<NodeMessage<'message>>
+    | RegisterAgent of RegisterAgentCommand<'message> * AsyncReplyChannel<AgentRegisteredEvent<'message>> 
 
     type Primitives<'state, 'message> = {
-        Send: Send<'message>
         Create: Create<'state, 'message>
         Receive: Receive<'message>
     }        
+
+
+    let inline (<--) (address: Address<'message>) (message: 'message) = address.Send message
 
     module Node = 
 
@@ -43,7 +49,7 @@ module Primitives =
             
             let registry = Registry (Map.empty)
             
-            let node = MailboxProcessor.Start(fun inbox ->
+            let node : MailboxProcessor<NodeMessage<'message>> = MailboxProcessor.Start(fun inbox ->
                 let rec messageLoop (Registry state) = async {
                     let! message = inbox.Receive()
 
@@ -56,14 +62,14 @@ module Primitives =
                         //| Ok (EnvelopeForwarded forwarded) ->  forwarded //logging
                         return! messageLoop (Registry state)
                     | RegisterAgent (command, replyChannel) ->
-                        let address = Address.create (Guid.NewGuid())
-                        let newState = state.Add (address, command.Payload.Agent)
-                       
-                        
-                        let agentRegistered: AgentRegistered = {
-                            Payload = address
+
+                        let newState = state.Add (command.Payload.Address, command.Payload.Agent)
+   
+                        let agentRegistered: AgentRegisteredEvent<'message> = {
+                            Payload = { 
+                                Address = command.Payload.Address
+                                Agent = command.Payload.Agent}
                             Timestamp = DateTimeOffset.Now
-                            Aggregate = Address.create (Guid.NewGuid())//???
                         }
                         replyChannel.Reply agentRegistered
                         return! messageLoop (Registry newState)
@@ -73,14 +79,7 @@ module Primitives =
                 messageLoop registry
             )
 
-            let send : Send<'message> = fun address message ->
-
-                let envelope : Envelope<'message> = {
-                    Payload = (Message message)
-                    Destination = address
-                    Principal = Threading.Thread.CurrentPrincipal                 
-                }
-                node.Post (Envelope envelope)
+            
 
             let create : Create<'state, 'message> = fun behavior initialState ->
                 let agent = MailboxProcessor.Start(fun inbox ->
@@ -91,20 +90,32 @@ module Primitives =
                     }
 
                     messageLoop initialState
-                )
+                )                  
+
+                let guid = Guid.NewGuid()
+
+                let address = 
+                    {  new Address<'message>(guid) with            
+                            member this.Send m = 
+                                let envelope : Envelope<'message> = {
+                                    Payload = (Message m)
+                                    Destination = this
+                                    Principal = Threading.Thread.CurrentPrincipal                 
+                                }
+                                node.Post (Envelope envelope)}
 
                 let registerAgentCommand: RegisterAgentCommand<'message> = {
-                    Payload = {Agent = Agent agent}
+                    Payload = {Agent = Agent agent
+                               Address = address}
                     Timestamp = DateTimeOffset.Now
                     Principal = Threading.Thread.CurrentPrincipal 
                 }
                 let asyncReply = node.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
                 let agentRegistered = Async.RunSynchronously asyncReply
-                agentRegistered.Payload
+                agentRegistered.Payload.Address
 
             {
                 Create = create
-                Send = send
                 Receive = fun envelope ->
                     node.Post (Envelope envelope)
             }            
