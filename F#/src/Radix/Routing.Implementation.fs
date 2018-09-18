@@ -23,9 +23,8 @@ module internal Implementation =
                                   | Message message' -> message'
                     post mailboxes message envelope.Destination
                     {
-                        Aggregate = envelope.Destination
                         Timestamp = DateTimeOffset.Now
-                        Payload = envelope
+                        Payload = message
                     } 
                     |> EnvelopePosted 
                     |> AsyncResult.retn
