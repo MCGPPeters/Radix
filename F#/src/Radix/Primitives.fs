@@ -110,8 +110,10 @@ module Primitives =
                     Timestamp = DateTimeOffset.Now
                     Principal = Threading.Thread.CurrentPrincipal 
                 }
-                let asyncReply = node.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
-                let agentRegistered = Async.RunSynchronously asyncReply
+                let agentRegistered = 
+                    node.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
+                    |> Async.RunSynchronously
+
                 agentRegistered.Payload.Address
 
             {
