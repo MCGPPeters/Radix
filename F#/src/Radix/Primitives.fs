@@ -26,14 +26,10 @@ module Primitives =
         Address: Address<'message>
         Agent: Agent<'message>
     }
-
-    type AgentRegisteredEvent<'message> = Event<AgentRegistered<'message>>
     
-    type RegisterAgentCommand<'message> = Command<RegisterAgent<'message>>
-
     type NodeMessage<'message> =
     | Envelope of Envelope<'message>
-    | RegisterAgent of RegisterAgentCommand<'message> * AsyncReplyChannel<AgentRegisteredEvent<'message>> 
+    | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered<'message>> 
 
     type Primitives<'state, 'message> = {
         Create: Create<'state, 'message>
@@ -63,13 +59,11 @@ module Primitives =
                         return! messageLoop (Registry state)
                     | RegisterAgent (command, replyChannel) ->
 
-                        let newState = state.Add (command.Payload.Address, command.Payload.Agent)
+                        let newState = state.Add (command.Address, command.Agent)
    
-                        let agentRegistered: AgentRegisteredEvent<'message> = {
-                            Payload = { 
-                                Address = command.Payload.Address
-                                Agent = command.Payload.Agent}
-                            Timestamp = DateTimeOffset.Now
+                        let agentRegistered: AgentRegistered<'message> = {
+                                 Address = command.Address
+                                 Agent = command.Agent
                         }
                         replyChannel.Reply agentRegistered
                         return! messageLoop (Registry newState)
@@ -104,17 +98,16 @@ module Primitives =
                                 }
                                 node.Post (Envelope envelope)}
 
-                let registerAgentCommand: RegisterAgentCommand<'message> = {
-                    Payload = {Agent = Agent agent
-                               Address = address}
-                    Timestamp = DateTimeOffset.Now
-                    Principal = Threading.Thread.CurrentPrincipal 
+                let registerAgentCommand: RegisterAgent<'message> = {
+                    Agent = Agent agent
+                    Address = address
                 }
+
                 let agentRegistered = 
                     node.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
                     |> Async.RunSynchronously
 
-                agentRegistered.Payload.Address
+                agentRegistered.Address
 
             {
                 Create = create
