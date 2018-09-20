@@ -1,4 +1,4 @@
-module Tests
+module CellProperties
 
 open FsCheck.Xunit
 open Radix.Primitives
