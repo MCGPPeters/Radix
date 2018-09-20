@@ -38,8 +38,10 @@ type Agent<'message> = Agent of MailboxProcessor<'message>
 
 type Registry<'message> = Registry of Map<Address<'message>, Agent<'message>>
 
-type Command<'message> = {
+type Command<'message, 'response> = {
+    Origin: Address<'response>
     Payload: 'message
+    Version: Version
     Principal: IPrincipal
     Timestamp: DateTimeOffset
 }
