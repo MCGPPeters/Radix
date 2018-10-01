@@ -89,6 +89,8 @@ type InventoryCommand =
     | CheckInItemsToInventory of Command<CheckInItemsToInventory, Event<ItemsCheckedInToInventory>>
     | RemoveItemsFromInventory of Command<RemoveItemsFromInventory, Event<ItemsRemovedFromInventory>>
 
+
+
 let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
     match message with       
     | DeactivateInventoryItem deactivateInventoryItem ->

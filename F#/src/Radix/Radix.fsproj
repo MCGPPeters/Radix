@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Radix.fs" />
+    <Compile Include="Restoring.fs" />
     <Compile Include="Routing.fs" />
     <Compile Include="Routing.Implementation.fs" />
     <Compile Include="Primitives.fs" />
