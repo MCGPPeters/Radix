@@ -8,36 +8,18 @@ module Types =
     open System.Security.Principal
 
     type Envelope<'message> = {
-        Destination: Address<'message>
+        Destination: Destination
         Principal: IPrincipal
         Payload: Payload<'message>
     }
-
-    type RemoteRoutableEnvelope<'message> = {
-        Destination: Address<'message>
-        Principal: IPrincipal
-        Payload: Payload<'message>
-        Uri: Uri
-    }
-
-    type LocallyRoutableEnvelope<'message> = {
-        Destination: Address<'message>
-        Principal: IPrincipal
-        Payload: Payload<'message>
-        Agent: Agent<'message>
-    }
-
-    type RoutableEnvelope<'message> = 
-        | LocallyRoutableEnvelope of LocallyRoutableEnvelope<'message>
-        | RemoteRouteableEnvelope of RemoteRoutableEnvelope<'message>
 
     type AddressNotFoundError = AddressNotFoundError of string
 
-    type ResolveLocalAddress<'message> = Envelope<'message> -> Option<LocallyRoutableEnvelope<'message>>
+    type ResolveLocalAddress = Address -> Option<LocalAddress>
 
-    type ResolveRemoteAddress<'message> = Envelope<'message> -> AsyncResult<RemoteRoutableEnvelope<'message>, AddressNotFoundError>
+    type ResolveRemoteAddress = Address -> AsyncResult<RemoteAddress, AddressNotFoundError>
 
-    type Resolve<'message> = ResolveLocalAddress<'message> -> ResolveRemoteAddress<'message> -> Envelope<'message> -> AsyncResult<RoutableEnvelope<'message>, AddressNotFoundError>
+    type Resolve = ResolveLocalAddress -> ResolveRemoteAddress -> Address -> AsyncResult<Destination, AddressNotFoundError>
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
@@ -53,9 +35,9 @@ module Types =
 
     type Serialize<'message> = 'message -> Stream -> Stream
 
-    type Post<'message> = Registry<'message> -> 'message -> Address<'message> -> unit
+    type Post<'message> = Registry<'message> -> LocalAddress -> 'message -> EnvelopePosted<'message>
 
-    type Forward<'message> = Uri -> RemoteRoutableEnvelope<'message> -> AsyncResult<EnvelopeForwarded<'message>, UnableToDeliverEnvelopeError>
+    type Forward<'message> = RemoteAddress -> 'message -> AsyncResult<EnvelopeForwarded<'message>, UnableToDeliverEnvelopeError>
 
     type Deliver<'message> =  Serialize<'message> -> Deserialize<'message> -> Forward<'message> -> Post<'message> -> RoutableEnvelope<'message> -> AsyncResult<EnvelopeDelivered<'message>, UnableToDeliverEnvelopeError>
 

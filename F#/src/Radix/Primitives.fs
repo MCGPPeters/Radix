@@ -7,41 +7,46 @@ open System
 
 module Primitives =   
 
-    type Behavior<'state, 'message> = 'state -> 'message -> 'state
+    type Behavior<'state, 'message> = ^state -> ^message -> ^state
 
     type InitialState<'s> = InitialState of 's
 
-    type Create<'state, 'message> = Behavior<'state, 'message> -> 'state -> Address<'message>
+    
 
-    type Send<'message> = Address<'message> -> 'message -> unit
+    type Send<'message> = Address -> 'message -> unit
 
     type Receive<'message> = Envelope<'message> -> unit
 
     type RegisterAgent<'message> = {
-        Address: Address<'message>
+        Address: Address
         Agent: Agent<'message>
     }
     
     type AgentRegistered<'message> = {
-        Address: Address<'message>
+        Address: Address
         Agent: Agent<'message>
     }
     
-    type NodeMessage<'message> =
-    | Envelope of Envelope<'message>
+    type NodeMessage =
+    | Envelope of Envelope
     | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered<'message>> 
 
-    type Primitives<'state, 'message> = {
-        Create: Create<'state, 'message>
-        Receive: Receive<'message>
-    }        
+    type Node< ^message> = MailboxProcessor<NodeMessage>
 
+    type Create< ^state, ^message> = Behavior< ^state, ^message> -> ^state -> Address
 
-    let inline (<--) (address: Address<'message>) (message: 'message) = address.Send message
+    type Primitives< ^state, ^message> = {
+        Send: Send< ^message>
+        Create: Create< ^state, ^message>
+        Receive: Receive< ^message>
+    }
+    
+   
+
 
     module Node = 
 
-        let create (deserialize: Deserialize<'message>) (serialize: Serialize<'message>) (resolveRemoteAddress: ResolveRemoteAddress<'message>) (forward: Forward<'message>) =
+        let inline create (deserialize: Deserialize< ^message>) (serialize: Serialize< ^message>) (resolveRemoteAddress: ResolveRemoteAddress< ^message>) (forward: Forward< ^message>) =
             
             let registry = Registry (Map.empty)
             
@@ -75,8 +80,17 @@ module Primitives =
 
             
 
-            let create : Create<'state, 'message> = fun behavior initialState ->
-                let agent = MailboxProcessor.Start(fun inbox ->
+            let inline create (behavior: Behavior< ^state, ^message>) initialState =
+                let agent: MailboxProcessor<'message> = MailboxProcessor.Start(fun inbox ->
+                    
+                    let inline send address (message: ^message) = 
+                        let envelope  = {
+                            Payload = (Message message)
+                            Destination = address
+                            Principal = Threading.Thread.CurrentPrincipal                 
+                        }
+                        node.Post (Envelope envelope)
+
                     let rec messageLoop state = async {
                         let! message = inbox.Receive()
                         let newState = behavior state message
@@ -87,16 +101,7 @@ module Primitives =
                 )                  
 
                 let guid = Guid.NewGuid()
-
-                let address = 
-                    {  new Address<'message>(guid) with            
-                            member this.Send m = 
-                                let envelope : Envelope<'message> = {
-                                    Payload = (Message m)
-                                    Destination = this
-                                    Principal = Threading.Thread.CurrentPrincipal                 
-                                }
-                                node.Post (Envelope envelope)}
+                let address = Address.create guid
 
                 let registerAgentCommand: RegisterAgent<'message> = {
                     Agent = Agent agent
@@ -109,7 +114,15 @@ module Primitives =
 
                 agentRegistered.Address
 
+            let inline send address (message: ^message) = 
+                    let envelope  = {
+                        Payload = (Message message)
+                        Destination = address
+                        Principal = Threading.Thread.CurrentPrincipal                 
+                    }
+                    node.Post (Envelope envelope)
             {
+                Send = (<--)
                 Create = create
                 Receive = fun envelope ->
                     node.Post (Envelope envelope)
