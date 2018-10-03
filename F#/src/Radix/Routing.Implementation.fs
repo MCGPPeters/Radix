@@ -10,7 +10,7 @@ module internal Implementation =
     
 
     let post: Post<'message> =
-            fun (Registry registry') message destination -> 
+            fun (Registry registry') message (destination: Address) -> 
                 let (Agent entry) = registry'.Item destination
                 entry.Post message
 

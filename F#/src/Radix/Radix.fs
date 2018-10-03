@@ -7,39 +7,51 @@ open System.Security.Cryptography
 
 type Undefined = exn
 
+type Lambda<'a> =
+    abstract Invoke<'b> : 'b -> 'a
+
 type Hash = Hash of byte[]
 
-[<AbstractClass>]
-type Address<'message>(guid: Guid) = 
-    member private this.Hash = 
+type Address = Address of Hash
+
+module Address = 
+
+    let internal create (guid: Guid) = 
         let sha1 = SHA1.Create()
-        Hash (sha1.ComputeHash(guid.ToByteArray()))
+        Address (Hash (sha1.ComputeHash(guid.ToByteArray())))
+
+type LocalAddress = Address
+
+type RemoteAddress = {
+    Uri: Uri
+    Address: Address
+    }
+
+type Envelope = interface end
+
+type Envelope<'message> = {
+    Message: 'message
+    }
+    with interface Envelope
+
+module Envelope =
     
-    interface IComparable<Address<'message>> with
-        member x.CompareTo(y) = 
-            let (Hash x) = x.Hash
-            let (Hash y) = y.Hash
-            BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
+    let pack (envelope: Envelope<'message>) = envelope :> Envelope
 
-    interface IComparable with 
-        member x.CompareTo(y) = 
-            let (Hash x) = x.Hash
-            let address: Address<'message> = (downcast y) 
-            let (Hash y) = address.Hash
-            BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
-
-    abstract member Send : 'message -> unit 
+type Destination =
+    | Local of LocalAddress
+    | Remote of RemoteAddress
 
 type Payload<'message> =
     | Message of 'message
     | Stream of Stream
 
-type Agent<'message> = Agent of MailboxProcessor<'message>
+type Agent = Agent of MailboxProcessor<Envelope>
 
-type Registry<'message> = Registry of Map<Address<'message>, Agent<'message>>
+type Registry<'message> = Registry of Map<Address, Agent>
 
 type Command<'message, 'response> = {
-    Origin: Address<'response>
+    Origin: Address
     Payload: 'message
     Version: Version
     Principal: IPrincipal
