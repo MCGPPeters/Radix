@@ -73,7 +73,7 @@ module Routing =
 
     type Agent = Agent of MailboxProcessor<Envelope>
 
-    type Registry = Registry of Map<Address, Agent>
+    type Registry = Registry of FSharp.Collections.Map<Address, Agent>
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
@@ -87,6 +87,7 @@ type BoundedContext = BoundedContext of MailboxProcessor<Envelope>
 module BoundedContext =
  
     open Routing
+    open System
 
     let create (resolve : Resolve) (forward: Forward) (Registry registry) =
 
@@ -96,7 +97,13 @@ module BoundedContext =
                     match registry.TryFind envelope.Address with
                     | Some (Agent agent) -> 
                         agent.Post envelope
-                    | _ -> None
+                    | _ -> 
+                        let! resolveResult = resolve envelope.Address
+                        match resolveResult with
+                        | Ok uri-> 
+                            let! forwardResult = forward uri envelope
+                            forwardResult |> ignore // log
+                        | Error error -> error |> ignore //log
                     return! messageLoop (Registry state)
                 }
                     
