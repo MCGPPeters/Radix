@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="File1.fs" />
+    <Compile Include="Root.fs" />
     <Compile Include="Radix.fs" />
     <Compile Include="Restoring.fs" />
     <Compile Include="Routing.fs" />
