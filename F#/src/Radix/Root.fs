@@ -1,4 +1,4 @@
-﻿module Root
+﻿namespace Root
 
 open System.IO
 open System
@@ -26,16 +26,15 @@ type Validate<'t> = 't -> Result<Validated<'t>, ValidationError>
 
 type Map<'a, 'b> = Validated<'a> -> 'b
 
-
+type Lambda<'R> =
+        abstract Invoke<'T> : 'T -> 'R
 
 type Envelope =
-    abstract Open<'message> : unit -> 'message
     abstract Address: Address
 and Envelope<'message> = { 
         Message : 'message
         Address: Address }
 with interface Envelope with
-        member this.Open<'message> () = this.Message
         member this.Address = this.Address
 
 type DTO<'payload> = {
@@ -147,9 +146,12 @@ module BoundedContext =
         )
 
         let (BoundedContext mailboxProcessor) = context
+
         let inline pack (envelope: Envelope<'message>) = envelope :> Envelope
 
-        let inline send (address: Address) (message: ^m) =
+        let inline unpack (envelope: Envelope) = envelope :?> Envelope<'message>
+
+        let inline (-->) (address: Address) (message: ^m) =
             {   
                 Address = address
                 Message = message }
@@ -165,9 +167,9 @@ module BoundedContext =
                         let rec inline messageLoop state = async {
                             let! envelope = inbox.Receive()
 
-                            let message = envelope.Open()
+                            let envelope' = envelope |> unpack
                         
-                            let newState = behavior state message
+                            let newState = behavior state envelope'.Message
 
                             return! messageLoop newState                              
                         }
@@ -197,5 +199,3 @@ module IO =
     type Accept<'payload, 'message> = Input<'payload, 'message> -> BoundedContext -> Result<PayloadAccepted<'payload>, PayloadDeclined<'payload>>
 
     type Publish<'payload, 'message> = Output<'message, 'payload> -> Envelope<'message> -> unit
-
-

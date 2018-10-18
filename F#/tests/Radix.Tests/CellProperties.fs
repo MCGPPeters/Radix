@@ -4,6 +4,7 @@ open FsCheck.Xunit
 open Radix.Primitives
 open Radix
 open Radix.Routing.Types
+open Root
 open System.IO
 open Newtonsoft.Json
 open Xunit
