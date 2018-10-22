@@ -8,7 +8,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregateProperties.fs" />
     <Compile Include="CellProperties.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

@@ -1,5 +1,5 @@
-﻿module Restoring
+﻿//module Restoring
 
-open Radix
+//open Radix
 
-type Restore<'message> = Address<'message>
+//type Restore<'message> = Address<'message>

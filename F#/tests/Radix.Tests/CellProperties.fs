@@ -1,15 +1,11 @@
 module CellProperties
 
 open FsCheck.Xunit
-open Radix.Primitives
-open Radix
-open Radix.Routing.Types
 open Root
 open System.IO
 open Newtonsoft.Json
 open Xunit
 open System.Threading.Tasks
-open System.Threading
 
 type Set< ^a> = Set of ^a
 
@@ -37,23 +33,33 @@ let inline deserialize (stream: Stream) =
     
 
 let inline forward _ __ =
-    AsyncResult.ofError (UnableToDeliverEnvelopeError "")
+    AsyncResult.ofError (Root.Routing.UnableToDeliverEnvelopeError "")
 
 let inline resolveRemoteAddress _ =
-    AsyncResult.ofError (AddressNotFoundError "")
+    AsyncResult.ofError (Root.Routing.AddressNotFoundError "")
 
-let primitives = Node.create deserialize serialize resolveRemoteAddress forward
+let primitives = BoundedContext.create resolveRemoteAddress forward
 
-let inline cellBehavior state message = 
+let (<--) address message = 
+    let send = primitives |> fst
+    send address message
+
+let (*) behavior = 
+    let context = primitives |> snd
+    Actor.create context behavior
+
+let cellBehavior : Actor.Behavior<'state, 'message> = fun state message ->
     match message with
     | Get customer -> 
-        primitives.Send customer message 
+        customer <-- message 
         
         state
     | Set value -> 
         value
 
-let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * ^message>) : Behavior< ^state, ^message> = fun state message ->
+let ignoreBehavior : Actor.Behavior<'state, 'message> = fun state message -> state
+
+let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * ^message>) = fun state message ->
     taskCompletionSource.SetResult(state, message)
     state
 
@@ -63,33 +69,32 @@ let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * 
 let ``Getting the value of a cell returns the expected value`` (value: int) =
     let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
 
-    let cell = primitives.Create cellBehavior 1
-    let customer = primitives.Create (exposeBehavior taskCompletionSource) 0
-    let c2 = primitives.Create ((fun s m -> ignore) taskCompletionSource) ""
+    let cell = cellBehavior * 1
+    let customer = exposeBehavior taskCompletionSource * 0
     
-    primitives.Send cell (Set value)
-    primitives.Send cell (Get customer)
+    cell <-- (Set value)
+    cell <-- (Get customer)
 
     let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
     Assert.Equal(value, reply)
 
-[<Property(Verbose = true)>]
-let ``Getting the value of a cell returns the expected value when message is received as stream`` (value: int) =
-    let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
+//[<Property(Verbose = true)>]
+//let ``Getting the value of a cell returns the expected value when message is received as stream`` (value: int) =
+//    let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
 
-    let cell = primitives.Create cellBehavior 1
-    let customer = primitives.Create (exposeBehavior taskCompletionSource) 0
+//    let cell = cellBehavior * 1
+//    let customer = exposeBehavior taskCompletionSource * 0
     
-    let set = serialize (Set value) (new MemoryStream())
-    let envelope = {
-        Destination = cell
-        Principal = Thread.CurrentPrincipal
-        Payload = (Radix.Stream set)
-        }
+//    let set = serialize (Set value) (new MemoryStream())
+//    let envelope = {
+//        Destination = cell
+//        Principal = Thread.CurrentPrincipal
+//        Payload = (Radix.Stream set)
+//        }
 
-    primitives.Receive envelope
-    primitives.Send cell (Get customer)
+//    primitives.Receive envelope
+//    primitives.Send cell (Get customer)
 
-    let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
-    Assert.Equal(value, reply)
+//    let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
+//    Assert.Equal(value, reply)
     
