@@ -1,8 +1,8 @@
 ﻿module AggregateProperties
 
 open FsCheck.Xunit
-open Radix.Primitives
-open Radix
+//open Radix.Primitives
+//open Radix
 open Radix.Routing.Types
 open System.IO
 open Newtonsoft.Json
@@ -91,39 +91,71 @@ type InventoryCommand =
 
 
 
-let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
-    match message with       
-    | DeactivateInventoryItem deactivateInventoryItem ->
+//let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
+//    match message with       
+//    | DeactivateInventoryItem deactivateInventoryItem ->
         
-        match state.Version.Equals(deactivateInventoryItem.Version) with 
-        | true ->
-            let aggregateState = { state.Aggregate with Activated = false }
-            let newState = { state with Aggregate = aggregateState }
-            let inventoryItemDeactivated : Event<InventoryItemDeactivated> = {
-                    Payload = { Id = deactivateInventoryItem.Payload.Id }
-                    Timestamp = DateTimeOffset.Now
-                }
-            storeEvent (InventoryItemDeactivated inventoryItemDeactivated)
-            deactivateInventoryItem.Origin <-- inventoryItemDeactivated
-            Ok newState
-        | _ -> Error "Concurrency error"
+//        match state.Version.Equals(deactivateInventoryItem.Version) with 
+//        | true ->
+//            let aggregateState = { state.Aggregate with Activated = false }
+//            let newState = { state with Aggregate = aggregateState }
+//            let inventoryItemDeactivated : Event<InventoryItemDeactivated> = {
+//                    Payload = { Id = deactivateInventoryItem.Payload.Id }
+//                    Timestamp = DateTimeOffset.Now
+//                }
+//            storeEvent (InventoryItemDeactivated inventoryItemDeactivated)
+//            deactivateInventoryItem.Origin <-- inventoryItemDeactivated
+//            Ok newState
+//        | _ -> Error "Concurrency error"
 
-    | RenameInventoryItem renameInventoryItem ->
+//    | RenameInventoryItem renameInventoryItem ->
 
-        match state.Version.Equals(renameInventoryItem.Version) with 
-        | true ->
-            let aggregateState = { state.Aggregate with Name = renameInventoryItem.Payload.Name }
-            let newState = { state with Aggregate = aggregateState }
-            let inventoryItemRenamed : Event<InventoryItemRenamed> = {
-                    Payload = { 
-                        Id = renameInventoryItem.Payload.Id 
-                        Name = renameInventoryItem.Payload.Name}
-                    Timestamp = DateTimeOffset.Now
-                }
-            storeEvent (InventoryItemRenamed inventoryItemRenamed)
-            renameInventoryItem.Origin <-- inventoryItemRenamed
-            Ok newState
-        | _ -> Error "Concurrency error"
+//        match state.Version.Equals(renameInventoryItem.Version) with 
+//        | true ->
+//            let aggregateState = { state.Aggregate with Name = renameInventoryItem.Payload.Name }
+//            let newState = { state with Aggregate = aggregateState }
+//            let inventoryItemRenamed : Event<InventoryItemRenamed> = {
+//                    Payload = { 
+//                        Id = renameInventoryItem.Payload.Id 
+//                        Name = renameInventoryItem.Payload.Name}
+//                    Timestamp = DateTimeOffset.Now
+//                }
+//            storeEvent (InventoryItemRenamed inventoryItemRenamed)
+//            renameInventoryItem.Origin <-- inventoryItemRenamed
+//            Ok newState
+//        | _ -> Error "Concurrency error"//let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
+//    match message with       
+//    | DeactivateInventoryItem deactivateInventoryItem ->
+        
+//        match state.Version.Equals(deactivateInventoryItem.Version) with 
+//        | true ->
+//            let aggregateState = { state.Aggregate with Activated = false }
+//            let newState = { state with Aggregate = aggregateState }
+//            let inventoryItemDeactivated : Event<InventoryItemDeactivated> = {
+//                    Payload = { Id = deactivateInventoryItem.Payload.Id }
+//                    Timestamp = DateTimeOffset.Now
+//                }
+//            storeEvent (InventoryItemDeactivated inventoryItemDeactivated)
+//            deactivateInventoryItem.Origin <-- inventoryItemDeactivated
+//            Ok newState
+//        | _ -> Error "Concurrency error"
+
+//    | RenameInventoryItem renameInventoryItem ->
+
+//        match state.Version.Equals(renameInventoryItem.Version) with 
+//        | true ->
+//            let aggregateState = { state.Aggregate with Name = renameInventoryItem.Payload.Name }
+//            let newState = { state with Aggregate = aggregateState }
+//            let inventoryItemRenamed : Event<InventoryItemRenamed> = {
+//                    Payload = { 
+//                        Id = renameInventoryItem.Payload.Id 
+//                        Name = renameInventoryItem.Payload.Name}
+//                    Timestamp = DateTimeOffset.Now
+//                }
+//            storeEvent (InventoryItemRenamed inventoryItemRenamed)
+//            renameInventoryItem.Origin <-- inventoryItemRenamed
+//            Ok newState
+//        | _ -> Error "Concurrency error"
     //| CheckInItemsToInventory checkInItemsToInventory
     //| RemoveItemsFromInventory removeItemsFromInventory
 
