@@ -44,18 +44,19 @@ let (<--) address message =
     let send = primitives |> fst
     send address message
 
-let (*) behavior = 
+let (*) (behavior: Actor.Behavior<'state, 'message>) = 
     let context = primitives |> snd
     Actor.create context behavior
 
 let cellBehavior : Actor.Behavior<'state, 'message> = fun state message ->
     match message with
     | Get customer -> 
-        customer <-- message 
+        customer <-- (Reply state) 
         
         state
     | Set value -> 
         value
+    | _ -> state
 
 let ignoreBehavior : Actor.Behavior<'state, 'message> = fun state message -> state
 
@@ -75,8 +76,11 @@ let ``Getting the value of a cell returns the expected value`` (value: int) =
     cell <-- (Set value)
     cell <-- (Get customer)
 
-    let (_, (Reply reply)) = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
-    Assert.Equal(value, reply)
+    let t = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
+    match t with
+    | (_, Reply reply) -> 
+        Assert.Equal(value, reply)
+    | _ -> Assert.True false
 
 //[<Property(Verbose = true)>]
 //let ``Getting the value of a cell returns the expected value when message is received as stream`` (value: int) =

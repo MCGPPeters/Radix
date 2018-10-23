@@ -162,29 +162,29 @@ module Routing =
 
     type EnvelopeForwarded = Event<Envelope>
 
-    type Agent = Agent of MailboxProcessor<Envelope>
+    type Agent<'message> = Agent of MailboxProcessor<'message>
 
-    type Registry = Registry of FSharp.Collections.Map<Address, Agent>
+    type Registry<'message> = Registry of FSharp.Collections.Map<Address, Agent<'message>>
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
-    type Forward = Uri -> Envelope -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
+    type Forward<'message> = Uri -> 'message -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
 
 open Routing
 
-type RegisterAgent = {
-        Agent: Agent
+type RegisterAgent<'message> = {
+        Agent: Agent<'message>
     }
     
 type AgentRegistered = {
         Address: Address
     }
     
-type ContextCommand =
-    | Accept of Envelope
-    | RegisterAgent of RegisterAgent * AsyncReplyChannel<AgentRegistered> 
+type ContextCommand<'message> =
+    | Accept of Envelope<'message>
+    | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered> 
     
-type BoundedContext = BoundedContext of MailboxProcessor<ContextCommand>
+type BoundedContext<'message> = BoundedContext of MailboxProcessor<ContextCommand<'message>>
 
 module Actor = 
 
@@ -192,24 +192,20 @@ module Actor =
 
     type Create< 'state, 'message> = Behavior< 'state, 'message> -> 'state -> Address
 
-    let inline unpack (envelope: Envelope) = envelope :?> Envelope<'message>
-
-    let inline create (BoundedContext context): Create< 's, 'm> = fun (behavior: Behavior< 's, 'm>) initialState ->
-            let agent: MailboxProcessor<Envelope> = 
+    let inline create (BoundedContext context): Create< 'state, 'message> = fun (behavior: Behavior< 'state, 'message>) initialState ->
+            let agent: MailboxProcessor<'message> = 
                     MailboxProcessor.Start(fun inbox ->
                         let rec messageLoop state = async {
-                            let! envelope = inbox.Receive()
-
-                            let envelope' = envelope |> unpack
+                            let! message = inbox.Receive()
                         
-                            let newState = behavior state envelope'.Message
+                            let newState = behavior state message
 
-                            return! messageLoop newState                              
+                            return! messageLoop newState
                         }
 
                         messageLoop initialState
                     )   
-            let registerAgentCommand: RegisterAgent = {
+            let registerAgentCommand: RegisterAgent<'message> = {
                 Agent = Agent agent
             }
 
@@ -225,7 +221,7 @@ module BoundedContext =
 
     open Actor
 
-    let create (resolve : Resolve) (forward: Forward) =
+    let create (resolve : Resolve) (forward: Forward<'message>) =
 
         let registry = Map.empty
 
@@ -234,9 +230,9 @@ module BoundedContext =
                     let! command = inbox.Receive()
                     match command with
                     | Accept envelope ->
-                        match registry.TryFind (envelope.Address) with
+                        match state.TryFind (envelope.Address) with
                         | Some (Agent agent) -> 
-                            agent.Post envelope
+                            agent.Post envelope.Message
                         | _ -> 
                             let! resolveResult = resolve (envelope.Address)
                             match resolveResult with
@@ -272,12 +268,11 @@ module BoundedContext =
 
         let inline pack (envelope: Envelope<'message>) = envelope :> Envelope
 
-        let inline send (address: Address) (message: ^m) =
+        let inline send (address: Address) (message: 'm) =
             {   
                 Address = address
                 Message = message }
-            |> pack
-            |> Accept 
+            |> Accept
             |> mailboxProcessor.Post 
 
         send, context
@@ -291,6 +286,6 @@ module IO =
 
     type PayloadDeclined<'payload> = Event<'payload>
 
-    type Accept<'payload, 'message> = Input<'payload, 'message> -> BoundedContext -> Result<PayloadAccepted<'payload>, PayloadDeclined<'payload>>
+    type Accept<'payload, 'message> = Input<'payload, 'message> -> BoundedContext<'message> -> Result<PayloadAccepted<'payload>, PayloadDeclined<'payload>>
 
     type Publish<'payload, 'message> = Output<'message, 'payload> -> Envelope<'message> -> unit
