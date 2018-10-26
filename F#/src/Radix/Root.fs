@@ -104,13 +104,28 @@ module AsyncResultComputationExpression =
 
 type Hash = Hash of byte[]
 
-type Address = Address of Hash
-
-module Address = 
-
-    let create (guid: Guid) = 
+[<AbstractClass>]
+type Address<'message>(guid: Guid) = 
+    member private this.Hash = 
         let sha1 = SHA1.Create()
-        Address (Hash (sha1.ComputeHash(guid.ToByteArray())))
+        Hash (sha1.ComputeHash(guid.ToByteArray()))
+    
+    interface IComparable<Address<'message>> with
+        member x.CompareTo(y) = 
+            let (Hash x) = x.Hash
+            let (Hash y) = y.Hash
+            BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
+
+    interface IComparable with 
+        member x.CompareTo(y) = 
+            let (Hash x) = x.Hash
+            let address: Address<'message> = (downcast y) 
+            let (Hash y) = address.Hash
+            BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
+
+    abstract member Send : 'message -> unit
+
+    
 
 type ValidationError = Undefined
 
@@ -123,16 +138,14 @@ type Map<'a, 'b> = Validated<'a> -> 'b
 type Lambda<'R> =
         abstract Invoke<'T> : 'T -> 'R
 
-type Envelope =
-    abstract Address: Address
-and Envelope<'message> = { 
+
+type Envelope<'message> = { 
         Message : 'message
-        Address: Address }
-with interface Envelope with
-        member this.Address = this.Address
+        Address: Address<'message> }
+
 
 type DTO<'payload> = {
-    Address : Address
+    Address : Address<'payload>
     Payload : 'payload
     }
 
@@ -142,9 +155,9 @@ module TrustBoundary =
 
     type Listen = unit -> Stream
 
-    type Pack<'message> = Envelope<'message> -> Envelope
+    // type Pack<'message> = Envelope<'message> -> Envelope
 
-    type Input<'payload, 'message> = Deserialize<'payload> -> Validate<'payload> -> Map<'payload, 'message> -> Pack<'message> -> Result<Envelope, ValidationError>
+    type Input<'payload, 'message> = Deserialize<'payload> -> Validate<'payload> -> Map<'payload, 'message> ->  Result<Envelope<'message>, ValidationError>
 
     type Serialize<'message> = Envelope<'message> -> MemoryStream -> Stream
 
@@ -156,19 +169,19 @@ module Routing =
 
     type AddressNotFoundError = AddressNotFoundError of string
 
-    type Resolve = Address -> AsyncResult<Uri, AddressNotFoundError>
+    type Resolve<'message> = Address<'message> -> AsyncResult<Uri, AddressNotFoundError>
 
-    type EnvelopePosted = Event<Envelope>
+    type EnvelopePosted<'message> = Event<Envelope<'message>>
 
-    type EnvelopeForwarded = Event<Envelope>
+    type EnvelopeForwarded<'message> = Event<Envelope<'message>>
 
     type Agent<'message> = Agent of MailboxProcessor<'message>
 
-    type Registry<'message> = Registry of FSharp.Collections.Map<Address, Agent<'message>>
+    type Registry<'message> = Registry of FSharp.Collections.Map<Address<'message>, Agent<'message>>
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
-    type Forward<'message> = Uri -> 'message -> AsyncResult<EnvelopeForwarded, UnableToDeliverEnvelopeError>
+    type Forward<'message> = Uri -> Envelope<'message> -> AsyncResult<EnvelopeForwarded<'message>, UnableToDeliverEnvelopeError>
 
 open Routing
 
@@ -176,13 +189,13 @@ type RegisterAgent<'message> = {
         Agent: Agent<'message>
     }
     
-type AgentRegistered = {
-        Address: Address
+type AgentRegistered<'message> = {
+        Address: Address<'message>
     }
     
 type ContextCommand<'message> =
     | Accept of Envelope<'message>
-    | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered> 
+    | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered<'message>> 
     
 type BoundedContext<'message> = BoundedContext of MailboxProcessor<ContextCommand<'message>>
 
@@ -190,7 +203,9 @@ module Actor =
 
     type Behavior<'state, 'message> = ^state -> 'message -> 'state
 
-    type Create< 'state, 'message> = Behavior< 'state, 'message> -> 'state -> Address
+    type Create< 'state, 'message> = Behavior< 'state, 'message> -> 'state -> Address<'message>
+
+    let inline (<--) (address: Address< ^message>) (message: ^message) = address.Send message
 
     let inline create (BoundedContext context): Create< 'state, 'message> = fun (behavior: Behavior< 'state, 'message>) initialState ->
             let agent: MailboxProcessor<'message> = 
@@ -221,7 +236,7 @@ module BoundedContext =
 
     open Actor
 
-    let create (resolve : Resolve) (forward: Forward<'message>) =
+    let create (resolve : Resolve<'message>) (forward: Forward<'message>) =
 
         let registry = Map.empty
 
@@ -245,12 +260,19 @@ module BoundedContext =
                                 return! messageLoop (Registry state)
                      | RegisterAgent (command, replyChannel) ->
 
-                        let guid = Guid.NewGuid()
+                        let guid = Guid.NewGuid()                        
 
-                        let address = Address.create guid
+                        let address = 
+                            {  new Address<'message>(guid) with            
+                                member this.Send message = 
+                                    let envelope : Envelope<'message> = {
+                                        Address = this
+                                        Message = message
+                                    }
+                                    inbox.Post (Accept envelope)}
                         let newState = state.Add (address, command.Agent)
    
-                        let agentRegistered: AgentRegistered = {
+                        let agentRegistered: AgentRegistered<'message> = {
                                  Address = address
                         }
                         replyChannel.Reply agentRegistered
@@ -264,18 +286,7 @@ module BoundedContext =
             )
         )
 
-        let (BoundedContext mailboxProcessor) = context
-
-        let inline pack (envelope: Envelope<'message>) = envelope :> Envelope
-
-        let inline send (address: Address) (message: 'm) =
-            {   
-                Address = address
-                Message = message }
-            |> Accept
-            |> mailboxProcessor.Post 
-
-        send, context
+        create context
 
 
 module IO = 

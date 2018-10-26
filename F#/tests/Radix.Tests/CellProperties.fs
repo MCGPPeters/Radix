@@ -11,7 +11,7 @@ type Set< ^a> = Set of ^a
 
 type CellMessage< ^a> = 
 | Set of ^a
-| Get of Address
+| Get of Address<CellMessage<'a>>
 | Reply of ^a
 
 let inline serialize message (stream: Stream) =
@@ -38,15 +38,9 @@ let inline forward _ __ =
 let inline resolveRemoteAddress _ =
     AsyncResult.ofError (Root.Routing.AddressNotFoundError "")
 
-let primitives = BoundedContext.create resolveRemoteAddress forward
+let (+<) = BoundedContext.create resolveRemoteAddress forward
 
-let (<--) address message = 
-    let send = primitives |> fst
-    send address message
-
-let (*) (behavior: Actor.Behavior<'state, 'message>) = 
-    let context = primitives |> snd
-    Actor.create context behavior
+open Actor
 
 let cellBehavior : Actor.Behavior<'state, 'message> = fun state message ->
     match message with
@@ -64,14 +58,12 @@ let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * 
     taskCompletionSource.SetResult(state, message)
     state
 
-
-
 [<Property(Verbose = true)>]
 let ``Getting the value of a cell returns the expected value`` (value: int) =
     let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
 
-    let cell = cellBehavior * 1
-    let customer = exposeBehavior taskCompletionSource * 0
+    let cell = cellBehavior +< 1
+    let customer = (exposeBehavior taskCompletionSource) +< 0
     
     cell <-- (Set value)
     cell <-- (Get customer)

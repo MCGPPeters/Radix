@@ -1,97 +1,130 @@
 ﻿module AggregateProperties
 
-open FsCheck.Xunit
-//open Radix.Primitives
-//open Radix
-open Radix.Routing.Types
-open System.IO
-open Newtonsoft.Json
-open Xunit
-open System.Threading.Tasks
-open System.Threading
-open System
+// open FsCheck.Xunit
+// open Root
+// open System.IO
+// open Newtonsoft.Json
+// open Xunit
+// open System.Threading.Tasks
+// open System
 
-type Aggregate<'aggregate> = {
-    Id: Guid
-    Aggregate: 'aggregate
-    Version: Version
-}
+// let inline serialize message (stream: Stream) =
+    
+//     let writer = new StreamWriter(stream)
+//     let jsonWriter = new JsonTextWriter(writer)
+//     let ser = new JsonSerializer();
+//     ser.Serialize(jsonWriter, message);
+//     jsonWriter.Flush();
+//     stream
 
-type InventoryItem = {
-    Name: string
-    Activated: bool
-}
+// let inline deserialize (stream: Stream) =
+//     stream.Seek (int64(0), SeekOrigin.Begin) |> ignore
+//     use reader = new StreamReader(stream)
+//     use jsonReader = new JsonTextReader(reader)
+//     let ser = new JsonSerializer();
+//     let m = ser.Deserialize<'message>(jsonReader);
+//     m
+    
 
-type InventoryItemAggregate = Aggregate<InventoryItem>
+// let inline forward _ __ =
+//     AsyncResult.ofError (Root.Routing.UnableToDeliverEnvelopeError "")
 
-type InventoryItemCreated = {
-    InventoryItem: InventoryItem
-}
+// let inline resolveRemoteAddress _ =
+//     AsyncResult.ofError (Root.Routing.AddressNotFoundError "")
 
-type InventoryItemDeactivated = {
-    Id: Guid
-}
+// let context = BoundedContext.create resolveRemoteAddress forward
 
-type InventoryItemRenamed = {
-    Id: Guid
-    Name: string
-}
+// let (<--) = 
+//     BoundedContext.accept context
 
-type ItemsCheckedInToInventory = {
-    Id: Guid
-    Count: int
-}
+// let (*)  = 
+//     Actor.create context
 
-type ItemsRemovedFromInventory = {
-    Id: Guid
-    Count: int
-}
+// type InventoryItemDeactivated = {
+//     Id: Guid
+// }
 
-type InventoryEvent =
-    //| InventoryItemCreated of Event<InventoryItem>
-    | InventoryItemDeactivated of Event<InventoryItemDeactivated>
-    | InventoryItemRenamed of Event<InventoryItemRenamed>
-    | ItemsCheckedInToInventory of Event<ItemsCheckedInToInventory>
-    | ItemsRemovedFromInventory of Event<ItemsRemovedFromInventory>
+// type Aggregate<'aggregate> = {
+//     Id: Guid
+//     Aggregate: 'aggregate
+//     Version: Version
+// }
 
-type DeactivateInventoryItem = {
-    Id: Guid
-    OriginalVersion: int
-}
-
-type CreateInventoryItem = {
-    Id: Guid
-    Name: string
-}
-
-type RenameInventoryItem = {
-    Id: Guid
-    OriginalVersion: int
-    Name: string
-}
-
-type CheckInItemsToInventory = {
-    Id: Guid
-    OriginalVersion: int
-    Count: int
-}
-
-type RemoveItemsFromInventory = {
-    Id: Guid
-    OriginalVersion: int
-    Count: int
-}
-
-type InventoryCommand = 
-    | DeactivateInventoryItem of Command<DeactivateInventoryItem, Event<InventoryItemDeactivated>>
-    //| CreateInventoryItem of Command<CreateInventoryItem, Event<InventoryItemCreated>>
-    | RenameInventoryItem of Command<RenameInventoryItem, Event<InventoryItemRenamed>>
-    | CheckInItemsToInventory of Command<CheckInItemsToInventory, Event<ItemsCheckedInToInventory>>
-    | RemoveItemsFromInventory of Command<RemoveItemsFromInventory, Event<ItemsRemovedFromInventory>>
+// type InventoryItem = {
+//     Name: string
+//     Activated: bool
+// }
 
 
 
-//let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
+// type InventoryItemAggregate = Aggregate<InventoryItem>
+
+// type InventoryItemCreated = {
+//     InventoryItem: InventoryItem
+// }
+
+
+
+// type InventoryItemRenamed = {
+//     Id: Guid
+//     Name: string
+// }
+
+// type ItemsCheckedInToInventory = {
+//     Id: Guid
+//     Count: int
+// }
+
+// type ItemsRemovedFromInventory = {
+//     Id: Guid
+//     Count: int
+// }
+
+// type InventoryEvent =
+//     | InventoryItemCreated of Event<InventoryItem>
+//     | InventoryItemDeactivated of Event<InventoryItemDeactivated>
+//     | InventoryItemRenamed of Event<InventoryItemRenamed>
+//     | ItemsCheckedInToInventory of Event<ItemsCheckedInToInventory>
+//     | ItemsRemovedFromInventory of Event<ItemsRemovedFromInventory>
+
+// type DeactivateInventoryItem = {
+//     Id: Guid
+//     OriginalVersion: int
+// }
+
+// type CreateInventoryItem = {
+//     Id: Guid
+//     Name: string
+// }
+
+// type RenameInventoryItem = {
+//     Id: Guid
+//     OriginalVersion: int
+//     Name: string
+// }
+
+// type CheckInItemsToInventory = {
+//     Id: Guid
+//     OriginalVersion: int
+//     Count: int
+// }
+
+// type RemoveItemsFromInventory = {
+//     Id: Guid
+//     OriginalVersion: int
+//     Count: int
+// }
+
+// type InventoryCommand = 
+//     | DeactivateInventoryItem of Command<DeactivateInventoryItem, Event<InventoryItemDeactivated>>
+//     | CreateInventoryItem of Command<CreateInventoryItem, Event<InventoryItemCreated>>
+//     | RenameInventoryItem of Command<RenameInventoryItem, Event<InventoryItemRenamed>>
+//     | CheckInItemsToInventory of Command<CheckInItemsToInventory, Event<ItemsCheckedInToInventory>>
+//     | RemoveItemsFromInventory of Command<RemoveItemsFromInventory, Event<ItemsRemovedFromInventory>>
+
+
+
+// let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
 //    match message with       
 //    | DeactivateInventoryItem deactivateInventoryItem ->
         
@@ -156,8 +189,8 @@ type InventoryCommand =
 //            renameInventoryItem.Origin <-- inventoryItemRenamed
 //            Ok newState
 //        | _ -> Error "Concurrency error"
-    //| CheckInItemsToInventory checkInItemsToInventory
-    //| RemoveItemsFromInventory removeItemsFromInventory
+//     | CheckInItemsToInventory checkInItemsToInventory
+//     | RemoveItemsFromInventory removeItemsFromInventory
 
-//[<Property(Verbose = true)>]
-//let ```` (value: int) =
+// // [<Property(Verbose = true)>]
+// // let ```` (value: int) =
