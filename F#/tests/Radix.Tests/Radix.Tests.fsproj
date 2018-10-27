@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellProperties.fs" />
+    <Compile Include="AggregateProperties.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

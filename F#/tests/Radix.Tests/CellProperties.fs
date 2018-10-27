@@ -38,11 +38,11 @@ let inline forward _ __ =
 let inline resolveRemoteAddress _ =
     AsyncResult.ofError (Root.Routing.AddressNotFoundError "")
 
-let (+<) = BoundedContext.create resolveRemoteAddress forward
+let context = BoundedContext.create resolveRemoteAddress forward
 
 open Actor
 
-let cellBehavior : Actor.Behavior<'state, 'message> = fun state message ->
+let cellBehavior : Behavior<'state, 'message> = fun state message ->
     match message with
     | Get customer -> 
         customer <-- (Reply state) 
@@ -52,7 +52,7 @@ let cellBehavior : Actor.Behavior<'state, 'message> = fun state message ->
         value
     | _ -> state
 
-let ignoreBehavior : Actor.Behavior<'state, 'message> = fun state message -> state
+let ignoreBehavior : Behavior<'state, 'message> = fun state message -> state
 
 let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * ^message>) = fun state message ->
     taskCompletionSource.SetResult(state, message)
@@ -62,8 +62,8 @@ let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * 
 let ``Getting the value of a cell returns the expected value`` (value: int) =
     let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
 
-    let cell = cellBehavior +< 1
-    let customer = (exposeBehavior taskCompletionSource) +< 0
+    let cell = context += (cellBehavior, 1)
+    let customer = context += ((exposeBehavior taskCompletionSource), 0)
     
     cell <-- (Set value)
     cell <-- (Get customer)
