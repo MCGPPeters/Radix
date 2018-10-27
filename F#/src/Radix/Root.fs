@@ -196,18 +196,15 @@ type AgentRegistered<'message> = {
 type ContextCommand<'message> =
     | Accept of Envelope<'message>
     | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered<'message>> 
+
+
+type Behavior<'state, 'message> = ^state -> 'message -> 'state
+
+type Create< 'state, 'message> = Behavior< 'state, 'message> -> 'state -> Address<'message>
     
 type BoundedContext<'message> = BoundedContext of MailboxProcessor<ContextCommand<'message>>
-
-module Actor = 
-
-    type Behavior<'state, 'message> = ^state -> 'message -> 'state
-
-    type Create< 'state, 'message> = Behavior< 'state, 'message> -> 'state -> Address<'message>
-
-    let inline (<--) (address: Address< ^message>) (message: ^message) = address.Send message
-
-    let inline create (BoundedContext context): Create< 'state, 'message> = fun (behavior: Behavior< 'state, 'message>) initialState ->
+    with
+        member inline this.create< ^state>  (behavior: Behavior< 'state, 'message>) initialState =
             let agent: MailboxProcessor<'message> = 
                     MailboxProcessor.Start(fun inbox ->
                         let rec messageLoop state = async {
@@ -223,13 +220,22 @@ module Actor =
             let registerAgentCommand: RegisterAgent<'message> = {
                 Agent = Agent agent
             }
+            let (BoundedContext inbox) = this
 
             let agentRegistered = 
-                context.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
+                inbox.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
                 |> Async.RunSynchronously
 
 
             agentRegistered.Address
+
+module Actor = 
+
+    let inline (+=) (context: BoundedContext<'message> ) (behavior, initialState) = 
+        context.create behavior initialState
+
+    let inline (<--) (address: Address< ^message>) (message: ^message) = address.Send message
+
 
 
 module BoundedContext =
@@ -286,7 +292,7 @@ module BoundedContext =
             )
         )
 
-        create context
+        context
 
 
 module IO = 
