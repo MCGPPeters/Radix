@@ -1,5 +1,4 @@
-﻿open System
-module AggregateProperties
+﻿module AggregateProperties
 
 open FsCheck.Xunit
 open Root
@@ -35,16 +34,25 @@ let inline resolveRemoteAddress _ =
 
 open Root
 
+type DeactivateInventoryItem = unit
 
+type CreateInventoryItem = CreateInventoryItem of string
+
+type RenameInventoryItem = RenameInventoryItem of string
+
+type CheckInItemsToInventory = CheckInItemsToInventory of int
+
+type RemoveItemsFromInventory = RemoveItemsFromInventory of int
+
+type InventoryCommand = 
+    | DeactivateInventoryItem of unit
+    | CreateInventoryItem of string
+    | RenameInventoryItem of string
+    | CheckInItemsToInventory of int
+    | RemoveItemsFromInventory of int
 
 type InventoryItemDeactivated = {
-    Id: Guid
-}
-
-type Aggregate<'aggregate> = {
-    Id: Guid
-    Aggregate: 'aggregate
-    Version: Version
+    Address: Address<InventoryCommand>
 }
 
 type InventoryItem = {
@@ -53,163 +61,86 @@ type InventoryItem = {
     Count: int
 }
 
-
-
-type InventoryItemAggregate = Aggregate<InventoryItem>
-
-type InventoryItemCreated = {
-    InventoryItem: InventoryItem
-}
-
-
-
-type InventoryItemRenamed = {
-    Id: Guid
-    Name: string
-}
-
-type ItemsCheckedInToInventory = {
-    Id: Guid
-    Count: int
-}
-
-type ItemsRemovedFromInventory = {
-    Id: Guid
-    Count: int
-}
-
-type Command<'command> = Command of 'command
-type Event<'event> = Event of 'event
-
-type Version = Version of int64
-
 type InventoryEvent =
-    | InventoryItemCreated of Event<InventoryItem>
-    | InventoryItemDeactivated of Event<InventoryItemDeactivated>
-    | InventoryItemRenamed of Event<InventoryItemRenamed>
-    | ItemsCheckedInToInventory of Event<ItemsCheckedInToInventory>
-    | ItemsRemovedFromInventory of Event<ItemsRemovedFromInventory>
-
-type DeactivateInventoryItem = {
-    Id: Guid
-    OriginalVersion: Version
-}
-
-type CreateInventoryItem = {
-    Id: Guid
-    Name: string
-}
-
-type RenameInventoryItem = {
-    Id: Guid
-    OriginalVersion: Version
-    Name: string
-}
-
-type CheckInItemsToInventory = {
-    Id: Guid
-    OriginalVersion: Version
-    Count: int
-}
-
-type RemoveItemsFromInventory = {
-    Id: Guid
-    OriginalVersion: Version
-    Count: int
-}
-
-type InventoryCommand = 
-    | DeactivateInventoryItem of Command<DeactivateInventoryItem>
-    | CreateInventoryItem of Command<CreateInventoryItem>
-    | RenameInventoryItem of Command<RenameInventoryItem>
-    | CheckInItemsToInventory of Command<CheckInItemsToInventory>
-    | RemoveItemsFromInventory of Command<RemoveItemsFromInventory>
-
+    | InventoryItemCreated of InventoryItem
+    | InventoryItemDeactivated of unit
+    | InventoryItemRenamed of string
+    | ItemsCheckedInToInventory of int
+    | ItemsRemovedFromInventory of int
 
 module Domain = 
-    let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
-       match message with       
-       | DeactivateInventoryItem (Command deactivateInventoryItem) ->
-            
-           match state.Version.Equals(deactivateInventoryItem.OriginalVersion) with 
-           | true ->
-               let aggregateState = { state.Aggregate with Activated = false }
-               let newState = { state with Aggregate = aggregateState }
-               let inventoryItemDeactivated : Event<InventoryItemDeactivated> = Event {
-                                                    Id = deactivateInventoryItem.Id }
 
-                   
-               storeEvent (InventoryItemDeactivated inventoryItemDeactivated)
-               Ok newState
-           | _ -> Error "Concurrency error"
+    open Microsoft.FSharp.Data.UnitSystems.SI
 
-       | RenameInventoryItem (Command renameInventoryItem) ->
+    [<Measure>] type ms
 
-           match state.Version.Equals(renameInventoryItem.OriginalVersion) with 
-           | true ->
-               let aggregateState = { state.Aggregate with Name = renameInventoryItem.Name }
-               let newState = { state with Aggregate = aggregateState }
-               let inventoryItemRenamed : Event<InventoryItemRenamed> = Event {
-                                               Id = renameInventoryItem.Id 
-                                               Name = renameInventoryItem.Name}
+    type Timeout = Timeout of float<ms>
 
-               storeEvent (InventoryItemRenamed inventoryItemRenamed)
-               Ok newState
-           | _ -> Error "Concurrency error"//let inline createInventoryItemBehavior (storeEvent : InventoryEvent -> unit) = fun (state: InventoryItemAggregate, message) ->
+    type SetCommand<'message> = {
+        Message: 'message
+        Customer: Address<'message>
+        Timeout: Timeout
+    }
+
+    type Set<'message> = Set of SetCommand<'message>
+
+    let inline alarmClockBehavior _ message =
+        match message with
+        | Set m ->
+            let (Timeout timeout) = m.Timeout
+            let timer = new System.Timers.Timer(timeout/1.0<ms>)
+            let sendEventHandler _ = m.Customer <-- m.Message
+            timer.Elapsed.Add (sendEventHandler)
+            timer.Enabled = true        
+
+
+    let inventoryItemAggregate: Aggregate<InventoryItem, InventoryCommand, InventoryEvent> = fun address state command -> 
+           match command with       
+           | DeactivateInventoryItem _ ->
+
+                let newState = { state with Activated = false }
+     
+                newState, [InventoryItemDeactivated ()]
+
+           | RenameInventoryItem name ->
+
+                let newState = { state with Name = name }
+
+                newState, [InventoryItemRenamed name]
       
-        | CheckInItemsToInventory (Command checkInItemsToInventory) ->
-            match state.Version.Equals(checkInItemsToInventory.OriginalVersion) with
-            | true -> match checkInItemsToInventory.Count > 0 with
-                        | true -> 
-                            let aggregateState = { state.Aggregate with Count = state.Aggregate.Count + checkInItemsToInventory.Count }
-                            let newState = { state with Aggregate = aggregateState }
-                            let itemsCheckedInToInventory : Event<ItemsCheckedInToInventory> = Event {
-                                    Id = checkInItemsToInventory.Id 
-                                    Count = checkInItemsToInventory.Count}
-                            storeEvent (ItemsCheckedInToInventory itemsCheckedInToInventory)
-                            Ok newState
-                        | false -> Error "Must have a count greater than 0 to add to inventory"               
-            | false ->  Error "Concurrency error"
+            | CheckInItemsToInventory count ->
+                match count > 0 with
+                | true -> 
+                    let newState = { state with Count = state.Count + count }
+                    newState,  [ItemsCheckedInToInventory count]
+                | false -> state, []               
 
-        | RemoveItemsFromInventory (Command removeItemsFromInventory) ->
-           match state.Version.Equals(removeItemsFromInventory.OriginalVersion) with 
-           | true -> match removeItemsFromInventory.Count > 0 with
-                        | true -> 
-                            let aggregateState = { state.Aggregate with Count = state.Aggregate.Count - removeItemsFromInventory.Count }
-                            let newState = { state with Aggregate = aggregateState }
-                            let itemsRemovedFromInventory : Event<ItemsRemovedFromInventory> = Event {
-                                    Id = removeItemsFromInventory.Id 
-                                    Count = removeItemsFromInventory.Count}
-                            storeEvent (ItemsRemovedFromInventory itemsRemovedFromInventory)
-                            Ok newState
-                        | false -> Error "Can not remove negative count from inventory"
-           | false -> Error "Concurrency error"              
-        | _ -> Error "Unknown message" 
+            | RemoveItemsFromInventory count ->
+                match count > 0 with
+                | true -> 
+                    let newState = { state with Count = state.Count - count }
+              
+                    newState, [ItemsRemovedFromInventory count]
+                | false -> state, []   
+             
+            | _ -> state, []   
 
 open Actor
 open Domain
 
+let currentEvents = []
+
+let saveEvents: SaveEvents<InventoryCommand, InventoryEvent> = fun _ events _ ->
+    currentEvents |> List.append events |> ignore
+
 [<Property(Verbose = true)>]
 let ``foo`` (value: int) =
-    let context = BoundedContext.create resolveRemoteAddress forward
-    let inventoryItemBehavior = createInventoryItemBehavior (fun (InventoryEvent event) -> {
-        match event with
-        | DeactivateInventoryItem deactivate -> ignore
-        | RemoveItemsFromInventory remove -> ignore
-        | CheckInItemsToInventory checkin -> ignore
-        | RenameInventoryItem rename -> ignore
-    })
+    let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
-    let inventoryItem = context += inventoryItemBehavior {
+    let inventoryItem = context += (inventoryItemAggregate, {
         Name = "Product 1"
         Activated = true
         Count = 0
-    }
+    })
 
-    let checkin = {
-        Id = Guid.NewGuid()
-        OriginalVersion = 0
-        Count = 2
-    }
-
-    inventoryItem <-- checkin
+    inventoryItem <-- (CheckInItemsToInventory 2, Version 1L)

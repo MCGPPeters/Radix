@@ -102,15 +102,22 @@ module AsyncResultComputationExpression =
 
     let asyncResult = AsyncResultBuilder()
 
+type Version = Version of Int64
+
+type Command<'command> = { 
+        Payload : 'command
+        OriginalVersion: Version
+        }
+
 type Hash = Hash of byte[]
 
 [<AbstractClass>]
-type Address<'message>(guid: Guid) = 
+type Address<'command>(guid: Guid) = 
     member private this.Hash = 
         let sha1 = SHA1.Create()
         Hash (sha1.ComputeHash(guid.ToByteArray()))
     
-    interface IComparable<Address<'message>> with
+    interface IComparable<Address<'command>> with
         member x.CompareTo(y) = 
             let (Hash x) = x.Hash
             let (Hash y) = y.Hash
@@ -119,11 +126,11 @@ type Address<'message>(guid: Guid) =
     interface IComparable with 
         member x.CompareTo(y) = 
             let (Hash x) = x.Hash
-            let address: Address<'message> = (downcast y) 
+            let address: Address<'command> = (downcast y) 
             let (Hash y) = address.Hash
             BitConverter.ToString(x).CompareTo(BitConverter.ToString(y))
 
-    abstract member Send : 'message -> unit
+    abstract member Accept : 'command * Version -> unit
 
     
 
@@ -139,9 +146,8 @@ type Lambda<'R> =
         abstract Invoke<'T> : 'T -> 'R
 
 
-type Envelope<'message> = { 
-        Message : 'message
-        Address: Address<'message> }
+
+
 
 
 type DTO<'payload> = {
@@ -157,11 +163,11 @@ module TrustBoundary =
 
     // type Pack<'message> = Envelope<'message> -> Envelope
 
-    type Input<'payload, 'message> = Deserialize<'payload> -> Validate<'payload> -> Map<'payload, 'message> ->  Result<Envelope<'message>, ValidationError>
+    type Input<'payload, 'message> = Deserialize<'payload> -> Validate<'payload> -> Map<'payload, 'message> ->  Result<Command<'message>, ValidationError>
 
-    type Serialize<'message> = Envelope<'message> -> MemoryStream -> Stream
+    type Serialize<'message> = Command<'message> -> MemoryStream -> Stream
 
-    type Output<'message, 'payload> = Envelope<'message> -> DTO<'payload> -> Serialize<'message>
+    type Output<'message, 'payload> = Command<'message> -> DTO<'payload> -> Serialize<'message>
 
 open TrustBoundary
 
@@ -171,59 +177,78 @@ module Routing =
 
     type Resolve<'message> = Address<'message> -> AsyncResult<Uri, AddressNotFoundError>
 
-    type EnvelopePosted<'message> = Event<Envelope<'message>>
+    type CommandPosted<'message> = Event<Command<'message>>
 
-    type EnvelopeForwarded<'message> = Event<Envelope<'message>>
+    type CommandForwarded<'message> = Event<Command<'message>>
 
-    type Agent<'message> = Agent of MailboxProcessor<'message>
+    type Agent<'command> = Agent of MailboxProcessor<'command * Version * Address<'command>>
 
     type Registry<'message> = Registry of FSharp.Collections.Map<Address<'message>, Agent<'message>>
 
     type UnableToDeliverEnvelopeError = UnableToDeliverEnvelopeError of string
 
-    type Forward<'message> = Uri -> Envelope<'message> -> AsyncResult<EnvelopeForwarded<'message>, UnableToDeliverEnvelopeError>
+    type Forward<'command> = Uri -> 'command -> AsyncResult<CommandForwarded<'command>, UnableToDeliverEnvelopeError>
 
 open Routing
 
-type RegisterAgent<'message> = {
+type RegisterAgentCommand<'message> = {
         Agent: Agent<'message>
     }
+
+type SaveEventsCommand<'command, 'event> = {
+    Address: Address<'command>
+    Events: 'event list
+    ExpectedVersion: Version
+}
     
 type AgentRegistered<'message> = {
         Address: Address<'message>
     }
     
-type ContextCommand<'message> =
-    | Accept of Envelope<'message>
-    | RegisterAgent of RegisterAgent<'message> * AsyncReplyChannel<AgentRegistered<'message>> 
+type ContextCommand<'command, 'event> =
+    | IssueCommand of 'command * Version * Address<'command>
+    | SaveEventsCommand of SaveEventsCommand<'command, 'event>
+    | RegisterAgent of RegisterAgentCommand<'command> * AsyncReplyChannel<AgentRegistered<'command>> 
 
 
-type Behavior<'state, 'message> = ^state -> 'message -> 'state
+type Aggregate<'state, 'command, 'event> = Address<'command> -> ^state -> 'command -> 'state * 'event list
 
-type Create< 'state, 'message> = Behavior< 'state, 'message> -> 'state -> Address<'message>
+type Create< 'state, 'command, 'event> = Aggregate< 'state, 'command, 'event> -> 'state -> Address<'command>
+
+type SaveEvents<'command, 'event> = Address<'command> -> 'event list -> Version -> unit
     
-type BoundedContext<'message> = BoundedContext of MailboxProcessor<ContextCommand<'message>>
+type BoundedContext<'command, 'event> = BoundedContext of MailboxProcessor<ContextCommand<'command, 'event>>
     with
-        member inline this.create< ^state>  (behavior: Behavior< 'state, 'message>) initialState =
-            let agent: MailboxProcessor<'message> = 
+        member inline this.create< ^state, ^event>  (behavior: Aggregate< 'state, 'command, 'event>) initialState =
+
+            let (BoundedContext context) = this
+
+            let agent: MailboxProcessor<'command * Version * Address<'command>> = 
                     MailboxProcessor.Start(fun inbox ->
                         let rec messageLoop state = async {
-                            let! message = inbox.Receive()
+                            let! (command, version, address) = inbox.Receive()
                         
-                            let newState = behavior state message
+                            let (newState, events) = behavior address state command
+
+                            let saveEventsCommand : SaveEventsCommand<'command, 'event> = {
+                                Address = address
+                                Events = events
+                                ExpectedVersion = version
+                            }
+
+                            context.Post (SaveEventsCommand saveEventsCommand)
 
                             return! messageLoop newState
                         }
 
                         messageLoop initialState
                     )   
-            let registerAgentCommand: RegisterAgent<'message> = {
+            let registerAgentCommand: RegisterAgentCommand<'command> = {
                 Agent = Agent agent
             }
-            let (BoundedContext inbox) = this
-
+            
             let agentRegistered = 
-                inbox.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
+                context.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
                 |> Async.RunSynchronously
 
 
@@ -231,10 +256,10 @@ type BoundedContext<'message> = BoundedContext of MailboxProcessor<ContextComman
 
 module Actor = 
 
-    let inline (+=) (context: BoundedContext<'message> ) (behavior, initialState) = 
+    let inline (+=) (context: BoundedContext<'command, 'event> ) (behavior, initialState) = 
         context.create behavior initialState
 
-    let inline (<--) (address: Address< ^message>) (message: ^message) = address.Send message
+    let inline (<--) (address: Address< ^command>) (command: ^command, version: Version) = address.Accept (command, version)
 
 
 
@@ -242,7 +267,7 @@ module BoundedContext =
 
     open Actor
 
-    let create (resolve : Resolve<'message>) (forward: Forward<'message>) =
+    let create (saveEvents : SaveEvents<'command, 'event>) (resolve : Resolve<'command>) (forward: Forward<'command>) =
 
         let registry = Map.empty
 
@@ -250,39 +275,39 @@ module BoundedContext =
                 let rec messageLoop (Registry state) = async {
                     let! command = inbox.Receive()
                     match command with
-                    | Accept envelope ->
-                        match state.TryFind (envelope.Address) with
+                    | IssueCommand (command, version, address) ->
+                        match state.TryFind address with
                         | Some (Agent agent) -> 
-                            agent.Post envelope.Message
+                            agent.Post (command, version, address)
                         | _ -> 
-                            let! resolveResult = resolve (envelope.Address)
+                            let! resolveResult = resolve address
                             match resolveResult with
                             | Ok uri-> 
-                                let! forwardResult = forward uri envelope
+                                let! forwardResult = forward uri command
                                 forwardResult |> ignore // log
                                 return! messageLoop (Registry state)
                             | Error error -> 
                                 error |> ignore //log
                                 return! messageLoop (Registry state)
+
                      | RegisterAgent (command, replyChannel) ->
 
                         let guid = Guid.NewGuid()                        
 
                         let address = 
-                            {  new Address<'message>(guid) with            
-                                member this.Send message = 
-                                    let envelope : Envelope<'message> = {
-                                        Address = this
-                                        Message = message
-                                    }
-                                    inbox.Post (Accept envelope)}
+                            {  new Address<'command>(guid) with            
+                                member this.Accept (command, version) = 
+                                    inbox.Post (IssueCommand (command, version, this))}
                         let newState = state.Add (address, command.Agent)
    
-                        let agentRegistered: AgentRegistered<'message> = {
+                        let agentRegistered: AgentRegistered<'command> = {
                                  Address = address
                         }
                         replyChannel.Reply agentRegistered
                         return! messageLoop (Registry newState)
+
+                    | SaveEventsCommand saveEventsCommand ->
+                        saveEvents saveEventsCommand.Address saveEventsCommand.Events saveEventsCommand.ExpectedVersion
 
                     return! messageLoop (Registry state)
                 }
@@ -303,6 +328,6 @@ module IO =
 
     type PayloadDeclined<'payload> = Event<'payload>
 
-    type Accept<'payload, 'message> = Input<'payload, 'message> -> BoundedContext<'message> -> Result<PayloadAccepted<'payload>, PayloadDeclined<'payload>>
+    //type Accept<'payload, 'message> = Input<'payload, 'message> -> BoundedContext<'message> -> Result<PayloadAccepted<'payload>, PayloadDeclined<'payload>>
 
-    type Publish<'payload, 'message> = Output<'message, 'payload> -> Envelope<'message> -> unit
+    type Publish<'payload, 'message> = Output<'message, 'payload> -> Command<'message> -> unit
