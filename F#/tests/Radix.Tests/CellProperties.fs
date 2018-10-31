@@ -7,7 +7,6 @@ open Newtonsoft.Json
 open Xunit
 open System.Threading.Tasks
 
-type Set< ^a> = Set of ^a
 
 type CellMessage< ^a> = 
 | Set of ^a
@@ -24,7 +23,7 @@ let inline serialize message (stream: Stream) =
     stream
 
 let inline deserialize (stream: Stream) =
-    stream.Seek (int64(0), SeekOrigin.Begin) |> ignore
+    stream.Seek (0L, SeekOrigin.Begin) |> ignore
     use reader = new StreamReader(stream)
     use jsonReader = new JsonTextReader(reader)
     let ser = new JsonSerializer();
@@ -38,25 +37,30 @@ let inline forward _ __ =
 let inline resolveRemoteAddress _ =
     AsyncResult.ofError (Root.Routing.AddressNotFoundError "")
 
-let context = BoundedContext.create resolveRemoteAddress forward
+let currentEvents = []
+
+let saveEvents: SaveEvents<'command, unit> = fun _ events _ ->
+    currentEvents |> List.append events |> ignore
+
+let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
 open Actor
 
-let cellBehavior : Behavior<'state, 'message> = fun state message ->
-    match message with
+let cellBehavior : Aggregate<'state, 'command, 'event> = fun _ state command ->
+    match command with
     | Get customer -> 
-        customer <-- (Reply state) 
+        customer <-- (Reply state, Version 1L) 
         
-        state
+        state, []
     | Set value -> 
-        value
-    | _ -> state
+        value, []
+    | _ -> state, []
 
-let ignoreBehavior : Behavior<'state, 'message> = fun state message -> state
+let ignoreBehavior : Aggregate<'state, 'command, 'event> = fun _ state _ -> state, []
 
-let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * ^message>) = fun state message ->
+let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * ^message>) = fun _ state message ->
     taskCompletionSource.SetResult(state, message)
-    state
+    state, []
 
 [<Property(Verbose = true)>]
 let ``Getting the value of a cell returns the expected value`` (value: int) =
@@ -65,8 +69,8 @@ let ``Getting the value of a cell returns the expected value`` (value: int) =
     let cell = context += (cellBehavior, 1)
     let customer = context += ((exposeBehavior taskCompletionSource), 0)
     
-    cell <-- (Set value)
-    cell <-- (Get customer)
+    cell <-- (Set value, Version 1L)
+    cell <-- (Get customer, Version 1L)
 
     let t = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
     match t with
