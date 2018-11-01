@@ -210,64 +210,61 @@ type ContextCommand<'command, 'event> =
     | SaveEventsCommand of SaveEventsCommand<'command, 'event>
     | RegisterAgent of RegisterAgentCommand<'command> * AsyncReplyChannel<AgentRegistered<'command>> 
 
+type BoundedContext< ^command, ^event> = BoundedContext of MailboxProcessor<ContextCommand<'command, 'event>>
 
-type Aggregate<'state, 'command, 'event> = Address<'command> -> ^state -> 'command -> 'state * 'event list
-
-type Create< 'state, 'command, 'event> = Aggregate< 'state, 'command, 'event> -> 'state -> Address<'command>
-
-type SaveEvents<'command, 'event> = Address<'command> -> 'event list -> Version -> unit
+module Aggregate = 
     
-type BoundedContext<'command, 'event> = BoundedContext of MailboxProcessor<ContextCommand<'command, 'event>>
-    with
-        member inline this.create< ^state, ^event>  (behavior: Aggregate< 'state, 'command, 'event>) initialState =
+    let inline decide (state: ^state) (command: ^command) =
+        (^state : (static member decide: ^state -> ^command -> ^event list) (state, command))
 
-            let (BoundedContext context) = this
+    let inline apply (state: ^state) (event: ^event) =
+        (^state: (static member apply: ^state -> ^event -> ^state) (state, event))
 
-            let agent: MailboxProcessor<'command * Version * Address<'command>> = 
-                    MailboxProcessor.Start(fun inbox ->
-                        let rec messageLoop state = async {
-                            let! (command, version, address) = inbox.Receive()
+    let inline create< ^state , ^command, ^event 
+            when ^state: (static member Zero: ^state) 
+            and ^state : (static member apply: ^state -> ^event -> ^state) 
+            and ^state : (static member decide: ^state -> ^command -> ^event list)> (BoundedContext context) (history: 'event list) =
+
+        let initialState =  List.fold apply LanguagePrimitives.GenericZero history
+
+        let agent: MailboxProcessor<'command * Version * Address<'command>> = 
+                MailboxProcessor.Start(fun inbox ->
+                    let rec messageLoop (state: ^state) = async {
+                        let! (command, version, address) = inbox.Receive()
                         
-                            let (newState, events) = behavior address state command
+                        let events = decide state command
+                        let newState = events |> List.fold apply state 
 
-                            let saveEventsCommand : SaveEventsCommand<'command, 'event> = {
-                                Address = address
-                                Events = events
-                                ExpectedVersion = version
-                            }
-
-                            context.Post (SaveEventsCommand saveEventsCommand)
-
-                            return! messageLoop newState
+                        let saveEventsCommand : SaveEventsCommand<'command, 'event> = {
+                            Address = address
+                            Events = events
+                            ExpectedVersion = version
                         }
 
-                        messageLoop initialState
-                    )   
-            let registerAgentCommand: RegisterAgentCommand<'command> = {
-                Agent = Agent agent
-            }
+                        context.Post (SaveEventsCommand saveEventsCommand)
+
+                        return! messageLoop newState
+                    }
+
+                    messageLoop initialState
+                )
+                
+        let registerAgentCommand: RegisterAgentCommand<'command> = {
+            Agent = Agent agent
+        }
             
-            let agentRegistered = 
-                context.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
-                |> Async.RunSynchronously
+        let agentRegistered = 
+            context.PostAndAsyncReply (fun channel ->  RegisterAgent (registerAgentCommand, channel))
+            |> Async.RunSynchronously
 
 
-            agentRegistered.Address
+        agentRegistered.Address
 
-module Actor = 
-
-    let inline (+=) (context: BoundedContext<'command, 'event> ) (behavior, initialState) = 
-        context.create behavior initialState
-
-    let inline (<--) (address: Address< ^command>) (command: ^command, version: Version) = address.Accept (command, version)
-
-
-
+type SaveEvents<'command, 'event> = Address<'command> -> 'event list -> Version -> 'event list
+    
 module BoundedContext =
 
-    open Actor
-
-    let create (saveEvents : SaveEvents<'command, 'event>) (resolve : Resolve<'command>) (forward: Forward<'command>) =
+    let inline create (saveEvents : SaveEvents< ^command, ^event>) (resolve : Resolve< ^command>) (forward: Forward< ^command>) =
 
         let registry = Map.empty
 
@@ -319,6 +316,10 @@ module BoundedContext =
 
         context
 
+module Operators = 
+
+
+    let inline (<--) (address: Address< ^command>) (command: ^command, version: Version) = address.Accept (command, version)
 
 module IO = 
 

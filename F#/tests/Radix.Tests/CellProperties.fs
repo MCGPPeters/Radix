@@ -7,29 +7,29 @@ open Newtonsoft.Json
 open Xunit
 open System.Threading.Tasks
 
+type CellCommand<'state> = 
+    | Set of 'state
+    | Get of Address<CellCommand<'state>>
+    | Reply of 'state
 
-type CellMessage< ^a> = 
-| Set of ^a
-| Get of Address<CellMessage<'a>>
-| Reply of ^a
 
-let inline serialize message (stream: Stream) =
-    
-    let writer = new StreamWriter(stream)
-    let jsonWriter = new JsonTextWriter(writer)
-    let ser = new JsonSerializer();
-    ser.Serialize(jsonWriter, message);
-    jsonWriter.Flush();
-    stream
+type CellEvent<'state> =
+    | StateSet of 'state
 
-let inline deserialize (stream: Stream) =
-    stream.Seek (0L, SeekOrigin.Begin) |> ignore
-    use reader = new StreamReader(stream)
-    use jsonReader = new JsonTextReader(reader)
-    let ser = new JsonSerializer();
-    let m = ser.Deserialize<'message>(jsonReader);
-    m
-    
+type Cell<'state> = Cell of 'state
+with
+    static member inline Zero = LanguagePrimitives.GenericZero
+    static member inline decide (state, command) = 
+        match command with       
+            | Set state -> [StateSet state]
+            | Get address -> 
+                address <-- state
+                []
+            | Reply _ -> [] 
+    static member inline apply (_, event) = 
+        match event with
+        | StateSet state' -> state'
+   
 
 let inline forward _ __ =
     AsyncResult.ofError (Root.Routing.UnableToDeliverEnvelopeError "")
@@ -39,40 +39,23 @@ let inline resolveRemoteAddress _ =
 
 let currentEvents = []
 
-let saveEvents: SaveEvents<'command, unit> = fun _ events _ ->
-    currentEvents |> List.append events |> ignore
+let saveEvents: SaveEvents<'command, 'event> = fun _ events _ ->
+    currentEvents |> List.append events
 
 let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
-open Actor
-
-let cellBehavior : Aggregate<'state, 'command, 'event> = fun _ state command ->
-    match command with
-    | Get customer -> 
-        customer <-- (Reply state, Version 1L) 
-        
-        state, []
-    | Set value -> 
-        value, []
-    | _ -> state, []
-
-let ignoreBehavior : Aggregate<'state, 'command, 'event> = fun _ state _ -> state, []
-
-let inline exposeBehavior (taskCompletionSource: TaskCompletionSource< ^state * ^message>) = fun _ state message ->
-    taskCompletionSource.SetResult(state, message)
-    state, []
+open Operators
 
 [<Property(Verbose = true)>]
 let ``Getting the value of a cell returns the expected value`` (value: int) =
-    let taskCompletionSource = new TaskCompletionSource<'state * 'message>()
+    let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
-    let cell = context += (cellBehavior, 1)
-    let customer = context += ((exposeBehavior taskCompletionSource), 0)
+    let cell = Aggregate.create context [StateSet 1]
+    let empty = Aggregate.create context [StateSet 0]
     
     cell <-- (Set value, Version 1L)
-    cell <-- (Get customer, Version 1L)
+    cell <-- (Get empty, Version 1L)
 
-    let t = taskCompletionSource.Task |> Async.AwaitTask |> Async.RunSynchronously
     match t with
     | (_, Reply reply) -> 
         Assert.Equal(value, reply)
