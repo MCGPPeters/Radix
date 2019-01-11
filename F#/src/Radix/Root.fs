@@ -6,6 +6,8 @@ open System.Security.Cryptography
 
 type Undefined = exn
 
+type Ordering = LT | EQ | GT
+
 [<RequireQualifiedAccess>] 
 module Async =
     let retn x = 
