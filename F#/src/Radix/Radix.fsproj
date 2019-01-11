@@ -3,6 +3,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Radix.fs" />
+    <None Include="Radix.Math.Pure.Algebra.Structure.fs" />
     <Compile Include="Root.fs" />
   </ItemGroup>
   <ItemGroup />
