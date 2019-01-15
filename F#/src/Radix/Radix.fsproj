@@ -4,12 +4,26 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Radix.fs" />
-    <None Include="Radix.Math.Pure.Algebra.Structure.fs" />
+    <Compile Include="Radix.Math.Pure.Algebra.Structure.fs" />
     <Compile Include="Root.fs" />
+    <Compile Include="Radix.Collections.List.fs" />
+    <Compile Include="Radix.Collections.NonEmpty.fs" />
+    <Compile Include="Radix.Math.Pure.Structure.Order.fs" />
+    <Compile Include="Radix.Math.Pure.Numbers.fs" />
+    <Compile Include="Radix.Math.Applied.Optimization.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.fs" />
+    <Compile Include="Radix.Math.Applied.Probability.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.Evolutionary.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.Reinforced.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.Reinforced.Testing.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.Neural.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.Evolutionary.Neural.fs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <PackageReference Include="FSharp.Control.Reactive" Version="4.1.0" />
+    <PackageReference Include="FSharp.Data" Version="3.0.0" />
+    <PackageReference Include="FSharp.Json" Version="0.3.4" />
+    <PackageReference Include="MassTransit" Version="5.2.1" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
   </ItemGroup>
 </Project>
