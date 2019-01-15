@@ -1,5 +1,6 @@
 ﻿module Radix.Math.Pure.Algebra.Structure
 
+[<RequireQualifiedAccess>] 
 module Semigroup =
 
     type Semigroup<'a> = private Semigroup of 'a
@@ -12,6 +13,7 @@ module Semigroup =
             when ^a: (static member combine: ^a -> ^a -> ^a)> (a: ^a) =
                 Semigroup a
 
+[<RequireQualifiedAccess>] 
 module Monoid = 
     
     type Monoid<'a> = private Monoid of 'a
@@ -25,6 +27,7 @@ module Monoid =
             and ^a:  (static member concat: ^a list -> ^a) > (a: ^a) =
                 Monoid a
 
+[<RequireQualifiedAccess>] 
 module Group = 
     
     type Group<'a> = private Group of 'a
@@ -41,33 +44,3 @@ module Group =
             and ^a:  (static member combine: ^a -> ^a -> ^a)
             and ^a:  (static member invert: ^a -> ^a -> ^a) > (a: ^a) =
                 Group a
-
-module Functor = 
-
-    type Functor<'a> = private Functor of 'a
-
-    let inline map (f: ^a -> ^b) (fa: ^c when ^c: (static member map: (^a -> ^b) -> ^c -> ^d)) = ( ^a : (static member map: (^a -> ^b) -> ^c -> ^d) (f, fa))
-
-    let inline create< ^a, ^b, ^c, ^d
-            when ^c: (static member map: (^a -> ^b) -> ^c -> ^d)
-            and ^d: (static member map: (^a -> ^b) -> ^c -> ^d)> (a: ^a)  =
-                Functor a
-
-
-
-[<RequireQualifiedAccess>] 
-module Maybe =
-
-    open Functor
-
-    type Maybe< ^a> =
-    | None
-    | Some of Functor<'a>
-    with
-        static member inline map f maybeA = 
-            match maybeA with
-            | None -> None
-            | Some x -> Some (f x)
-
-
-
