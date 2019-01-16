@@ -9,6 +9,6 @@ type ProperFraction =
     private ProperFraction of float
         static member Create n = 
             match n with
-            | Interval.Open 0.0 1.0 -> Ok (ProperFraction n)
+            | Interval.Open 0.0 1.0 x -> Ok (ProperFraction x)
             | _ -> Error "n is not a proper fraction"
         static member (*) (ProperFraction a, ProperFraction b) = ProperFraction.Create(a * b)

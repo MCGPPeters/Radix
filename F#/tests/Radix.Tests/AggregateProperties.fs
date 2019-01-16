@@ -41,7 +41,7 @@ with
         Count = 0
         Activated = false
     }
-    static member inline execute (state, command) = 
+    static member inline decide (state, command) = 
         match command with       
             | DeactivateInventoryItem _ -> [InventoryItemDeactivated ()]
             | RenameInventoryItem name -> [InventoryItemRenamed name]
