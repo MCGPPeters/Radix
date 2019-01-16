@@ -16,9 +16,9 @@ type CellCommand<'state> =
 type CellEvent<'state> =
     | StateSet of 'state
 
-type Cell<'state> = Cell of 'state
+type Cell<'state> = Cell of 'state option
 with
-    static member inline Zero = LanguagePrimitives.GenericZero
+    static member inline Zero: 'state option = None
     static member inline decide (state, command) = 
         match command with       
             | Set state -> [StateSet state]
@@ -50,16 +50,12 @@ open Operators
 let ``Getting the value of a cell returns the expected value`` (value: int) =
     let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
-    let cell = Aggregate.create context [StateSet 1]
-    let empty = Aggregate.create context [StateSet 0]
+    let cell = Aggregate.create context [StateSet (Some 1)]
+    let empty = Aggregate.create context [StateSet (Some 0)]
     
     cell <-- (Set value, Version 1L)
     cell <-- (Get empty, Version 1L)
 
-    match t with
-    | (_, Reply reply) -> 
-        Assert.Equal(value, reply)
-    | _ -> Assert.True false
 
 //[<Property(Verbose = true)>]
 //let ``Getting the value of a cell returns the expected value when message is received as stream`` (value: int) =

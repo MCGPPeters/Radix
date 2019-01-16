@@ -11,7 +11,7 @@ type Alpha = private Alpha of float
 module Alpha = 
     let inline create n = 
         match n with
-        | Interval.Closed 0.0 1.0 -> Ok (Alpha n)
+        | Interval.Closed 0.0 1.0 x -> Ok (Alpha x)
         | _ -> Error "Alpha must be rational number in the closed interval [0, 1]"
 
 /// <summary>
