@@ -1,4 +1,4 @@
-namespace Doctrina.Math.Applied.Learning.Evolutionary.Neural
+namespace Radix.Math.Applied.Learning.Evolutionary.Neural
 
 open Radix.Math.Applied.Learning.Neural
 open Radix.Math.Applied.Probability

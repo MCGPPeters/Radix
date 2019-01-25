@@ -2,11 +2,6 @@
 
 open FsCheck.Xunit
 open Root
-open System.IO
-open Newtonsoft.Json
-open Xunit
-open System.Threading.Tasks
-open System
 
 let inline forward _ __ =
     AsyncResult.ofError (Root.Routing.UnableToDeliverEnvelopeError "")
@@ -103,3 +98,57 @@ let ``foo`` (value: int) =
     let inventoryItem = Aggregate.create<InventoryItem, InventoryCommand, InventoryEvent> context history
 
     inventoryItem <-- (CheckInItemsToInventory value, Version 1L)
+
+open Radix.Math.Applied.Learning.Reinforced.Testing.OpenAI.Gym.Api
+open System
+[<Property(Verbose = true)>]
+let ``bar`` (value: int) =
+
+    let baseUrl = "http://127.0.0.1:5000"
+
+    let environmentId = "FrozenLake-v0"
+
+    let environment = Environment.create baseUrl environmentId
+    ActionSpace.get baseUrl environment.InstanceId
+
+    ObservationSpace.get baseUrl environment.InstanceId
+
+    Monitor.start baseUrl environment.InstanceId "c:\\tmp\\gym" true false false
+
+    Environment.reset baseUrl environment.InstanceId
+    Environment.step baseUrl environment.InstanceId 3 true
+    Environment.step baseUrl environment.InstanceId 3 true
+    Environment.step baseUrl environment.InstanceId 0 true
+    Environment.step baseUrl environment.InstanceId 0 true
+    Environment.step baseUrl environment.InstanceId 1 true
+    Environment.step baseUrl environment.InstanceId 1 true
+    Environment.step baseUrl environment.InstanceId 2 true
+    //Environment.step baseUrl environment.InstanceId 2 true
+
+    Monitor.stop baseUrl environment.InstanceId
+
+open Radix.Math.Applied.Learning.Reinforced.Testing.OpenAI.Gym
+[<Property(Verbose = true)>]
+let ``moo`` (value: int) =
+
+    let baseUrl = "http://127.0.0.1:5000"
+
+    let environment = Environment.FrozenLake.create baseUrl 0.99 true
+
+    ActionSpace.get baseUrl environment.InstanceId
+
+    ObservationSpace.get baseUrl environment.InstanceId
+
+    Monitor.start baseUrl environment.InstanceId "c:\\tmp\\gym" true false false
+
+    Environment.reset baseUrl environment.InstanceId
+    Environment.step baseUrl environment.InstanceId 3 true
+    Environment.step baseUrl environment.InstanceId 3 true
+    Environment.step baseUrl environment.InstanceId 0 true
+    Environment.step baseUrl environment.InstanceId 0 true
+    Environment.step baseUrl environment.InstanceId 1 true
+    Environment.step baseUrl environment.InstanceId 1 true
+    Environment.step baseUrl environment.InstanceId 2 true
+    //Environment.step baseUrl environment.InstanceId 2 true
+
+    Monitor.stop baseUrl environment.InstanceId

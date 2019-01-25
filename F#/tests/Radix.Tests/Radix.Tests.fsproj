@@ -10,7 +10,6 @@
   <ItemGroup>
     <Compile Include="CellProperties.fs" />
     <Compile Include="AggregateProperties.fs" />
-    <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSCheck.Xunit" Version="2.11.0" />
@@ -18,7 +17,8 @@
     <PackageReference Include="Unquote" Version="4.0.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="FSharp.Data" Version="3.0.0" />
+    <PackageReference Include="FSharp.Json" Version="0.3.4" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
-  <ItemGroup />
 </Project>

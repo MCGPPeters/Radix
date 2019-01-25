@@ -105,7 +105,7 @@ module Sampling =
 
     type Randomized<'a> = Randomized of 'a
 
-    let Guid = Randomized (NewId.Next())
+    let Guid = Randomized (MassTransit.NewId.Next())
 
     let rec scan (probability: Probability) (Distribution distribution) =
         match distribution with 

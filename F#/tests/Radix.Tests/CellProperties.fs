@@ -46,15 +46,15 @@ let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
 open Operators
 
-[<Property(Verbose = true)>]
-let ``Getting the value of a cell returns the expected value`` (value: int) =
-    let context = BoundedContext.create saveEvents resolveRemoteAddress forward
+//[<Property(Verbose = true)>]
+//let ``Getting the value of a cell returns the expected value`` (value: int) =
+//    let context = BoundedContext.create saveEvents resolveRemoteAddress forward
 
-    let cell = Aggregate.create context [StateSet (Some 1)]
-    let empty = Aggregate.create context [StateSet (Some 0)]
+//    let cell = Aggregate.create context [StateSet (Some 1)]
+//    let empty = Aggregate.create context [StateSet (Some 0)]
     
-    cell <-- (Set value, Version 1L)
-    cell <-- (Get empty, Version 1L)
+//    cell <-- (Set value, Version 1L)
+//    cell <-- (Get empty, Version 1L)
 
 
 //[<Property(Verbose = true)>]
