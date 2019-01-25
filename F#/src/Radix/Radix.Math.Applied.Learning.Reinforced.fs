@@ -57,7 +57,7 @@ type StateActionMatrix<'s, 'a> = (State<'s> * Action<'a>) list
 type Policy<'s, 'a> = Policy of (State<'s> -> Distribution<Action< ^a>>)
 
 module Policy =
-    let ofStateActionMatrix (stateActionMatrix : StateActionMatrix<'s, 'a>)  : Policy<'s, 'a> = 
+    let ofStateActionMatrix (stateActionMatrix : StateActionMatrix<'s, 'a>) : Policy<'s, 'a> = 
         Policy(fun (State state) -> 
             let map = Map.ofList stateActionMatrix
             certainly map.[State state])
@@ -66,16 +66,16 @@ module Policy =
         let (Q qFunction) = q
         Policy(fun state -> state |> (qFunction >> normalize))
 
-//type Episode<'s, 'a> = Experiment<Policy<'s, 'a>>
+type Episode<'s, 'a> = Experiment<Policy<'s, 'a>>
 
-//type Experience< ^a> = Experience of Transition<'a> list
+type Experience< ^a> = Experience of Transition<'a> list
 
 type Agent<'s, 'a> = State<'s> -> Action<'a>
 
 type Observation<'a> = Observation of 'a
 
 type Environment<'s, 'a> = {
-    Dynamics: (State<'s> * Action<'a>) -> Randomized<(State<'s> * Reward * bool)>
+    Dynamics: Action<'a> -> Randomized<(State<'s> * Reward * bool)>
     Discount: Gamma
     Actions: Action<'a> list
     Observations: Observation<'a> list
@@ -118,7 +118,7 @@ module Prediction =
         let rec step environment (agent: Agent<'s, 'a>) state utilities learningRate discount =
 
             let action = agent state   
-            let (Randomized(next, reward, final)) = environment.Dynamics (state, action)
+            let (Randomized(next, reward, final)) = environment.Dynamics action
             let (Expectation nextReturn) = utilities |> List.find (fun (Expectation (Return (s, _))) -> s = next)
             let (Expectation currentReturn) = utilities |> List.find (fun (Expectation (Return (s, _))) -> s = state)
             let (Expectation(Return(_, target))) = TD.target reward discount nextReturn
@@ -158,7 +158,7 @@ module Control =
             let ((state, _), _) = observation
             let action = policyMatrix |> List.find (fun (s, _) -> s = state) |> snd      
 
-            let (Randomized (next, reward, terminal)) = environment.Dynamics (state, action)
+            let (Randomized (next, reward, terminal)) = environment.Dynamics action
 
             let observation' = ((next, action), reward)
             let nextAction = policyMatrix |> List.find (fun (s, _) -> s = next) |> snd 
@@ -192,7 +192,7 @@ module Control =
             let ((state, _), _) = observation
             let action = policyMatrix |> List.find (fun (s, _) -> s = state) |> snd      
 
-            let (Randomized (next, reward, terminal)) = environment.Dynamics (state, action)
+            let (Randomized (next, reward, terminal)) = environment.Dynamics action
 
             let observation' = ((next, action), reward)
             let nextAction = policyMatrix |> List.find (fun (s, _) -> s = next) |> snd 

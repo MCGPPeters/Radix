@@ -1,4 +1,4 @@
-module Radix.Math.Applied.Learning.Reinforced.Testing
+namespace Radix.Math.Applied.Learning.Reinforced.Testing
 
 open FSharp.Data
 open FSharp.Json

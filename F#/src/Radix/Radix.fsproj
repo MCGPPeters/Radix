@@ -18,6 +18,7 @@
     <Compile Include="Radix.Math.Applied.Learning.Reinforced.Testing.fs" />
     <Compile Include="Radix.Math.Applied.Learning.Neural.fs" />
     <Compile Include="Radix.Math.Applied.Learning.Evolutionary.Neural.fs" />
+    <Compile Include="FrozenLake.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Control.Reactive" Version="4.1.0" />
