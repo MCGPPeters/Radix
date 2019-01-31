@@ -11,50 +11,30 @@ type Alpha = float
 
 type Reward = Reward of float 
 
-type Action<'a> = Action of 'a
+type Action<'a> = 
+| Action of 'a
+| Idle
 
-type State<'s> = State of 's
+type Feature<'s> = Feature of 's
+
+type State<'s> = State of Feature<'s> list
 
 type Return<'t> = Return of 't * float
 
+type Value<'a> = Value of Expectation<Return<'a>>
+
 // The state value function or utility function
-type U<'s> = U of (State<'s> -> Expectation<Return<State<'s>>>)
+type U<'s> = U of (State<'s> -> Value<State<'s>>)           
 
-type Utilities<'s> = Utilities of Expectation<Return<State<'s>>> list
-
-module U =
-
-    let ofUtilities (Utilities utilities) : U<'s> = 
-        U(fun v ->
-            utilities |> List.find (fun (Expectation(Return(s,_))) -> s = v))
-            
-
-type Q<'s, 'a> = Q of (State<'s> -> (Expectation<Return<Action<'a>>> list))
+type Q<'s, 'a> = Q of (State<'s> -> Value<State<'s> * Action<'a>> list)
 
 type StateActionValues<'s, 'a> = StateActionValues of (State<'s> * (Expectation<Return<Action<'a>>> list))
-
-module Q = 
-
-    let ofStateActionValues (stateActionMatrix: StateActionValues<'s, 'a> list) : Q<'s, 'a> =
-        Q(fun state ->
-            stateActionMatrix 
-                |> List.filter (fun (StateActionValues(s, _)) -> s = state) 
-                |> List.collect (fun (StateActionValues(_, values)) -> values))
-
-
-type Origin<'s> = Origin of State<'s>
-
-type Destination<'s> = Destination of State<'s>
-
-type Transition<'s, 'a> = {
-    Origin : Origin<'s>
-    Destination : Destination<'s>
-    Action : Action<'a>
-}
 
 type StateActionMatrix<'s, 'a> = (State<'s> * Action<'a>) list
 
 type Policy<'s, 'a> = Policy of (State<'s> -> Distribution<Action< ^a>>)
+
+type Decide<'a> = Decide of (Distribution<Action<'a>> -> Action<'a>)
 
 module Policy =
     let ofStateActionMatrix (stateActionMatrix : StateActionMatrix<'s, 'a>) : Policy<'s, 'a> = 
@@ -62,7 +42,7 @@ module Policy =
             let map = Map.ofList stateActionMatrix
             certainly map.[State state])
 
-    let ofQ (q: Q<'s, 'a>) (normalize: Expectation<Return<Action<'a>>> list -> Distribution<Action<'a>>)  : Policy<'s, 'a> =
+    let ofQ (q: Q<'s, 'a>) (normalize: Value<State<'s> * Action<'a>> list -> Distribution<Action<'a>>)  : Policy<'s, 'a> =
         let (Q qFunction) = q
         Policy(fun state -> state |> (qFunction >> normalize))
 
@@ -70,16 +50,70 @@ type Episode<'s, 'a> = Experiment<Policy<'s, 'a>>
 
 type Experience< ^a> = Experience of Transition<'a> list
 
-type Agent<'s, 'a> = State<'s> -> Action<'a>
+open Root
+
+type Terminal = bool
+
+type EnvironmentCommand<'a> = 
+| Effect of Action<'a>
+
+type Environment<'s, 'a> = {
+    Dynamics: Action<'a> -> Randomized<State<'s>> * Reward * Terminal
+}
+
+type Transition<'s, 'a> = {
+    Environment: Address<EnvironmentCommand<'a>>
+    Origin : State<'s>
+    Destination : State<'s>
+    Reward: Reward
+}
+
+type ActorCommand<'s, 'a> = 
+| Observe of Transition<'s, 'a> 
+
+type ActorEvent<'a> = 
+| Reacted of Action<'a>
+
+
+open Operators
+
+type Actor<'s, 'a> = {
+        Actions:  Action<'a> NonEmpty
+        Policy: Policy<'s, 'a>
+        Decide: Decide<'a>
+    }
+    with
+        static member inline Zero = {
+            Policy = Policy (fun _ -> certainly Idle)
+            Actions = Singleton Idle
+            Decide = Decide (fun _ -> Idle)
+        }
+        static member inline decide (this, command) = 
+            match command with       
+                | Observe transition -> 
+                    let (Policy policy) = this.Policy
+                    let (Decide decide) = this.Decide
+                    let action = transition.Destination |> (policy >> decide)
+                    transition.Environment <-- (Effect action, Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
+                    [Reacted action]
+                
+        // static member inline apply (this, event) = 
+        //     match event with
+        //     | StateSet state' -> state'
 
 type Observation<'a> = Observation of 'a
 
-type Environment<'s, 'a> = {
-    Dynamics: Action<'a> -> Randomized<(State<'s> * Reward * bool)>
-    Discount: Gamma
-    Actions: Action<'a> list
-    Observations: Observation<'a> list
-}
+
+
+
+
+module Environment = 
+
+    let rec episode environment (agent: Address<ActorCommand<'s, 'a>>) observation =
+        agent <-- observation
+        let (Randomized next, reward, final) = environment.Dynamics action
+        match final with
+        | true -> 
 
 module TD = 
     let update (learningRate: Alpha) target (current: Return<'a>) =
@@ -94,7 +128,7 @@ module TD =
 
 module Agent =
         
-    let inline create< 's, 'a > (policy: Policy<'s, 'a>) decide : Agent<'s, 'a> =
+    let inline create< 's, 'a > (policy: Policy<'s, 'a>) decide : Actor<'s, 'a> =
         let (Policy policy) = policy
         policy >> decide
 
@@ -115,7 +149,7 @@ module Prediction =
 
     module TD0 =  
 
-        let rec step environment (agent: Agent<'s, 'a>) state utilities learningRate discount =
+        let rec step environment (agent: Actor<'s, 'a>) state utilities learningRate discount =
 
             let action = agent state   
             let (Randomized(next, reward, final)) = environment.Dynamics action

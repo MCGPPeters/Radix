@@ -1,5 +1,7 @@
 namespace Radix.Math.Applied.Learning.Reinforced.Testing
 
+module 
+
 open FSharp.Data
 open FSharp.Json
 open FSharp.Data.HttpRequestHeaders
@@ -11,8 +13,12 @@ module OpenAI =
         module Api = 
 
             type Environment = JsonProvider<""" {"instance_id":"86d44247"} """>
+            type Observation = JsonProvider<""" {"observation":0} """>
             type DiscreteSpace = JsonProvider<""" {"info":{"n":2,"name":"Discrete"}} """>
-            
+            type Reaction = JsonProvider<""" {"done":false,"info":{"prob":0.3333333333333333},"observation":1,"reward":0.0} """>
+
+
+
             module Environment =
 
                 type InstantiateEnvironmentCommand = {
@@ -87,7 +93,7 @@ module OpenAI =
                     let frozenLake = Api.Environment.create baseUrl "FrozenLake-v0"         
 
                     {
-                        Dynamics = fun (_, Action action) ->
+                        Dynamics = fun (Action action) ->
 
                                         let observation = Step.Parse(Api.Environment.step baseUrl frozenLake.InstanceId action render)
                                         Randomized (State observation.Observation, Reward (float observation.Reward), observation.Done)

@@ -104,7 +104,9 @@ module AsyncResultComputationExpression =
 
     let asyncResult = AsyncResultBuilder()
 
-type Version = Version of Int64
+type Version = 
+| Version of Int64
+| Any
 
 type Command<'command> = { 
         Payload : 'command
