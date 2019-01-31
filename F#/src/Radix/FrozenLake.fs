@@ -17,7 +17,7 @@ module foo =
 
 
 
-    Monitor.start baseUrl environment.InstanceId "c:\\tmp\\gym" true false false
+    Monitor.start baseUrl environment.InstanceId "frozenlake" true false false
 
     Environment.reset baseUrl environment.InstanceId
     Environment.step baseUrl environment.InstanceId 3 true
