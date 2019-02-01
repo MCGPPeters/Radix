@@ -28,19 +28,11 @@ type U<'s> = U of (State<'s> -> Value<State<'s>>)
 
 type Q<'s, 'a> = Q of (State<'s> -> Value<State<'s> * Action<'a>> list)
 
-type StateActionValues<'s, 'a> = StateActionValues of (State<'s> * (Expectation<Return<Action<'a>>> list))
-
-type StateActionMatrix<'s, 'a> = (State<'s> * Action<'a>) list
-
 type Policy<'s, 'a> = Policy of (State<'s> -> Distribution<Action< ^a>>)
 
 type Decide<'a> = Decide of (Distribution<Action<'a>> -> Action<'a>)
 
 module Policy =
-    let ofStateActionMatrix (stateActionMatrix : StateActionMatrix<'s, 'a>) : Policy<'s, 'a> = 
-        Policy(fun (State state) -> 
-            let map = Map.ofList stateActionMatrix
-            certainly map.[State state])
 
     let ofQ (q: Q<'s, 'a>) (normalize: Value<State<'s> * Action<'a>> list -> Distribution<Action<'a>>)  : Policy<'s, 'a> =
         let (Q qFunction) = q
@@ -54,25 +46,33 @@ open Root
 
 type Terminal = bool
 
-type EnvironmentCommand<'a> = 
-| Effect of Action<'a>
-
-type Environment<'s, 'a> = {
-    Dynamics: Action<'a> -> Randomized<State<'s>> * Reward * Terminal
-}
-
-type Transition<'s, 'a> = {
-    Environment: Address<EnvironmentCommand<'a>>
-    Origin : State<'s>
-    Destination : State<'s>
-    Reward: Reward
-}
 
 type ActorCommand<'s, 'a> = 
-| Observe of Transition<'s, 'a> 
+| Observe of Environment: Address<EnvironmentCommand<'s, 'a>> * Transition<'s, 'a> 
+and 
+    EnvironmentCommand<'s, 'a> = 
+    | Effect of Address<ActorCommand<'s, 'a>> * Action<'a>
+and
+    Transition<'s, 'a> = {
+        Origin : State<'s>
+        Destination : State<'s>
+        Reward: Reward
+    }
 
-type ActorEvent<'a> = 
-| Reacted of Action<'a>
+
+
+type ActorEvent<'s, 'a> = 
+| Experienced of Transition<'s, 'a>
+
+type Environment< ^s, 'a when ^s: (static member Zero: ^s) and ^s : equality> = {
+    Dynamics : Action<'a> -> Randomized<State<'s>> * Reward * Terminal
+    Initial
+with
+    static member inline Zero = fun _ -> (certainly LanguagePrimitives.GenericZero) |> pick, 0.0, false
+    static member inline decide (this, state, command) = 
+        match command with       
+            | Effect (actor, action) -> 
+                let (s', reward, terminal) = state action
 
 
 open Operators
@@ -88,18 +88,42 @@ type Actor<'s, 'a> = {
             Actions = Singleton Idle
             Decide = Decide (fun _ -> Idle)
         }
-        static member inline decide (this, command) = 
+        static member inline decide (this, state, command) = 
             match command with       
-                | Observe transition -> 
-                    let (Policy policy) = this.Policy
-                    let (Decide decide) = this.Decide
-                    let action = transition.Destination |> (policy >> decide)
-                    transition.Environment <-- (Effect action, Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
-                    [Reacted action]
+                | Observe (environment, transition) -> 
+                    let (Policy policy) = state.Policy
+                    let (Decide decide) = state.Decide
+                    let action = transition.Destination |> (policy >> decide) // action occurs after transition, so based on destination state
+                    environment <-- (Effect (this, action), Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
+                    [Experienced transition]
                 
         // static member inline apply (this, event) = 
         //     match event with
         //     | StateSet state' -> state'
+
+type Critic<'s, 'a> = {
+        Actions:  Action<'a> NonEmpty
+        Policy: Policy<'s, 'a>
+        Decide: Decide<'a>
+    }
+    with
+        static member inline Zero = {
+            Policy = Policy (fun _ -> certainly Idle)
+            Actions = Singleton Idle
+            Decide = Decide (fun _ -> Idle)
+        }
+        static member inline decide (this, command) = 
+            match command with       
+                | Observe (environment, transition) -> 
+                    let (Policy policy) = this.Policy
+                    let (Decide decide) = this.Decide
+                    let action = transition.Destination |> (policy >> decide)
+                    environment <-- (Effect action, Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
+                    [Experienced transition]
+                
+        // static member inline apply (this, event) = 
+        //     match event with
+        //     | StateSet state' -> state'    
 
 type Observation<'a> = Observation of 'a
 
