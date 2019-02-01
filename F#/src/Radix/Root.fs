@@ -218,8 +218,8 @@ type BoundedContext< ^command, ^event> = BoundedContext of MailboxProcessor<Cont
 
 module Aggregate = 
     
-    let inline decide (state: ^state) (command: ^command) =
-        (^state : (static member decide: ^state -> ^command -> ^event list) (state, command))
+    let inline decide (self: Address< ^command>)(state: ^state) (command: ^command) =
+        (^state : (static member decide: Address< ^command> -> ^state -> ^command -> ^event list) (self, state, command))
 
     let inline apply (state: ^state) (event: ^event) =
         (^state: (static member apply: ^state -> ^event -> ^state) (state, event))
@@ -227,7 +227,7 @@ module Aggregate =
     let inline create< ^state , ^command, ^event 
             when ^state: (static member Zero: ^state) 
             and ^state : (static member apply: ^state -> ^event -> ^state) 
-            and ^state : (static member decide: ^state -> ^command -> ^event list)> (BoundedContext context) (history: 'event list) =
+            and ^state : (static member decide: Address< ^command> -> ^state -> ^command -> ^event list)> (BoundedContext context) (history: 'event list) =
 
         let initialState =  List.fold apply LanguagePrimitives.GenericZero history
 
@@ -236,7 +236,7 @@ module Aggregate =
                     let rec messageLoop (state: ^state) = async {
                         let! (command, version, address) = inbox.Receive()
                         
-                        let events = decide state command
+                        let events = decide address state command
                         let newState = events |> List.fold apply state 
 
                         let saveEventsCommand : SaveEventsCommand<'command, 'event> = {
