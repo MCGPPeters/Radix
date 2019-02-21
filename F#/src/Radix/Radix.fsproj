@@ -4,12 +4,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Radix.fs" />
+    <Compile Include="Radix.Math.Pure.Structure.Order.fs" />
     <Compile Include="Radix.Math.Pure.Algebra.Structure.fs" />
+    <Compile Include="Radix.Math.Pure.Numbers.fs" />
     <Compile Include="Root.fs" />
     <Compile Include="Radix.Collections.List.fs" />
     <Compile Include="Radix.Collections.NonEmpty.fs" />
-    <Compile Include="Radix.Math.Pure.Structure.Order.fs" />
-    <Compile Include="Radix.Math.Pure.Numbers.fs" />
     <Compile Include="Radix.Math.Applied.Optimization.fs" />
     <Compile Include="Radix.Math.Applied.Learning.fs" />
     <Compile Include="Radix.Math.Applied.Probability.fs" />

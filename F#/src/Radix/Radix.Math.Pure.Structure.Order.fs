@@ -1,6 +1,13 @@
 namespace Radix.Math.Pure.Structure.Order
 open System
 
+// type Equality<'a> = 
+//     abstract member equals: 'a -> 'a -> bool
+//     static member (==) (a, b) = Equality<'a>.equals a b
+
+// type Orderings< ^a when ^a: equality> =
+    
+
 module Interval =
 
     let inline (|Open|_|) (lower: 'a) (upper: 'a) x =
