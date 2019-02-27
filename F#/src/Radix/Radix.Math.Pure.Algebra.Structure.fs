@@ -1,31 +1,33 @@
 ﻿module Radix.Math.Pure.Algebra.Structure
+open System.Text.RegularExpressions
 
 type Semigroup<'a> = 
-    abstract  combine:  'a -> 'a
+    abstract combine:  'a -> 'a -> 'a
 
 type Monoid<'a> =
     inherit Semigroup<'a>
-    abstract Zero: 'a
+    abstract zero: 'a
 
-// module Monoid = 
+module Monoid = 
 
-//     type Monoid with
-//         member x.sum a = a |> List.fold x.combine x.Zero
+    type Monoid<'a> with
+        member x.sum a = a |> List.fold x.combine x.zero
 
 type Group<'a> =
     inherit Monoid<'a>
     // inverse under addition
-    abstract negate: 'a
+    abstract negate: 'a -> 'a   
 
-// module Group = 
+module Group = 
 
-//     type Group with 
-//         member x.subtract a = x.negate a |> x.combine
+    type Group<'a> with 
+        member inline x.subtract a b = x.negate a |> x.combine b
+        
 
 type Ring<'a> = 
     inherit Group<'a>
-    abstract multiply: 'a -> 'a
-    abstract One : 'a
+    abstract multiply: 'a -> 'a -> 'a
+    abstract one : 'a
 
 
 type Field<'a> = 
@@ -35,4 +37,4 @@ type Field<'a> =
 
 module Field = 
     type Field<'a> with 
-        member x.divide a = x.negate a |> x.multiply
+        member x.divide a b = x.negate a |> x.multiply b
