@@ -17,7 +17,7 @@ type Action<'a> =
 
 type Feature<'s> = Feature of 's
 
-type State<'s> = State of Feature<'s> list
+type State<'s> = State of 's
 
 type Return<'t> = Return of 't * float
 
@@ -47,6 +47,7 @@ open Root
 type Terminal = bool
 
 
+// an effect is caused by the agent when taking an action
 type ActorCommand<'s, 'a> = 
 | Observe of Environment: Address<EnvironmentCommand<'s, 'a>> * Transition<'s, 'a> 
 and 
@@ -59,224 +60,243 @@ and
         Reward: Reward
     }
 
-
-
 type ActorEvent<'s, 'a> = 
 | Experienced of Transition<'s, 'a>
 
-type Environment< ^s, 'a when ^s: (static member Zero: ^s) and ^s : equality> = {
-    Dynamics : Action<'a> -> Randomized<State<'s>> * Reward * Terminal
-    Initial
-with
-    static member inline Zero = fun _ -> (certainly LanguagePrimitives.GenericZero) |> pick, 0.0, false
-    static member inline decide (this, state, command) = 
-        match command with       
-            | Effect (actor, action) -> 
-                let (s', reward, terminal) = state action
+type EnvironmentEvent<'s, 'a> = 
+| Transitioned of Transition<'s, 'a>
+| Terminated
 
 
 open Operators
 
-type Actor<'s, 'a> = {
-        Actions:  Action<'a> NonEmpty
-        Policy: Policy<'s, 'a>
-        Decide: Decide<'a>
+type Environment< ^s, 'a when ^s: (static member Zero: ^s) and ^s : equality> = {
+        Dynamics : Action<'a> -> (Randomized<State<'s>> * Reward) option
+        State: State<'s>
     }
     with
-        static member inline Zero = {
-            Policy = Policy (fun _ -> certainly Idle)
-            Actions = Singleton Idle
-            Decide = Decide (fun _ -> Idle)
-        }
-        static member inline decide (this, state, command) = 
+        static member inline Zero = 
+            let s: State<'s> = State LanguagePrimitives.GenericZero
+            {
+                Dynamics = fun _ -> None
+                State = s
+            }
+        static member inline decide (address, currentVersion, environment, command) = 
             match command with       
-                | Observe (environment, transition) -> 
-                    let (Policy policy) = state.Policy
-                    let (Decide decide) = state.Decide
-                    let action = transition.Destination |> (policy >> decide) // action occurs after transition, so based on destination state
-                    environment <-- (Effect (this, action), Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
-                    [Experienced transition]
+                | Effect (agent, action) -> 
+                    match(environment.Dynamics action) with
+                        | Some (Randomized destination, reward) ->
+                            let transition = {
+                                Origin = environment.State
+                                Destination = destination
+                                Reward = reward
+                                }
+                            agent <-- (Observe (address, transition), currentVersion)
+                            [Transitioned transition]
+                        | None -> [Terminated]
+        static member inline apply (_, __) = ()
+
+
+//type Actor<'s, 'a> = {
+//        Actions:  Action<'a> NonEmpty
+//        Policy: Policy<'s, 'a>
+//        Decide: Decide<'a>
+//    }
+//    with
+//        static member inline Zero = {
+//            Policy = Policy (fun _ -> certainly Idle)
+//            Actions = Singleton Idle
+//            Decide = Decide (fun _ -> Idle)
+//        }
+//        static member inline decide (address, state, command) = 
+//            match command with       
+//                | Observe (environment, transition) -> 
+//                    let (Policy policy) = state.Policy
+//                    let (Decide decide) = state.Decide
+//                    let action = transition.Destination |> (policy >> decide) // action occurs after transition, so based on destination state
+//                    environment <-- (Effect (this, action), Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
+//                    [Experienced transition]
                 
-        // static member inline apply (this, event) = 
-        //     match event with
-        //     | StateSet state' -> state'
+//        // static member inline apply (this, event) = 
+//        //     match event with
+//        //     | StateSet state' -> state'
 
-type Critic<'s, 'a> = {
-        Actions:  Action<'a> NonEmpty
-        Policy: Policy<'s, 'a>
-        Decide: Decide<'a>
-    }
-    with
-        static member inline Zero = {
-            Policy = Policy (fun _ -> certainly Idle)
-            Actions = Singleton Idle
-            Decide = Decide (fun _ -> Idle)
-        }
-        static member inline decide (this, command) = 
-            match command with       
-                | Observe (environment, transition) -> 
-                    let (Policy policy) = this.Policy
-                    let (Decide decide) = this.Decide
-                    let action = transition.Destination |> (policy >> decide)
-                    environment <-- (Effect action, Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
-                    [Experienced transition]
+//type Critic<'s, 'a> = {
+//        Actions:  Action<'a> NonEmpty
+//        Policy: Policy<'s, 'a>
+//        Decide: Decide<'a>
+//    }
+//    with
+//        static member inline Zero = {
+//            Policy = Policy (fun _ -> certainly Idle)
+//            Actions = Singleton Idle
+//            Decide = Decide (fun _ -> Idle)
+//        }
+//        static member inline decide (this, command) = 
+//            match command with       
+//                | Observe (environment, transition) -> 
+//                    let (Policy policy) = this.Policy
+//                    let (Decide decide) = this.Decide
+//                    let action = transition.Destination |> (policy >> decide)
+//                    environment <-- (Effect action, Version.Any) // no concurrency control, since the environment state will not wait for the agent to react
+//                    [Experienced transition]
                 
-        // static member inline apply (this, event) = 
-        //     match event with
-        //     | StateSet state' -> state'    
+//        // static member inline apply (this, event) = 
+//        //     match event with
+//        //     | StateSet state' -> state'    
 
-type Observation<'a> = Observation of 'a
-
-
+//type Observation<'a> = Observation of 'a
 
 
 
-module Environment = 
 
-    let rec episode environment (agent: Address<ActorCommand<'s, 'a>>) observation =
-        agent <-- observation
-        let (Randomized next, reward, final) = environment.Dynamics action
-        match final with
-        | true -> 
 
-module TD = 
-    let update (learningRate: Alpha) target (current: Return<'a>) =
-        let (Return (state, value)) = current
-        Expectation(Return (state, value + learningRate * (target - value)))
+//module Environment = 
 
-    let target (reward: Reward) (discount: Gamma) (next: Return<'a>) = 
-        let (Return(state, value)) = next
-        let (Reward r) = reward
-        let expected = r + (discount * value)
-        Expectation( Return (state, expected))
+//    let rec episode environment (agent: Address<ActorCommand<'s, 'a>>) observation =
+//        agent <-- observation
+//        let (Randomized next, reward, final) = environment.Dynamics action
+//        match final with
+//        | true -> 
 
-module Agent =
+//module TD = 
+//    let update (learningRate: Alpha) target (current: Return<'a>) =
+//        let (Return (state, value)) = current
+//        Expectation(Return (state, value + learningRate * (target - value)))
+
+//    let target (reward: Reward) (discount: Gamma) (next: Return<'a>) = 
+//        let (Return(state, value)) = next
+//        let (Reward r) = reward
+//        let expected = r + (discount * value)
+//        Expectation( Return (state, expected))
+
+//module Agent =
         
-    let inline create< 's, 'a > (policy: Policy<'s, 'a>) decide : Actor<'s, 'a> =
-        let (Policy policy) = policy
-        policy >> decide
+//    let inline create< 's, 'a > (policy: Policy<'s, 'a>) decide : Actor<'s, 'a> =
+//        let (Policy policy) = policy
+//        policy >> decide
 
-module Prediction =
+//module Prediction =
 
-    let return' state (rewards: Reward list) (discount: Gamma) = 
-        let r = rewards
-                |> List.mapi (fun tick (Reward reward) -> 
-                               (pown discount tick) * reward)
-                |> List.sum
-        Return (state, r)                   
+//    let return' state (rewards: Reward list) (discount: Gamma) = 
+//        let r = rewards
+//                |> List.mapi (fun tick (Reward reward) -> 
+//                               (pown discount tick) * reward)
+//                |> List.sum
+//        Return (state, r)                   
 
-    let rec find utilities (state: State<'s>) =
-        match utilities with
-        | [] -> (state, 0.0)
-        | (s, value)::_ when s = state -> (state, value)
-        | _::xs -> find xs state
+//    let rec find utilities (state: State<'s>) =
+//        match utilities with
+//        | [] -> (state, 0.0)
+//        | (s, value)::_ when s = state -> (state, value)
+//        | _::xs -> find xs state
 
-    module TD0 =  
+//    module TD0 =  
 
-        let rec step environment (agent: Actor<'s, 'a>) state utilities learningRate discount =
+//        let rec step environment (agent: Actor<'s, 'a>) state utilities learningRate discount =
 
-            let action = agent state   
-            let (Randomized(next, reward, final)) = environment.Dynamics action
-            let (Expectation nextReturn) = utilities |> List.find (fun (Expectation (Return (s, _))) -> s = next)
-            let (Expectation currentReturn) = utilities |> List.find (fun (Expectation (Return (s, _))) -> s = state)
-            let (Expectation(Return(_, target))) = TD.target reward discount nextReturn
-            let utilities' = utilities 
-                             |> List.map (fun (Expectation (Return (s, value))) -> match s = state with 
-                                                                                   | true -> (TD.update learningRate target currentReturn)  
-                                                                                   | false -> (Expectation (Return(s, value))))
-            match final with
-            | true -> utilities'
-            | false -> step environment agent next utilities' learningRate discount     
+//            let action = agent state   
+//            let (Randomized(next, reward, final)) = environment.Dynamics action
+//            let (Expectation nextReturn) = utilities |> List.find (fun (Expectation (Return (s, _))) -> s = next)
+//            let (Expectation currentReturn) = utilities |> List.find (fun (Expectation (Return (s, _))) -> s = state)
+//            let (Expectation(Return(_, target))) = TD.target reward discount nextReturn
+//            let utilities' = utilities 
+//                             |> List.map (fun (Expectation (Return (s, value))) -> match s = state with 
+//                                                                                   | true -> (TD.update learningRate target currentReturn)  
+//                                                                                   | false -> (Expectation (Return(s, value))))
+//            match final with
+//            | true -> utilities'
+//            | false -> step environment agent next utilities' learningRate discount     
 
     
-module Control =
+//module Control =
 
-    let inline greedy distribution = 
-        let (Event (x, _)) = (distribution |> argMax)
-        x
+//    let inline greedy distribution = 
+//        let (Event (x, _)) = (distribution |> argMax)
+//        x
 
-    let inline eGreedy epsilon distribution = 
-        let uniform = uniform (List(0.0,[0.1..1.0]))
-        let (Randomized sigma) = uniform |> pick
-        match sigma > epsilon with
-        | true -> let (Event (x, _)) = (distribution |> argMax)
-                  x
-        | false -> let (Randomized x) = distribution |> pick
-                   x    
+//    let inline eGreedy epsilon distribution = 
+//        let uniform = uniform (List(0.0,[0.1..1.0]))
+//        let (Randomized sigma) = uniform |> pick
+//        match sigma > epsilon with
+//        | true -> let (Event (x, _)) = (distribution |> argMax)
+//                  x
+//        | false -> let (Randomized x) = distribution |> pick
+//                   x    
 
-    let createPolicy policyMatrix = 
-        Policy(fun (State position) -> 
-            let map = Map.ofList policyMatrix
-            map.[position])    
+//    let createPolicy policyMatrix = 
+//        Policy(fun (State position) -> 
+//            let map = Map.ofList policyMatrix
+//            map.[position])    
 
-    module Sarsa =
+//    module Sarsa =
 
-        let rec step<'s, 'a when 's: equality and 's : comparison and 'a: equality> (environment: Environment<'s, 'a>) (observation: ((State<'s> * Action<'a>) * Reward)) policyMatrix decide qValues learningRate discount =
+//        let rec step<'s, 'a when 's: equality and 's : comparison and 'a: equality> (environment: Environment<'s, 'a>) (observation: ((State<'s> * Action<'a>) * Reward)) policyMatrix decide qValues learningRate discount =
 
-            let ((state, _), _) = observation
-            let action = policyMatrix |> List.find (fun (s, _) -> s = state) |> snd      
+//            let ((state, _), _) = observation
+//            let action = policyMatrix |> List.find (fun (s, _) -> s = state) |> snd      
 
-            let (Randomized (next, reward, terminal)) = environment.Dynamics action
+//            let (Randomized (next, reward, terminal)) = environment.Dynamics action
 
-            let observation' = ((next, action), reward)
-            let nextAction = policyMatrix |> List.find (fun (s, _) -> s = next) |> snd 
+//            let observation' = ((next, action), reward)
+//            let nextAction = policyMatrix |> List.find (fun (s, _) -> s = next) |> snd 
 
-            let (Expectation(q)) = qValues 
-                                   |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (state, action)) 
-            let (Expectation(qt1)) = qValues 
-                                     |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (next, nextAction)) 
+//            let (Expectation(q)) = qValues 
+//                                   |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (state, action)) 
+//            let (Expectation(qt1)) = qValues 
+//                                     |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (next, nextAction)) 
 
-            let (Expectation(Return(_, target))) = TD.target reward discount qt1
-            let newQValue = TD.update learningRate target q                                  
-            let qValues' = qValues 
-                           |> List.map (fun (Expectation(Return((s, a), value))) -> match (s, a) = (state, action) with 
-                                                                                    | true -> newQValue  
-                                                                                    | false -> Expectation(Return ((s,a), value)))
-            let (Expectation(Return((_, bestAction), _))) = qValues' 
-                                                            |> List.filter (fun (Expectation(Return((s, _), _))) -> s = state) 
-                                                            |> List.maxBy (fun (Expectation(Return ((_,_), value))) -> value)  
+//            let (Expectation(Return(_, target))) = TD.target reward discount qt1
+//            let newQValue = TD.update learningRate target q                                  
+//            let qValues' = qValues 
+//                           |> List.map (fun (Expectation(Return((s, a), value))) -> match (s, a) = (state, action) with 
+//                                                                                    | true -> newQValue  
+//                                                                                    | false -> Expectation(Return ((s,a), value)))
+//            let (Expectation(Return((_, bestAction), _))) = qValues' 
+//                                                            |> List.filter (fun (Expectation(Return((s, _), _))) -> s = state) 
+//                                                            |> List.maxBy (fun (Expectation(Return ((_,_), value))) -> value)  
 
-            let policyMatrix' = policyMatrix |> List.map (fun (s, a) -> match state = s with
-                                                                        | true -> (s, bestAction)
-                                                                        | false -> (s, a))                                                                            
+//            let policyMatrix' = policyMatrix |> List.map (fun (s, a) -> match state = s with
+//                                                                        | true -> (s, bestAction)
+//                                                                        | false -> (s, a))                                                                            
             
-            match terminal with
-            | true -> policyMatrix', qValues'
-            | false -> step environment observation' policyMatrix' decide qValues' learningRate discount 
+//            match terminal with
+//            | true -> policyMatrix', qValues'
+//            | false -> step environment observation' policyMatrix' decide qValues' learningRate discount 
 
-    module ActorCritic =
-        let rec step<'s, 'a when 's: equality and 's : comparison and 'a: equality> (environment: Environment<'s, 'a>) (observation: ((State<'s> * Action<'a>) * Reward)) policyMatrix decide qValues learningRate discount =
+//    module ActorCritic =
+//        let rec step<'s, 'a when 's: equality and 's : comparison and 'a: equality> (environment: Environment<'s, 'a>) (observation: ((State<'s> * Action<'a>) * Reward)) policyMatrix decide qValues learningRate discount =
 
-            let ((state, _), _) = observation
-            let action = policyMatrix |> List.find (fun (s, _) -> s = state) |> snd      
+//            let ((state, _), _) = observation
+//            let action = policyMatrix |> List.find (fun (s, _) -> s = state) |> snd      
 
-            let (Randomized (next, reward, terminal)) = environment.Dynamics action
+//            let (Randomized (next, reward, terminal)) = environment.Dynamics action
 
-            let observation' = ((next, action), reward)
-            let nextAction = policyMatrix |> List.find (fun (s, _) -> s = next) |> snd 
+//            let observation' = ((next, action), reward)
+//            let nextAction = policyMatrix |> List.find (fun (s, _) -> s = next) |> snd 
 
-            let (Expectation(q)) = qValues 
-                                   |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (state, action)) 
-            let (Expectation(qt1)) = qValues 
-                                     |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (next, nextAction)) 
+//            let (Expectation(q)) = qValues 
+//                                   |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (state, action)) 
+//            let (Expectation(qt1)) = qValues 
+//                                     |> List.find (fun (Expectation(Return((s, a), _))) -> (s, a) = (next, nextAction)) 
 
-            let (Expectation(Return(_, target))) = TD.target reward discount qt1
-            let newQValue = TD.update learningRate target q                                  
-            let qValues' = qValues 
-                           |> List.map (fun (Expectation(Return((s, a), value))) -> match (s, a) = (state, action) with 
-                                                                                    | true -> newQValue  
-                                                                                    | false -> Expectation(Return ((s,a), value)))
-            let (Expectation(Return((_, bestAction), _))) = qValues' 
-                                                            |> List.filter (fun (Expectation(Return((s, _), _))) -> s = state) 
-                                                            |> List.maxBy (fun (Expectation(Return ((_,_), value))) -> value)  
+//            let (Expectation(Return(_, target))) = TD.target reward discount qt1
+//            let newQValue = TD.update learningRate target q                                  
+//            let qValues' = qValues 
+//                           |> List.map (fun (Expectation(Return((s, a), value))) -> match (s, a) = (state, action) with 
+//                                                                                    | true -> newQValue  
+//                                                                                    | false -> Expectation(Return ((s,a), value)))
+//            let (Expectation(Return((_, bestAction), _))) = qValues' 
+//                                                            |> List.filter (fun (Expectation(Return((s, _), _))) -> s = state) 
+//                                                            |> List.maxBy (fun (Expectation(Return ((_,_), value))) -> value)  
 
-            let policyMatrix' = policyMatrix |> List.map (fun (s, a) -> match state = s with
-                                                                        | true -> (s, bestAction)
-                                                                        | false -> (s, a))                                                                            
+//            let policyMatrix' = policyMatrix |> List.map (fun (s, a) -> match state = s with
+//                                                                        | true -> (s, bestAction)
+//                                                                        | false -> (s, a))                                                                            
             
-            match terminal with
-            | true -> policyMatrix', qValues'
-            | false -> step environment observation' policyMatrix' decide qValues' learningRate discount   
+//            match terminal with
+//            | true -> policyMatrix', qValues'
+//            | false -> step environment observation' policyMatrix' decide qValues' learningRate discount   
 
 
 module Objective = 

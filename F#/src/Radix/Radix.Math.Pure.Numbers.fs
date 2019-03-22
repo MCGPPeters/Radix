@@ -108,6 +108,10 @@ module Integer =
         let absY = Integer (abs y')
 
         (absX / (gcd x y)) * absY
+
+    //module Factorisation = 
+        
+    //    let inline QS
         
 
 type Rational = private Rational of {| Numerator: Integer; Denominator: Integer |}
@@ -146,6 +150,7 @@ type Rational = private Rational of {| Numerator: Integer; Denominator: Integer 
     static member (~-) x =
         (Rational {| Numerator = Integer 0; Denominator = Integer 1|}) - x
 
+
     interface Group<Rational, Addition<Rational>> with
         member __.identity = Rational {| Numerator = Integer 0; Denominator = Integer 1|}
         member __.combine = 
@@ -179,13 +184,13 @@ open Radix.Math.Pure.Structure.Order
 /// <summary>
 ///     A rational number in the open interval (0, 1), e.g. 0 &gt; x &lt; 1
 /// </summary>
-//type ProperFraction = 
-//    private ProperFraction of Rational
-//        static member Create n = 
-//            match n with
-//            | Interval.Open 0.0 1.0 x -> Ok (ProperFraction x)
-//            | _ -> Error "n is not a proper fraction"
-//        static member (*) (ProperFraction a, ProperFraction b) = ProperFraction.Create(a * b)
+type ProperFraction = 
+    private ProperFraction of float
+        static member Create n = 
+            match n with
+            | Interval.Open 0.0 1.0 x -> Ok (ProperFraction x)
+            | _ -> Error "n is not a proper fraction"
+        static member (*) (ProperFraction a, ProperFraction b) = ProperFraction.Create(a * b)
 
 type Dual = private Dual of double * double
     with

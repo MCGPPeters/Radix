@@ -1,7 +1,5 @@
 namespace Radix.Math.Applied.Learning.Reinforced.Testing
 
-module 
-
 open FSharp.Data
 open FSharp.Json
 open FSharp.Data.HttpRequestHeaders
@@ -80,26 +78,26 @@ module OpenAI =
                 let stop baseUrl instanceId =
                     Http.RequestString(baseUrl + "/v1/envs/" + instanceId + "/monitor/close/", httpMethod = HttpMethod.Post, headers = [ ContentType HttpContentTypes.Json ], body = TextRequest "")  
 
-        module Environment = 
+        //module Environment = 
 
-            module FrozenLake = 
+        //    module FrozenLake = 
 
-                open Radix.Math.Applied.Learning.Reinforced
-                open Radix.Math.Applied.Probability.Sampling
+        //        open Radix.Math.Applied.Learning.Reinforced
+        //        open Radix.Math.Applied.Probability.Sampling
 
-                type Step = JsonProvider<""" {"done":false,"info":{"prob":0.3333333333333333},"observation":4,"reward":0.0} """>
+        //        type Step = JsonProvider<""" {"done":false,"info":{"prob":0.3333333333333333},"observation":4,"reward":0.0} """>
 
-                let create baseUrl discount render = 
-                    let frozenLake = Api.Environment.create baseUrl "FrozenLake-v0"         
+        //        let create baseUrl discount render = 
+        //            let frozenLake = Api.Environment.create baseUrl "FrozenLake-v0"         
 
-                    {
-                        Dynamics = fun (Action action) ->
+        //            {
+        //                Dynamics = fun (Action action) ->
 
-                                        let observation = Step.Parse(Api.Environment.step baseUrl frozenLake.InstanceId action render)
-                                        Randomized (State observation.Observation, Reward (float observation.Reward), observation.Done)
-                        Discount = discount
-                        Actions = [0 .. 3] |> List.map (fun a -> Action a)
-                        Observations = [0 .. 15] |> List.map (fun o -> Observation o)                
-                    }
+        //                                let observation = Step.Parse(Api.Environment.step baseUrl frozenLake.InstanceId action render)
+        //                                Randomized (State observation.Observation, Reward (float observation.Reward), observation.Done)
+        //                Discount = discount
+        //                Actions = [0 .. 3] |> List.map (fun a -> Action a)
+        //                Observations = [0 .. 15] |> List.map (fun o -> Observation o)                
+        //            }
 
 
