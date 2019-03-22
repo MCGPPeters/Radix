@@ -36,7 +36,7 @@ with
         Count = 0
         Activated = false
     }
-    static member inline decide (state, command) = 
+    static member inline decide (_, state, command) = 
         match command with       
             | DeactivateInventoryItem _ -> [InventoryItemDeactivated ()]
             | RenameInventoryItem name -> [InventoryItemRenamed name]
@@ -99,30 +99,30 @@ let ``foo`` (value: int) =
 
     inventoryItem <-- (CheckInItemsToInventory value, Version 1L)
 
-open Radix.Math.Applied.Learning.Reinforced.Testing.OpenAI.Gym.Api
-open System
-[<Property(Verbose = true)>]
-let ``bar`` (value: int) =
+//open Radix.Math.Applied.Learning.Reinforced.Testing.OpenAI.Gym.Api
+//open System
+//[<Property(Verbose = true)>]
+//let ``bar`` (value: int) =
 
-    let baseUrl = "http://127.0.0.1:5000"
+//    let baseUrl = "http://127.0.0.1:5000"
 
-    let environmentId = "FrozenLake-v0"
+//    let environmentId = "FrozenLake-v0"
 
-    let environment = Environment.create baseUrl environmentId
-    ActionSpace.get baseUrl environment.InstanceId
+//    let environment = Environment.create baseUrl environmentId
+//    ActionSpace.get baseUrl environment.InstanceId
 
-    ObservationSpace.get baseUrl environment.InstanceId
+//    ObservationSpace.get baseUrl environment.InstanceId
 
-    Monitor.start baseUrl environment.InstanceId "frozenlake" true false false
+//    Monitor.start baseUrl environment.InstanceId "frozenlake" true false false
 
-    Environment.reset baseUrl environment.InstanceId
-    Environment.step baseUrl environment.InstanceId 3 true
-    Environment.step baseUrl environment.InstanceId 3 true
-    Environment.step baseUrl environment.InstanceId 0 true
-    Environment.step baseUrl environment.InstanceId 0 true
-    Environment.step baseUrl environment.InstanceId 1 true
-    Environment.step baseUrl environment.InstanceId 1 true
-    Environment.step baseUrl environment.InstanceId 2 true
-    //Environment.step baseUrl environment.InstanceId 2 true
+//    Environment.reset baseUrl environment.InstanceId
+//    Environment.step baseUrl environment.InstanceId 3 true
+//    Environment.step baseUrl environment.InstanceId 3 true
+//    Environment.step baseUrl environment.InstanceId 0 true
+//    Environment.step baseUrl environment.InstanceId 0 true
+//    Environment.step baseUrl environment.InstanceId 1 true
+//    Environment.step baseUrl environment.InstanceId 1 true
+//    Environment.step baseUrl environment.InstanceId 2 true
+//    //Environment.step baseUrl environment.InstanceId 2 true
 
-    Monitor.stop baseUrl environment.InstanceId
+//    Monitor.stop baseUrl environment.InstanceId
