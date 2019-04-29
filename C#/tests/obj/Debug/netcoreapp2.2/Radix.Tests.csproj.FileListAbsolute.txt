@@ -1,0 +1,14 @@
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/xunit.runner.visualstudio.dotnetcore.testadapter.dll
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/xunit.runner.reporters.netcoreapp10.dll
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/xunit.runner.utility.netcoreapp10.dll
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/Radix.Tests.deps.json
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/Radix.Tests.runtimeconfig.json
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/Radix.Tests.runtimeconfig.dev.json
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/Radix.Tests.dll
+/home/mcgppeters/dev/Radix/C#/tests/bin/Debug/netcoreapp2.2/Radix.Tests.pdb
+/home/mcgppeters/dev/Radix/C#/tests/obj/Debug/netcoreapp2.2/Radix.Tests.csprojAssemblyReference.cache
+/home/mcgppeters/dev/Radix/C#/tests/obj/Debug/netcoreapp2.2/Radix.Tests.csproj.CoreCompileInputs.cache
+/home/mcgppeters/dev/Radix/C#/tests/obj/Debug/netcoreapp2.2/Radix.Tests.AssemblyInfoInputs.cache
+/home/mcgppeters/dev/Radix/C#/tests/obj/Debug/netcoreapp2.2/Radix.Tests.AssemblyInfo.cs
+/home/mcgppeters/dev/Radix/C#/tests/obj/Debug/netcoreapp2.2/Radix.Tests.dll
+/home/mcgppeters/dev/Radix/C#/tests/obj/Debug/netcoreapp2.2/Radix.Tests.pdb
