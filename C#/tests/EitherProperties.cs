@@ -25,9 +25,12 @@ namespace Radix.Tests
         public override string ToString() => "{}";
     }
 
+    /// The result interface ensures the following
+    /// - a common base type for the Error and Ok types, so that the type pattern can be used for pattern matching
+    /// - the generic type parameter can be made covariant (allowing subtypes as a value fot the generic type parameter to match as well)
     public interface Result<out T>
     {
-        
+
     }
 
     public interface IMonoid<T>
@@ -50,27 +53,22 @@ namespace Radix.Tests
         public static T operator +(Monoid<T> first, Monoid<T> second) => first.Concat(second);
     }
 
-    
 
-    
+
+
 
     namespace Result
     {
         public static class Extensions
         {
-            public static Result<T> Ok<T>(T t) => new Ok<T>(t);          
-            public static Result<T> Bind<T, TResult>(
-            this Result<T> result,
-            Func<T, Result<T>> function) 
+            public static Result<T> Ok<T>(T t) => new Ok<T>(t);
+            public static Result<T> Bind<T, TResult>(this Result<T> result, Func<T, Result<T>> function)
+            => result switch
             {
-                switch (result)
-                {
-                    case Ok<T> ok:
-                        return function(ok);
-                    case Error<T> error:
-                        return error;
-                }
-            } 
+                Ok<T> ok => function(ok),
+                Error<T> error => error,
+                _ => throw new InvalidOperationException("Unlikely")
+            };
         }
 
         public class Error<T> : Monoid<Error<T>>, Result<T>
@@ -88,7 +86,7 @@ namespace Radix.Tests
 
             public static implicit operator string[](Error<T> error) => error.Messages;
 
-            public static implicit operator string (Error<T> error) => error.Messages.Select(m => new Error<T>(m))
+            public static implicit operator string(Error<T> error) => error.Messages.Select(m => new Error<T>(m))
                 .Aggregate((current, next) => current.Append(next));
 
             public override Error<T> Append(Error<T> t) => new Error<T>(Messages.Concat(t.Messages).ToArray());
@@ -101,12 +99,12 @@ namespace Radix.Tests
 
         public struct Ok<T> : Result<T>
         {
-            internal Ok(T t) 
+            internal Ok(T t)
             {
-                if(t is object) this.Value = t;
+                if (t is object) this.Value = t;
                 else
                     throw new ArgumentNullException(nameof(t));
-                
+
             }
 
             public static implicit operator Ok<T>(T t) => new Ok<T>(t);
@@ -126,12 +124,13 @@ namespace Radix.Tests
 
         [Property(
             DisplayName =
-                "Can pattern match over cases")]
+                "As a developer I want to be able to use the language support for pattern matching, so that the code is easy to understand")]
         public void Test1(NonEmptyString s)
         {
             var either = Ok(s.Get);
 
-            switch (either){
+            switch (either)
+            {
                 case Ok<string> _:
                     Pass();
                     break;
