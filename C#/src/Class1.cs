@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Radix
+﻿namespace Radix
 {
     public class Class1
     {
