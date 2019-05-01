@@ -19,5 +19,8 @@ namespace Radix.Tests.Result
 
         public static Result<TResult> Map<T, TResult>(this Result<T> result, Func<T, TResult> function) 
             => result.Bind(x => Ok(function(x)));
+
+        public static Result<TResult> Apply<T, TResult>(this Result<Func<T, TResult>> selector, Result<T> result)
+            => selector.Bind(f => result.Map(x => f(x)));
     }
 }

@@ -77,10 +77,51 @@ namespace Radix.Tests
         {
             Func<string, int> f = x => int.Parse(x);
             Func<int, string> g = x => x.ToString();
-            
             var result = Ok(i);
 
             Equal(result.Map(g).Map(f), result.Map(x => f(g(x))));
+        }
+
+        [Trait("Category", "Applicative functor")]
+        [Property(DisplayName = "Must preserve identity morphisms")]
+        public void Test7(int i)
+        {
+            Func<int, int> id = x => x;
+            var selector = Ok(id);
+            var result = Ok(i);
+
+            Equal(selector.Apply(result), result);
+        }
+
+        [Trait("Category", "Applicative functor")]
+        [Property(DisplayName = "Composition preservation")]
+        public void Test8(int i)
+        {
+            // todo: hard to express in C#
+        }
+
+        [Trait("Category", "Applicative functor")]
+        [Property(DisplayName = "Homomorphism")]
+        public void Test9(int i)
+        {
+            Func<int, int> f = x => x;
+            var selector = Ok(f);
+            var result = Ok(i);
+
+            Equal(Ok(f(i)), selector.Apply(result));
+        }
+
+        [Trait("Category", "Applicative functor")]
+        [Property(DisplayName = "Interchange")]
+        public void Test10(int i)
+        {
+            Func<int, int> f = x => x;
+
+            
+            var selector = Ok(f);
+            var result = Ok(i);
+
+            Equal(selector.Apply(result), Ok(new Func<Func<int, int>, int>(function => function(i))).Apply(selector));
         }
     }
 
