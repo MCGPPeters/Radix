@@ -5,23 +5,12 @@ using Radix.Tests.Result;
 using Xunit;
 using static Radix.Tests.Result.Extensions;
 using static Xunit.Assert;
+using static Radix.Tests.Assert;
 
 namespace Radix.Tests
 {
-
-
     public class ResultProperties
     {
-        private static void Fail()
-        {
-            True(false);
-        }
-
-        private static void Pass()
-        {
-            True(true);
-        }
-
         [Property(
             DisplayName =
                 "As a developer I want to be able to use the language support for pattern matching, so that the code is easy to understand")]
@@ -70,6 +59,28 @@ namespace Radix.Tests
             Func<string, Result<int>> g = x => Ok(int.Parse(x));
 
             Equal(result.Bind(f).Bind(g), result.Bind(x => f(x).Bind(g)));
+        }
+
+        [Trait("Category", "Functor")]
+        [Property(DisplayName = "Must preserve identity morphisms")]
+        public void Test5(int i)
+        {
+            Func<int, int> id = x => x;
+            var result = Ok(i);
+
+            Equal(result, result.Map(id));
+        }
+
+        [Trait("Category", "Functor")]
+        [Property(DisplayName = "Preserve composition of morphisms")]
+        public void Test6(int i)
+        {
+            Func<string, int> f = x => int.Parse(x);
+            Func<int, string> g = x => x.ToString();
+            
+            var result = Ok(i);
+
+            Equal(result.Map(g).Map(f), result.Map(x => f(g(x))));
         }
     }
 
