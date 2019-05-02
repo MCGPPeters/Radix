@@ -9,6 +9,11 @@ namespace Radix.Tests.Result
             return new Ok<T>(t);
         }
 
+        public static Result<T> Error<T>(params string[] message)
+        {
+            return new Error<T>();
+        }
+
         public static Result<TResult> Bind<T, TResult>(this Result<T> result, Func<T, Result<TResult>> function) 
             => result switch
                 {
