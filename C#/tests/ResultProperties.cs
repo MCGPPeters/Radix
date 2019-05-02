@@ -9,7 +9,7 @@ using static Radix.Tests.Assert;
 
 namespace Radix.Tests
 {
-    public class ResultProperties
+    public partial class ResultProperties
     {
         [Property(
             DisplayName =
@@ -123,6 +123,7 @@ namespace Radix.Tests
 
             Equal(selector.Apply(result), Ok(new Func<Func<int, int>, int>(function => function(i))).Apply(selector));
         }
+
     }
 
 }
