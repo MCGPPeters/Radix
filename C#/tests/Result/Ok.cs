@@ -2,6 +2,7 @@ using System;
 
 namespace Radix.Tests.Result
 {
+
     public struct Ok<T> : Result<T>
     {
         internal Ok(T t)
@@ -33,4 +34,5 @@ namespace Radix.Tests.Result
             value = Value;
         }
     }
+
 }
