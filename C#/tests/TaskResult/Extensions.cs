@@ -18,6 +18,11 @@ namespace TaskResult
             => task.Select(result => result.Map(f));
 
         public static Task<Result<TResult>> Bind<T, TResult>(this Task<Result<T>> task, Func<T, Task<Result<TResult>>> function) 
-            => task.SelectMany(result => Task.FromResult(result).Bind(function));
+            => task.SelectMany(result => result switch
+                {
+                    Ok<T>(var value) => function(value),
+                    Error<T>(var messages) => Task.FromResult(new Error<TResult>(messages) as Result<TResult>),
+                    _ => throw new NotSupportedException("Unlikely")
+                });
     }
 }

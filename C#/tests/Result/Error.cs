@@ -21,7 +21,7 @@ namespace Radix.Tests.Result
         public static implicit operator Error<T>(string[] messages)
         {
             return messages.Select(m => new Error<T>(m))
-                .Aggregate((current, next) => current.Append(next));
+                .Aggregate((current, next) => current.Combine(next));
         }
 
         public static implicit operator string[](Error<T> error)
@@ -29,7 +29,7 @@ namespace Radix.Tests.Result
             return error.Messages;
         }
 
-        public override Error<T> Append(Error<T> t)
+        public override Error<T> Combine(Error<T> t)
         {
             return new Error<T>(Messages.Concat(t.Messages).ToArray());
         }
