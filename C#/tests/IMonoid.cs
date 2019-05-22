@@ -4,7 +4,7 @@ namespace Radix.Tests
     {
         T Identity { get; }
 
-        T Append(T t);
+        T Combine(T t);
 
         T Concat(IMonoid<T> other);
     }

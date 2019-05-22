@@ -4,11 +4,11 @@ namespace Radix.Tests
     {
         public abstract T Identity { get; }
 
-        public abstract T Append(T t);
+        public abstract T Combine(T t);
 
         public T Concat(IMonoid<T> other)
         {
-            return Append(other.Identity);
+            return Combine(other.Identity);
         }
 
         public static T operator +(Monoid<T> first, Monoid<T> second)

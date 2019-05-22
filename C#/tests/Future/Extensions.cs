@@ -69,6 +69,5 @@ namespace Radix.Tests.Future
                         return await Retry(function, intervals.Skip(1).ToArray()).ConfigureAwait(false);
                     });
 
-        public static TimeSpan[] Exponential => Enumerable.Range(1, 32).Select(x => TimeSpan.FromSeconds(Math.Pow(x, 2))).ToArray();
     }
 }

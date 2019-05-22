@@ -19,7 +19,7 @@ namespace Radix.Tests.Result
                 {
                     Ok<T> (var value) => function(value),
                     Error<T> (var messages) => new Error<TResult>(messages),
-                    _ => throw new InvalidOperationException("Unlikely")
+                    _ => throw new NotSupportedException("Unlikely")
                 };
 
         public static Result<TResult> Map<T, TResult>(this Result<T> result, Func<T, TResult> function) 
