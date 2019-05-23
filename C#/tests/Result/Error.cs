@@ -2,45 +2,34 @@ using System.Linq;
 
 namespace Radix.Tests.Result
 {
-    public class Error<T> : Monoid<Error<T>>, Result<T>
+    public interface IError{}
+
+    public class Error<T> : Result<T>
     {
-        internal Error(params string[] messages)
+        internal Error(params IError[] errors)
         {
-            Messages = messages;
+            Errors = errors;
         }
 
-        public string[] Messages { get; }
+        public IError[] Errors { get; }
 
-        public override Error<T> Identity => Messages;
+        // public static implicit operator Error<T>(IError message)
+        // {
+        //     return new Error<T>(message);
+        // }
 
-        public static implicit operator Error<T>(string message)
-        {
-            return new Error<T>(message);
-        }
-
-        public static implicit operator Error<T>(string[] messages)
-        {
-            return messages.Select(m => new Error<T>(m))
-                .Aggregate((current, next) => current.Combine(next));
-        }
-
-        public static implicit operator string[](Error<T> error)
-        {
-            return error.Messages;
-        }
-
-        public override Error<T> Combine(Error<T> t)
-        {
-            return new Error<T>(Messages.Concat(t.Messages).ToArray());
-        }
+        // public static implicit operator string[](Error<T, TError> error)
+        // {
+        //     return error.Messages;
+        // }
 
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
         /// </summary>
-        /// <param name="messages"></param>
-        public void Deconstruct(out string[] messages)
+        /// <param name="errors"></param>
+        public void Deconstruct(out IError[] errors)
         {
-            messages = Messages;
+            errors = Errors;
         }
     }
 }
