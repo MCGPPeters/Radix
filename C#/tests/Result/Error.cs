@@ -2,34 +2,22 @@ using System.Linq;
 
 namespace Radix.Tests.Result
 {
-    public interface IError{}
-
-    public class Error<T> : Result<T>
+    public class Error<T, TError> : Result<T, TError>
     {
-        internal Error(params IError[] errors)
+        internal Error(TError error)
         {
-            Errors = errors;
+            _error = error;
         }
 
-        public IError[] Errors { get; }
-
-        // public static implicit operator Error<T>(IError message)
-        // {
-        //     return new Error<T>(message);
-        // }
-
-        // public static implicit operator string[](Error<T, TError> error)
-        // {
-        //     return error.Messages;
-        // }
-
+        private TError _error;
+        
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
         /// </summary>
         /// <param name="errors"></param>
-        public void Deconstruct(out IError[] errors)
+        public void Deconstruct(out TError error)
         {
-            errors = Errors;
+            error = _error;
         }
     }
 }

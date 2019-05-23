@@ -13,15 +13,15 @@ namespace TaskResult
 {
     public static class Extensions
     {
-        public static Task<Result<TResult>> Map<T, TResult, TError>
-            (this Task<Result<T>> task, Func<T, TResult> f)
+        public static Task<Result<TResult, TError>> Map<T, TResult, TError>
+            (this Task<Result<T, TError>> task, Func<T, TResult> f)
             => task.Select(result => result.Map(f));
 
-        public static Task<Result<TResult>> Bind<T, TResult>(this Task<Result<T>> task, Func<T, Task<Result<TResult>>> function) 
+        public static Task<Result<TResult, TError>> Bind<T, TResult, TError>(this Task<Result<T, TError>> task, Func<T, Task<Result<TResult, TError>>> function) 
             => task.SelectMany(result => result switch
                 {
-                    Ok<T>(var value) => function(value),
-                    Error<T> (var error) => Task.FromResult(Error<TResult>(error)),
+                    Ok<T, TError>(var value) => function(value),
+                    Error<T, TError> (var error) => Task.FromResult(Error<TResult, TError>(error)),
                     _ => throw new NotSupportedException("Unlikely")
                 });
     }
