@@ -16,14 +16,14 @@ namespace Radix.Tests
                 "As a developer I want to be able to use the language support for pattern matching, so that the code is easy to understand")]
         public void Test1(NonEmptyString s)
         {
-            var result = Ok(s.Get);
+            var result = Ok<string, string>(s.Get);
 
             switch (result)
             {
-                case Ok<string> _:
+                case Ok<string, string> _:
                     Pass();
                     break;
-                case Error<string> _:
+                case Error<string, string> _:
                     Fail();
                     break;
             }
@@ -33,9 +33,9 @@ namespace Radix.Tests
         [Property(DisplayName = "Left identity law")]
         public void Test2(int i)
         {
-            var result = Ok(i);
+            var result = Ok<int, int>(i);
 
-            Func<int, Result<int>> f = Ok;
+            Func<int, Result<int, int>> f = Ok<int, int>;
 
             Equal(result.Bind(f), f(i));
         }
@@ -44,19 +44,19 @@ namespace Radix.Tests
         [Property(DisplayName = "Right identity law")]
         public void Test3(int i)
         {
-            var result = Ok(i);
+            var result = Ok<int, int>(i);
 
-            Equal(result.Bind(x => Ok(x)), result);
+            Equal(result.Bind(x => Ok<int, int>(x)), result);
         }
 
         [Trait("Category", "Monad")]
         [Property(DisplayName = "Associativity law")]
         public void Test4(int i)
         {
-            var result = Ok(i);
+            var result = Ok<int, string>(i);
 
-            Func<int, Result<string>> f = x => Ok(x.ToString());
-            Func<string, Result<int>> g = x => Ok(int.Parse(x));
+            Func<int, Result<string, string>> f = x => Ok<string, string>(x.ToString());
+            Func<string, Result<int, string>> g = x => Ok<int, string>(int.Parse(x));
 
             Equal(result.Bind(f).Bind(g), result.Bind(x => f(x).Bind(g)));
         }
@@ -66,7 +66,7 @@ namespace Radix.Tests
         public void Test5(int i)
         {
             Func<int, int> id = x => x;
-            var result = Ok(i);
+            var result = Ok<int, int>(i);
 
             Equal(result, result.Map(id));
         }
@@ -77,7 +77,7 @@ namespace Radix.Tests
         {
             Func<string, int> f = x => int.Parse(x);
             Func<int, string> g = x => x.ToString();
-            var result = Ok(i);
+            var result = Ok<int, string>(i);
 
             Equal(result.Map(g).Map(f), result.Map(x => f(g(x))));
         }
@@ -87,8 +87,8 @@ namespace Radix.Tests
         public void Test7(int i)
         {
             Func<int, int> id = x => x;
-            var selector = Ok(id);
-            var result = Ok(i);
+            var selector = Ok<Func<int, int>, int>(id);
+            var result = Ok<int, int>(i);
 
             Equal(selector.Apply(result), result);
         }
@@ -105,10 +105,10 @@ namespace Radix.Tests
         public void Test9(int i)
         {
             Func<int, int> f = x => x;
-            var selector = Ok(f);
-            var result = Ok(i);
+            var selector = Ok<Func<int, int>, int>(f);
+            var result = Ok<int, int>(i);
 
-            Equal(Ok(f(i)), selector.Apply(result));
+            Equal(Ok<int, int>(f(i)), selector.Apply(result));
         }
 
         [Trait("Category", "Applicative functor")]
@@ -118,10 +118,10 @@ namespace Radix.Tests
             Func<int, int> f = x => x;
 
             
-            var selector = Ok(f);
-            var result = Ok(i);
+            var selector = Ok<Func<int, int>, int>(f);
+            var result = Ok<int, int>(i);
 
-            Equal(selector.Apply(result), Ok(new Func<Func<int, int>, int>(function => function(i))).Apply(selector));
+            Equal(selector.Apply(result), Ok<Func<Func<int, int>, int>, int>(new Func<Func<int, int>, int>(function => function(i))).Apply(selector));
         }
 
     }

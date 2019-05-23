@@ -3,7 +3,7 @@ using System;
 namespace Radix.Tests.Result
 {
 
-    public struct Ok<T> : Result<T>
+    public struct Ok<T, TError> : Result<T, TError>
     {
         internal Ok(T t)
         {
@@ -13,12 +13,12 @@ namespace Radix.Tests.Result
 
         }
 
-        public static implicit operator Ok<T>(T t)
+        public static implicit operator Ok<T, TError>(T t)
         {
-            return new Ok<T>(t);
+            return new Ok<T, TError>(t);
         }
 
-        public static implicit operator T(Ok<T> ok)
+        public static implicit operator T(Ok<T, TError> ok)
         {
             return ok.Value;
         }
