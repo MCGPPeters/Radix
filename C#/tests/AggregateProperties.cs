@@ -19,7 +19,7 @@ namespace Radix.Tests
 
     }
 
-    public struct Version : IVersion
+    public struct Version : IVersion, IComparable<Version>
     {
         private long Value { get; }
 
@@ -37,6 +37,8 @@ namespace Radix.Tests
         {
             return version.Value;
         }
+
+        public int CompareTo(Version other) => Value.CompareTo(other);
     }
 
     public struct AnyVersion : IVersion
@@ -229,50 +231,7 @@ namespace Radix.Tests
         public IVersion ExpectedVersion { get; private set; }
     }
 
-    internal class Agent<TState, TCommand, TEvent> where TState : Aggregate<TState, TEvent, TCommand>, new()
-    {
 
-        public Agent(TState initialState, IEnumerable<TEvent> history, Subject<IssueCommand<TCommand>> subject, SaveEvents<TEvent> saveEvents, GetEventsSince<TEvent> getEventsSince, Conflicts<TCommand, TEvent> isConflicting, IScheduler scheduler)
-        {
-            var state1 = history.Aggregate(initialState, (state, @event) => state.Apply(@event));
-
-            subject
-                .ObserveOn(scheduler)
-                .Subscribe(async issueCommand => 
-                {                   
-                    var eventsSinceExpected = await getEventsSince(issueCommand.Address, issueCommand.ExpectedVersion);
-                    var conflicts = eventsSinceExpected.Select(
-                        eventDescriptor => isConflicting(issueCommand.Command, eventDescriptor.Event));
-
-                    var transientEvents = state1.Decide(issueCommand.Command);
-                    // we depend on the event store in use to determine if there as an optimistic concurrency issue
-                    var saveResult = await saveEvents(issueCommand.Address, issueCommand.ExpectedVersion, transientEvents);
-
-                    switch (saveResult)
-                    {
-                        case Ok<Unit, SaveEventsError> _:
-                            // the event stream has been save successfully. Update the state
-                            state1 = transientEvents.Aggregate(state1, (state, @event) => state.Apply(@event));
-                            break;
-                        case Error<Unit, SaveEventsError> (var error):
-                            switch(error)
-                            {
-                                case OptimisticConcurrencyError optimisticConcurrencyError:
-                                    // do conflict resolution
-                                    // List<Event> eventsSinceExpected = eventstore.GetEventsSince(issueCommand.ExpectedVersion)
-                                    // foreach(var @event in eventsSinceExpected)
-                                    // {
-                                    // if the command and event really conflict according to business logic => log a real OptimisticConcurrencyError
-                                    //        if!(Conflict(@event, issueCommand.Command))
-                                    break;
-                                default: throw new NotSupportedException();                                
-                            }
-                            break;
-                        default: throw new NotSupportedException();
-                    }
-                });
-        }
-    }
 
     /// <summary>
     /// The error to return when saving events causes an optimistic concurrency error
@@ -302,17 +261,16 @@ namespace Radix.Tests
         private readonly GetEventsSince<TEvent> _getEventsSince;
         private readonly ResolveRemoteAddress _resolveRemoteAddress;
         private readonly Forward<TCommand> _forward;
-        private readonly Conflicts<TCommand, TEvent> _conflicts;
+        private readonly FindConflicts<TCommand, TEvent> _findConflicts;
         private readonly Dictionary<Address, Subject<IssueCommand<TCommand>>> _registry = new Dictionary<Address, Subject<IssueCommand<TCommand>>>();
 
-        public BoundedContext(SaveEvents<TEvent> saveEvents, GetEventsSince<TEvent> getEventsSince, ResolveRemoteAddress resolveRemoteAddress, Forward<TCommand> forward, Conflicts<TCommand, TEvent> conflicts)
+        public BoundedContext(SaveEvents<TEvent> saveEvents, GetEventsSince<TEvent> getEventsSince, ResolveRemoteAddress resolveRemoteAddress, Forward<TCommand> forward, FindConflicts<TCommand, TEvent> findConflicts)
         {
             _saveEvents = saveEvents;
             _getEventsSince = getEventsSince;
             _resolveRemoteAddress = resolveRemoteAddress;
             _forward = forward;
-            _conflicts = conflicts;
-        }
+            _findConflicts = findConflicts;        }
 
         
         internal Address CreateAggregate<TState>(IScheduler scheduler) where TState : Aggregate<TState, TEvent, TCommand>, new()
@@ -320,7 +278,50 @@ namespace Radix.Tests
             var history = new List<TEvent>();
             var address = new Address(Guid.NewGuid());
             Subject<IssueCommand<TCommand>> subject = new Subject<IssueCommand<TCommand>>();
-            var agent = new Agent<TState, TCommand, TEvent>(new TState(), history, subject, _saveEvents, _getEventsSince, _conflicts, scheduler);
+            var state = history.Aggregate(new TState(), (state, @event) => state.Apply(@event));
+
+            subject
+                .ObserveOn(scheduler)
+                .Subscribe(async issueCommand => 
+                {              
+                    var expectedVersion = issueCommand.ExpectedVersion;
+                    var eventsSinceExpected = await _getEventsSince(issueCommand.Address, expectedVersion);
+                    if(eventsSinceExpected.Any())
+                    {
+                        var conflicts = _findConflicts(issueCommand.Command, eventsSinceExpected);
+                        if(conflicts.Any()) 
+                        {
+                            // a true concurrenct exception according to business logic
+                            // todo : notify the issuer of the command
+                            return;
+                        }
+                        // no conflicts, set the expected version
+                        expectedVersion = eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version).Max();
+                    }
+
+                    var transientEvents = state.Decide(issueCommand.Command);
+                    // try to save the events
+                    var saveResult = await _saveEvents(issueCommand.Address, expectedVersion, transientEvents);
+
+                    switch (saveResult)
+                    {
+                        case Ok<Unit, SaveEventsError> _:
+                            // the events have been saved to the stream successfully. Update the state
+                            state = transientEvents.Aggregate(state, (state, @event) => state.Apply(@event));
+                            break;
+                        case Error<Unit, SaveEventsError> (var error):
+                            switch(error)
+                            {
+                                case OptimisticConcurrencyError optimisticConcurrencyError:
+                                    // re issue the command to try again
+                                    Send(issueCommand.Command, expectedVersion, issueCommand.Address);
+                                    break;
+                                default: throw new NotSupportedException();                                
+                            }
+                            break;
+                        default: throw new NotSupportedException();
+                    }
+                    });
             _registry.Add(address, subject);
             return address;
         }
@@ -420,7 +421,7 @@ namespace Radix.Tests
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
     /// <returns></returns>
-    public delegate Maybe<Conflict<TCommand, TEvent>> Conflicts<TCommand, TEvent>(TCommand command, TEvent @event);
+    public delegate IEnumerable<Conflict<TCommand, TEvent>> FindConflicts<TCommand, TEvent>(TCommand command, IEnumerable<EventDescriptor<TEvent>> eventDescriptors);
 
     public struct Conflict<TCommand, TEvent>
     {
@@ -451,9 +452,9 @@ namespace Radix.Tests
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             GetEventsSince<InventoryItemEvent> getEventsSince = (_,__) => Task.FromResult(new List<EventDescriptor<InventoryItemEvent>>());
-            Conflicts<InventoryItemCommand, InventoryItemEvent> conflicts = (_, __) => Maybe.None<Conflict<InventoryItemCommand, InventoryItemEvent>>.Default;
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward);
+            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
 
@@ -468,10 +469,10 @@ namespace Radix.Tests
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be disregarded")]
         public void Property2(PositiveInt amount)
         {
-            var eventStream = new List<InventoryItemEvent>();
+            var AppendedEvents = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) => 
             {
-                eventStream.AddRange(events);
+                AppendedEvents.AddRange(events);
                 return Task.FromResult(Ok<Unit, SaveEventsError>(Unit.Instance));
             };
 
@@ -483,67 +484,114 @@ namespace Radix.Tests
                 new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(amount.Get), 2L),
                 new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
             });
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) => eventDescriptors.Select(descriptor => new Conflict<InventoryItemCommand, InventoryItemEvent>(command, descriptor.Event,"Just because i can"));
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward);
+            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
 
             Version expectedVersion = 2L;    
             context.Send(new CheckInItemsToInventory(amount.Get), expectedVersion, inventoryItem);
 
-            eventStream.Should().Equal(new List<InventoryItemEvent>{ }, "no event should be saved to the event store given the command was discarded");         
+            AppendedEvents.Should().Equal(new List<InventoryItemEvent>{ }, "no event should be saved to the event store given the command was discarded");         
         }
 
-              [Property(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
+        [Property(
+            DisplayName = "Given there is a concurrency conflict and conflict resolution determines that is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
         public void Property3(PositiveInt amount)
         {
-            var eventStream = new List<InventoryItemEvent>();
+            var calledBefore = false;
+            var appendedEvents = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) => 
             {
-                eventStream.AddRange(events);
-                return Task.FromResult(Ok<Unit, SaveEventsError>(Unit.Instance));
+                if(calledBefore)
+                {
+                    appendedEvents.AddRange(events);
+                    return Task.FromResult(Ok<Unit, SaveEventsError>(Unit.Instance));
+                }
+                calledBefore = true;
+                return Task.FromResult(Error<Unit, SaveEventsError>(new OptimisticConcurrencyError()));
             };
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_,__) => Task.FromResult(new List<EventDescriptor<InventoryItemEvent>>());
+
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
+            GetEventsSince<InventoryItemEvent> getEventsSince = (_,__) => Task.FromResult(new List<EventDescriptor<InventoryItemEvent>>
+            {
+                new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L),
+                new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(amount.Get), 2L),
+                new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
+            });
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward);
+            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
 
-            Version version1 = 1L;
+            Version expectedVersion = 2L;    
+            context.Send(new CheckInItemsToInventory(amount.Get), expectedVersion, inventoryItem);
 
-            context.Send(new CreateInventoryItem("Product 1"), version1, inventoryItem);
+            appendedEvents.Should().Equal(new List<InventoryItemEvent>{ new ItemsCheckedInToInventory(amount.Get)});  
+        }
+
+        [Property(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
+        public void Property4(PositiveInt amount)
+        {
+            var appendedEvents = new List<InventoryItemEvent>();
+            SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) => 
+            {
+                appendedEvents.AddRange(events);
+                return Task.FromResult(Ok<Unit, SaveEventsError>(Unit.Instance));
+            };
+            GetEventsSince<InventoryItemEvent> getEventsSince = (_,__) => Task.FromResult(new List<EventDescriptor<InventoryItemEvent>>
+            {
+                new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L),
+                new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(amount.Get), 2L),
+                new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
+            });;
+            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
+            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+
+            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
+            // for testing purposes make the aggregate block the current thread while processing
+            var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
+
+            Version version1 = 2L;
+
             context.Send(new CheckInItemsToInventory(amount.Get), version1, inventoryItem);
 
-            eventStream.Should().Equal(new List<InventoryItemEvent>{ new InventoryItemCreated("Product 1"), new ItemsCheckedInToInventory(amount.Get)});         
+            appendedEvents.Should().Equal(new List<InventoryItemEvent>{ new ItemsCheckedInToInventory(amount.Get)});         
             
         }
 
         [Property(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
-        public void Property4(PositiveInt amount)
+        public void Property5(PositiveInt amount)
         {
-            var eventStream = new List<InventoryItemEvent>();
+            var appendedEvents = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) => 
             {
-                eventStream.AddRange(events);
+                appendedEvents.AddRange(events);
                 return Task.FromResult(Ok<Unit, SaveEventsError>(Unit.Instance));
             };
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_,__) => Task.FromResult(new List<EventDescriptor<InventoryItemEvent>>());
+            GetEventsSince<InventoryItemEvent> getEventsSince = (_,__) => Task.FromResult(new List<EventDescriptor<InventoryItemEvent>>
+            {
+                new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L),
+                new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(amount.Get), 2L),
+                new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
+            });
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward);
+            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
 
             Version version1 = 1L;
-            Version version2 = 2L;
 
             context.Send(new CreateInventoryItem("Product 1"), version1, inventoryItem);
-            context.Send(new CheckInItemsToInventory(amount.Get), version2, inventoryItem);
 
-            eventStream.Should().Equal(new List<InventoryItemEvent>{ new InventoryItemCreated("Product 1"), new ItemsCheckedInToInventory(amount.Get)});         
+            appendedEvents.Should().Equal(new List<InventoryItemEvent>{ new InventoryItemCreated("Product 1")});         
             
         }
     }

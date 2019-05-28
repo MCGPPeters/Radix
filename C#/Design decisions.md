@@ -10,13 +10,27 @@ Creating a hierarchy of events and commands helps determining the scope of those
 
 A command is atomic. If there is a true concurrency conflict, no event that could be generated as a result of the command will be added to the stream.
 
-The best approach for checking for true concurrency conflicts (as opposed to technical optimistic concurrency exceptions) is to:
+The best approach for checking for and handling true concurrency conflicts (as opposed to technical optimistic concurrency exceptions) is to:
 
 - Check if the expected version is still the current version of the event stream
   - If not, get all events since the expected version ( > the expected version) from the event stream. For each event check if there is a conflict according to business defined rules. 
-    - If the are no conflicts, go to the next step. 
-    - Otherwise discard the command (and signal the issuer of the command => todo). END
+    - If the are no conflicts, set the expected version to the latest version of the event stream and go to the next step. 
+    - Otherwise there is a true concurrency conflict. Discard the command (and signal the issuer of the command => todo). END
 - Evaluate the command and get the resulting transient events. Try to append these events to the event stream
   - If successful, we are END
   - If not, retry and go back to the first step
+
+# Notifying issuers of command when concurrency errors occur
+
+When a true concurrency error occurs (i.e. a command was issued and conflicts were found that could not be resolved according to domain specific conflict resolution logic) the issuers of the command is notified about the cause of the conflict. Conflict resolution logic relieves us from the need of enforcing in order message delivery, which is impossible to solve technically. It will be done on a best effort basis.
+
+# Versioning of events
+
+The event store is responsible for assigning the version of an event when it is appended to the stream
+
+# One event stream per aggregate
+
+Each aggregate will have its own event stream
+
+ 
 
