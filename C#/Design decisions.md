@@ -20,6 +20,8 @@ The best approach for checking for and handling true concurrency conflicts (as o
   - If successful, we are END
   - If not, retry and go back to the first step
 
+Radix assumes the event store properly supports optimistic consurrency
+
 # Notifying issuers of command when concurrency errors occur
 
 When a true concurrency error occurs (i.e. a command was issued and conflicts were found that could not be resolved according to domain specific conflict resolution logic) the issuers of the command is notified about the cause of the conflict. Conflict resolution logic relieves us from the need of enforcing in order message delivery, which is impossible to solve technically. It will be done on a best effort basis.
@@ -31,6 +33,10 @@ The event store is responsible for assigning the version of an event when it is 
 # One event stream per aggregate
 
 Each aggregate will have its own event stream
+
+# Authentication / Authorization
+
+Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command.
 
  
 
