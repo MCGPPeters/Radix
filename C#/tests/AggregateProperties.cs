@@ -6,14 +6,12 @@ using Radix.Tests.Result;
 using FsCheck.Xunit;
 using FsCheck;
 using System.Linq;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
+using System.Threading.Tasks.Dataflow;
 using FluentAssertions;
-using Radix.Tests.Maybe;
 
 namespace Radix.Tests
 {
+
     public interface IVersion
     {
 
@@ -39,6 +37,26 @@ namespace Radix.Tests
         }
 
         public int CompareTo(Version other) => Value.CompareTo(other);
+
+        public override bool Equals(object obj)
+        {
+            return  obj is Version other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public static bool operator ==(Version left, Version right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Version left, Version right)
+        {
+            return !(left == right);
+        }
     }
 
     public struct AnyVersion : IVersion
@@ -214,8 +232,6 @@ namespace Radix.Tests
         }
     }
 
-    public interface ContextCommand{}
-
     public struct IssueCommand<TCommand>
     {
         public IssueCommand(Address address, TCommand command, IVersion expectedVersion)
@@ -243,14 +259,14 @@ namespace Radix.Tests
     /// <summary>
     /// The bounded context is responsible for managing the runtime. 
     /// - Once an aggregate is created, it is never destroyed
-    /// - An aggreagte can only acquire an address of an other aggregate when it is explicitly send to it
-    /// - The runtime is responsible to restoring the state of the aggregate when it is not alife within
+    /// - An aggregate can only acquire an address of an other aggregate when it is explicitly send to it
+    /// - The runtime is responsible to restoring the state of the aggregate when it is not alive within
     ///   the context or any other remote instance of the context within a cluster
-    /// - Only one instance of an aggragate will be alive 
+    /// - Only one instance of an aggregate will be alive 
     /// - One can only send commands that are scoped to the bounded context.
     /// - All commands that are scoped to an aggregate MUST be subtypes of the command type scoped at the bounded context level
     /// - There is only one command type scoped and the level of the bounded context.
-    ///   All commands scoped to an aggragate MUST be subtypes of that command type
+    ///   All commands scoped to an aggregate MUST be subtypes of that command type
     /// 
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
@@ -262,7 +278,7 @@ namespace Radix.Tests
         private readonly ResolveRemoteAddress _resolveRemoteAddress;
         private readonly Forward<TCommand> _forward;
         private readonly FindConflicts<TCommand, TEvent> _findConflicts;
-        private readonly Dictionary<Address, Subject<IssueCommand<TCommand>>> _registry = new Dictionary<Address, Subject<IssueCommand<TCommand>>>();
+        private readonly Dictionary<Address, ActionBlock<IssueCommand<TCommand>>> _registry = new Dictionary<Address, ActionBlock<IssueCommand<TCommand>>>();
 
         public BoundedContext(SaveEvents<TEvent> saveEvents, GetEventsSince<TEvent> getEventsSince, ResolveRemoteAddress resolveRemoteAddress, Forward<TCommand> forward, FindConflicts<TCommand, TEvent> findConflicts)
         {
@@ -273,25 +289,22 @@ namespace Radix.Tests
             _findConflicts = findConflicts;        }
 
         
-        internal Address CreateAggregate<TState>(IScheduler scheduler) where TState : Aggregate<TState, TEvent, TCommand>, new()
+        internal Address CreateAggregate<TState>(TaskScheduler scheduler) where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
-            var history = new List<TEvent>();
             var address = new Address(Guid.NewGuid());
-            Subject<IssueCommand<TCommand>> subject = new Subject<IssueCommand<TCommand>>();
-            var state = history.Aggregate(new TState(), (state, @event) => state.Apply(@event));
+            var state = new TState();
 
-            subject
-                .ObserveOn(scheduler)
-                .Subscribe(async issueCommand => 
-                {              
+            var agent = new ActionBlock<IssueCommand<TCommand>>(
+                async issueCommand =>
+                {
                     var expectedVersion = issueCommand.ExpectedVersion;
                     var eventsSinceExpected = await _getEventsSince(issueCommand.Address, expectedVersion);
-                    if(eventsSinceExpected.Any())
+                    if (eventsSinceExpected.Any())
                     {
                         var conflicts = _findConflicts(issueCommand.Command, eventsSinceExpected);
-                        if(conflicts.Any()) 
+                        if (conflicts.Any())
                         {
-                            // a true concurrenct exception according to business logic
+                            // a true concurrent exception according to business logic
                             // todo : notify the issuer of the command
                             return;
                         }
@@ -307,40 +320,44 @@ namespace Radix.Tests
                     {
                         case Ok<Unit, SaveEventsError> _:
                             // the events have been saved to the stream successfully. Update the state
-                            state = transientEvents.Aggregate(state, (state, @event) => state.Apply(@event));
+                            state = transientEvents.Aggregate(state, (s, @event) => s.Apply(@event));
                             break;
-                        case Error<Unit, SaveEventsError> (var error):
-                            switch(error)
+                        case Error<Unit, SaveEventsError>(var error):
+                            switch (error)
                             {
-                                case OptimisticConcurrencyError optimisticConcurrencyError:
+                                case OptimisticConcurrencyError _:
                                     // re issue the command to try again
                                     Send(issueCommand.Command, expectedVersion, issueCommand.Address);
                                     break;
-                                default: throw new NotSupportedException();                                
+                                default: throw new NotSupportedException();
                             }
                             break;
                         default: throw new NotSupportedException();
                     }
-                    });
-            _registry.Add(address, subject);
+                }, new ExecutionDataflowBlockOptions()
+                {
+                    TaskScheduler = scheduler
+                });
+
+            _registry.Add(address, agent);
             return address;
         }
 
         internal void Send(TCommand command, IVersion expectedVersion, Address address)
         {
             
-            var subject = _registry[address];
-            subject.OnNext(new IssueCommand<TCommand>(address, command, expectedVersion));            
+            var agent = _registry[address];
+            agent.Post(new IssueCommand<TCommand>(address, command, expectedVersion));            
         }
 
         /// <summary>
-        /// Creates a new aggregate that schedules work using the threadpool
+        /// Creates a new aggregate that schedules work using the default task scheduler (TaskScheduler.Default)
         /// </summary>
         /// <typeparam name="TState"></typeparam>
         /// <returns></returns>
         internal Address CreateAggregate<TState>() where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
-            return CreateAggregate<TState>(ThreadPoolScheduler.Instance);
+            return CreateAggregate<TState>(TaskScheduler.Default);
         }
     }
 
@@ -351,7 +368,7 @@ namespace Radix.Tests
 
     public interface ResolveRemoteAddressError {}
 
-    public interface ForwardError{}
+    public interface ForwardError {}
 
 
 
@@ -381,18 +398,43 @@ namespace Radix.Tests
     /// </summary>
     public struct EventDescriptor<TEvent>
     {
-        private readonly TEvent _event;
-        private readonly Version _version;
+        public bool Equals(EventDescriptor<TEvent> other)
+        {
+            return EqualityComparer<TEvent>.Default.Equals(Event, other.Event) && Version.Equals(other.Version);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is EventDescriptor<TEvent> other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (EqualityComparer<TEvent>.Default.GetHashCode(Event) * 397) ^ Version.GetHashCode();
+            }
+        }
 
         public EventDescriptor(TEvent @event, Version version)
         {
-            _event = @event;
-            _version = version;
+            Event = @event;
+            Version = version;
         }
 
-        public TEvent Event => _event;
+        public TEvent Event { get; }
 
-        public Version Version => _version;
+        public Version Version { get; }
+
+        public static bool operator ==(EventDescriptor<TEvent> left, EventDescriptor<TEvent> right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(EventDescriptor<TEvent> left, EventDescriptor<TEvent> right)
+        {
+            return !(left == right);
+        }
     }
 
     /// <summary>
@@ -456,7 +498,7 @@ namespace Radix.Tests
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
+            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
             context.Send(new CreateInventoryItem("Product 1"), new AnyVersion(), inventoryItem);
             context.Send(new CheckInItemsToInventory(amount.Get), new AnyVersion(), inventoryItem);
@@ -488,7 +530,7 @@ namespace Radix.Tests
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
+            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
             Version expectedVersion = 2L;    
             context.Send(new CheckInItemsToInventory(amount.Get), expectedVersion, inventoryItem);
@@ -525,7 +567,7 @@ namespace Radix.Tests
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
+            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
             Version expectedVersion = 2L;    
             context.Send(new CheckInItemsToInventory(amount.Get), expectedVersion, inventoryItem);
@@ -554,7 +596,7 @@ namespace Radix.Tests
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
+            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
             Version version1 = 2L;
 
@@ -585,7 +627,7 @@ namespace Radix.Tests
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts);
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(Scheduler.CurrentThread);
+            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
             Version version1 = 1L;
 
