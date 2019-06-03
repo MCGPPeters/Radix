@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static Radix.Tests.Result.Extensions;
@@ -17,13 +17,14 @@ namespace Radix.Tests
 
     }
 
-    public struct Version : IVersion, IComparable<Version>
+    public class Version : IVersion, IComparable<Version>
     {
         private long Value { get; }
 
         private Version(long value)
         {
-            Value = value;;
+            Value = value;
+            ;
         }
 
         public static implicit operator Version(long value)
@@ -37,29 +38,9 @@ namespace Radix.Tests
         }
 
         public int CompareTo(Version other) => Value.CompareTo(other);
-
-        public override bool Equals(object obj)
-        {
-            return  obj is Version other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
-
-        public static bool operator ==(Version left, Version right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(Version left, Version right)
-        {
-            return !(left == right);
-        }
     }
 
-    public struct AnyVersion : IVersion
+    public class AnyVersion : IVersion
     {
 
     }
@@ -100,9 +81,9 @@ namespace Radix.Tests
 
     public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>
     {
-        public string Name { get; }
-        public bool Activated { get; }
-        public int Count { get; }
+        private string Name { get; }
+        private bool Activated { get; }
+        private int Count { get; }
 
         public InventoryItem()
         {
@@ -330,11 +311,11 @@ namespace Radix.Tests
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
+        private TState _state = new TState();
 
         public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler scheduler)
         {
             _boundedContextSettings = boundedContextSettings;
-            var state = new TState();
 
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
                 async commandDescriptor =>
@@ -354,7 +335,7 @@ namespace Radix.Tests
                         expectedVersion = eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version).Max();
                     }
 
-                    var transientEvents = state.Decide(commandDescriptor.Command);
+                    var transientEvents = _state.Decide(commandDescriptor.Command);
                     // try to save the events
                     var saveResult = await _boundedContextSettings.SaveEvents(commandDescriptor.Address, expectedVersion, transientEvents);
 
@@ -362,7 +343,7 @@ namespace Radix.Tests
                     {
                         case Ok<Unit, SaveEventsError> _:
                             // the events have been saved to the stream successfully. Update the state
-                            state = transientEvents.Aggregate(state, (s, @event) => s.Apply(@event));
+                            _state = transientEvents.Aggregate(_state, (s, @event) => s.Apply(@event));
                             break;
                         case Error<Unit, SaveEventsError>(var error):
                             switch (error)
