@@ -83,8 +83,18 @@ namespace Radix.Tests
     /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
     public interface Aggregate<out TState, TEvent, in TCommand> where TState : new()
     {
+        /// <summary>
+        /// This is the place to validate a command and decide of any events will be generated as a
+        /// consequence of this command. You should not and are not allowed to change the state here
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         List<TEvent> Decide(TCommand command);
 
+        /// <summary>
+        /// Here the effect of the event on the state of the aggregate is determined.
+        /// The new state will be returned as an effect
+        /// </summary>
         TState Apply(TEvent @event);
     }
 
@@ -259,8 +269,8 @@ namespace Radix.Tests
     /// <summary>
     /// The bounded context is responsible for managing the runtime. 
     /// - Once an aggregate is created, it is never destroyed
-    /// - An aggregate can only acquire an address of an other aggregate when it is explicitly send to it
-    /// - The runtime is responsible to restoring the state of the aggregate when it is not alive within
+    /// - An aggregate can only acquire an address of an other aggregate when it is explicitly send to it or it has created it
+    /// - The runtime is responsible to restoring the state of the aggregate when it is not alife within
     ///   the context or any other remote instance of the context within a cluster
     /// - Only one instance of an aggregate will be alive 
     /// - One can only send commands that are scoped to the bounded context.
