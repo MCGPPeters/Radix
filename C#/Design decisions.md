@@ -34,6 +34,10 @@ The event store is responsible for assigning the version of an event when it is 
 
 Each aggregate will have its own event stream
 
+# Traceability
+
+An event will always contain a reference to the command that caused it to happen. Commands will all be logged, whether successful or not (status), including the reason of failure.
+
 # Authentication / Authorization
 
 Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command.
