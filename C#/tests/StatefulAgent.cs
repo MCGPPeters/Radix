@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -6,17 +7,22 @@ using Radix.Tests.Result;
 
 namespace Radix.Tests
 {
-    internal class StatefulAgent<TState, TCommand, TEvent> : Agent<TCommand> where TState : Aggregate<TState, TEvent, TCommand>, new()
+    internal class StatefulAgent<TState, TCommand, TEvent, TSettings> : Agent<TCommand> 
+        where TSettings: AggregateSettings<TCommand, TEvent> 
+        where TState : Aggregate<TState, TEvent, TCommand>, new()
     {
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
+        private readonly TSettings _aggregateSettings;
         private TState _state = new TState();
 
-        public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler scheduler)
+        public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler scheduler,
+            TSettings aggregateSettings)
         {
             _boundedContextSettings = boundedContextSettings;
+            _aggregateSettings = aggregateSettings;
 
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
                 async commandDescriptor =>
@@ -27,14 +33,17 @@ namespace Radix.Tests
                     {
                         var conflicts = _boundedContextSettings.FindConflicts(commandDescriptor.Command, eventsSinceExpected);
                         if (conflicts.Any())
+                        {
                             // a true concurrent exception according to business logic
-                            // todo : notify the issuer of the command
+                            await _aggregateSettings.OnConflictingCommandRejected(conflicts);
                             return;
+                        }
+                        
                         // no conflicts, set the expected version
                         expectedVersion = eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version).Max();
                     }
 
-                    var transientEvents = _state.Decide(commandDescriptor.Command);
+                    var transientEvents = _state.Decide(commandDescriptor.Command, _aggregateSettings);
                     // try to save the events
                     var saveResult = await _boundedContextSettings.SaveEvents(commandDescriptor.Address, expectedVersion, transientEvents);
 
@@ -68,5 +77,17 @@ namespace Radix.Tests
         {
             _actionBlock.Post(commandDescriptor);
         }
+    }
+
+    internal interface AggregateSettings<TCommand, TEvent>
+    {
+        /// <summary>
+        ///     Called when a true concurrency conflict according to business rules had occured.
+        ///     No events have been recorded that would have been generated as a consequence of
+        ///     the command if it would have succeeded
+        /// </summary>
+        /// <param name="conflicts"></param>
+        /// <returns>Unit</returns>
+        Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<TCommand, TEvent>> conflicts);
     }
 }

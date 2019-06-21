@@ -31,11 +31,13 @@ namespace Radix.Tests
         }
 
 
-        internal Address CreateAggregate<TState>(TaskScheduler scheduler) where TState : Aggregate<TState, TEvent, TCommand>, new()
+        internal Address CreateAggregate<TState, TSettings>(TaskScheduler scheduler, TSettings settings) 
+            where TState : Aggregate<TState, TEvent, TCommand>, new() 
+            where TSettings : AggregateSettings<TCommand, TEvent>
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, scheduler);
+            var agent = new StatefulAgent<TState, TCommand, TEvent, TSettings>(_boundedContextSettings, scheduler, settings);
 
             _registry.Add(address, agent);
             return address;
@@ -52,10 +54,13 @@ namespace Radix.Tests
         ///     Creates a new aggregate that schedules work using the default task scheduler (TaskScheduler.Default)
         /// </summary>
         /// <typeparam name="TState"></typeparam>
+        /// <typeparam name="TAggregateSettings"></typeparam>
         /// <returns></returns>
-        internal Address CreateAggregate<TState>() where TState : Aggregate<TState, TEvent, TCommand>, new()
+        internal Address CreateAggregate<TState, TAggregateSettings>(TAggregateSettings settings) 
+            where TState : Aggregate<TState, TEvent, TCommand>, new() 
+            where TAggregateSettings : AggregateSettings<TCommand, TEvent>
         {
-            return CreateAggregate<TState>(TaskScheduler.Default);
+            return CreateAggregate<TState, TAggregateSettings>(TaskScheduler.Default, settings);
         }
     }
 }

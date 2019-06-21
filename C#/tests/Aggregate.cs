@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Radix.Tests
 {
@@ -19,8 +20,9 @@ namespace Radix.Tests
         ///     consequence of this command. You should not and are not allowed to change the state here
         /// </summary>
         /// <param name="command"></param>
+        /// <param name="aggregateSettings"></param>
         /// <returns></returns>
-        List<TEvent> Decide(TCommand command);
+        List<TEvent> Decide<TSettings>(TCommand command, TSettings aggregateSettings);
 
         /// <summary>
         ///     Here the effect of the event on the state of the aggregate is determined.

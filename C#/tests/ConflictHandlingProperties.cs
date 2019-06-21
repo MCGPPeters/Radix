@@ -30,7 +30,7 @@ namespace Radix.Tests
         private bool Activated { get; }
         private int Count { get; }
 
-        public List<InventoryItemEvent> Decide(InventoryItemCommand command)
+        public List<InventoryItemEvent> Decide(InventoryItemCommand command, object aggregateSettings)
         {
             return command switch
                 {
@@ -54,6 +54,11 @@ namespace Radix.Tests
                 InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
                 _ => throw new NotSupportedException("Unknown event")
                 };
+        }
+
+        public Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>> conflicts)
+        {
+            Conflicts = conflicts;
         }
     }
 
@@ -200,22 +205,6 @@ namespace Radix.Tests
         public int Amount { get; }
     }
 
-    public class CommandDescriptor<TCommand>
-    {
-        public CommandDescriptor(Address address, TCommand command, IVersion expectedVersion)
-        {
-            Address = address;
-            Command = command;
-            ExpectedVersion = expectedVersion;
-        }
-
-        public Address Address { get; }
-
-        public TCommand Command { get; }
-
-        public IVersion ExpectedVersion { get; }
-    }
-
 
     /// <summary>
     ///     The error to return when saving events causes an optimistic concurrency error
@@ -237,6 +226,22 @@ namespace Radix.Tests
 
     public interface ForwardError
     {
+    }
+    
+    public class InventoryItemSettings : AggregateSettings<InventoryItemCommand, InventoryItemEvent>
+    {
+        private readonly TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> _taskCompletionSource;
+
+        public InventoryItemSettings(TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand,InventoryItemEvent>>> taskCompletionSource)
+        {
+            _taskCompletionSource = taskCompletionSource;
+        }
+
+        public Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>> conflicts)
+        {
+            _taskCompletionSource.SetResult(conflicts);
+            return Task.FromResult(Unit.Instance);
+        }
     }
 
 
@@ -292,7 +297,7 @@ namespace Radix.Tests
     /// <returns></returns>
     public delegate IEnumerable<Conflict<TCommand, TEvent>> FindConflicts<TCommand, TEvent>(TCommand command, IEnumerable<EventDescriptor<TEvent>> eventDescriptors);
 
-    public class AggregateProperties
+    public class ConflictHandlingProperties
     {
         [Property(
             DisplayName =
@@ -314,7 +319,8 @@ namespace Radix.Tests
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
+            var taskCompletionSource = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), taskCompletionSource);
 
             InventoryItemCommand command = new CreateInventoryItem("Product 1");
             IVersion expectedVersion = new AnyVersion();
@@ -328,7 +334,7 @@ namespace Radix.Tests
         }
 
         [Property(
-            DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be disregarded")]
+            DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
         public void Property2(PositiveInt amount)
         {
             var AppendedEvents = new List<InventoryItemEvent>();
@@ -364,7 +370,7 @@ namespace Radix.Tests
 
         [Property(
             DisplayName =
-                "Given there is a concurrency conflict and conflict resolution determines that is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
+                "Given there is a concurrency conflict and conflict resolution determines that it is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
         public void Property3(PositiveInt amount)
         {
             var calledBefore = false;

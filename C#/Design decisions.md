@@ -22,9 +22,13 @@ The best approach for checking for and handling true concurrency conflicts (as o
 
 Radix assumes the event store properly supports optimistic consurrency
 
-# Notifying issuers of command when concurrency errors occur
+# Communicating to the outside world
 
-When a true concurrency error occurs (i.e. a command was issued and conflicts were found that could not be resolved according to domain specific conflict resolution logic) the issuers of the command is notified about the cause of the conflict. Conflict resolution logic relieves us from the need of enforcing in order message delivery, which is impossible to solve technically. It will be done on a best effort basis.
+When an aggregate received a command, it might have to communicate to the outside world. Since construction of the aggregate is performed by the runtime (using the new() constraint), we cannot perform constructor injection. 
+
+When a true concurrency error occurs (i.e. a command was issued and conflicts were found that could not be resolved according to domain specific conflict resolution logic) a way to handle the conflicts must be provided. Conflict resolution logic relieves us from the need of enforcing in order message delivery, which is impossible to solve technically. It will be done on a best effort basis.
+
+When creating an aggregate, a record with settings can be provided. This will contain a method for handling concurrency conflicts as a minimum. When handling the command, the settings will be sent along with the command
 
 # Versioning of events
 
@@ -41,6 +45,12 @@ An event will always contain a reference to the command that caused it to happen
 # Authentication / Authorization
 
 Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command.
+
+# Open questions
+
+- 
+
+
 
  
 
