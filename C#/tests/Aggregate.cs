@@ -13,7 +13,7 @@ namespace Radix.Tests
     /// </typeparam>
     /// <typeparam name="TEvent">The type of events the aggregate root generates</typeparam>
     /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
-    public interface Aggregate<out TState, TEvent, in TCommand> where TState : new()
+    public interface Aggregate<out TState, TEvent, in TCommand, TSettings> where TState : new()
     {
         /// <summary>
         ///     This is the place to validate a command and decide of any events will be generated as a
@@ -22,7 +22,7 @@ namespace Radix.Tests
         /// <param name="command"></param>
         /// <param name="aggregateSettings"></param>
         /// <returns></returns>
-        List<TEvent> Decide<TSettings>(TCommand command, TSettings aggregateSettings);
+        List<TEvent> Decide(TCommand command, TSettings aggregateSettings);
 
         /// <summary>
         ///     Here the effect of the event on the state of the aggregate is determined.
