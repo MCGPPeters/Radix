@@ -30,7 +30,7 @@ namespace Radix.Tests
         private bool Activated { get; }
         private int Count { get; }
 
-        public List<InventoryItemEvent> Decide(InventoryItemCommand command, object aggregateSettings)
+        public List<InventoryItemEvent> Decide<TSettings>(InventoryItemCommand command, TSettings aggregateSettings)
         {
             return command switch
                 {
@@ -43,6 +43,7 @@ namespace Radix.Tests
                 };
         }
 
+
         public InventoryItem Apply(InventoryItemEvent @event)
         {
             return @event switch
@@ -54,11 +55,6 @@ namespace Radix.Tests
                 InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
                 _ => throw new NotSupportedException("Unknown event")
                 };
-        }
-
-        public Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>> conflicts)
-        {
-            Conflicts = conflicts;
         }
     }
 
@@ -319,8 +315,8 @@ namespace Radix.Tests
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
-            var taskCompletionSource = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), taskCompletionSource);
+            var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
 
             InventoryItemCommand command = new CreateInventoryItem("Product 1");
             IVersion expectedVersion = new AnyVersion();
@@ -335,7 +331,7 @@ namespace Radix.Tests
 
         [Property(
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
-        public void Property2(PositiveInt amount)
+        public async void Property2(PositiveInt amount)
         {
             var AppendedEvents = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
@@ -353,19 +349,25 @@ namespace Radix.Tests
                     new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(amount.Get), 2L),
                     new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
                 });
-            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) =>
-                eventDescriptors.Select(descriptor => new Conflict<InventoryItemCommand, InventoryItemEvent>(command, descriptor.Event, "Just because i can"));
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (_, __) =>
+                new List<Conflict<InventoryItemCommand, InventoryItemEvent>>{new Conflict<InventoryItemCommand, InventoryItemEvent>(null, null, "Just another conflict")};
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
+            var taskCompletionSource = new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>();
+            var inventoryItemSettings = new InventoryItemSettings(taskCompletionSource);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
 
             Version expectedVersion = 2L;
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
             context.Send(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
 
             AppendedEvents.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
+
+
+            var conflicts = await taskCompletionSource.Task;
+            conflicts.Should().Contain(conflict => conflict.Reason == "Just another conflict");
         }
 
         [Property(
@@ -402,7 +404,8 @@ namespace Radix.Tests
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
+            var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
 
             Version expectedVersion = 2L;
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
@@ -420,6 +423,8 @@ namespace Radix.Tests
                 appendedEvents.AddRange(events);
                 return Task.FromResult(Ok<Unit, SaveEventsError>(Unit.Instance));
             };
+
+            // event stream is at version 3
             GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => Task.FromResult(
                 new List<EventDescriptor<InventoryItemEvent>>
                 {
@@ -435,15 +440,17 @@ namespace Radix.Tests
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
+            var taskCompletionSource = new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>();
+            var inventoryItemSettings = new InventoryItemSettings(taskCompletionSource);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
 
+            // expected version is 2
             Version expectedVersion = 2L;
 
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
             context.Send(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
 
             appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(amount.Get)});
-
         }
 
         [Property(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
@@ -470,7 +477,8 @@ namespace Radix.Tests
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
+            var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
 
             Version expectedVersion = 1L;
 
