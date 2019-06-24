@@ -9,12 +9,13 @@ namespace Radix.Tests
 {
     internal class StatefulAgent<TState, TCommand, TEvent, TSettings> : Agent<TCommand> 
         where TSettings: AggregateSettings<TCommand, TEvent> 
-        where TState : Aggregate<TState, TEvent, TCommand>, new()
+        where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
     {
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly TSettings _aggregateSettings;
         private TState _state = new TState();
 

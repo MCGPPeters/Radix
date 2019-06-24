@@ -46,6 +46,14 @@ An event will always contain a reference to the command that caused it to happen
 
 Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command.
 
+# Distributed architecture
+
+A specific bounded context instance can be hosted on multiple nodes on the distributed runtime. A node can contain multiple bounded context instances. An aggregate can only exist on 1 (one) node at runtime, but can migrate to another node. A message for an aggregate can arrive at any node. When the aggregate is not found locally, the location will be looked up. If it can't be found in any node, the aggregate will be restored if it was ever created. Else an error occurs. A peer-to-peer architecture seems to be warranted.
+
+The addresses of the aggregates can serve as the consistent hashes needed for finding the aggregates in the p2p overlay network.
+
+The architecture is more grid oriented than cluster oriented since each different node has a different (set of) tasks, whereas a cluster acts as a single system performing the same task that is controlled and scheduled centrally.
+
 # Open questions
 
 - 

@@ -9,7 +9,7 @@ using static Radix.Tests.Result.Extensions;
 
 namespace Radix.Tests
 {
-    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>
+    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand, InventoryItemSettings>
     {
 
         public InventoryItem()
@@ -30,7 +30,7 @@ namespace Radix.Tests
         private bool Activated { get; }
         private int Count { get; }
 
-        public List<InventoryItemEvent> Decide<TSettings>(InventoryItemCommand command, TSettings aggregateSettings)
+        public List<InventoryItemEvent> Decide(InventoryItemCommand command, InventoryItemSettings aggregateSettings)
         {
             return command switch
                 {
@@ -224,6 +224,10 @@ namespace Radix.Tests
     {
     }
     
+
+    /// <summary>
+    /// The setting class is needed for signaling the found actual concurrency conflicts
+    /// </summary>
     public class InventoryItemSettings : AggregateSettings<InventoryItemCommand, InventoryItemEvent>
     {
         private readonly TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> _taskCompletionSource;
@@ -233,6 +237,11 @@ namespace Radix.Tests
             _taskCompletionSource = taskCompletionSource;
         }
 
+        /// <summary>
+        /// Signals the conflicts that were passed on by the runtime
+        /// </summary>
+        /// <param name="conflicts"></param>
+        /// <returns></returns>
         public Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>> conflicts)
         {
             _taskCompletionSource.SetResult(conflicts);
