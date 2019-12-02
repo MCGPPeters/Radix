@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Radix.Tests;
 using Radix.Tests.Result;
 using Radix.Tests.Future;
+using Radix.Tests.Monoid;
 using static Radix.Tests.Result.Extensions;
 
 namespace TaskResult

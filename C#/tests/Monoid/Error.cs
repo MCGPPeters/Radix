@@ -1,6 +1,4 @@
-using System.Linq;
-
-namespace Radix.Tests.Result
+namespace Radix.Tests.Monoid
 {
     public class Error<T, TError> : Result<T, TError> where TError : Monoid<TError>
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Radix.Tests.Monoid;
 using Radix.Tests.Result;
 
 namespace Radix.Tests
