@@ -207,20 +207,29 @@ namespace Radix.Tests
     /// </summary>
     internal class OptimisticConcurrencyError : SaveEventsError
     {
+        public SaveEventsError Append(SaveEventsError x, SaveEventsError y)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SaveEventsError Empty()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
     ///     An error while save to the event store
     /// </summary>
-    public interface SaveEventsError
+    public interface SaveEventsError : Monoid<SaveEventsError>
     {
     }
 
-    public interface ResolveRemoteAddressError
+    public interface ResolveRemoteAddressError : Monoid<ResolveRemoteAddressError>
     {
     }
 
-    public interface ForwardError
+    public interface ForwardError : Monoid<ForwardError>
     {
     }
     

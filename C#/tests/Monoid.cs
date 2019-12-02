@@ -1,19 +1,20 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Radix.Tests
 {
-    public abstract class Monoid<T> : IMonoid<T>
+
+    public interface Monoid<T> : Semigroup<T>
     {
-        public abstract T Identity { get; }
+        T Empty();
 
-        public abstract T Combine(T t);
+        T Concat(IEnumerable<T> xs) =>
+            xs.Aggregate(Empty(), Append);
 
-        public T Concat(IMonoid<T> other)
-        {
-            return Combine(other.Identity);
-        }
-
-        public static T operator +(Monoid<T> first, Monoid<T> second)
-        {
-            return first.Concat(second);
-        }
+        T Concat(params T[] xs) =>
+            xs.Aggregate(Empty(), Append);
+        
+        
     }
+
 }

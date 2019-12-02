@@ -1,11 +1,11 @@
 using System;
 
-namespace Radix.Tests.Result
+namespace Radix.Tests.Validated
 {
 
-    public struct Ok<T, TError> : Result<T, TError> where TError : Monoid<TError>
+    public struct Valid<T> : Validated<T>
     {
-        internal Ok(T t)
+        internal Valid(T t)
         {
             if (t is object) Value = t;
             else
@@ -13,12 +13,12 @@ namespace Radix.Tests.Result
 
         }
 
-        public static implicit operator Ok<T, TError>(T t)
+        public static implicit operator Valid<T>(T t)
         {
-            return new Ok<T, TError>(t);
+            return new Valid<T>(t);
         }
 
-        public static implicit operator T(Ok<T, TError> ok)
+        public static implicit operator T(Valid<T> ok)
         {
             return ok.Value;
         }

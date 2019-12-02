@@ -1,11 +1,10 @@
 using System;
 
-namespace Radix.Tests.Result
+namespace Radix.Tests.Choice
 {
-
-    public struct Ok<T, TError> : Result<T, TError> where TError : Monoid<TError>
+    public struct Either<T, U> : Choice<T, U>
     {
-        internal Ok(T t)
+        internal Either(T t)
         {
             if (t is object) Value = t;
             else
@@ -13,14 +12,14 @@ namespace Radix.Tests.Result
 
         }
 
-        public static implicit operator Ok<T, TError>(T t)
+        public static implicit operator Either<T, U>(T t)
         {
-            return new Ok<T, TError>(t);
+            return new Either<T, U>(t);
         }
 
-        public static implicit operator T(Ok<T, TError> ok)
+        public static implicit operator T(Either<T, U> either)
         {
-            return ok.Value;
+            return either.Value;
         }
 
         public T Value { get; }
@@ -34,5 +33,4 @@ namespace Radix.Tests.Result
             value = Value;
         }
     }
-
 }

@@ -2,22 +2,32 @@ using System.Linq;
 
 namespace Radix.Tests.Result
 {
-    public class Error<T, TError> : Result<T, TError>
+    public class Error<T, TError> : Result<T, TError> where TError : Monoid<TError>
     {
         internal Error(TError error)
         {
-            _error = error;
+            Value = error;
         }
 
-        private TError _error;
-        
+        public static implicit operator Error<T, TError>(TError t)
+        {
+            return new Error<T, TError>(t);
+        }
+
+        public static implicit operator TError(Error<T, TError> ok)
+        {
+            return ok.Value;
+        }
+
+        public TError Value { get; }
+
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
         /// </summary>
-        /// <param name="errors"></param>
+        /// <param name="error"></param>
         public void Deconstruct(out TError error)
         {
-            error = _error;
+            error = Value;
         }
     }
 }
