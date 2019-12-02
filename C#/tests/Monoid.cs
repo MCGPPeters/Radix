@@ -13,8 +13,8 @@ namespace Radix.Tests
 
         T Concat(params T[] xs) =>
             xs.Aggregate(Empty(), Append);
-        
-        
+
+
     }
 
 }

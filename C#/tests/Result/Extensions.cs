@@ -1,4 +1,5 @@
 using System;
+using Radix.Tests.Monoid;
 
 namespace Radix.Tests.Result
 {
