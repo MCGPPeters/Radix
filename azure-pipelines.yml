@@ -21,8 +21,9 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: GitVersionNetCore@5
+- task: GitVersion@5
   inputs:
+    runtime: 'core'
     updateAssemblyInfo: true
 
 - task: VSBuild@1
