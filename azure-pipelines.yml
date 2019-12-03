@@ -40,6 +40,13 @@ steps:
 
 - task: DotNetCoreCLI@2
   inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: '$(GitVersion.NuGetVersion)'
+
+- task: DotNetCoreCLI@2
+  inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     nuGetFeedType: 'internal'
