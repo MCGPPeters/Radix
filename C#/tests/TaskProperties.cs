@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static Radix.Tests.Future.Extensions;
+using static Radix.Future.Extensions;
 using static Xunit.Assert;
 
 namespace Radix.Tests
@@ -24,7 +24,7 @@ namespace Radix.Tests
                 {
                     Interlocked.Increment(ref numberOfTries);
                     return Task.FromException<int>(new Exception());
-                }).Retry(Enumerable.Repeat(TimeSpan.FromMilliseconds(1), numberOfCalls.Get).ToArray());
+                }).Retry<int>(Enumerable.Repeat(TimeSpan.FromMilliseconds(1), numberOfCalls.Get).ToArray());
             }
             catch
             {

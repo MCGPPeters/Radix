@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests
+namespace Radix
 {
     public struct Unit : IComparable<Unit>, IEquatable<Unit>
     {

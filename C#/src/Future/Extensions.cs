@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Radix.Tests.Future
+namespace Radix.Future
 {
     public static class Extensions
     {
@@ -59,11 +59,12 @@ namespace Radix.Tests.Future
             (this Func<Task<T>> function, params TimeSpan[] intervals)
             => intervals.Length == 0
                 ? function()
-                : function().Otherwise(
+                : Otherwise<T>(
+                    function(),
                     async () =>
                     {
-                        await Task.Delay(intervals.First().Milliseconds);
-                        return await Retry(function, intervals.Skip(1).ToArray()).ConfigureAwait(false);
+                        await Task.Delay((int) intervals.First().Milliseconds);
+                        return await Retry<T>(function, intervals.Skip(1).ToArray()).ConfigureAwait(false);
                     });
 
     }
