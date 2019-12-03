@@ -33,6 +33,10 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: GitVersionNetCore@5
+  inputs:
+    updateAssemblyInfo: true
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'push'
