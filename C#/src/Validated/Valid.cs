@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests.Validated
+namespace Radix.Validated
 {
 
     public struct Valid<T> : Validated<T>
