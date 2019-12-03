@@ -1,12 +1,11 @@
-using System;
-using Xunit;
-using static Radix.Tests.Future.Extensions;
-using static Xunit.Assert;
-using System.Threading;
-using System.Linq;
-using System.Threading.Tasks;
 using FsCheck;
 using FsCheck.Xunit;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using static Radix.Tests.Future.Extensions;
+using static Xunit.Assert;
 
 namespace Radix.Tests
 {
@@ -21,7 +20,8 @@ namespace Radix.Tests
 
             try
             {
-                await new Func<Task<int>>(() => {
+                await new Func<Task<int>>(() =>
+                {
                     Interlocked.Increment(ref numberOfTries);
                     return Task.FromException<int>(new Exception());
                 }).Retry(Enumerable.Repeat(TimeSpan.FromMilliseconds(1), numberOfCalls.Get).ToArray());

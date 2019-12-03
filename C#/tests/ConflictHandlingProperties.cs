@@ -1,11 +1,11 @@
+using FluentAssertions;
+using FsCheck;
+using FsCheck.Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FsCheck;
-using FsCheck.Xunit;
-using static Radix.Tests.Result.Extensions;
+using static Radix.Result.Extensions;
 
 namespace Radix.Tests
 {
@@ -33,28 +33,28 @@ namespace Radix.Tests
         public List<InventoryItemEvent> Decide(InventoryItemCommand command, InventoryItemSettings aggregateSettings)
         {
             return command switch
-                {
-                DeactivateInventoryItem _ => new List<InventoryItemEvent> {new InventoryItemDeactivated()},
-                CreateInventoryItem createInventoryItem => new List<InventoryItemEvent> {new InventoryItemCreated(createInventoryItem.Name)},
-                RenameInventoryItem renameInventoryItem => new List<InventoryItemEvent> {new InventoryItemRenamed(renameInventoryItem.Name)},
-                CheckInItemsToInventory checkInItemsToInventory => new List<InventoryItemEvent> {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount)},
-                RemoveItemsFromInventory removeItemsFromInventory => new List<InventoryItemEvent> {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount)},
+            {
+                DeactivateInventoryItem _ => new List<InventoryItemEvent> { new InventoryItemDeactivated() },
+                CreateInventoryItem createInventoryItem => new List<InventoryItemEvent> { new InventoryItemCreated(createInventoryItem.Name) },
+                RenameInventoryItem renameInventoryItem => new List<InventoryItemEvent> { new InventoryItemRenamed(renameInventoryItem.Name) },
+                CheckInItemsToInventory checkInItemsToInventory => new List<InventoryItemEvent> { new ItemsCheckedInToInventory(checkInItemsToInventory.Amount) },
+                RemoveItemsFromInventory removeItemsFromInventory => new List<InventoryItemEvent> { new ItemsRemovedFromInventory(removeItemsFromInventory.Amount) },
                 _ => throw new NotSupportedException("Unknown command")
-                };
+            };
         }
 
 
         public InventoryItem Apply(InventoryItemEvent @event)
         {
             return @event switch
-                {
+            {
                 InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
                 InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
                 ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
                 ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
                 InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
                 _ => throw new NotSupportedException("Unknown event")
-                };
+            };
         }
     }
 
@@ -86,7 +86,7 @@ namespace Radix.Tests
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((InventoryItemCreated) obj);
+            return obj.GetType() == GetType() && Equals((InventoryItemCreated)obj);
         }
 
         public override int GetHashCode()
@@ -127,7 +127,7 @@ namespace Radix.Tests
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ItemsCheckedInToInventory) obj);
+            return obj.GetType() == GetType() && Equals((ItemsCheckedInToInventory)obj);
         }
 
         public override int GetHashCode()
@@ -232,7 +232,7 @@ namespace Radix.Tests
     public interface ForwardError : Monoid<ForwardError>
     {
     }
-    
+
 
     /// <summary>
     /// The setting class is needed for signaling the found actual concurrency conflicts
@@ -241,7 +241,7 @@ namespace Radix.Tests
     {
         private readonly TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> _taskCompletionSource;
 
-        public InventoryItemSettings(TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand,InventoryItemEvent>>> taskCompletionSource)
+        public InventoryItemSettings(TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> taskCompletionSource)
         {
             _taskCompletionSource = taskCompletionSource;
         }
@@ -343,7 +343,7 @@ namespace Radix.Tests
             IVersion expectedVersion1 = new AnyVersion();
             context.Send(new CommandDescriptor<InventoryItemCommand>(inventoryItem, command1, expectedVersion1));
 
-            eventStream.Should().Equal(new List<InventoryItemEvent> {new InventoryItemCreated("Product 1"), new ItemsCheckedInToInventory(amount.Get)});
+            eventStream.Should().Equal(new List<InventoryItemEvent> { new InventoryItemCreated("Product 1"), new ItemsCheckedInToInventory(amount.Get) });
 
         }
 
@@ -368,7 +368,7 @@ namespace Radix.Tests
                     new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
                 });
             FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (_, __) =>
-                new List<Conflict<InventoryItemCommand, InventoryItemEvent>>{new Conflict<InventoryItemCommand, InventoryItemEvent>(null, null, "Just another conflict")};
+                new List<Conflict<InventoryItemCommand, InventoryItemEvent>> { new Conflict<InventoryItemCommand, InventoryItemEvent>(null, null, "Just another conflict") };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
@@ -429,7 +429,7 @@ namespace Radix.Tests
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
             context.Send(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(amount.Get)});
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> { new ItemsCheckedInToInventory(amount.Get) });
         }
 
         [Property(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
@@ -468,7 +468,7 @@ namespace Radix.Tests
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
             context.Send(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(amount.Get)});
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> { new ItemsCheckedInToInventory(amount.Get) });
         }
 
         [Property(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
@@ -503,7 +503,7 @@ namespace Radix.Tests
             InventoryItemCommand inventoryItemCommand = new CreateInventoryItem("Product 1");
             context.Send(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new InventoryItemCreated("Product 1")});
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> { new InventoryItemCreated("Product 1") });
 
         }
     }

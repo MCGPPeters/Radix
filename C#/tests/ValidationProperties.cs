@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentAssertions;
-using Radix.Tests.Result;
+﻿using FluentAssertions;
 using Radix.Tests.Validated;
+using System;
+using System.Collections.Generic;
 using Xunit;
 using static Radix.Tests.Validated.Extensions;
 
@@ -21,15 +19,15 @@ namespace Radix.Tests
                     .Apply(
                         11 >= 18
                             ? Valid(18)
-                            : Invalid<int>(new List<string> {"Must have a valid age"}))
+                            : Invalid<int>(new List<string> { "Must have a valid age" }))
                     .Apply(
                         !string.IsNullOrWhiteSpace("")
                             ? Valid("")
-                            : Invalid<string>(new List<string> {"Must have a valid first name"}))
+                            : Invalid<string>(new List<string> { "Must have a valid first name" }))
                     .Apply(
                         !string.IsNullOrWhiteSpace("Doe")
                             ? Valid("")
-                            : Invalid<string>(new List<string> {"Must have a valid last name"}));
+                            : Invalid<string>(new List<string> { "Must have a valid last name" }));
 
 
             //Func<Person, Person> create2 = _ =>  person;
@@ -54,23 +52,23 @@ namespace Radix.Tests
         private static Validated<Person> XValidated(Person person)
         {
 
-            return person.Age >= 18 
-                ? Valid(person) 
-                : Invalid<Person>(new List<string>{ "Must have a valid age" });
+            return person.Age >= 18
+                ? Valid(person)
+                : Invalid<Person>(new List<string> { "Must have a valid age" });
         }
 
     }
-    
+
     public class Person
     {
         public static Func<int, string, string, Person> Create = (age, firstName, lastName)
         => new Person
-            {
-                Age = age,
-                FirstName = firstName,
-                LastName = lastName
-            };
-        
+        {
+            Age = age,
+            FirstName = firstName,
+            LastName = lastName
+        };
+
 
         public int Age { get; set; }
         public string FirstName { get; set; }

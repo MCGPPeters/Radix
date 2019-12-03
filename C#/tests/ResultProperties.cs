@@ -1,12 +1,12 @@
-using System;
 using FsCheck;
 using FsCheck.Xunit;
-using Radix.Tests.Monoid;
-using Radix.Tests.Result;
+using System;
+using Radix.Monoid;
+using Radix.Result;
+using static Radix.Result.Extensions;
 using Xunit;
-using static Radix.Tests.Result.Extensions;
-using static Xunit.Assert;
 using static Radix.Tests.Assert;
+using static Xunit.Assert;
 
 namespace Radix.Tests
 {
@@ -32,39 +32,39 @@ namespace Radix.Tests
 
         [Trait("Category", "Monad")]
         [Property(DisplayName = "Left identity law")]
-        public void Test2(MInt i)
+        public void Test2(int i)
         {
-            var result = Ok<MInt, MInt>(i);
+            var result = Ok<int, MInt>(i);
 
-            Func<MInt, Result<MInt, MInt>> f = Ok<MInt, MInt>;
+            Func<int, Result<int, MInt>> f = Ok<int, MInt>;
 
             Equal(result.Bind(f), f(i));
         }
 
         [Trait("Category", "Monad")]
         [Property(DisplayName = "Right identity law")]
-        public void Test3(MInt i)
+        public void Test3(int i)
         {
             var result = Ok<MInt, MInt>(i);
 
-            Equal(result.Bind(x => Ok<MInt, MInt>(x)), result);
+            Equal(result.Bind(Ok<MInt, MInt>), result);
         }
 
         [Trait("Category", "Monad")]
         [Property(DisplayName = "Associativity law")]
-        public void Test4(MInt i)
+        public void Test4(int i)
         {
-            var result = Ok<MInt, MString>(i);
+            var result = Ok<int, MString>(i);
 
-            Func<MInt, Result<MString, MString>> f = x => Ok<MString, MString>(x.ToString());
-            Func<MString, Result<MInt, MString>> g = x => Ok<MInt, MString>(int.Parse(x));
+            Func<int, Result<string, MString>> f = x => Ok<string, MString>(x.ToString());
+            Func<string, Result<int, MString>> g = x => Ok<int, MString>(int.Parse(x));
 
             Equal(result.Bind(f).Bind(g), result.Bind(x => f(x).Bind(g)));
         }
 
         [Trait("Category", "Functor")]
         [Property(DisplayName = "Must preserve identity morphisms")]
-        public void Test5(MInt i)
+        public void Test5(int i)
         {
             Func<MInt, MInt> id = x => x;
             var result = Ok<MInt, MInt>(i);
@@ -74,18 +74,18 @@ namespace Radix.Tests
 
         [Trait("Category", "Functor")]
         [Property(DisplayName = "Preserve composition of morphisms")]
-        public void Test6(MInt i)
+        public void Test6(int i)
         {
-            Func<MString, MInt> f = x => int.Parse(x);
-            Func<MInt, MString> g = x => x.ToString();
-            var result = Ok<MInt, MString>(i);
+            Func<string, int> f = x => int.Parse(x);
+            Func<int, string> g = x => x.ToString();
+            var result = Ok<int, MString>(i);
 
             Equal(result.Map(g).Map(f), result.Map(x => f(g(x))));
         }
 
         [Trait("Category", "Applicative functor")]
         [Property(DisplayName = "Must preserve identity morphisms")]
-        public void Test7(MInt i)
+        public void Test7(int i)
         {
             Func<MInt, MInt> id = x => x;
             var selector = Ok<Func<MInt, MInt>, MInt>(id);
@@ -96,33 +96,33 @@ namespace Radix.Tests
 
         [Trait("Category", "Applicative functor")]
         [Property(DisplayName = "Composition preservation")]
-        public void Test8(MInt i)
+        public void Test8(int i)
         {
             // todo: hard to express in C#
         }
 
         [Trait("Category", "Applicative functor")]
         [Property(DisplayName = "Homomorphism")]
-        public void Test9(MInt i)
+        public void Test9(int i)
         {
-            Func<MInt, MInt> f = x => x;
-            var selector = Ok<Func<MInt, MInt>, MInt>(f);
-            var result = Ok<MInt, MInt>(i);
+            Func<int, int> f = x => x;
+            var selector = Ok<Func<int, int>, MInt>(f);
+            var result = Ok<int, MInt>(i);
 
-            Equal(Ok<MInt, MInt>(f(i)), selector.Apply(result));
+            Equal(Ok<int, MInt>(f(i)), selector.Apply(result));
         }
 
         [Trait("Category", "Applicative functor")]
         [Property(DisplayName = "Interchange")]
-        public void Test10(MInt i)
+        public void Test10(int i)
         {
-            Func<MInt, MInt> f = x => x;
+            Func<int, int> f = x => x;
 
 
-            var selector = Ok<Func<MInt, MInt>, MInt>(f);
-            var result = Ok<MInt, MInt>(i);
+            var selector = Ok<Func<int, int>, MInt>(f);
+            var result = Ok<int, MInt>(i);
 
-            Equal(selector.Apply(result), Ok<Func<Func<MInt, MInt>, MInt>, MInt>(function => function(i)).Apply(selector));
+            Equal(selector.Apply(result), Ok<Func<Func<int, int>, int>, MInt>(function => function(i)).Apply(selector));
         }
 
     }

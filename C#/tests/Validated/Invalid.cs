@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace Radix.Tests.Validated
 {
@@ -9,7 +8,7 @@ namespace Radix.Tests.Validated
         {
             Reasons = new List<string>(reasons);
         }
-        
+
         public static implicit operator Invalid<T>(List<string> reasons)
         {
             return new Invalid<T>(reasons);

@@ -1,7 +1,7 @@
+using Radix.Monoid;
 using System;
-using Radix.Tests.Monoid;
 
-namespace Radix.Tests.Result
+namespace Radix.Result
 {
     public static class Extensions
     {
@@ -24,7 +24,7 @@ namespace Radix.Tests.Result
             };
 
         public static Result<TResult, TError> Map<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function) where TError : Monoid<TError>
-            => result.Bind(x => Ok<TResult, TError>(function(x)));
+            => Bind<T, TResult, TError>(result, x => Ok<TResult, TError>(function(x)));
 
         public static Result<TResult, TError> Apply<T, TResult, TError>(this Result<Func<T, TResult>, TError> fResult, Result<T, TError> xResult) where TError : Monoid<TError> =>
             (fResult, xResult) switch
@@ -35,7 +35,5 @@ namespace Radix.Tests.Result
                 (Error<Func<T, TResult>, TError>(var error), Error<T, TError>(var otherError)) => Error<TResult, TError>(error.Concat(otherError)),
                 _ => throw new NotSupportedException("Unlikely")
             };
-
-        
     }
 }

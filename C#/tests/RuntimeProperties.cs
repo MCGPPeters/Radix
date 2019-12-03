@@ -1,13 +1,9 @@
-﻿using System;
+﻿using FsCheck.Xunit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FsCheck;
-using FsCheck.Xunit;
-using Radix.Tests.Result;
-using static Radix.Tests.Result.Extensions;
+using static Radix.Result.Extensions;
 
 namespace Radix.Tests
 {

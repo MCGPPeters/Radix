@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests.Result
+namespace Radix.Result
 {
 
     public struct Ok<T, TError> : Result<T, TError> where TError : Monoid<TError>

@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests.Maybe
+namespace Radix.Maybe
 {
 
     public struct Some<T> : Maybe<T>

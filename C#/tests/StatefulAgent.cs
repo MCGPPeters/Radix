@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Radix.Tests.Monoid;
-using Radix.Tests.Result;
+using Radix.Monoid;
+using Radix.Result;
 
 namespace Radix.Tests
 {
-    internal class StatefulAgent<TState, TCommand, TEvent, TSettings> : Agent<TCommand> 
-        where TSettings: AggregateSettings<TCommand, TEvent> 
+    internal class StatefulAgent<TState, TCommand, TEvent, TSettings> : Agent<TCommand>
+        where TSettings : AggregateSettings<TCommand, TEvent>
         where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
     {
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
@@ -40,7 +40,7 @@ namespace Radix.Tests
                             await _aggregateSettings.OnConflictingCommandRejected(conflicts);
                             return;
                         }
-                        
+
                         // no conflicts, set the expected version
                         expectedVersion = eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version).Max();
                     }

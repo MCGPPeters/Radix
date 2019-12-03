@@ -14,4 +14,12 @@
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Maybe\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Radix.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -31,8 +31,8 @@ namespace Radix.Tests
         }
 
 
-        internal Address CreateAggregate<TState, TSettings>(TaskScheduler scheduler, TSettings settings) 
-            where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new() 
+        internal Address CreateAggregate<TState, TSettings>(TaskScheduler scheduler, TSettings settings)
+            where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
             where TSettings : AggregateSettings<TCommand, TEvent>
         {
             var address = new Address(Guid.NewGuid());
@@ -56,8 +56,8 @@ namespace Radix.Tests
         /// <typeparam name="TState"></typeparam>
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
-        internal Address CreateAggregate<TState, TSettings>(TSettings settings) 
-            where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new() 
+        internal Address CreateAggregate<TState, TSettings>(TSettings settings)
+            where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
             where TSettings : AggregateSettings<TCommand, TEvent>
         {
             return CreateAggregate<TState, TSettings>(TaskScheduler.Default, settings);

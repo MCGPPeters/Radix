@@ -1,16 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Radix.Tests;
-using Radix.Tests.Result;
+using Radix.Monoid;
+using Radix.Result;
+using static Radix.Result.Extensions;
 using Radix.Tests.Future;
-using Radix.Tests.Monoid;
-using static Radix.Tests.Result.Extensions;
 
-namespace TaskResult
+namespace Radix.Tests.TaskResult
 {
     public static class Extensions
     {
@@ -22,7 +17,7 @@ namespace TaskResult
             => task.SelectMany(result => result switch
                 {
                     Ok<T, TError>(var value) => function(value),
-                    Error<T, TError> (var error) => Task.FromResult(Error<TResult, TError>(error)),
+                    Error<T, TError>(var error) => Task.FromResult(Error<TResult, TError>(error)),
                     _ => throw new NotSupportedException("Unlikely")
                 });
     }
