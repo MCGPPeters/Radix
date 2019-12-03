@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
-using Radix.Tests.Validated;
 using System;
 using System.Collections.Generic;
+using Radix.Validated;
 using Xunit;
-using static Radix.Tests.Validated.Extensions;
+using static Radix.Validated.Extensions;
 
 namespace Radix.Tests
 {
@@ -16,15 +16,15 @@ namespace Radix.Tests
         {
             var validationResult =
                 Valid(Person.Create)
-                    .Apply(
+                    .Apply<int, string, string, Person>(
                         11 >= 18
                             ? Valid(18)
                             : Invalid<int>(new List<string> { "Must have a valid age" }))
-                    .Apply(
+                    .Apply<string, string, Person>(
                         !string.IsNullOrWhiteSpace("")
                             ? Valid("")
                             : Invalid<string>(new List<string> { "Must have a valid first name" }))
-                    .Apply(
+                    .Apply<string, Person>(
                         !string.IsNullOrWhiteSpace("Doe")
                             ? Valid("")
                             : Invalid<string>(new List<string> { "Must have a valid last name" }));

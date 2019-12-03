@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Radix.Tests.Validated
+namespace Radix.Validated
 {
     public struct Invalid<T> : Validated<T>
     {

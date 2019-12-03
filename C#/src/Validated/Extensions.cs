@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Radix.Tests.Validated
+namespace Radix.Validated
 {
     public static class Extensions
     {
@@ -25,13 +25,13 @@ namespace Radix.Tests.Validated
             };
 
         public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function)
-            => result.Bind(x => Valid(function(x)));
+            => result.Bind<T, TResult>(x => Valid<TResult>(function(x)));
 
         public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated)
         {
             return (fValidated, xValidated) switch
             {
-                (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid(f(x)),
+                (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid<TResult>(f(x)),
                 (Invalid<Func<T, TResult>>(var error), Valid<T>(_)) => Invalid<TResult>(error),
                 (Valid<Func<T, TResult>>(_), Invalid<T>(var error)) => Invalid<TResult>(error),
                 (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError)),
