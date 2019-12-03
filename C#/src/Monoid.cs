@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Radix.Tests
+namespace Radix
 {
 
     public interface Monoid<T> : Semigroup<T>

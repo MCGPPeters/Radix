@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Radix.Tests.Choice
+﻿namespace Radix.Tests.Choice
 {
     public static class Extensions<T, U>
     {

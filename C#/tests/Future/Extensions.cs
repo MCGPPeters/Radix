@@ -1,9 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Radix.Tests;
-using Radix.Tests.Result;
-using static Radix.Tests.Result.Extensions;
 
 namespace Radix.Tests.Future
 {
@@ -48,7 +45,7 @@ namespace Radix.Tests.Future
             => task.ContinueWith(
                     t => t.Status == TaskStatus.Faulted
                         ? fallback()
-                        :Task.FromResult(t.Result)).Unwrap();
+                        : Task.FromResult(t.Result)).Unwrap();
 
         /// <summary>
         ///     Retry with delays as long as the task is in a faulted state. 

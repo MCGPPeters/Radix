@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace Radix.Tests.Validated
         {
             return new Valid<T>(t);
         }
-        
+
         public static Validated<T> Invalid<T>(IEnumerable<string> reasons)
         {
             return new Invalid<T>(reasons);

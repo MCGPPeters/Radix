@@ -1,4 +1,4 @@
-namespace Radix.Tests.Monoid
+namespace Radix.Monoid
 {
     public class MString : Monoid<MString>
     {
@@ -23,7 +23,7 @@ namespace Radix.Tests.Monoid
             return mString.Value;
         }
 
-        public MString Append(MString x, MString y)=> x + y;
+        public MString Append(MString x, MString y) => x + y;
 
     }
 }

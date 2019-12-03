@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Radix.Tests
 {
@@ -13,6 +12,7 @@ namespace Radix.Tests
     /// </typeparam>
     /// <typeparam name="TEvent">The type of events the aggregate root generates</typeparam>
     /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
+    /// <typeparam name="TSettings"></typeparam>
     public interface Aggregate<out TState, TEvent, in TCommand, TSettings> where TState : new()
     {
         /// <summary>

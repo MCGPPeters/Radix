@@ -1,4 +1,4 @@
-namespace Radix.Tests.Monoid
+namespace Radix.Monoid
 {
     public class Error<T, TError> : Result<T, TError> where TError : Monoid<TError>
     {

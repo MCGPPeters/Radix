@@ -1,4 +1,4 @@
-namespace Radix.Tests
+namespace Radix
 {
     public interface Semigroup<T>
     {
