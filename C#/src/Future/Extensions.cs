@@ -26,7 +26,7 @@ namespace Radix.Future
             => await f(await task);
 
         public static async Task<TResult> SelectMany<T, TResult>
-            (this System.Threading.Tasks.Task task, Func<Unit, Task<T>> bind, Func<Unit, T, TResult> project)
+            (this Task task, Func<Unit, Task<T>> bind, Func<Unit, T, TResult> project)
         {
             await task;
             var r = await bind(Unit.Instance);
@@ -59,12 +59,12 @@ namespace Radix.Future
             (this Func<Task<T>> function, params TimeSpan[] intervals)
             => intervals.Length == 0
                 ? function()
-                : Otherwise<T>(
+                : Otherwise(
                     function(),
                     async () =>
                     {
-                        await Task.Delay((int) intervals.First().Milliseconds);
-                        return await Retry<T>(function, intervals.Skip(1).ToArray()).ConfigureAwait(false);
+                        await Task.Delay(intervals.First().Milliseconds);
+                        return await Retry(function, intervals.Skip(1).ToArray()).ConfigureAwait(false);
                     });
 
     }

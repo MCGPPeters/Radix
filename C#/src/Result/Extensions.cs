@@ -5,15 +5,11 @@ namespace Radix.Result
 {
     public static class Extensions
     {
-        public static Result<T, TError> Ok<T, TError>(T t) where TError : Monoid<TError>
-        {
-            return new Ok<T, TError>(t);
-        }
+        public static Result<T, TError> Ok<T, TError>(T t) where TError : Monoid<TError> 
+            => new Ok<T, TError>(t);
 
-        public static Result<T, TError> Error<T, TError>(TError error) where TError : Monoid<TError>
-        {
-            return new Error<T, TError>(error);
-        }
+        public static Result<T, TError> Error<T, TError>(TError error) where TError : Monoid<TError> =>
+            new Error<T, TError>(error);
 
         public static Result<TResult, TError> Bind<T, TResult, TError>(this Result<T, TError> result, Func<T, Result<TResult, TError>> function) where TError : Monoid<TError>
             => result switch
@@ -24,7 +20,21 @@ namespace Radix.Result
             };
 
         public static Result<TResult, TError> Map<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function) where TError : Monoid<TError>
-            => Bind<T, TResult, TError>(result, x => Ok<TResult, TError>(function(x)));
+            => result switch
+            {
+                Ok<T, TError>(var value) => Ok<TResult, TError>(function(value)),
+                Error<T, TError>(var error) => Error<TResult, TError>(error),
+                _ => throw new NotSupportedException("Unlikely")
+            };
+
+
+        public static Result<T, TErrorResult> MapError<T, TError, TErrorResult>(this Result<T, TError> result, Func<TError, TErrorResult> function) where TError : Monoid<TError> where TErrorResult : Monoid<TErrorResult>
+            => result switch
+            {
+                Ok<T, TError>(var value) => Ok<T, TErrorResult>(value),
+                Error<T, TError>(var error) => Error<T, TErrorResult>(function(error)),
+                _ => throw new NotSupportedException("Unlikely")
+            };
 
         public static Result<TResult, TError> Apply<T, TResult, TError>(this Result<Func<T, TResult>, TError> fResult, Result<T, TError> xResult) where TError : Monoid<TError> =>
             (fResult, xResult) switch

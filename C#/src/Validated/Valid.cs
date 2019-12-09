@@ -13,6 +13,8 @@ namespace Radix.Validated
 
         }
 
+        public T Value { get; }
+
         public static implicit operator Valid<T>(T t)
         {
             return new Valid<T>(t);
@@ -23,7 +25,6 @@ namespace Radix.Validated
             return ok.Value;
         }
 
-        public T Value { get; }
 
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
