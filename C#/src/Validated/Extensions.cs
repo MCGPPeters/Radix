@@ -52,6 +52,23 @@ namespace Radix.Validated
                         continue;
                 };
             }
+
+
+        }
+        
+        public static IEnumerable<List<string>> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)
+        {
+            foreach (var validated in xs)
+            {
+                switch(validated)
+                {
+                    case Invalid<T>(var errorMessages):
+                        yield return errorMessages;
+                        break;
+                    default: 
+                        continue;
+                };
+            }
         }
 
         public static Validated<Func<T2, R>> Apply<T1, T2, R>
