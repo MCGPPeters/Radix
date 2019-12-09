@@ -39,27 +39,20 @@ namespace Radix.Validated
             };
         }
 
-        //public static Validated<T> Check<T>(this T subject, Func<T, bool> rule, Func<T, string> mapReason)
-        //{
-        //    Validated<T> validate(T arg) => rule(arg) ? Valid(arg) : Invalid<T>(new List<string> { mapReason(arg) });
-        //    return Valid(_<T>.Id).Apply(validate(subject));
-        //}
-
-
-        //public static Validated<T> Check<T>(this Validated<T> validated, Func<T, bool> rule, Func<T, string> mapReason)
-        //{
-        //    Validated<T> validate(T arg) => rule(arg) ? Valid(arg) : Invalid<T>(new List<string> { mapReason(arg) });
-
-        //    switch (validated)
-        //    {
-        //        case Valid<T>(var valid):
-        //            return Valid(_ => valid).Apply(validate(valid));
-        //        case Invalid<T>(var invalid):
-        //            return Invalid(_ => invalid).Apply(validate(subject));
-        //        default: throw new NotSupportedException("Unlikely");
-        //    }
-        //}
-
+        public static IEnumerable<T> WhereValid<T>(this IEnumerable<Validated<T>> xs)
+        {
+            foreach (var validated in xs)
+            {
+                switch(validated)
+                {
+                    case Valid<T>(var valid):
+                        yield return valid;
+                        break;
+                    default: 
+                        continue;
+                };
+            }
+        }
 
         public static Validated<Func<T2, R>> Apply<T1, T2, R>
             (this Validated<Func<T1, T2, R>> @this, Validated<T1> arg)
