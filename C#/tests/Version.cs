@@ -2,7 +2,7 @@ using System;
 
 namespace Radix.Tests
 {
-    public class Version : IVersion, IComparable<Version>
+    public readonly struct Version : IVersion, IComparable<Version>
     {
 
         private Version(long value)

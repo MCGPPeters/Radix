@@ -1,6 +1,7 @@
 namespace Radix.Tests
 {
-    public class AnyVersion : IVersion
+    public readonly struct AnyVersion : IVersion
     {
+        
     }
 }

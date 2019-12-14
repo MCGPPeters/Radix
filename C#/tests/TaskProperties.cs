@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static Radix.Future.Extensions;
+using static Radix.Async.Extensions;
 using static Xunit.Assert;
 
 namespace Radix.Tests

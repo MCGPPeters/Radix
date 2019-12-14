@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Radix.Future
+namespace Radix.Async
 {
     public static class Extensions
     {
@@ -29,7 +29,7 @@ namespace Radix.Future
             (this Task task, Func<Unit, Task<T>> bind, Func<Unit, T, TResult> project)
         {
             await task;
-            var r = await bind(Unit.Instance);
+            T r = await bind(Unit.Instance);
             return project(Unit.Instance, r);
         }
 

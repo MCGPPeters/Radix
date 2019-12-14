@@ -10,18 +10,20 @@ namespace Radix.Maybe
         internal Some(T value)
         {
             if (value is object)
+            {
                 Value = value;
-            else throw new ArgumentNullException(nameof(value));
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
         }
 
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
         /// </summary>
         /// <param name="value"></param>
-        public void Deconstruct(out T value)
-        {
-            value = Value;
-        }
+        public void Deconstruct(out T value) => value = Value;
     }
 
     public struct None<T> : Maybe<T>
