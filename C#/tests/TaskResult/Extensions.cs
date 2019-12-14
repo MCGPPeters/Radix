@@ -1,8 +1,8 @@
-using System;
-using System.Threading.Tasks;
-using Radix.Future;
+using Radix.Async;
 using Radix.Monoid;
 using Radix.Result;
+using System;
+using System.Threading.Tasks;
 using static Radix.Result.Extensions;
 
 namespace Radix.Tests.TaskResult
@@ -12,7 +12,7 @@ namespace Radix.Tests.TaskResult
         public static Task<Result<TResult, TError>> Map<T, TResult, TError>
             (this Task<Result<T, TError>> task, Func<T, TResult> f) where TError : Monoid<TError>
             => task.Select(result => result.Map(f));
-        
+
         public static Task<Result<T, TErrorResult>> MapError<T, TError, TErrorResult>
             (this Task<Result<T, TError>> task, Func<TError, TErrorResult> f) where TError : Monoid<TError> where TErrorResult : Monoid<TErrorResult>
             => task.Select(result => result.MapError(f));
