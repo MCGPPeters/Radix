@@ -3,7 +3,7 @@ using System;
 namespace Radix.Maybe
 {
 
-    public struct Some<T> : Maybe<T>
+    public readonly struct Some<T> : Maybe<T>
     {
         internal T Value { get; }
 
@@ -26,7 +26,7 @@ namespace Radix.Maybe
         public void Deconstruct(out T value) => value = Value;
     }
 
-    public struct None<T> : Maybe<T>
+    public readonly struct None<T> : Maybe<T>
     {
         internal static readonly None<T> Default = new None<T>();
     }

@@ -2,7 +2,7 @@ using System;
 
 namespace Radix
 {
-    public struct Unit : IComparable<Unit>, IEquatable<Unit>
+    public readonly struct Unit : IComparable<Unit>, IEquatable<Unit>
     {
         public static readonly Unit Instance = new Unit();
 
