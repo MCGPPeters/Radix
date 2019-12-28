@@ -3,7 +3,7 @@ using System;
 namespace Radix.Result
 {
 
-    public struct Ok<T, TError> : Result<T, TError> where TError : Monoid<TError>
+    public readonly struct Ok<T, TError> : Result<T, TError> where TError : Monoid<TError>
     {
         internal Ok(T t)
         {

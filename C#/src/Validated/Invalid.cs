@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Radix.Validated
 {
-    public struct Invalid<T> : Validated<T>
+    public readonly struct Invalid<T> : Validated<T>
     {
         internal Invalid(IEnumerable<string> reasons)
         {

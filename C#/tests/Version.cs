@@ -8,7 +8,6 @@ namespace Radix.Tests
         private Version(long value)
         {
             Value = value;
-
         }
 
         private long Value { get; }
