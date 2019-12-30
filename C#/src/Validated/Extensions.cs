@@ -24,10 +24,32 @@ namespace Radix.Validated
                 _ => throw new NotSupportedException("Unlikely")
             };
 
-        public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function)
-            => result.Bind<T, TResult>(x => Valid<TResult>(function(x)));
+        /// <summary>
+        /// For linq syntax support
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="function"></param>
+        /// <returns></returns>
+        public static Validated<TResult> SelectMany<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function)
+            => result.Bind(function);
 
-        public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated)
+        public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function)
+            => result.Bind(x => Valid(function(x)));
+
+        /// <summary>
+        /// For linq syntax support
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="function"></param>
+        /// <returns></returns>
+        public static Validated<TResult> Select<T, TResult>(this Validated<T> result, Func<T, TResult> function)
+            => result.Map(function);
+
+            public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated)
         {
             return (fValidated, xValidated) switch
             {
