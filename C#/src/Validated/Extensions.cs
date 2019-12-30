@@ -35,6 +35,16 @@ namespace Radix.Validated
         public static Validated<TResult> SelectMany<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function)
             => result.Bind(function);
 
+        public static Validated<TProjection> SelectMany<T, TResult, TProjection>(this Validated<T> result, Func<T, Validated<TResult>> function, Func<T, TResult, TProjection> project)
+        {
+            return result switch
+            {
+                Valid<T>(var valid) => function(valid).Bind(r => Valid(project(valid, r))),
+                Invalid<T>(var reasons) => Invalid<TProjection>(reasons),
+                _ => throw new NotSupportedException("Unlikely")
+            };
+        }
+
         public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function)
             => result.Bind(x => Valid(function(x)));
 
