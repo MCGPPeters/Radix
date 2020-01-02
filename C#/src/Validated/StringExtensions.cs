@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using static System.String;
 using static Radix.Validated.Extensions;
+using static System.String;
 
 namespace Radix.Validated
 {

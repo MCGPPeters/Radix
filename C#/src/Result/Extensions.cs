@@ -5,7 +5,7 @@ namespace Radix.Result
 {
     public static class Extensions
     {
-        public static Result<T, TError> Ok<T, TError>(T t) where TError : Monoid<TError> 
+        public static Result<T, TError> Ok<T, TError>(T t) where TError : Monoid<TError>
             => new Ok<T, TError>(t);
 
         public static Result<T, TError> Error<T, TError>(TError error) where TError : Monoid<TError> =>

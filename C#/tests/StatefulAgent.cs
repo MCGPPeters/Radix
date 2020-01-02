@@ -1,10 +1,10 @@
+using Radix.Monoid;
+using Radix.Result;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Radix.Monoid;
-using Radix.Result;
 
 namespace Radix.Tests
 {
