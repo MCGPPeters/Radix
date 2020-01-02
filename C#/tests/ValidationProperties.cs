@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
+using Radix.Validated;
 using System;
 using System.Collections.Generic;
-using Radix.Validated;
 using Xunit;
 using static Radix.Validated.Extensions;
 

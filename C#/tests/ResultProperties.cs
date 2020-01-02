@@ -1,10 +1,10 @@
 using FsCheck;
 using FsCheck.Xunit;
-using System;
 using Radix.Monoid;
 using Radix.Result;
-using static Radix.Result.Extensions;
+using System;
 using Xunit;
+using static Radix.Result.Extensions;
 using static Radix.Tests.Assert;
 using static Xunit.Assert;
 

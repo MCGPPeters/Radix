@@ -36,14 +36,12 @@ namespace Radix.Validated
             => result.Bind(function);
 
         public static Validated<TProjection> SelectMany<T, TResult, TProjection>(this Validated<T> result, Func<T, Validated<TResult>> function, Func<T, TResult, TProjection> project)
+        => result switch
         {
-            return result switch
-            {
-                Valid<T>(var valid) => function(valid).Bind(r => Valid(project(valid, r))),
-                Invalid<T>(var reasons) => Invalid<TProjection>(reasons),
-                _ => throw new NotSupportedException("Unlikely")
-            };
-        }
+            Valid<T>(var valid) => function(valid).Bind(r => Valid(project(valid, r))),
+            Invalid<T>(var reasons) => Invalid<TProjection>(reasons),
+            _ => throw new NotSupportedException("Unlikely")
+        };
 
         public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function)
             => result.Bind(x => Valid(function(x)));
@@ -59,11 +57,11 @@ namespace Radix.Validated
         public static Validated<TResult> Select<T, TResult>(this Validated<T> result, Func<T, TResult> function)
             => result.Map(function);
 
-            public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated)
+        public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated)
         {
             return (fValidated, xValidated) switch
             {
-                (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid<TResult>(f(x)),
+                (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid(f(x)),
                 (Invalid<Func<T, TResult>>(var error), Valid<T>(_)) => Invalid<TResult>(error),
                 (Valid<Func<T, TResult>>(_), Invalid<T>(var error)) => Invalid<TResult>(error),
                 (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError)),
@@ -75,29 +73,29 @@ namespace Radix.Validated
         {
             foreach (var validated in xs)
             {
-                switch(validated)
+                switch (validated)
                 {
                     case Valid<T>(var valid):
                         yield return valid;
                         break;
-                    default: 
+                    default:
                         continue;
                 };
             }
 
 
         }
-        
+
         public static IEnumerable<List<string>> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)
         {
             foreach (var validated in xs)
             {
-                switch(validated)
+                switch (validated)
                 {
                     case Invalid<T>(var errorMessages):
                         yield return errorMessages;
                         break;
-                    default: 
+                    default:
                         continue;
                 };
             }
