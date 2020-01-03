@@ -1,6 +1,6 @@
 namespace Radix.Monoid
 {
-    public readonly struct MInt : Monoid<MInt>
+    public readonly struct MInt : Monoid<MInt>, Value<int>
     {
         private MInt(in int i) => Value = i;
 

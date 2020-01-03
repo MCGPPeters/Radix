@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Radix.Tests
+namespace Radix
 {
     /// <summary>
     ///     The interface an Aggregate root must conform to

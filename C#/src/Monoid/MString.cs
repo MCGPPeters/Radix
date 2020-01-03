@@ -1,6 +1,6 @@
 namespace Radix.Monoid
 {
-    public readonly struct MString : Monoid<MString>
+    public readonly struct MString : Monoid<MString>, Value<string>
     {
         public string Value { get; }
 

@@ -4,7 +4,7 @@ using static Radix.Validated.Extensions;
 
 namespace Radix.Validated
 {
-    public readonly struct NonEmptyString : IEquatable<NonEmptyString>, IComparable<NonEmptyString>
+    public readonly struct NonEmptyString : Value<string>
     {
         private NonEmptyString(string value) => Value = value;
 
