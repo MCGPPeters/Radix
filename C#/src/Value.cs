@@ -2,7 +2,7 @@
 
 namespace Radix
 {
-    public interface Value<T> : IEquatable<T>, IComparable<T> where T : struct, IComparable<T>, IEquatable<T>
+    public interface Value<T> : IEquatable<T>, IComparable<T> where T : notnull, IComparable<T>, IEquatable<T>
     {
         T Value { get; }
 
