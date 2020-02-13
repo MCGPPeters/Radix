@@ -2,7 +2,7 @@
 
 namespace Radix.Blazor.Html
 {
-    public struct Attribute
+    public struct Attribute : IAttribute
     {
         public Attribute(Name name, IEnumerable<NonNullString> values)
         {
@@ -10,7 +10,7 @@ namespace Radix.Blazor.Html
             Values = values;
         }
 
-        Name Name { get; set; }
+        public Name Name { get; set; }
         IEnumerable<NonNullString> Values { get; set; }
     }
 }

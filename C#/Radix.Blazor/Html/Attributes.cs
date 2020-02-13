@@ -82,10 +82,7 @@ namespace Radix.Blazor.Html
 
         public static attribute colspan = (values)
             => attribute(new Name("colspan"), values);
-        
-        public static attribute colspan = (values)
-            => attribute(new Name("colspan"), values);
-        
+
         public static attribute content = (values)
             => attribute(new Name("content"), values);
         
