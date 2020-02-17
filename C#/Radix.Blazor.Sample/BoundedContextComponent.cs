@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
+using Radix.Blazor.Html;
 
 namespace Radix.Blazor.Sample
 {
@@ -17,5 +19,13 @@ namespace Radix.Blazor.Sample
         public abstract ResolveRemoteAddress ResolveRemoteAddress { get; }
         public abstract Forward<TCommand> Forward { get; }
         public abstract FindConflicts<TCommand, TEvent> FindConflicts { get; }
+
+        protected abstract Node Render();
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            base.BuildRenderTree(builder);
+            Rendering.RenderNode(this, builder, 0, Render());
+        }
     }
 }
