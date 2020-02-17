@@ -21,6 +21,5 @@ namespace Radix.Blazor
         public IEnumerable<IAttribute> Attributes { get; set; }
         public IEnumerable<Node> Children { get; set; }
 
-        
     }
 }

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text;
 using EventStore.ClientAPI;
 using Microsoft.AspNetCore.Blazor.Hosting;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Microsoft.Extensions.DependencyInjection;
 using Radix.Async;
 using Radix.Tests.Models;
 using static System.Int32;
@@ -21,7 +17,7 @@ namespace Radix.Blazor.Sample
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<InventoryItemBoundedContextComponent> ("app");
+            builder.RootComponents.Add<InventoryItemBoundedContextComponent>("app");
 
             await builder.Build().RunAsync();
         }
@@ -34,24 +30,25 @@ namespace Radix.Blazor.Sample
         public override SaveEvents<InventoryItemEvent> SaveEvents => async (address, version, events) =>
         {
 
-            var eventData = events.Select(@event =>
-            {
-                var typeName = @event.GetType().ToString();
-                var eventType = char.ToLowerInvariant(typeName[0]) + typeName.Substring(1);
-                var eventAsJSON = SerializeToUtf8Bytes(@event);
-                return new EventData(@event.Id, eventType, true, eventAsJSON, Array.Empty<byte>());
-            }).ToArray();
+            var eventData = events.Select(
+                @event =>
+                {
+                    var typeName = @event.GetType().ToString();
+                    var eventType = char.ToLowerInvariant(typeName[0]) + typeName.Substring(1);
+                    var eventAsJSON = SerializeToUtf8Bytes(@event);
+                    return new EventData(@event.Id, eventType, true, eventAsJSON, Array.Empty<byte>());
+                }).ToArray();
 
             Func<Task<WriteResult>> appendToStream = () => eventStoreConnection.AppendToStreamAsync(address.ToString(), version.Value, eventData);
 
             var result = await appendToStream.Retry(Backoff.Exponentially());
-            
+
             return Ok<Version, SaveEventsError>(result.NextExpectedVersion);
         };
 
         public override GetEventsSince<InventoryItemEvent> GetEventsSince => async (address, version) =>
         {
-            Func < Task <StreamEventsSlice>> readAllEventsForwardAsync = (() => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), version.Value, MaxValue, false));
+            Func<Task<StreamEventsSlice>> readAllEventsForwardAsync = () => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), version.Value, MaxValue, false);
 
             var result = await readAllEventsForwardAsync.Retry(Backoff.Exponentially());
 
@@ -68,31 +65,13 @@ namespace Radix.Blazor.Sample
         public override Forward<InventoryItemCommand> Forward => (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
         public override FindConflicts<InventoryItemCommand, InventoryItemEvent> FindConflicts => (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-        public List<InventoryItemEvent> AppendedEvents { get; } = new List<InventoryItemEvent>();
-
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
+  
+            );
         }
     }
 
 
-    public abstract class BoundedContextComponent<TCommand, TEvent> : ComponentBase
-    {
-        protected BoundedContext<TCommand, TEvent>? context;
-
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            context = new BoundedContext<TCommand, TEvent>(new BoundedContextSettings<TCommand, TEvent>(SaveEvents, GetEventsSince, ResolveRemoteAddress, Forward, FindConflicts));
-        }
-
-        public abstract SaveEvents<TEvent> SaveEvents { get; }
-        public abstract GetEventsSince<TEvent> GetEventsSince { get; }
-        public abstract ResolveRemoteAddress ResolveRemoteAddress { get; }
-        public abstract Forward<TCommand> Forward { get; }
-        public abstract FindConflicts<TCommand, TEvent> FindConflicts { get; }
-    }
-
-    
 }
