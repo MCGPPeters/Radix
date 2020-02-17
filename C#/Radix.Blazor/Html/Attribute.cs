@@ -11,6 +11,13 @@ namespace Radix.Blazor.Html
         }
 
         public Name Name { get; set; }
-        IEnumerable<string> Values { get; set; }
+        public IEnumerable<string> Values { get; set; }
+
+        public void Deconstruct(out Name name, out IEnumerable<string> values) 
+
+        {
+            name = Name;
+            values = Values;
+        }
     }
 }
