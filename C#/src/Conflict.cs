@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Radix.Tests
+namespace Radix
 {
     public struct Conflict<TCommand, TEvent>
     {

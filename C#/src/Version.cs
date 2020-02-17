@@ -1,8 +1,8 @@
 using System;
 
-namespace Radix.Tests
+namespace Radix
 {
-    public readonly struct Version : IVersion, IComparable<Version>
+    public readonly struct Version : IVersion
     {
 
         private Version(long value)
@@ -10,7 +10,7 @@ namespace Radix.Tests
             Value = value;
         }
 
-        private long Value { get; }
+        public long Value { get; }
 
         public int CompareTo(Version other)
         {

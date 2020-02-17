@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Radix.Tests
+namespace Radix
 {
     /// <summary>
     ///     Combining the metadata of an event with the even itself

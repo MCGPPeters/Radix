@@ -41,6 +41,9 @@ namespace Radix.Blazor.Html
         public static IAttribute mousedown(Func<MouseEventArgs, Task> callback)
             => @event(nameof(mousedown), callback);
 
+        public static IAttribute click(Func<MouseEventArgs, Task> callback)
+            => @event(nameof(click), callback);
+        
         public static IAttribute dblclick(Func<MouseEventArgs, Task> callback)
             => @event(nameof(dblclick), callback);
 

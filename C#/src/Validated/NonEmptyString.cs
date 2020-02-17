@@ -22,5 +22,7 @@ namespace Radix.Validated
         public bool Equals([AllowNull] NonEmptyString other) => Value.Equals(other.Value);
 
         public static implicit operator string(NonEmptyString nonEmptyString) => nonEmptyString.Value;
+
+        public void Deconstruct(out string value) => value = Value;
     }
 }

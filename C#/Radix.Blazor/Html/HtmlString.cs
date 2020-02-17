@@ -1,4 +1,6 @@
-﻿namespace Radix.Blazor
+﻿using Radix.Blazor.Html;
+
+namespace Radix.Blazor
 {
     public struct HtmlString : Node, Value<string>
     {
