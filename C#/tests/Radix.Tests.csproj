@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Radix.Tests.Models\Radix.Tests.Models.csproj" />
     <ProjectReference Include="..\src\Radix.csproj" />
   </ItemGroup>
 

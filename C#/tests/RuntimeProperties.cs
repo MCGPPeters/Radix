@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Radix.Tests.Models;
 using static Radix.Result.Extensions;
 
 namespace Radix.Tests
@@ -31,7 +32,7 @@ namespace Radix.Tests
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(inventoryItemSettings, new CurrentThreadTaskScheduler());
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Radix.Tests
+namespace Radix.Tests.Models
 {
     public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand, InventoryItemSettings>
     {

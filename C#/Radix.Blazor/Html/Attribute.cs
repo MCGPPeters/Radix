@@ -4,13 +4,13 @@ namespace Radix.Blazor.Html
 {
     public struct Attribute : IAttribute
     {
-        public Attribute(Name name, IEnumerable<NonNullString> values)
+        public Attribute(Name name, IEnumerable<string> values)
         {
             Name = name;
             Values = values;
         }
 
         public Name Name { get; set; }
-        IEnumerable<NonNullString> Values { get; set; }
+        IEnumerable<string> Values { get; set; }
     }
 }

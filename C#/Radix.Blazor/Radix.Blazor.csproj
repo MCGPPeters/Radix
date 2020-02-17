@@ -15,4 +15,8 @@
     <ProjectReference Include="..\src\Radix.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Router\" />
+  </ItemGroup>
+
 </Project>

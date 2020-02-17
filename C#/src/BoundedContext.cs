@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Radix.Tests
+namespace Radix
 {
     /// <summary>
     ///     The bounded context is responsible for managing the runtime.
@@ -31,7 +32,7 @@ namespace Radix.Tests
         }
 
 
-        internal Address CreateAggregate<TState, TSettings>(TaskScheduler scheduler, TSettings settings)
+        public Address CreateAggregate<TState, TSettings>(TSettings settings, TaskScheduler scheduler)
             where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
             where TSettings : AggregateSettings<TCommand, TEvent>
         {
@@ -43,24 +44,24 @@ namespace Radix.Tests
             return address;
         }
 
-        internal void Send(CommandDescriptor<TCommand> commandDescriptor)
-        {
-
-            var agent = _registry[commandDescriptor.Address];
-            agent.Post(commandDescriptor);
-        }
-
         /// <summary>
         ///     Creates a new aggregate that schedules work using the default task scheduler (TaskScheduler.Default)
         /// </summary>
         /// <typeparam name="TState"></typeparam>
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
-        internal Address CreateAggregate<TState, TSettings>(TSettings settings)
+        public Address CreateAggregate<TState, TSettings>(TSettings settings)
             where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
-            where TSettings : AggregateSettings<TCommand, TEvent>
+            where TSettings : AggregateSettings<TCommand, TEvent> => 
+            CreateAggregate<TState, TSettings>(settings, TaskScheduler.Default);
+
+        public void Send(CommandDescriptor<TCommand> commandDescriptor)
         {
-            return CreateAggregate<TState, TSettings>(TaskScheduler.Default, settings);
+
+            var agent = _registry[commandDescriptor.Address];
+            agent.Post(commandDescriptor);
         }
+
+        
     }
 }

@@ -5,262 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Radix.Tests.Models;
 using static Radix.Result.Extensions;
 
 namespace Radix.Tests
 {
-    public interface InventoryItemEvent
-    {
-    }
 
-    public class InventoryItemDeactivated : InventoryItemEvent
-    {
-    }
-
-    public class InventoryItemCreated : InventoryItemEvent
-    {
-
-        public InventoryItemCreated(string name)
-        {
-            Name = name;
-
-        }
-
-        public string Name { get; }
-
-        protected bool Equals(InventoryItemCreated other)
-        {
-            return string.Equals(Name, other.Name);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((InventoryItemCreated)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return Name != null ? Name.GetHashCode() : 0;
-        }
-    }
-
-    public class InventoryItemRenamed : InventoryItemEvent
-    {
-
-        public InventoryItemRenamed(string name)
-        {
-            Name = name;
-
-        }
-
-        public string Name { get; }
-    }
-
-    public class ItemsCheckedInToInventory : InventoryItemEvent
-    {
-
-        public ItemsCheckedInToInventory(int amount)
-        {
-            Amount = amount;
-
-        }
-
-        public int Amount { get; }
-
-        protected bool Equals(ItemsCheckedInToInventory other)
-        {
-            return Amount == other.Amount;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ItemsCheckedInToInventory)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return Amount;
-        }
-    }
-
-    public class ItemsRemovedFromInventory : InventoryItemEvent
-    {
-
-        public ItemsRemovedFromInventory(int amount)
-        {
-            Amount = amount;
-
-        }
-
-        public int Amount { get; }
-    }
-
-    public interface InventoryItemCommand
-    {
-    }
-
-    public struct DeactivateInventoryItem : InventoryItemCommand
-    {
-    }
-
-
-    public class CreateInventoryItem : InventoryItemCommand
-    {
-
-        public CreateInventoryItem(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
-    }
-
-    public class RenameInventoryItem : InventoryItemCommand
-    {
-
-        public RenameInventoryItem(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
-    }
-
-    public class CheckInItemsToInventory : InventoryItemCommand
-    {
-
-        public CheckInItemsToInventory(int amount)
-        {
-            Amount = amount;
-        }
-
-        public int Amount { get; }
-    }
-
-    public class RemoveItemsFromInventory : InventoryItemCommand
-    {
-
-        public RemoveItemsFromInventory(int amount)
-        {
-            Amount = amount;
-        }
-
-        public int Amount { get; }
-    }
-
-
-    /// <summary>
-    ///     The error to return when saving events causes an optimistic concurrency error
-    /// </summary>
-    internal class OptimisticConcurrencyError : SaveEventsError
-    {
-        public SaveEventsError Append(SaveEventsError x, SaveEventsError y)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SaveEventsError Empty()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    ///     An error while save to the event store
-    /// </summary>
-    public interface SaveEventsError : Monoid<SaveEventsError>
-    {
-    }
-
-    public interface ResolveRemoteAddressError : Monoid<ResolveRemoteAddressError>
-    {
-    }
-
-    public interface ForwardError : Monoid<ForwardError>
-    {
-    }
-
-
-    /// <summary>
-    /// The setting class is needed for signaling the found actual concurrency conflicts
-    /// </summary>
-    public class InventoryItemSettings : AggregateSettings<InventoryItemCommand, InventoryItemEvent>
-    {
-        private readonly TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> _taskCompletionSource;
-
-        public InventoryItemSettings(TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> taskCompletionSource)
-        {
-            _taskCompletionSource = taskCompletionSource;
-        }
-
-        /// <summary>
-        /// Signals the conflicts that were passed on by the runtime
-        /// </summary>
-        /// <param name="conflicts"></param>
-        /// <returns></returns>
-        public Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>> conflicts)
-        {
-            _taskCompletionSource.SetResult(conflicts);
-            return Task.FromResult(Unit.Instance);
-        }
-    }
-
-
-    /// <summary>
-    /// </summary>
-    /// <param name="address">The address of the aggregate</param>
-    /// <param name="expectedVersion">
-    ///     The version the event stream is expected to be at when adding the new events.true For the
-    ///     purpose of optimistic concurrency
-    /// </param>
-    /// <param name="events"></param>
-    /// <typeparam name="TEvent">The type of events</typeparam>
-    /// <returns>
-    ///     Either a confirmation the action succeeded (in the for of an instance of Unit) or an error. The SaveEvents error is
-    ///     on if the following:
-    ///     - OptimisticConcurrencyError
-    /// </returns>
-    public delegate Task<Result<Unit, SaveEventsError>> SaveEvents<in TEvent>(Address address, IVersion expectedVersion, IEnumerable<TEvent> events);
-
-    /// <summary>
-    ///     Get all event descriptors for an aggregate since (excluding) the supplied version
-    /// </summary>
-    /// <param name="address">Address of the aggregate</param>
-    /// <param name="version"></param>
-    /// <typeparam name="TEvent"></typeparam>
-    /// <returns></returns>
-    public delegate Task<List<EventDescriptor<TEvent>>> GetEventsSince<TEvent>(Address address, IVersion version);
-
-    /// <summary>
-    ///     Returns the uri of the resource hosting the aggregate with the indicated address
-    ///     todo : will shift to the multiaddress spec https://github.com/multiformats/multiaddr for addressing
-    /// </summary>
-    /// <param name="address"></param>
-    /// <returns>Either the Uri or an error</returns>
-    public delegate Task<Result<Uri, ResolveRemoteAddressError>> ResolveRemoteAddress(Address address);
-
-    /// <summary>
-    ///     Forwards a command to an other context
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="destination"></param>
-    /// <param name="address"></param>
-    /// <typeparam name="TCommand"></typeparam>
-    /// <returns></returns>
-    public delegate Task<Result<Unit, ForwardError>> Forward<in TCommand>(TCommand command, Uri destination, Address address);
-
-    /// <summary>
-    ///     Returns the first conflict between the comment and an event, if any
-    /// </summary>
-    /// <param name="command"></param>
-    /// <typeparam name="TCommand"></typeparam>
-    /// <typeparam name="TEvent"></typeparam>
-    /// <returns></returns>
-    public delegate IEnumerable<Conflict<TCommand, TEvent>> FindConflicts<TCommand, TEvent>(TCommand command, IEnumerable<EventDescriptor<TEvent>> eventDescriptors);
 
     public class ConflictHandlingProperties
     {
@@ -285,7 +35,7 @@ namespace Radix.Tests
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(inventoryItemSettings, new CurrentThreadTaskScheduler());
 
             InventoryItemCommand command = new CreateInventoryItem("Product 1");
             IVersion expectedVersion = new AnyVersion();
@@ -326,7 +76,7 @@ namespace Radix.Tests
             // for testing purposes make the aggregate block the current thread while processing
             var taskCompletionSource = new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>();
             var inventoryItemSettings = new InventoryItemSettings(taskCompletionSource);
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(inventoryItemSettings, new CurrentThreadTaskScheduler());
 
             Version expectedVersion = 2L;
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
@@ -374,7 +124,7 @@ namespace Radix.Tests
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(inventoryItemSettings, new CurrentThreadTaskScheduler());
 
             Version expectedVersion = 2L;
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
@@ -411,7 +161,7 @@ namespace Radix.Tests
             // for testing purposes make the aggregate block the current thread while processing
             var taskCompletionSource = new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>();
             var inventoryItemSettings = new InventoryItemSettings(taskCompletionSource);
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(inventoryItemSettings, new CurrentThreadTaskScheduler());
 
             // expected version is 2
             Version expectedVersion = 2L;
@@ -447,7 +197,7 @@ namespace Radix.Tests
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
-            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(new CurrentThreadTaskScheduler(), inventoryItemSettings);
+            var inventoryItem = context.CreateAggregate<InventoryItem, InventoryItemSettings>(inventoryItemSettings, new CurrentThreadTaskScheduler());
 
             Version expectedVersion = 1L;
 

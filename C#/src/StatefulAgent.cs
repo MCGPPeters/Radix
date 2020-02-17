@@ -1,12 +1,11 @@
-using Radix.Monoid;
-using Radix.Result;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Radix.Monoid;
+using Radix.Result;
 
-namespace Radix.Tests
+namespace Radix
 {
     internal class StatefulAgent<TState, TCommand, TEvent, TSettings> : Agent<TCommand>
         where TSettings : AggregateSettings<TCommand, TEvent>
@@ -53,7 +52,8 @@ namespace Radix.Tests
                     {
                         case Ok<Unit, SaveEventsError> _:
                             // the events have been saved to the stream successfully. Update the state
-                            _state = transientEvents.Aggregate(_state, (s, @event) => s.Apply(@event));
+                            _state = transientEvents.Aggregate(_state, (s, @event) => s.
+                                Apply(@event));
                             break;
                         case Error<Unit, SaveEventsError>(var error):
                             switch (error)
@@ -81,15 +81,4 @@ namespace Radix.Tests
         }
     }
 
-    internal interface AggregateSettings<TCommand, TEvent>
-    {
-        /// <summary>
-        ///     Called when a true concurrency conflict according to business rules had occured.
-        ///     No events have been recorded that would have been generated as a consequence of
-        ///     the command if it would have succeeded
-        /// </summary>
-        /// <param name="conflicts"></param>
-        /// <returns>Unit</returns>
-        Task<Unit> OnConflictingCommandRejected(IEnumerable<Conflict<TCommand, TEvent>> conflicts);
-    }
 }

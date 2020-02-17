@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests
+namespace Radix
 {
     public readonly struct Address : Value<Guid>
     {
