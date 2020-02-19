@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -7,23 +8,24 @@ using Radix.Result;
 
 namespace Radix
 {
-    internal class StatefulAgent<TState, TCommand, TEvent, TSettings> : Agent<TCommand>
-        where TSettings : AggregateSettings<TCommand, TEvent>
-        where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
+    internal class StatefulAgent<TState, TCommand, TEvent> : Agent<TCommand>
+        where TState : Aggregate<TState, TEvent, TCommand>, new()
     {
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
-        private readonly TSettings _aggregateSettings;
         private TState _state = new TState();
 
-        public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler scheduler,
-            TSettings aggregateSettings)
+        public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
         {
             _boundedContextSettings = boundedContextSettings;
-            _aggregateSettings = aggregateSettings;
+
+            // restore the state (if any)
+            _state = history.Aggregate(_state, (state, eventDescriptor) => state.
+                Apply(eventDescriptor.Event));
+
 
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
                 async commandDescriptor =>
@@ -36,7 +38,7 @@ namespace Radix
                         if (conflicts.Any())
                         {
                             // a true concurrent exception according to business logic
-                            await _aggregateSettings.OnConflictingCommandRejected(conflicts);
+                            await _boundedContextSettings.OnConflictingCommandRejected(conflicts, new TaskCompletionSource<IEnumerable<Conflict<TCommand, TEvent>>>());
                             return;
                         }
 
@@ -44,18 +46,18 @@ namespace Radix
                         expectedVersion = eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version).Max();
                     }
 
-                    var transientEvents = _state.Decide(commandDescriptor.Command, _aggregateSettings);
+                    var transientEvents = _state.Decide(commandDescriptor.Command);
                     // try to save the events
                     var saveResult = await _boundedContextSettings.SaveEvents(commandDescriptor.Address, expectedVersion, transientEvents);
 
                     switch (saveResult)
                     {
-                        case Ok<Unit, SaveEventsError> _:
+                        case Ok<Version, SaveEventsError> _:
                             // the events have been saved to the stream successfully. Update the state
                             _state = transientEvents.Aggregate(_state, (s, @event) => s.
                                 Apply(@event));
                             break;
-                        case Error<Unit, SaveEventsError>(var error):
+                        case Error<Version, SaveEventsError>(var error):
                             switch (error)
                             {
                                 case OptimisticConcurrencyError _:

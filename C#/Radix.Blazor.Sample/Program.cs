@@ -5,6 +5,7 @@ using EventStore.ClientAPI;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.AspNetCore.Components.Rendering;
 using Radix.Async;
+using Radix.Blazor.Html;
 using Radix.Tests.Models;
 using static System.Int32;
 using static System.Text.Json.JsonSerializer;
@@ -39,7 +40,7 @@ namespace Radix.Blazor.Sample
                     return new EventData(@event.Id, eventType, true, eventAsJSON, Array.Empty<byte>());
                 }).ToArray();
 
-            Func<Task<WriteResult>> appendToStream = () => eventStoreConnection.AppendToStreamAsync(address.ToString(), version.Value, eventData);
+            Func<Task<WriteResult>> appendToStream = () => eventStoreConnection.AppendToStreamAsync($"InventoryItem-{address.ToString()}", version.Value, eventData);
 
             var result = await appendToStream.Retry(Backoff.Exponentially());
 
@@ -65,11 +66,15 @@ namespace Radix.Blazor.Sample
         public override Forward<InventoryItemCommand> Forward => (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
         public override FindConflicts<InventoryItemCommand, InventoryItemEvent> FindConflicts => (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        public override OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected => (conflicts, taskCompletionSource) =>
         {
-            base.BuildRenderTree(builder);
-  
-            );
+            taskCompletionSource.SetResult(conflicts);
+            return Task.FromResult(Unit.Instance);
+        };
+
+        protected override Node Render()
+        {
+            throw new NotImplementedException();
         }
     }
 

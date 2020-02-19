@@ -32,13 +32,12 @@ namespace Radix
         }
 
 
-        public Address CreateAggregate<TState, TSettings>(TSettings settings, TaskScheduler scheduler)
-            where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
-            where TSettings : AggregateSettings<TCommand, TEvent>
+        public Address CreateAggregate<TState>(TaskScheduler scheduler)
+            where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = new StatefulAgent<TState, TCommand, TEvent, TSettings>(_boundedContextSettings, scheduler, settings);
+            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>(),  scheduler);
 
             _registry.Add(address, agent);
             return address;
@@ -50,18 +49,36 @@ namespace Radix
         /// <typeparam name="TState"></typeparam>
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
-        public Address CreateAggregate<TState, TSettings>(TSettings settings)
-            where TState : Aggregate<TState, TEvent, TCommand, TSettings>, new()
-            where TSettings : AggregateSettings<TCommand, TEvent> => 
-            CreateAggregate<TState, TSettings>(settings, TaskScheduler.Default);
+        public Address GetAggregate<TState>()
+            where TState : Aggregate<TState, TEvent, TCommand>, new() => 
+            CreateAggregate<TState>(TaskScheduler.Default);
 
-        public void Send(CommandDescriptor<TCommand> commandDescriptor)
+        public async Task Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
+            where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
 
-            var agent = _registry[commandDescriptor.Address];
+            if (!_registry.TryGetValue(commandDescriptor.Address, out var agent))
+            {
+                agent = await GetAggregate<TState>(commandDescriptor.Address);
+            }
+
             agent.Post(commandDescriptor);
+            
         }
 
-        
+        private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
+            where TState : Aggregate<TState, TEvent, TCommand>, new() 
+            => await GetAggregate<TState>(address, TaskScheduler.Default);
+
+        private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, TaskScheduler scheduler) 
+            where TState : Aggregate<TState, TEvent, TCommand>, new()
+        {
+            var history = await _boundedContextSettings.GetEventsSince(address, new Version(0L));
+            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, history, scheduler);
+            _registry.Add(address, agent);
+            return agent;
+        }
+
+
     }
 }

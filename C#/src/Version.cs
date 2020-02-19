@@ -5,7 +5,7 @@ namespace Radix
     public readonly struct Version : IVersion
     {
 
-        private Version(long value)
+        public Version(long value)
         {
             Value = value;
         }

@@ -11,10 +11,10 @@ namespace Radix.Blazor.Html
     public struct Component : Node
     {
         public Type Type { get; }
-        public IEnumerable<Attribute> Attributes { get; }
+        public IEnumerable<IAttribute> Attributes { get; }
         public IEnumerable<Node> Children { get; }
 
-        public Component(Type type, IEnumerable<Attribute> attributes, IEnumerable<Node> children)
+        public Component(Type type, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
 
         {
             Type = type;
