@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Radix.Tests.Models
 {
-    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand, InventoryItemSettings>
+    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>
     {
 
         public InventoryItem()
@@ -24,7 +24,7 @@ namespace Radix.Tests.Models
         private bool Activated { get; }
         private int Count { get; }
 
-        public List<InventoryItemEvent> Decide(InventoryItemCommand command, InventoryItemSettings aggregateSettings) => command switch
+        public List<InventoryItemEvent> Decide(InventoryItemCommand command) => command switch
         {
             DeactivateInventoryItem _ => new List<InventoryItemEvent> { new InventoryItemDeactivated() },
             CreateInventoryItem createInventoryItem => new List<InventoryItemEvent> { new InventoryItemCreated(createInventoryItem.Name) },
