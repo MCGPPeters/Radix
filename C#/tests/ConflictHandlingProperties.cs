@@ -15,6 +15,12 @@ namespace Radix.Tests
 
     public class ConflictHandlingProperties
     {
+        private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
+        {
+            ScanInterval = new Minutes(1),
+            IdleTimeout = new TimeSpan(0, 60, 0)
+        };
+
         [Property(
             DisplayName =
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
@@ -38,7 +44,7 @@ namespace Radix.Tests
             };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
@@ -86,7 +92,7 @@ namespace Radix.Tests
             };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var taskCompletionSource = new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>();
             var inventoryItemSettings = new InventoryItemSettings(taskCompletionSource);
@@ -146,7 +152,7 @@ namespace Radix.Tests
             };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
@@ -193,7 +199,7 @@ namespace Radix.Tests
                 return Task.FromResult(Unit.Instance);
             };
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
@@ -240,7 +246,7 @@ namespace Radix.Tests
             };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 

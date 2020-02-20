@@ -3,7 +3,7 @@ namespace Radix
     public class BoundedContextSettings<TCommand, TEvent>
     {
         public BoundedContextSettings(SaveEvents<TEvent> saveEvents, GetEventsSince<TEvent> getEventsSince, ResolveRemoteAddress resolveRemoteAddress, Forward<TCommand> forward,
-            FindConflicts<TCommand, TEvent> findConflicts, OnConflictingCommandRejected<TCommand, TEvent> onConflictingCommandRejected)
+            FindConflicts<TCommand, TEvent> findConflicts, OnConflictingCommandRejected<TCommand, TEvent> onConflictingCommandRejected, GarbageCollectionSettings garbageCollectionSettings)
         {
             SaveEvents = saveEvents;
             GetEventsSince = getEventsSince;
@@ -11,6 +11,7 @@ namespace Radix
             Forward = forward;
             FindConflicts = findConflicts;
             OnConflictingCommandRejected = onConflictingCommandRejected;
+            GarbageCollectionSettings = garbageCollectionSettings;
         }
 
         public SaveEvents<TEvent> SaveEvents { get; }
@@ -20,7 +21,8 @@ namespace Radix
         public FindConflicts<TCommand, TEvent> FindConflicts { get; }
 
         public OnConflictingCommandRejected<TCommand, TEvent> OnConflictingCommandRejected { get;}
-       
+        public GarbageCollectionSettings GarbageCollectionSettings { get; }
+
     }
 
 }

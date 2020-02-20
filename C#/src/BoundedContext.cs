@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Radix
@@ -21,14 +22,29 @@ namespace Radix
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
-    public class BoundedContext<TCommand, TEvent>
+    public class BoundedContext<TCommand, TEvent> : IDisposable
     {
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
         private readonly Dictionary<Address, Agent<TCommand>> _registry = new Dictionary<Address, Agent<TCommand>>();
+        private readonly Timer _timer;
 
         public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
+            _timer = new Timer(RunGarbageCollection, null, new TimeSpan(0), new TimeSpan(0,  boundedContextSettings.GarbageCollectionSettings.ScanInterval.Value, 0, 0));
+        }
+
+        private void RunGarbageCollection(object state)
+        {
+            foreach (var (address, agent) in _registry)
+            {
+                var idleTime = DateTimeOffset.Now - agent.LastActivity;
+                if (idleTime >= _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
+                {
+                    agent.Deactivate();
+                    _registry.Remove(address);
+                }
+            }
         }
 
 
@@ -85,6 +101,42 @@ namespace Radix
             _registry.Add(address, agent);
             return agent;
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _timer.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~BoundedContext()
+        // {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
 
 
     }

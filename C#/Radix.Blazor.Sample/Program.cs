@@ -72,6 +72,14 @@ namespace Radix.Blazor.Sample
             return Task.FromResult(Unit.Instance);
         };
 
+        public override GarbageCollectionSettings GarbageCollectionSettings =>
+            new GarbageCollectionSettings()
+            {
+                ScanInterval = new Minutes(1),
+                IdleTimeout = new TimeSpan(0, 60, 0)
+            };
+
+
         protected override Node Render()
         {
             throw new NotImplementedException();

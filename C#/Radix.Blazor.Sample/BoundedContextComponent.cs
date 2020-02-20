@@ -11,7 +11,7 @@ namespace Radix.Blazor.Sample
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            context = new BoundedContext<TCommand, TEvent>(new BoundedContextSettings<TCommand, TEvent>(SaveEvents, GetEventsSince, ResolveRemoteAddress, Forward, FindConflicts, onConflictingCommandRejected));
+            context = new BoundedContext<TCommand, TEvent>(new BoundedContextSettings<TCommand, TEvent>(SaveEvents, GetEventsSince, ResolveRemoteAddress, Forward, FindConflicts, onConflictingCommandRejected, GarbageCollectionSettings));
         }
 
         public abstract SaveEvents<TEvent> SaveEvents { get; }
@@ -20,6 +20,7 @@ namespace Radix.Blazor.Sample
         public abstract Forward<TCommand> Forward { get; }
         public abstract FindConflicts<TCommand, TEvent> FindConflicts { get; }
         public abstract OnConflictingCommandRejected<TCommand, TEvent> onConflictingCommandRejected { get; }
+        public abstract GarbageCollectionSettings GarbageCollectionSettings { get; }
 
         protected abstract Node Render();
 
