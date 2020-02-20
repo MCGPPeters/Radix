@@ -71,7 +71,6 @@ namespace Radix.Blazor
         private static int RenderAttributes(object currentComponent, RenderTreeBuilder builder, int sequence, IEnumerable<IAttribute> attributes)
         {
             foreach (var attribute in attributes)
-            {
                 switch (attribute)
                 {
                     case Attribute (var name, var values):
@@ -81,7 +80,6 @@ namespace Radix.Blazor
                         sequence = explicitAttribute.Factory(builder, sequence, currentComponent);
                         break;
                 }
-            }
 
             return sequence;
         }

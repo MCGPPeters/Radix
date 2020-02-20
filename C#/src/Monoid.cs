@@ -8,13 +8,15 @@ namespace Radix
     {
         T Empty();
 
-        T Concat(IEnumerable<T> xs) =>
-            xs.Aggregate(Empty(), Append);
+        T Concat(IEnumerable<T> xs)
+        {
+            return xs.Aggregate(Empty(), Append);
+        }
 
-        T Concat(params T[] xs) =>
-            xs.Aggregate(Empty(), Append);
-
-
+        T Concat(params T[] xs)
+        {
+            return xs.Aggregate(Empty(), Append);
+        }
     }
 
 }

@@ -1,4 +1,6 @@
 namespace Radix
 {
-    public interface Maybe<out T> { }
+    public interface Maybe<out T>
+    {
+    }
 }

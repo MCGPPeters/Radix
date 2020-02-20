@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using Radix.Blazor.Html;
-using Radix.Validated;
 using Xunit;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Blazor.Html.Elements;
-using Attribute = Radix.Blazor.Html.Attribute;
 
 namespace Radix.Blazor.Tests
 {
@@ -31,9 +27,10 @@ namespace Radix.Blazor.Tests
 
         private Node FormView(IJSRuntime _, Model model, Func<Message, Task> dispatch)
         {
-            return concat(h1(new[] { value("Title"), @class("nice")}, text("Title")),
+            return concat(
+                h1(new[] {value("Title"), @class("nice")}, text("Title")),
                 input(value(model.Input), on.change(async args => await dispatch(new SetInput(args.Value))))
-                );
+            );
         }
 
         [Fact]
@@ -52,7 +49,10 @@ namespace Radix.Blazor.Tests
             _argsValue = argsValue;
         }
 
-        public void Deconstruct(out object value) => value = _argsValue;
+        public void Deconstruct(out object value)
+        {
+            value = _argsValue;
+        }
     }
 
     internal class Model
@@ -62,6 +62,5 @@ namespace Radix.Blazor.Tests
 
     internal interface Message
     {
-
     }
 }

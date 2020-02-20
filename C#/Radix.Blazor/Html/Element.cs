@@ -1,10 +1,10 @@
 ﻿using System;
-using Radix.Blazor.Html;
 using System.Collections.Generic;
+using Radix.Blazor.Html;
 
 namespace Radix.Blazor
 {
-    public struct Element : Node 
+    public struct Element : Node
     {
         public Element(Name name, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
         {
@@ -12,7 +12,7 @@ namespace Radix.Blazor
             Attributes = attributes;
             Children = children;
         }
-        
+
         public Element(Name name, IEnumerable<IAttribute> attributes) : this(name, attributes, Array.Empty<Node>())
         {
         }

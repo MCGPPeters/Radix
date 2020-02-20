@@ -7,6 +7,7 @@
             Value = value;
 
         }
+
         public string Value { get; }
     }
 }

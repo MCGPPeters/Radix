@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,7 +30,7 @@ namespace Radix
         public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
-            _timer = new Timer(RunGarbageCollection, null, new TimeSpan(0), new TimeSpan(0,  boundedContextSettings.GarbageCollectionSettings.ScanInterval.Value, 0, 0));
+            _timer = new Timer(RunGarbageCollection, null, new TimeSpan(0), boundedContextSettings.GarbageCollectionSettings.ScanInterval);
         }
 
         private void RunGarbageCollection(object state)
@@ -66,17 +65,17 @@ namespace Radix
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
         public Address GetAggregate<TState>()
-            where TState : Aggregate<TState, TEvent, TCommand>, new() =>
-            CreateAggregate<TState>(TaskScheduler.Default);
+            where TState : Aggregate<TState, TEvent, TCommand>, new()
+        {
+            return CreateAggregate<TState>(TaskScheduler.Default);
+        }
 
         public async Task Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
             where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
 
             if (!_registry.TryGetValue(commandDescriptor.Address, out var agent))
-            {
                 agent = await GetAggregate<TState>(commandDescriptor.Address);
-            }
 
             agent.Post(commandDescriptor);
 
@@ -84,7 +83,9 @@ namespace Radix
 
         private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
             where TState : Aggregate<TState, TEvent, TCommand>, new()
-            => await GetAggregate<TState>(address, TaskScheduler.Default);
+        {
+            return await GetAggregate<TState>(address, TaskScheduler.Default);
+        }
 
         /// <summary>
         ///     Spins up an agent for an existing aggregate and restores its last known state
@@ -103,16 +104,15 @@ namespace Radix
         }
 
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+
+        private bool disposedValue; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
-                {
                     _timer.Dispose();
-                }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
@@ -136,8 +136,7 @@ namespace Radix
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
         #endregion
-
-
     }
 }

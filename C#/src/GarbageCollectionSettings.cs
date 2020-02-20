@@ -4,7 +4,7 @@ namespace Radix
 {
     public struct GarbageCollectionSettings
     {
-        public Minutes ScanInterval { get; set; }
+        public TimeSpan ScanInterval { get; set; }
         public TimeSpan IdleTimeout { get; set; }
     }
 }

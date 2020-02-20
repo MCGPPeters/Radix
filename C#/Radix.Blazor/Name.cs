@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Rendering;
-using Radix;
-using System.Collections.Generic;
-
-namespace Radix.Blazor
+﻿namespace Radix.Blazor
 {
     public readonly struct Name : Value<string>
     {
-        public Name(string v) : this() => Value = v;
+        public Name(string v) : this()
+        {
+            Value = v;
+        }
 
         public string Value { get; }
 
@@ -15,13 +13,12 @@ namespace Radix.Blazor
         {
             return name.Value;
         }
-        
+
         public static implicit operator Name(string name)
         {
             return new Name(name);
         }
     }
 
-    
 
 }

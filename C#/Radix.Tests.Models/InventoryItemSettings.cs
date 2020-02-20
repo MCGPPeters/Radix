@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Radix.Tests.Models
 {
     /// <summary>
-    /// The setting class is needed for signaling the found actual concurrency conflicts
+    ///     The setting class is needed for signaling the found actual concurrency conflicts
     /// </summary>
     public class InventoryItemSettings : AggregateSettings<InventoryItemCommand, InventoryItemEvent>
     {
@@ -16,7 +16,7 @@ namespace Radix.Tests.Models
         }
 
         /// <summary>
-        /// Signals the conflicts that were passed on by the runtime
+        ///     Signals the conflicts that were passed on by the runtime
         /// </summary>
         /// <param name="conflicts"></param>
         /// <returns></returns>

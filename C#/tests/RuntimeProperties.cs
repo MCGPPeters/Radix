@@ -1,8 +1,8 @@
-﻿using FsCheck.Xunit;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FsCheck.Xunit;
 using Radix.Tests.Models;
 using static Radix.Result.Extensions;
 
@@ -13,16 +13,43 @@ namespace Radix.Tests
     {
         private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
         {
-            ScanInterval = new Minutes(1),
-            IdleTimeout = new TimeSpan(0, 60, 0)
+            ScanInterval = TimeSpan.FromMilliseconds(500),
+            IdleTimeout = TimeSpan.FromMilliseconds(500)
         };
 
         [Property(
             DisplayName =
-                "Given an instance of an aggregate has not been used within a certain time frame, it will be deactivated by the garbage collector")]
+                "Given an instance of an aggregate has not been used within a specified idle timeout, it will be deactivated by the garbage collector")]
         public void Property1()
         {
+            var eventStream = new List<InventoryItemEvent>();
+            SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
+            {
+                eventStream.AddRange(events);
+                return Task.FromResult(Ok<Version, SaveEventsError>(0L));
+            };
 
+            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
+            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
+            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => Task.FromResult(Enumerable.Empty<EventDescriptor<InventoryItemEvent>>());
+            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts, taskCompletionSource) =>
+            {
+                taskCompletionSource.SetResult(conflicts);
+                return Task.FromResult(Unit.Instance);
+            };
+
+            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
+                    saveEvents,
+                    getEventsSince,
+                    resolveRemoteAddress,
+                    forward,
+                    findConflicts,
+                    onConflictingCommandRejected,
+                    garbageCollectionSettings));
+            // for testing purposes make the aggregate block the current thread while processing
+            var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
         }
 
 
@@ -49,7 +76,14 @@ namespace Radix.Tests
             };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
+                    saveEvents,
+                    getEventsSince,
+                    resolveRemoteAddress,
+                    forward,
+                    findConflicts,
+                    onConflictingCommandRejected,
+                    garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 

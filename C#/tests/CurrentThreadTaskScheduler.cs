@@ -5,12 +5,18 @@ using System.Threading.Tasks;
 namespace Radix.Tests
 {
     /// <summary>
-    /// Executes a task on the current thread
+    ///     Executes a task on the current thread
     /// </summary>
     public class CurrentThreadTaskScheduler : TaskScheduler
     {
+
         /// <summary>
-        /// <inheritdoc />
+        ///     <inheritdoc />
+        /// </summary>
+        public override int MaximumConcurrencyLevel => 1;
+
+        /// <summary>
+        ///     <inheritdoc />
         /// </summary>
         protected override void QueueTask(Task task)
         {
@@ -18,7 +24,7 @@ namespace Radix.Tests
         }
 
         /// <summary>
-        /// <inheritdoc />
+        ///     <inheritdoc />
         /// </summary>
         protected override bool TryExecuteTaskInline(
             Task task,
@@ -28,16 +34,11 @@ namespace Radix.Tests
         }
 
         /// <summary>
-        /// <inheritdoc />
+        ///     <inheritdoc />
         /// </summary>
         protected override IEnumerable<Task> GetScheduledTasks()
         {
             return Enumerable.Empty<Task>();
         }
-
-        /// <summary>
-        /// <inheritdoc />
-        /// </summary>
-        public override int MaximumConcurrencyLevel => 1;
     }
 }

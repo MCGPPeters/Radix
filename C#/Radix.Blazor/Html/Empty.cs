@@ -2,5 +2,7 @@
 
 namespace Radix.Blazor
 {
-    public readonly struct Empty : Node { }
+    public readonly struct Empty : Node
+    {
+    }
 }
