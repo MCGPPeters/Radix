@@ -11,10 +11,25 @@ namespace Radix.Tests
 
     public class RuntimeProperties
     {
+        private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
+        {
+            ScanInterval = new Minutes(1),
+            IdleTimeout = new TimeSpan(0, 60, 0)
+        };
+
+        [Property(
+            DisplayName =
+                "Given an instance of an aggregate has not been used within a certain time frame, it will be deactivated by the garbage collector")]
+        public void Property1()
+        {
+
+        }
+
+
         [Property(
             DisplayName =
                 "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored and process the command")]
-        public void Property1()
+        public void Property2()
         {
             var eventStream = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
@@ -34,10 +49,11 @@ namespace Radix.Tests
             };
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected, garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItemSettings = new InventoryItemSettings(new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>());
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
+
+
         }
     }
 }

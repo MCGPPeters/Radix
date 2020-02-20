@@ -36,6 +36,7 @@ namespace Radix
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
                 async commandDescriptor =>
                 {
+                    LastActivity = DateTimeOffset.Now;
                     var expectedVersion = commandDescriptor.ExpectedVersion;
                     var eventsSinceExpected = await _boundedContextSettings.GetEventsSince(commandDescriptor.Address, expectedVersion);
                     if (eventsSinceExpected.Any())
@@ -86,6 +87,13 @@ namespace Radix
         public void Post(CommandDescriptor<TCommand> commandDescriptor)
         {
             _actionBlock.Post(commandDescriptor);
+        }
+
+        public DateTimeOffset LastActivity { get; set; }
+
+        public void Deactivate()
+        {
+            _actionBlock.Complete();
         }
     }
 
