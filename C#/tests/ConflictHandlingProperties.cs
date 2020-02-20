@@ -18,7 +18,7 @@ namespace Radix.Tests
         [Property(
             DisplayName =
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
-        public async Task Property1(PositiveInt amount)
+        public async void Property1(PositiveInt amount)
         {
             var eventStream = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
@@ -55,7 +55,7 @@ namespace Radix.Tests
 
         [Property(
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
-        public async Task Property2(PositiveInt amount)
+        public async void Property2(PositiveInt amount)
         {
             var AppendedEvents = new List<InventoryItemEvent>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
@@ -106,15 +106,17 @@ namespace Radix.Tests
         [Property(
             DisplayName =
                 "Given there is a concurrency conflict and conflict resolution determines that it is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
-        public async Task Property3(PositiveInt amount)
+        public async void Property3(PositiveInt amount)
         {
             var calledBefore = false;
             var appendedEvents = new List<InventoryItemEvent>();
+            var completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
             {
                 if (calledBefore)
                 {
                     appendedEvents.AddRange(events);
+                    completionSource.SetResult(appendedEvents);
                     return Task.FromResult(Ok<Version, SaveEventsError>(1));
                 }
 
@@ -152,16 +154,20 @@ namespace Radix.Tests
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
 
+            await completionSource.Task;
+
             appendedEvents.Should().Equal(new List<InventoryItemEvent> { new ItemsCheckedInToInventory(amount.Get) });
         }
 
         [Property(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
-        public async Task Property4(PositiveInt amount)
+        public async void Property4(PositiveInt amount)
         {
             var appendedEvents = new List<InventoryItemEvent>();
+            var completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
+                completionSource.SetResult(appendedEvents);
                 return Task.FromResult(Ok<Version, SaveEventsError>(0L));
             };
 
@@ -181,16 +187,14 @@ namespace Radix.Tests
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) =>
                 Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
-            OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts, taskCompletionSource) =>
+            OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts, completionSource) =>
             {
-                taskCompletionSource.SetResult(conflicts);
+                completionSource.SetResult(conflicts);
                 return Task.FromResult(Unit.Instance);
             };
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(saveEvents, getEventsSince, resolveRemoteAddress, forward, findConflicts, onConflictingCommandRejected));
             // for testing purposes make the aggregate block the current thread while processing
-            var taskCompletionSource = new TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>>();
-            var inventoryItemSettings = new InventoryItemSettings(taskCompletionSource);
             var inventoryItem = context.CreateAggregate<InventoryItem>(new CurrentThreadTaskScheduler());
 
             // expected version is 2
@@ -198,17 +202,20 @@ namespace Radix.Tests
 
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(amount.Get);
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
+            await completionSource.Task;
 
             appendedEvents.Should().Equal(new List<InventoryItemEvent> { new ItemsCheckedInToInventory(amount.Get) });
         }
 
         [Property(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
-        public async Task Property5(PositiveInt amount)
+        public async void Property5(PositiveInt amount)
         {
             var appendedEvents = new List<InventoryItemEvent>();
+            var completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
+                completionSource.SetResult(appendedEvents);
                 return Task.FromResult(Ok<Version, SaveEventsError>(1));
             };
             GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) =>
@@ -241,6 +248,7 @@ namespace Radix.Tests
 
             InventoryItemCommand inventoryItemCommand = new CreateInventoryItem("Product 1");
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
+            await completionSource.Task;
 
             appendedEvents.Should().Equal(new List<InventoryItemEvent> { new InventoryItemCreated("Product 1") });
 
