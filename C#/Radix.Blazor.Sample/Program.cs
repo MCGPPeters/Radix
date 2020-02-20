@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Microsoft.AspNetCore.Blazor.Hosting;
-using Microsoft.AspNetCore.Components.Rendering;
 using Radix.Async;
 using Radix.Blazor.Html;
 using Radix.Tests.Models;
@@ -73,10 +72,10 @@ namespace Radix.Blazor.Sample
         };
 
         public override GarbageCollectionSettings GarbageCollectionSettings =>
-            new GarbageCollectionSettings()
+            new GarbageCollectionSettings
             {
-                ScanInterval = new Minutes(1),
-                IdleTimeout = new TimeSpan(0, 60, 0)
+                ScanInterval = TimeSpan.FromMinutes(1),
+                IdleTimeout = TimeSpan.FromMinutes(60)
             };
 
 

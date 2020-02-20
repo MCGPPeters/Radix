@@ -5,7 +5,6 @@ namespace Radix.Blazor.Html
 {
     public interface Node
     {
-
     }
 
     public struct Component : Node

@@ -15,11 +15,11 @@ namespace Radix
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
+
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state = new TState();
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="boundedContextSettings"></param>
         /// <param name="history">The history of events to replay when restoring the state</param>
@@ -29,8 +29,7 @@ namespace Radix
             _boundedContextSettings = boundedContextSettings;
 
             // restore the state (if any)
-            _state = history.Aggregate(_state, (state, eventDescriptor) => state.
-                Apply(eventDescriptor.Event));
+            _state = history.Aggregate(_state, (state, eventDescriptor) => state.Apply(eventDescriptor.Event));
 
 
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
@@ -61,8 +60,7 @@ namespace Radix
                     {
                         case Ok<Version, SaveEventsError> _:
                             // the events have been saved to the stream successfully. Update the state
-                            _state = transientEvents.Aggregate(_state, (s, @event) => s.
-                                Apply(@event));
+                            _state = transientEvents.Aggregate(_state, (s, @event) => s.Apply(@event));
                             break;
                         case Error<Version, SaveEventsError>(var error):
                             switch (error)

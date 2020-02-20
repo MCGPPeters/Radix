@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
-using Radix.Validated;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using FluentAssertions;
+using Radix.Validated;
 using Xunit;
 using static Radix.Validated.Extensions;
 
@@ -9,6 +9,15 @@ namespace Radix.Tests
 {
     public class ValidationProperties
     {
+
+        private static Validated<Person> XValidated(Person person)
+        {
+
+            return person.Age >= 18
+                ? Valid(person)
+                : Invalid<Person>(new List<string> {"Must have a valid age"});
+        }
+
         [Fact(
             DisplayName =
                 "Check will aggregate all failed validations")]
@@ -16,18 +25,18 @@ namespace Radix.Tests
         {
             var validationResult =
                 Valid(Person.Create)
-                    .Apply<int, string, string, Person>(
+                    .Apply(
                         11 >= 18
                             ? Valid(18)
-                            : Invalid<int>(new List<string> { "Must have a valid age" }))
-                    .Apply<string, string, Person>(
+                            : Invalid<int>(new List<string> {"Must have a valid age"}))
+                    .Apply(
                         !string.IsNullOrWhiteSpace("")
                             ? Valid("")
-                            : Invalid<string>(new List<string> { "Must have a valid first name" }))
-                    .Apply<string, Person>(
+                            : Invalid<string>(new List<string> {"Must have a valid first name"}))
+                    .Apply(
                         !string.IsNullOrWhiteSpace("Doe")
                             ? Valid("")
-                            : Invalid<string>(new List<string> { "Must have a valid last name" }));
+                            : Invalid<string>(new List<string> {"Must have a valid last name"}));
 
 
             //Func<Person, Person> create2 = _ =>  person;
@@ -48,26 +57,17 @@ namespace Radix.Tests
                     break;
             }
         }
-
-        private static Validated<Person> XValidated(Person person)
-        {
-
-            return person.Age >= 18
-                ? Valid(person)
-                : Invalid<Person>(new List<string> { "Must have a valid age" });
-        }
-
     }
 
     public class Person
     {
         public static Func<int, string, string, Person> Create = (age, firstName, lastName)
-        => new Person
-        {
-            Age = age,
-            FirstName = firstName,
-            LastName = lastName
-        };
+            => new Person
+            {
+                Age = age,
+                FirstName = firstName,
+                LastName = lastName
+            };
 
 
         public int Age { get; set; }

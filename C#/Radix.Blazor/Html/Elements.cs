@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Radix.Blazor.Html
 {
     public delegate Node element(IEnumerable<IAttribute> attributes, params Node[] children);
+
     public delegate Node element<in T>(params T[] attributes) where T : IAttribute;
 
     public static class Elements
     {
-        public static Text text(string text)
-            => new Text(text);
-
-        public static Empty empty
-            => new Empty();
-        
-        public static Concat concat(params Node[] nodes)
-            => new Concat(nodes);
-
-        public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children)
-            => new Element(name, attributes, children);
-        
-        public static Element element(Name name, params IAttribute[] attributes)
-            => new Element(name, attributes);
 
         public static element a = (attributes, children)
             => element(nameof(a), attributes, children);
@@ -67,7 +53,7 @@ namespace Radix.Blazor.Html
 
         public static element big = (attributes, children)
             => element(nameof(big), attributes, children);
-        
+
         public static element<IAttribute> br = attributes
             => element(nameof(br), attributes);
 
@@ -407,5 +393,27 @@ namespace Radix.Blazor.Html
         public static element wbr = (attributes, children)
             => element(nameof(wbr), attributes, children);
 
+        public static Empty empty
+            => new Empty();
+
+        public static Text text(string text)
+        {
+            return new Text(text);
+        }
+
+        public static Concat concat(params Node[] nodes)
+        {
+            return new Concat(nodes);
+        }
+
+        public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children)
+        {
+            return new Element(name, attributes, children);
+        }
+
+        public static Element element(Name name, params IAttribute[] attributes)
+        {
+            return new Element(name, attributes);
+        }
     }
 }

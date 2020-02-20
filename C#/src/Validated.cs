@@ -5,6 +5,5 @@ namespace Radix
     /// - the generic type parameter can be made covariant (allowing subtypes as a value fot the generic type parameter to match as well)
     public interface Validated<out T>
     {
-
     }
 }

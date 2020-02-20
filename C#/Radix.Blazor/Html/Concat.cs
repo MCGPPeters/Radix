@@ -20,7 +20,7 @@ namespace Radix.Blazor.Html
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         public IEnumerator<Node> GetEnumerator()

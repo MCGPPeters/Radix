@@ -1,5 +1,3 @@
-using System;
-
 namespace Radix
 {
     public readonly struct Version : IVersion

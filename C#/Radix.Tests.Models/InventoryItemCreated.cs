@@ -1,5 +1,3 @@
-using System;
-
 namespace Radix.Tests.Models
 {
     public class InventoryItemCreated : InventoryItemEvent
@@ -22,7 +20,7 @@ namespace Radix.Tests.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((InventoryItemCreated)obj);
+            return obj.GetType() == GetType() && Equals((InventoryItemCreated) obj);
         }
 
         public override int GetHashCode()

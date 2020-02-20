@@ -1,8 +1,8 @@
+using System;
 using FsCheck;
 using FsCheck.Xunit;
 using Radix.Monoid;
 using Radix.Result;
-using System;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Tests.Assert;
@@ -10,7 +10,7 @@ using static Xunit.Assert;
 
 namespace Radix.Tests
 {
-    public partial class ResultProperties
+    public class ResultProperties
     {
         [Property(
             DisplayName =
@@ -124,7 +124,6 @@ namespace Radix.Tests
 
             Equal(selector.Apply(result), Ok<Func<Func<int, int>, int>, MInt>(function => function(i)).Apply(selector));
         }
-
     }
 
 }
