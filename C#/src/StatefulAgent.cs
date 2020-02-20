@@ -18,6 +18,12 @@ namespace Radix
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state = new TState();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="boundedContextSettings"></param>
+        /// <param name="history">The history of events to replay when restoring the state</param>
+        /// <param name="scheduler"></param>
         public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
         {
             _boundedContextSettings = boundedContextSettings;

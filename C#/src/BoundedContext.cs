@@ -37,7 +37,7 @@ namespace Radix
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>(),  scheduler);
+            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>(), scheduler);
 
             _registry.Add(address, agent);
             return address;
@@ -50,7 +50,7 @@ namespace Radix
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
         public Address GetAggregate<TState>()
-            where TState : Aggregate<TState, TEvent, TCommand>, new() => 
+            where TState : Aggregate<TState, TEvent, TCommand>, new() =>
             CreateAggregate<TState>(TaskScheduler.Default);
 
         public async Task Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
@@ -63,14 +63,21 @@ namespace Radix
             }
 
             agent.Post(commandDescriptor);
-            
+
         }
 
         private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
-            where TState : Aggregate<TState, TEvent, TCommand>, new() 
+            where TState : Aggregate<TState, TEvent, TCommand>, new()
             => await GetAggregate<TState>(address, TaskScheduler.Default);
 
-        private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, TaskScheduler scheduler) 
+        /// <summary>
+        ///     Spins up an agent for an existing aggregate and restores its last known state
+        /// </summary>
+        /// <typeparam name="TState">The type of the aggregate</typeparam>
+        /// <param name="address">The address of the aggregate</param>
+        /// <param name="scheduler">The task scheduler to use</param>
+        /// <returns></returns>
+        private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, TaskScheduler scheduler)
             where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
             var history = await _boundedContextSettings.GetEventsSince(address, new Version(0L));
