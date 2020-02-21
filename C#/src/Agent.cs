@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Radix
 {
@@ -6,7 +7,7 @@ namespace Radix
     {
         DateTimeOffset LastActivity { get; set; }
 
-        void Post(CommandDescriptor<TCommand> command);
+        Task Post(CommandDescriptor<TCommand> command);
 
         void Deactivate();
     }

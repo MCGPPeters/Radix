@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Radix
 {
-    public interface Value<T> : IEquatable<T>, IComparable<T> where T : notnull, IComparable<T>, IEquatable<T>
+    public interface Value<T> : IEquatable<T>, IComparable<T>, IComparable where T : notnull, IComparable, IComparable<T>, IEquatable<T>
     {
-        T Value { get; }
+        public T Value { get; }
 
-        new int CompareTo(T other)
-        {
-            return Value.CompareTo(other);
-        }
+        new int CompareTo(T other) => Value.CompareTo(other);
 
         new bool Equals(T other)
         {
@@ -18,25 +16,15 @@ namespace Radix
             return v.Equals(o);
         }
 
-        int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
+        int GetHashCode() => Value.GetHashCode();
+        
+        bool Equals(object obj) => Value.Equals(obj);
+        
+        bool IEquatable<T>.Equals(T other) => Equals(other);
+        
+        int IComparable<T>.CompareTo(T other) => CompareTo(other);
 
-        bool Equals(object obj)
-        {
-            return Value.Equals(obj);
-        }
-
-        bool IEquatable<T>.Equals(T other)
-        {
-            return Equals(other);
-        }
-
-        int IComparable<T>.CompareTo(T other)
-        {
-            return CompareTo(other);
-        }
+        int IComparable.CompareTo(object other) => Value.CompareTo(((Value<T>)other).Value);
 
         public static bool operator >(Value<T> operand1, Value<T> operand2)
         {

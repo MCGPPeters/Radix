@@ -27,6 +27,7 @@ namespace Radix
         public StatefulAgent(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
         {
             _boundedContextSettings = boundedContextSettings;
+            LastActivity = DateTimeOffset.Now;
 
             // restore the state (if any)
             _state = history.Aggregate(_state, (state, eventDescriptor) => state.Apply(eventDescriptor.Event));
@@ -38,18 +39,22 @@ namespace Radix
                     LastActivity = DateTimeOffset.Now;
                     var expectedVersion = commandDescriptor.ExpectedVersion;
                     var eventsSinceExpected = await _boundedContextSettings.GetEventsSince(commandDescriptor.Address, expectedVersion);
-                    if (eventsSinceExpected.Any())
+                    var eventDescriptors = eventsSinceExpected as EventDescriptor<TEvent>[] ?? eventsSinceExpected.ToArray();
+                    if (eventDescriptors.Any())
                     {
-                        var conflicts = _boundedContextSettings.FindConflicts(commandDescriptor.Command, eventsSinceExpected);
-                        if (conflicts.Any())
+                        var conflicts = _boundedContextSettings.FindConflicts(commandDescriptor.Command, eventDescriptors);
+                        var iEnumerable = conflicts as Conflict<TCommand, TEvent>[] ?? conflicts.ToArray();
+                        if (iEnumerable.Any())
                         {
                             // a true concurrent exception according to business logic
-                            await _boundedContextSettings.OnConflictingCommandRejected(conflicts, new TaskCompletionSource<IEnumerable<Conflict<TCommand, TEvent>>>());
+                            await _boundedContextSettings.OnConflictingCommandRejected(iEnumerable);
                             return;
                         }
 
                         // no conflicts, set the expected version
-                        expectedVersion = eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version).Max();
+                        var versions = eventDescriptors.Select(eventDescriptor => eventDescriptor.Version).ToArray();
+                        
+                        expectedVersion = versions.Max();
                     }
 
                     var transientEvents = _state.Decide(commandDescriptor.Command);
@@ -67,7 +72,7 @@ namespace Radix
                             {
                                 case OptimisticConcurrencyError _:
                                     // re issue the command to try again
-                                    Post(commandDescriptor);
+                                    await Post(commandDescriptor);
                                     break;
                                 default: throw new NotSupportedException();
                             }
@@ -82,9 +87,9 @@ namespace Radix
                 });
         }
 
-        public void Post(CommandDescriptor<TCommand> commandDescriptor)
+        public async Task Post(CommandDescriptor<TCommand> commandDescriptor)
         {
-            _actionBlock.Post(commandDescriptor);
+            await _actionBlock.SendAsync(commandDescriptor);
         }
 
         public DateTimeOffset LastActivity { get; set; }

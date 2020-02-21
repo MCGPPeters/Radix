@@ -1,19 +1,12 @@
 namespace Radix
 {
-    public readonly struct Version : IVersion
-    {
-
+    public readonly struct Version : IVersion, Value<long>
+    { 
         public Version(long value)
         {
             Value = value;
         }
 
-        public long Value { get; }
-
-        public int CompareTo(Version other)
-        {
-            return Value.CompareTo(other);
-        }
 
         public static implicit operator Version(long value)
         {
@@ -24,5 +17,8 @@ namespace Radix
         {
             return version.Value;
         }
+
+        public long Value { get; }
+
     }
 }
