@@ -39,25 +39,48 @@ namespace Radix.Blazor.Sample
                     return new EventData(@event.Id, eventType, true, eventAsJSON, Array.Empty<byte>());
                 }).ToArray();
 
-            Func<Task<WriteResult>> appendToStream = () => eventStoreConnection.AppendToStreamAsync($"InventoryItem-{address.ToString()}", version.Value, eventData);
+            Func<Task<WriteResult>> appendToStream;
 
-            var result = await appendToStream.Retry(Backoff.Exponentially());
-
-            return Ok<Version, SaveEventsError>(result.NextExpectedVersion);
+            switch (version)
+            {
+                case AnyVersion anyVersion:
+                    appendToStream = () => eventStoreConnection.AppendToStreamAsync($"InventoryItem-{address.ToString()}", anyVersion.Value, eventData);
+                    var result = await appendToStream.Retry(Backoff.Exponentially());
+                    return Ok<Version, SaveEventsError>(result.NextExpectedVersion);
+                case Version v:
+                    appendToStream = () => eventStoreConnection.AppendToStreamAsync($"InventoryItem-{address.ToString()}", v.Value, eventData);
+                    result = await appendToStream.Retry(Backoff.Exponentially());
+                    return Ok<Version, SaveEventsError>(result.NextExpectedVersion);
+                default:
+                    throw new NotSupportedException("Unknown type of version");
+            }
         };
 
         public override GetEventsSince<InventoryItemEvent> GetEventsSince => async (address, version) =>
         {
-            Func<Task<StreamEventsSlice>> readAllEventsForwardAsync = () => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), version.Value, MaxValue, false);
-
-            var result = await readAllEventsForwardAsync.Retry(Backoff.Exponentially());
-
-            return result.Events.Select(
-                resolvedEvent =>
-                {
-                    var inventoryItemEvent = Deserialize<InventoryItemEvent>(resolvedEvent.Event.Data);
-                    return new EventDescriptor<InventoryItemEvent>(inventoryItemEvent, resolvedEvent.OriginalEventNumber);
-                });
+            switch (version)
+            {
+                case AnyVersion anyVersion:
+                    Func<Task<StreamEventsSlice>> readAllEventsForwardAsync = () => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), anyVersion.Value, MaxValue, false);
+                    var result = await readAllEventsForwardAsync.Retry(Backoff.Exponentially());
+                    return result.Events.Select(
+                        resolvedEvent =>
+                        {
+                            var inventoryItemEvent = Deserialize<InventoryItemEvent>(resolvedEvent.Event.Data);
+                            return new EventDescriptor<InventoryItemEvent>(inventoryItemEvent, resolvedEvent.OriginalEventNumber);
+                        });
+                case Version v:
+                    readAllEventsForwardAsync = () => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), v.Value, MaxValue, false);
+                    result = await readAllEventsForwardAsync.Retry(Backoff.Exponentially());
+                    return result.Events.Select(
+                        resolvedEvent =>
+                        {
+                            var inventoryItemEvent = Deserialize<InventoryItemEvent>(resolvedEvent.Event.Data);
+                            return new EventDescriptor<InventoryItemEvent>(inventoryItemEvent, resolvedEvent.OriginalEventNumber);
+                        });
+                default:
+                    throw new NotSupportedException("Unknown type of version");
+            }
         };
 
         public override ResolveRemoteAddress ResolveRemoteAddress => address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
@@ -65,11 +88,7 @@ namespace Radix.Blazor.Sample
         public override Forward<InventoryItemCommand> Forward => (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
         public override FindConflicts<InventoryItemCommand, InventoryItemEvent> FindConflicts => (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-        public override OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected => (conflicts, taskCompletionSource) =>
-        {
-            taskCompletionSource.SetResult(conflicts);
-            return Task.FromResult(Unit.Instance);
-        };
+        public override OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected => (conflicts) => Task.FromResult(Unit.Instance);
 
         public override GarbageCollectionSettings GarbageCollectionSettings =>
             new GarbageCollectionSettings
