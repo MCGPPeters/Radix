@@ -30,8 +30,8 @@ namespace Radix
             LastActivity = DateTimeOffset.Now;
 
             // restore the state (if any)
-            _state = history.Aggregate(_state, (state, eventDescriptor) => state.Apply(eventDescriptor.Event));
-
+            _state = history.Aggregate(_state, (state, eventDescriptor)
+                => state.Apply(eventDescriptor.Event));
 
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
                 async commandDescriptor =>
@@ -53,11 +53,11 @@ namespace Radix
 
                         // no conflicts, set the expected version
                         var versions = eventDescriptors.Select(eventDescriptor => eventDescriptor.Version).ToArray();
-                        
+
                         expectedVersion = versions.Max();
                     }
 
-                    var transientEvents = _state.Decide(commandDescriptor.Command);
+                    var transientEvents = _state.Decide(commandDescriptor);
                     // try to save the events
                     var saveResult = await _boundedContextSettings.SaveEvents(commandDescriptor.Address, expectedVersion, transientEvents);
 

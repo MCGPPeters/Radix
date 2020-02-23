@@ -1,7 +1,10 @@
 namespace Radix.Tests.Models
 {
-    public interface InventoryItemEvent : IEvent
+    public abstract class InventoryItemEvent : Event
     {
+        protected InventoryItemEvent(Address address) : base(address)
+        {
+        }
     }
 
 }

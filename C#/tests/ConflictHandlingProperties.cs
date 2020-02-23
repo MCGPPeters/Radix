@@ -51,14 +51,14 @@ namespace Radix.Tests
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = context.CreateAggregate<InventoryItem>();
 
-            InventoryItemCommand command = new CreateInventoryItem("Product 1");
+            InventoryItemCommand command = new CreateInventoryItem("Product 1", true, 0);
             IVersion expectedVersion = new AnyVersion();
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, command, expectedVersion));
             InventoryItemCommand command1 = new CheckInItemsToInventory(10);
             IVersion expectedVersion1 = new AnyVersion();
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, command1, expectedVersion1));
 
-            eventStream.Should().Equal(new List<InventoryItemEvent> {new InventoryItemCreated("Product 1"), new ItemsCheckedInToInventory(10)});
+            eventStream.Should().Equal(new List<InventoryItemEvent> {new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
 
         }
 
@@ -67,6 +67,7 @@ namespace Radix.Tests
         public async Task Property2()
         {
             var AppendedEvents = new List<InventoryItemEvent>();
+            
             SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
             {
                 AppendedEvents.AddRange(events);
@@ -75,12 +76,12 @@ namespace Radix.Tests
 
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => Task.FromResult(
+            GetEventsSince<InventoryItemEvent> getEventsSince = (address, __) => Task.FromResult(
                 new List<EventDescriptor<InventoryItemEvent>>
                 {
-                    new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L),
-                    new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10), 2L),
-                    new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
+                    new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1",true, 0, address), 1L),
+                    new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10, address), 2L),
+                    new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L)
                 }.AsEnumerable());
             FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (_, __) =>
                 new List<Conflict<InventoryItemCommand, InventoryItemEvent>> {new Conflict<InventoryItemCommand, InventoryItemEvent>(null, null, "Just another conflict")};
@@ -92,6 +93,8 @@ namespace Radix.Tests
                 return Task.FromResult(Unit.Instance);
             };
 
+            
+            // for testing purposes make the aggregate block the current thread while processing
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     saveEvents,
@@ -101,9 +104,8 @@ namespace Radix.Tests
                     findConflicts,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());
-            // for testing purposes make the aggregate block the current thread while processing
-
             var inventoryItem = context.CreateAggregate<InventoryItem>();
+            
 
             Version expectedVersion = 2L;
             InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(10);
@@ -140,12 +142,12 @@ namespace Radix.Tests
 
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => Task.FromResult(
+            GetEventsSince<InventoryItemEvent> getEventsSince = (address, __) => Task.FromResult(
                 new List<EventDescriptor<InventoryItemEvent>>
                 {
-                    new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L),
-                    new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10), 2L),
-                    new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
+                    new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1", true, 0, address), 1L),
+                    new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10, address), 2L),
+                    new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L)
                 }.AsEnumerable());
 
             FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (command, eventDescriptors) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
@@ -169,7 +171,7 @@ namespace Radix.Tests
 
             await completionSource.Task;
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10)});
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)});
         }
 
         [Fact(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
@@ -185,12 +187,12 @@ namespace Radix.Tests
             };
 
             // event stream is at version 3
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => Task.FromResult(
+            GetEventsSince<InventoryItemEvent> getEventsSince = (address, __) => Task.FromResult(
                 new List<EventDescriptor<InventoryItemEvent>>
                 {
-                    new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L),
-                    new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10), 2L),
-                    new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L)
+                    new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1", true, 0, address), 1L),
+                    new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10, address), 2L),
+                    new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L)
                 }.AsEnumerable());
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
@@ -216,7 +218,7 @@ namespace Radix.Tests
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
             await completionSource.Task;
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10)});
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)});
         }
 
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
@@ -230,13 +232,13 @@ namespace Radix.Tests
                 completionSource.SetResult(appendedEvents);
                 return Task.FromResult(Ok<Version, SaveEventsError>(1));
             };
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) =>
+            GetEventsSince<InventoryItemEvent> getEventsSince = (address, __) =>
             {
                 IEnumerable<EventDescriptor<InventoryItemEvent>> Results()
                 {
-                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L);
-                    yield return new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10), 2L);
-                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L);
+                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1", true, 0, address), 1L);
+                    yield return new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(10, address), 2L);
+                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L);
                 }
 
                 return Task.FromResult(Results());
@@ -261,11 +263,11 @@ namespace Radix.Tests
 
             Version expectedVersion = 1L;
 
-            InventoryItemCommand inventoryItemCommand = new CreateInventoryItem("Product 1");
+            InventoryItemCommand inventoryItemCommand = new CreateInventoryItem("Product 1", true, 0);
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
             await completionSource.Task;
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new InventoryItemCreated("Product 1")});
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new InventoryItemCreated("Product 1", true, 0, inventoryItem)});
 
         }
     }

@@ -36,13 +36,13 @@ namespace Radix.Tests
             };
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) =>
+            GetEventsSince<InventoryItemEvent> getEventsSince = (address, __) =>
             {
                 IEnumerable<EventDescriptor<InventoryItemEvent>> Results()
                 {
-                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1"), 1L);
-                    yield return new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(19), 2L);
-                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2"), 3L);
+                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemCreated("Product 1", address), 1L);
+                    yield return new EventDescriptor<InventoryItemEvent>(new ItemsCheckedInToInventory(19, address), 2L);
+                    yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L);
                 }
 
                 return Task.FromResult(Results());
@@ -66,7 +66,7 @@ namespace Radix.Tests
             await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, new RemoveItemsFromInventory(1), new Version(3L)));
             await completionSource.Task;
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> { new ItemsRemovedFromInventory(1) });
+            appendedEvents.Should().Equal(new List<InventoryItemEvent> { new ItemsRemovedFromInventory(1, inventoryItem) });
         }
     }
 }
