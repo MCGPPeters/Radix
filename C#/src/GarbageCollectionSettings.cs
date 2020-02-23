@@ -2,9 +2,11 @@ using System;
 
 namespace Radix
 {
-    public struct GarbageCollectionSettings
+    public class GarbageCollectionSettings
     {
-        public TimeSpan ScanInterval { get; set; }
-        public TimeSpan IdleTimeout { get; set; }
+
+        public TimeSpan ScanInterval { get; set; } = TimeSpan.FromMinutes(1);
+
+        public TimeSpan IdleTimeout { get; set; } = TimeSpan.FromHours(1);
     }
 }
