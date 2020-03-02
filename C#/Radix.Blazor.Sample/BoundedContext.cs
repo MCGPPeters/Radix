@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EventStore.ClientAPI;
+using EventStore.Client;
 using Radix.Async;
 using Radix.Tests.Models;
 using Extensions = Radix.Result.Extensions;
@@ -12,8 +13,8 @@ namespace Radix.Blazor.Sample
     public static class BoundedContext
     {
 
-        private static readonly IEventStoreConnection eventStoreConnection = EventStoreConnection.Create(new Uri("tcp://admin:changeit@localhost:1113"));
-
+        private static readonly EventStoreClient client = new EventStoreClient(new EventStoreClientSettings(new Uri("tcp://admin:changeit@localhost:1113")));
+//
         public static SaveEvents<InventoryItemEvent> SaveEvents => async (address, version, events) =>
         {
 
@@ -22,20 +23,20 @@ namespace Radix.Blazor.Sample
                 {
                     var typeName = @event.GetType().ToString();
                     var eventType = char.ToLowerInvariant(typeName[0]) + typeName.Substring(1);
-                    var eventAsJSON = JsonSerializer.SerializeToUtf8Bytes<InventoryItemEvent>(@event);
-                    return new EventData(@event.Address.Value, eventType, true, eventAsJSON, Array.Empty<byte>());
+                    var eventAsJSON = JsonSerializer.SerializeToUtf8Bytes(@event);
+                    return new EventData(Uuid.FromGuid(@event.Address.Value), eventType,eventAsJSON, Array.Empty<byte>());
                 }).ToArray();
 
             Func<Task<WriteResult>> appendToStream;
 
             switch (version)
             {
-                case AnyVersion anyVersion:
-                    appendToStream = () => eventStoreConnection.AppendToStreamAsync($"InventoryItem-{address.ToString()}", anyVersion.Value, eventData);
+                case AnyVersion _:
+                    appendToStream = () => client.AppendToStreamAsync($"InventoryItem-{address.ToString()}", AnyStreamRevision.Any, eventData);
                     var result = await appendToStream.Retry(Backoff.Exponentially());
                     return Extensions.Ok<Version, SaveEventsError>(result.NextExpectedVersion);
                 case Version v:
-                    appendToStream = () => eventStoreConnection.AppendToStreamAsync($"InventoryItem-{address.ToString()}", v.Value, eventData);
+                    appendToStream = () => client.AppendToStreamAsync($"InventoryItem-{address.ToString()}", StreamRevision.FromInt64(v.Value), eventData);
                     result = await appendToStream.Retry(Backoff.Exponentially());
                     return Extensions.Ok<Version, SaveEventsError>(result.NextExpectedVersion);
                 default:
@@ -43,28 +44,22 @@ namespace Radix.Blazor.Sample
             }
         };
 
-        public static GetEventsSince<InventoryItemEvent> GetEventsSince => async (address, version) =>
+        public static GetEventsSince<InventoryItemEvent> GetEventsSince => (address, version) =>
         {
             switch (version)
             {
-                case AnyVersion anyVersion:
-                    Func<Task<StreamEventsSlice>> readAllEventsForwardAsync = () => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), anyVersion.Value, Int32.MaxValue, false);
-                    var result = await readAllEventsForwardAsync.Retry(Backoff.Exponentially());
-                    return result.Events.Select(
-                        resolvedEvent =>
-                        {
-                            var inventoryItemEvent = JsonSerializer.Deserialize<InventoryItemEvent>(resolvedEvent.Event.Data);
-                            return new EventDescriptor<InventoryItemEvent>(inventoryItemEvent, resolvedEvent.OriginalEventNumber);
-                        });
                 case Version v:
-                    readAllEventsForwardAsync = () => eventStoreConnection.ReadStreamEventsForwardAsync(address.ToString(), v.Value, Int32.MaxValue, false);
-                    result = await readAllEventsForwardAsync.Retry(Backoff.Exponentially());
-                    return result.Events.Select(
+                    IAsyncEnumerable<ResolvedEvent> readAllEventsForwardAsync =
+                        client.ReadStreamAsync(Direction.Forwards, $"InventoryItem-{address.ToString()}",
+                            StreamRevision.FromInt64(v.Value), Int32.MaxValue, false);
+
+                    return readAllEventsForwardAsync.Select(
                         resolvedEvent =>
                         {
                             var inventoryItemEvent = JsonSerializer.Deserialize<InventoryItemEvent>(resolvedEvent.Event.Data);
-                            return new EventDescriptor<InventoryItemEvent>(inventoryItemEvent, resolvedEvent.OriginalEventNumber);
+                            return new EventDescriptor<InventoryItemEvent>(inventoryItemEvent, resolvedEvent.Event.EventNumber.ToInt64());
                         });
+                
                 default:
                     throw new NotSupportedException("Unknown type of version");
             }
@@ -73,12 +68,13 @@ namespace Radix.Blazor.Sample
         public static ResolveRemoteAddress ResolveRemoteAddress => address => Task.FromResult(Extensions.Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
 
         public static Forward<InventoryItemCommand> Forward => (_, __, ___) => Task.FromResult(Extensions.Ok<Unit, ForwardError>(Unit.Instance));
-        public static FindConflicts<InventoryItemCommand, InventoryItemEvent> FindConflicts => (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+        public static FindConflicts<InventoryItemCommand, InventoryItemEvent> FindConflicts => (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>().ToAsyncEnumerable();
 
         public static OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected => (conflicts) => Task.FromResult(Unit.Instance);
-
-
+//
+//
         public static BoundedContext<InventoryItemCommand, InventoryItemEvent> Create() =>
             new BoundedContext<InventoryItemCommand, InventoryItemEvent>(new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(SaveEvents, GetEventsSince, ResolveRemoteAddress, Forward, FindConflicts, onConflictingCommandRejected, new GarbageCollectionSettings()));
     }
 }
+

@@ -26,7 +26,7 @@ namespace Radix.Tests.Models
 
         public InventoryItemEvent[] Decide(CommandDescriptor<InventoryItemCommand> commandDescriptor) => commandDescriptor.Command switch
         {
-            DeactivateInventoryItem _ => new [] {new InventoryItemDeactivated(commandDescriptor.Address)},
+            DeactivateInventoryItem _ => new InventoryItemEvent[] {new InventoryItemDeactivated(commandDescriptor.Address)},
             CreateInventoryItem createInventoryItem => new[] { new InventoryItemCreated(createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count, commandDescriptor.Address) },
             RenameInventoryItem renameInventoryItem => new[] { new InventoryItemRenamed(renameInventoryItem.Name, commandDescriptor.Address) },
             CheckInItemsToInventory checkInItemsToInventory => new[] { new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, commandDescriptor.Address) },

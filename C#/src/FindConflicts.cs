@@ -9,5 +9,5 @@ namespace Radix
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
     /// <returns></returns>
-    public delegate IEnumerable<Conflict<TCommand, TEvent>> FindConflicts<TCommand, TEvent>(TCommand command, IEnumerable<EventDescriptor<TEvent>> eventDescriptors);
+    public delegate IAsyncEnumerable<Conflict<TCommand, TEvent>> FindConflicts<TCommand, TEvent>(TCommand command, IAsyncEnumerable<EventDescriptor<TEvent>> eventDescriptors);
 }

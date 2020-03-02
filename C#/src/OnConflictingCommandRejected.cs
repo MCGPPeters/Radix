@@ -10,5 +10,5 @@ namespace Radix
     /// </summary>
     /// <param name="conflicts"></param>
     /// <returns>Unit</returns>
-    public delegate Task<Unit> OnConflictingCommandRejected<TCommand, TEvent>(IEnumerable<Conflict<TCommand, TEvent>> conflicts);
+    public delegate Task<Unit> OnConflictingCommandRejected<TCommand, TEvent>(IAsyncEnumerable<Conflict<TCommand, TEvent>> conflicts);
 }
