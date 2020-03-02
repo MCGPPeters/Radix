@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using System.Threading.Tasks;
 
@@ -61,12 +62,12 @@ namespace Radix
 
         }
 
-        public Address CreateAggregate<TState>()
+        public async Task<Address> CreateAggregate<TState>()
             where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>(), _taskScheduler);
+            var agent = await StatefulAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable(), _taskScheduler);
 
             _registry.Add(address, agent);
             return address;
@@ -78,10 +79,10 @@ namespace Radix
         /// <typeparam name="TState"></typeparam>
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
-        public Address GetAggregate<TState>()
+        public async Task<Address> GetAggregate<TState>()
             where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
-            return CreateAggregate<TState>();
+            return await CreateAggregate<TState>();
         }
 
         public async Task Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
@@ -98,8 +99,9 @@ namespace Radix
         private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
             where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
-            var history = await _boundedContextSettings.GetEventsSince(address, new Version(0L));
-            var agent = new StatefulAgent<TState, TCommand, TEvent>(_boundedContextSettings, history, _taskScheduler);
+            var history = _boundedContextSettings.GetEventsSince(address, new Version(0L));
+            
+            var agent = await StatefulAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history, _taskScheduler);
             _registry.Add(address, agent);
             return agent;
         }

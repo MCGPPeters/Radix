@@ -10,5 +10,5 @@ namespace Radix
     /// <param name="version"></param>
     /// <typeparam name="TEvent"></typeparam>
     /// <returns></returns>
-    public delegate Task<IEnumerable<EventDescriptor<TEvent>>> GetEventsSince<TEvent>(Address address, IVersion version);
+    public delegate IAsyncEnumerable<EventDescriptor<TEvent>> GetEventsSince<TEvent>(Address address, IVersion version);
 }
