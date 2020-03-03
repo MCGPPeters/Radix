@@ -38,7 +38,7 @@ namespace Radix.Tests
         {
             var appendedEvents = new List<InventoryItemEvent>();
             TaskCompletionSource<List<InventoryItemEvent>> completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
-            SaveEvents<InventoryItemEvent> saveEvents = (_, __, events) =>
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
                 completionSource.SetResult(appendedEvents);
@@ -52,7 +52,7 @@ namespace Radix.Tests
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    saveEvents,
+                    appendEvents,
                     getEventsSince,
                     resolveRemoteAddress,
                     forward,

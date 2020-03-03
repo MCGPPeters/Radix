@@ -64,7 +64,7 @@ namespace Radix
 
                     var transientEvents = _state.Decide(commandDescriptor);
                     // try to save the events
-                    var saveResult = await _boundedContextSettings.SaveEvents(commandDescriptor.Address, expectedVersion, transientEvents);
+                    var saveResult = await _boundedContextSettings.AppendEvents(commandDescriptor.Address, expectedVersion, transientEvents);
 
                     switch (saveResult)
                     {
