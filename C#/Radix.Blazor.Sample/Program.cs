@@ -10,6 +10,7 @@ namespace Radix.Blazor.Sample
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<InventoryItemBoundedContextComponent>("app");
 
+
             await builder.Build().RunAsync();
         }
     }

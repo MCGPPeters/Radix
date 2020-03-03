@@ -9,12 +9,12 @@ namespace Radix
     {
         public SaveEventsError Append(SaveEventsError x, SaveEventsError y)
         {
-            throw new NotImplementedException();
+            return new OptimisticConcurrencyError();
         }
 
         public SaveEventsError Empty()
         {
-            throw new NotImplementedException();
+            return new OptimisticConcurrencyError();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample
@@ -7,17 +8,17 @@ namespace Radix.Blazor.Sample
     {
         public IDisposable Subscribe(IObserver<IndexViewModel> observer)
         {
-            throw new NotImplementedException();
+            return Disposable.Empty;
         }
 
         public bool Equals(IndexViewModel other)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public void Apply(InventoryItemEvent @event)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

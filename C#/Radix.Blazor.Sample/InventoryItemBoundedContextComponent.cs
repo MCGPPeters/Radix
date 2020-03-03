@@ -14,12 +14,12 @@ namespace Radix.Blazor.Sample
 
         protected override Node View(BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext)
         {
-            throw new NotImplementedException();
+            return new Text("Hello");
         }
 
         protected override Node Render()
         {
-            throw new NotImplementedException();
+            return new Text("Hello");
         }
 
         private InventoryItemBoundedContextComponent(IndexViewModel viewModel, BoundedContext<InventoryItemCommand, InventoryItemEvent> context) : base(viewModel, context)
