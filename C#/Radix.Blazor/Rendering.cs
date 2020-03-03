@@ -15,7 +15,7 @@ namespace Radix.Blazor
                 case Empty _:
                     return sequence;
                 case Text text:
-                    builder.AddContent(sequence, text);
+                    builder.AddContent(sequence, text.Value);
                     return sequence + 1;
                 case HtmlString html:
                     builder.AddMarkupContent(sequence, html.Value);

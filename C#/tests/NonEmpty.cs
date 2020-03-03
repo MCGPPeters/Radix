@@ -40,12 +40,12 @@ namespace Radix.Tests
 
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }
