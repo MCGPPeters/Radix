@@ -17,5 +17,5 @@ namespace Radix
     ///     on if the following:
     ///     - OptimisticConcurrencyError
     /// </returns>
-    public delegate Task<Result<Version, SaveEventsError>> SaveEvents<in TEvent>(Address address, IVersion expectedVersion, IEnumerable<TEvent> events);
+    public delegate Task<Result<Version, SaveEventsError>> AppendEvents<in TEvent>(Address address, IVersion expectedVersion, IEnumerable<TEvent> events);
 }

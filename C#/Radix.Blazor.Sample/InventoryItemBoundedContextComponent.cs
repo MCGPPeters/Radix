@@ -7,7 +7,7 @@ namespace Radix.Blazor.Sample
 {
     public class InventoryItemBoundedContextComponent : BoundedContextComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
     {
-        public InventoryItemBoundedContextComponent() : this(new IndexViewModel(), BoundedContext.Create())
+        public InventoryItemBoundedContextComponent() : this(new IndexViewModel(), SqlStreamStore.Create())
         {
 
         }
