@@ -20,5 +20,20 @@ namespace Radix.Blazor.Sample
         {
             
         }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(InventoryItemEvent value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

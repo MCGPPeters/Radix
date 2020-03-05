@@ -22,7 +22,7 @@ namespace Radix
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
-    public class BoundedContext<TCommand, TEvent> : IDisposable
+    public class BoundedContext<TCommand, TEvent> : IDisposable where TEvent : Event
     {
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
         private readonly TaskScheduler _taskScheduler;
@@ -67,7 +67,7 @@ namespace Radix
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = await StatefulAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable(), _taskScheduler);
+            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable(), _taskScheduler);
 
             _registry.Add(address, agent);
             return address;
@@ -96,12 +96,12 @@ namespace Radix
 
         }
 
-        private async Task<StatefulAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
+        private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
             where TState : Aggregate<TState, TEvent, TCommand>, new()
         {
             var history = _boundedContextSettings.GetEventsSince(address, new Version(0L));
             
-            var agent = await StatefulAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history, _taskScheduler);
+            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history, _taskScheduler);
             _registry.Add(address, agent);
             return agent;
         }

@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 // using EventStore.Client;
 using Radix.Async;
-using Radix.Monoid;
+using static Radix.Option.Extensions;
 using Radix.Tests.Models;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
@@ -15,11 +15,11 @@ namespace Radix.Blazor.Sample
 {
     public static class SqlStreamStore
     {
-        
+
         private static readonly IStreamStore streamStore = new InMemoryStreamStore();
 
         // private static readonly EventStoreClient client = new EventStoreClient(new EventStoreClientSettings(new Uri("tcp://admin:changeit@localhost:1113")));
-//
+        //
         public static AppendEvents<InventoryItemEvent> AppendEvents => async (address, version, events) =>
         {
             var newStreamMessages = events.Select(
@@ -84,13 +84,13 @@ namespace Radix.Blazor.Sample
         public static ResolveRemoteAddress ResolveRemoteAddress => address => Task.FromResult(Extensions.Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
 
         public static Forward<InventoryItemCommand> Forward => (_, __, ___) => Task.FromResult(Extensions.Ok<Unit, ForwardError>(Unit.Instance));
-        public static FindConflicts<InventoryItemCommand, InventoryItemEvent> FindConflicts => (_, __) => Enumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>().ToAsyncEnumerable();
+        public static FindConflict<InventoryItemCommand, InventoryItemEvent> FindConflict => (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
         public static OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected => (conflicts) => Task.FromResult(Unit.Instance);
-//
-//
+        //
+        //
         public static BoundedContext<InventoryItemCommand, InventoryItemEvent> Create() =>
-            new BoundedContext<InventoryItemCommand, InventoryItemEvent>(new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(AppendEvents, GetEventsSince, ResolveRemoteAddress, Forward, FindConflicts, onConflictingCommandRejected, new GarbageCollectionSettings()));
+            new BoundedContext<InventoryItemCommand, InventoryItemEvent>(new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(AppendEvents, GetEventsSince, ResolveRemoteAddress, Forward, FindConflict, onConflictingCommandRejected, new GarbageCollectionSettings()));
     }
 }
 

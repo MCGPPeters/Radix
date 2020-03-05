@@ -1,3 +1,0 @@
-namespace Radix.Maybe
-{
-}

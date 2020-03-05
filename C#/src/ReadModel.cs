@@ -2,7 +2,7 @@
 
 namespace Radix
 {
-    public interface ReadModel<TReadModel, in TEvent> : IObservable<TReadModel>, IEquatable<TReadModel>
+    public interface ReadModel<TState, in TEvent> : IObserver<TEvent>, IObservable<TState>, IEquatable<TState>
     {
         /// <summary>
         ///     Here the effect of the event on the state of the aggregate is determined.

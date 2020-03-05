@@ -8,7 +8,7 @@ namespace Radix.Blazor
 {
 
     public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>
-        where TViewModel : ReadModel<TViewModel, TEvent>
+        where TViewModel : ReadModel<TViewModel, TEvent> where TEvent : Event
     {
         protected Component(TViewModel viewModel)
             => _subscription = viewModel.Subscribe(this);

@@ -1,23 +1,23 @@
 using System;
 
-namespace Radix.Maybe
+namespace Radix.Option
 {
     public static class Extensions
     {
-        public static Maybe<T> Some<T>(T value)
+        public static Option<T> Some<T>(T value)
         {
             return new Some<T>(value); // wrap the given value into a Some
         }
 
         public static None<T> None<T>()
         {
-            return Maybe.None<T>.Default;
+            return Option.None<T>.Default;
         }
 
-        public static Maybe<TResult> Bind<T, TResult>
-            (this Maybe<T> maybe, Func<T, Maybe<TResult>> f)
+        public static Option<TResult> Bind<T, TResult>
+            (this Option<T> option, Func<T, Option<TResult>> f)
         {
-            return maybe switch
+            return option switch
             {
                 Some<T>(var t) => f(t),
                 None<T> _ => None<TResult>(),
@@ -25,10 +25,10 @@ namespace Radix.Maybe
             };
         }
 
-        public static Maybe<TResult> Map<T, TResult>
-            (this Maybe<T> maybe, Func<T, TResult> f)
+        public static Option<TResult> Map<T, TResult>
+            (this Option<T> option, Func<T, TResult> f)
         {
-            return maybe switch
+            return option switch
             {
                 Some<T>(var t) => Some(f(t)),
                 None<T> _ => None<TResult>(),
