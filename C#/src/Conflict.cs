@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Radix
 {
-    public struct Conflict<TCommand, TEvent>
+    public struct Conflict<TCommand, TEvent> where TEvent : Event
     {
         public bool Equals(Conflict<TCommand, TEvent> other)
         {

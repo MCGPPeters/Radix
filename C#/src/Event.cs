@@ -1,7 +1,5 @@
 
-using System;
-
-namespace Radix.Tests.Models
+namespace Radix
 {
     public abstract class Event
     {

@@ -5,7 +5,7 @@ using Radix.Blazor.Html;
 namespace Radix.Blazor
 {
     public abstract class BoundedContextComponent<TViewModel, TCommand, TEvent> : Component<TViewModel, TCommand, TEvent> 
-        where TViewModel : ReadModel<TViewModel, TEvent>
+        where TViewModel : ReadModel<TViewModel, TEvent> where TEvent : Event
     {
         protected BoundedContextComponent(TViewModel viewModel, BoundedContext<TCommand, TEvent> context) : base(viewModel)
         {

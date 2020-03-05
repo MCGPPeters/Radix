@@ -1,23 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Radix.Monoid;
+using Radix.Option;
 using Radix.Result;
 
 namespace Radix
 {
-    internal class StatefulAgent<TState, TCommand, TEvent> : Agent<TCommand>
-        where TState : Aggregate<TState, TEvent, TCommand>, new()
+    internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand>
+        where TState : Aggregate<TState, TEvent, TCommand>, new() where TEvent : Event
     {
-        public static async Task<StatefulAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
+        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
         {
+            var initialState = new TState();
+
             // restore the state (if any)
-            var initialState = await history.AggregateAsync(new TState(), (state, eventDescriptor)
-                => state.Apply(eventDescriptor.Event));
-            
-            return new StatefulAgent<TState, TCommand, TEvent>(initialState, boundedContextSettings, history, scheduler);
+            if (history is object)
+            {
+                initialState = await history.AggregateAsync(initialState, (state, eventDescriptor)
+                    => state.Apply(eventDescriptor.Event));
+            }
+
+            return new AggregateAgent<TState, TCommand, TEvent>(initialState, boundedContextSettings, scheduler);
         }
 
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
@@ -26,14 +33,14 @@ namespace Radix
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
-        private TState _state = new TState();
+        private TState _state;
 
         /// <summary>
         /// </summary>
+        /// <param name="initialState"></param>
         /// <param name="boundedContextSettings"></param>
-        /// <param name="history">The history of events to replay when restoring the state</param>
         /// <param name="scheduler"></param>
-        private StatefulAgent(TState initialState, BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
+        private AggregateAgent(TState initialState, BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler scheduler)
         {
             _boundedContextSettings = boundedContextSettings;
             LastActivity = DateTimeOffset.Now;
@@ -42,24 +49,24 @@ namespace Radix
             _actionBlock = new ActionBlock<CommandDescriptor<TCommand>>(
                 async commandDescriptor =>
                 {
+                    if (commandDescriptor is null) return;
+
                     LastActivity = DateTimeOffset.Now;
                     var expectedVersion = commandDescriptor.ExpectedVersion;
-                    var eventsSinceExpected = _boundedContextSettings.GetEventsSince(commandDescriptor.Address, expectedVersion);
-                    
-                    if (await eventsSinceExpected.AnyAsync())
+
+                    var eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version);
+                    await foreach(var eventDescriptor in eventsSince)
                     {
-                        var conflicts = _boundedContextSettings.FindConflicts(commandDescriptor.Command, eventsSinceExpected);
-                        if (await conflicts.AnyAsync())
+                        var optionalConflict = _boundedContextSettings.FindConflict(commandDescriptor.Command, eventDescriptor);
+                        switch (optionalConflict)
                         {
-                            // a true concurrent exception according to business logic
-                            await _boundedContextSettings.OnConflictingCommandRejected(conflicts);
-                            return;
+                            case None<Conflict<TCommand, TEvent>> _:
+                                expectedVersion = eventDescriptor.Version;
+                                break;
+                            case Some<Conflict<TCommand, TEvent>> (var conflict):
+                                await _boundedContextSettings.OnConflictingCommandRejected(conflict);
+                                return;
                         }
-
-                        // no conflicts, set the expected version
-                        var versions =  eventsSinceExpected.Select(eventDescriptor => eventDescriptor.Version);
-
-                        expectedVersion = await versions.MaxAsync();
                     }
 
                     var transientEvents = _state.Decide(commandDescriptor);

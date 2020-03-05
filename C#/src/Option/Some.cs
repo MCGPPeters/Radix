@@ -1,9 +1,9 @@
 using System;
 
-namespace Radix.Maybe
+namespace Radix.Option
 {
 
-    public readonly struct Some<T> : Maybe<T>
+    public readonly struct Some<T> : Option<T>
     {
         internal T Value { get; }
 
@@ -25,8 +25,4 @@ namespace Radix.Maybe
         }
     }
 
-    public readonly struct None<T> : Maybe<T>
-    {
-        internal static readonly None<T> Default = new None<T>();
-    }
 }

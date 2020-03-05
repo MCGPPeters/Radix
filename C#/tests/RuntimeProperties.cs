@@ -8,6 +8,7 @@ using FsCheck.Xunit;
 using Radix.Tests.Models;
 using Xunit;
 using static Radix.Result.Extensions;
+using static Radix.Option.Extensions;
 
 namespace Radix.Tests
 {
@@ -47,7 +48,7 @@ namespace Radix.Tests
             ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
             Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            FindConflicts<InventoryItemCommand, InventoryItemEvent> findConflicts = (_, __) => AsyncEnumerable.Empty<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (_) => Task.FromResult(Unit.Instance);
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
@@ -56,7 +57,7 @@ namespace Radix.Tests
                     getEventsSince,
                     resolveRemoteAddress,
                     forward,
-                    findConflicts,
+                    findConflict,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());
             // for testing purposes make the aggregate block the current thread while processing

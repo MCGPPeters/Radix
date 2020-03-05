@@ -1,3 +1,5 @@
+using System;
+
 namespace Radix
 {
     public class CommandDescriptor<TCommand>
@@ -5,8 +7,8 @@ namespace Radix
         public CommandDescriptor(Address address, TCommand command, IVersion expectedVersion)
         {
             Address = address;
-            Command = command;
-            ExpectedVersion = expectedVersion;
+            Command = command ?? throw new ArgumentNullException(nameof(command));
+            ExpectedVersion = expectedVersion ?? throw new ArgumentNullException(nameof(expectedVersion));
         }
 
         public Address Address { get; }

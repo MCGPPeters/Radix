@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Radix
@@ -5,7 +6,7 @@ namespace Radix
     /// <summary>
     ///     Combining the metadata of an event with the even itself
     /// </summary>
-    public struct EventDescriptor<TEvent>
+    public struct EventDescriptor<TEvent>  where TEvent : Event
     {
         public bool Equals(EventDescriptor<TEvent> other)
         {
