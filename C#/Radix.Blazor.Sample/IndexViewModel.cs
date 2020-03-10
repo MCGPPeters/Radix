@@ -1,37 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample
 {
-    public class IndexViewModel : ReadModel<IndexViewModel, InventoryItemEvent>
+
+    public class IndexViewModel : State<IndexViewModel, InventoryItemEvent>, IEquatable<IndexViewModel>, IObservable<IndexViewModel>
     {
-        public IDisposable Subscribe(IObserver<IndexViewModel> observer)
+        public IndexViewModel Apply(InventoryItemEvent @event)
         {
-            return Disposable.Empty;
+            throw new NotImplementedException();
         }
 
         public bool Equals(IndexViewModel other)
         {
-            return true;
-        }
-
-        public void Apply(InventoryItemEvent @event)
-        {
-            
-        }
-
-        public void OnCompleted()
-        {
             throw new NotImplementedException();
         }
 
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnNext(InventoryItemEvent value)
+        public IDisposable Subscribe(IObserver<IndexViewModel> observer)
         {
             throw new NotImplementedException();
         }

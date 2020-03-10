@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Radix.Blazor.Html;
@@ -8,32 +7,29 @@ namespace Radix.Blazor
 {
 
     public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>
-        where TViewModel : ReadModel<TViewModel, TEvent> where TEvent : Event
+        where TEvent : Event where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, IObservable<TViewModel>, new()
     {
-        protected Component(TViewModel viewModel)
-            => _subscription = viewModel.Subscribe(this);
-
-        protected TViewModel _oldViewModel;
-        protected TViewModel _currentViewModel;
 
         private readonly IDisposable _subscription;
+        protected TViewModel currentReadModel;
+        private readonly BoundedContext<TCommand, TEvent> _context;
 
+        protected TViewModel _oldReadModel;
 
-        protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext);
+        private bool disposedValue;
 
-        protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel)
-            => !(oldViewModel.Equals(currentViewModel));
-
-        protected override bool ShouldRender()
-            => ShouldRender(_oldViewModel, _currentViewModel);
-
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        protected Component(ReadModel<TViewModel, TEvent> readModel, BoundedContext<TCommand, TEvent> context)
         {
-            base.BuildRenderTree(builder);
-            Rendering.RenderNode(this, builder, 0, Render());
+            currentReadModel = readModel.State;
+            _context = context;
+            _oldReadModel = readModel.State;
+            _subscription = readModel.Subscribe(this);
         }
 
-        protected abstract Node Render();
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
         public void OnCompleted()
         {
@@ -45,30 +41,37 @@ namespace Radix.Blazor
 
         }
 
-        public void OnNext(TViewModel value)
-        {
-            _oldViewModel = _currentViewModel;
-            _currentViewModel = value;
+        public void OnNext(TViewModel readModel)
+        { 
+            _oldReadModel = currentReadModel;
+            currentReadModel = readModel;
         }
 
-        private bool disposedValue;
+
+        protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext);
+
+        protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel) 
+            => !oldViewModel.Equals(currentViewModel);
+
+
+        protected override bool ShouldRender()
+            => ShouldRender(_oldReadModel, currentReadModel);
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            base.BuildRenderTree(builder);
+            Rendering.RenderNode(this, builder, 0, View(_context));
+        }
 
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
-                {
                     _subscription.Dispose();
-                }
 
                 disposedValue = true;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 

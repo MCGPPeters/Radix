@@ -63,7 +63,7 @@ namespace Radix
         }
 
         public async Task<Address> CreateAggregate<TState>()
-            where TState : Aggregate<TState, TEvent, TCommand>, new()
+            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
             var address = new Address(Guid.NewGuid());
 
@@ -80,13 +80,13 @@ namespace Radix
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
         public async Task<Address> GetAggregate<TState>()
-            where TState : Aggregate<TState, TEvent, TCommand>, new()
+            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
             return await CreateAggregate<TState>();
         }
 
         public async Task Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
-            where TState : Aggregate<TState, TEvent, TCommand>, new()
+            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
 
             if (!_registry.TryGetValue(commandDescriptor.Address, out var agent))
@@ -97,7 +97,7 @@ namespace Radix
         }
 
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
-            where TState : Aggregate<TState, TEvent, TCommand>, new()
+            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
             var history = _boundedContextSettings.GetEventsSince(address, new Version(0L));
             

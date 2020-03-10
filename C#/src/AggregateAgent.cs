@@ -11,21 +11,10 @@ using Radix.Result;
 namespace Radix
 {
     internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand>
-        where TState : Aggregate<TState, TEvent, TCommand>, new() where TEvent : Event
+        where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() where TEvent : Event
     {
-        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
-        {
-            var initialState = new TState();
-
-            // restore the state (if any)
-            if (history is object)
-            {
-                initialState = await history.AggregateAsync(initialState, (state, eventDescriptor)
-                    => state.Apply(eventDescriptor.Event));
-            }
-
-            return new AggregateAgent<TState, TCommand, TEvent>(initialState, boundedContextSettings, scheduler);
-        }
+        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler) 
+            => new AggregateAgent<TState, TCommand, TEvent>(await Initial<TState, TEvent>.State(history), boundedContextSettings, scheduler);
 
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
 
