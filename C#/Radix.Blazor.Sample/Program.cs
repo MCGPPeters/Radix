@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Radix.Tests.Models;
+using static Radix.Option.Extensions;
 
 namespace Radix.Blazor.Sample
 {
@@ -13,8 +15,16 @@ namespace Radix.Blazor.Sample
 
 
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            // IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> history = SqlStreamStore.GetEventsSince();
-            // builder.Services.AddSingleton(await Initial<IndexViewModel, InventoryItemEvent>.State(history));
+
+            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = conflict => Task.FromResult(Unit.Instance);
+            var boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(new SqlStreamStore<InventoryItemEvent>(), findConflict, onConflictingCommandRejected, new GarbageCollectionSettings() );
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
+
+            var indexReadModel = await ReadModel<IndexViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>());
+
+            builder.Services.AddSingleton(boundedContext);
+            builder.Services.AddSingleton(indexReadModel);
 
             builder.RootComponents.Add<InventoryItemBoundedContextComponent>("app");
 

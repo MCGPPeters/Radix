@@ -2,27 +2,24 @@ namespace Radix
 {
     public class BoundedContextSettings<TCommand, TEvent> where TEvent : Event
     {
-        public BoundedContextSettings(AppendEvents<TEvent> appendEvents, GetEventsSince<TEvent> getEventsSince, ResolveRemoteAddress resolveRemoteAddress, Forward<TCommand> forward,
+        private readonly EventStore<TEvent> _eventStore;
+
+        public BoundedContextSettings(EventStore<TEvent> eventStore,
             FindConflict<TCommand, TEvent> findConflict, OnConflictingCommandRejected<TCommand, TEvent> onConflictingCommandRejected,
             GarbageCollectionSettings garbageCollectionSettings)
         {
-            AppendEvents = appendEvents;
-            GetEventsSince = getEventsSince;
-            ResolveRemoteAddress = resolveRemoteAddress;
-            Forward = forward;
+            _eventStore = eventStore;
             FindConflict = findConflict;
             OnConflictingCommandRejected = onConflictingCommandRejected;
             GarbageCollectionSettings = garbageCollectionSettings;
         }
 
-        public AppendEvents<TEvent> AppendEvents { get; }
-        public GetEventsSince<TEvent> GetEventsSince { get; }
-        public ResolveRemoteAddress ResolveRemoteAddress { get; }
-        public Forward<TCommand> Forward { get; }
         public FindConflict<TCommand, TEvent> FindConflict { get; }
 
         public OnConflictingCommandRejected<TCommand, TEvent> OnConflictingCommandRejected { get; }
         public GarbageCollectionSettings GarbageCollectionSettings { get; }
+
+        public EventStore<TEvent> EventStore => _eventStore;
     }
 
 }

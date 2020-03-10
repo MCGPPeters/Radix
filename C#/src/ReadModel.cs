@@ -8,7 +8,7 @@ namespace Radix
     public class
         ReadModel<TState, TEvent> : IObserver<TEvent>, IEquatable<ReadModel<TState, TEvent>>
             where TEvent : Event
-            where TState : State<TState, TEvent>, IEquatable<TState>, IObservable<TState>, new()
+            where TState : State<TState, TEvent>, IEquatable<TState>, new()
     {
         public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history)
         {
@@ -38,7 +38,7 @@ namespace Radix
         public void OnNext(TEvent @event)
         {
             State = State.Apply(@event);
-            if (_observer !is object)
+            if (_observer is object)
                 _observer.OnNext(State);
         }
 

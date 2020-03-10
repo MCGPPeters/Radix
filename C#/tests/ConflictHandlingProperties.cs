@@ -32,18 +32,13 @@ namespace Radix.Tests
                 return Task.FromResult(Ok<Version, SaveEventsError>(0L));
             };
 
-            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
-            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => AsyncEnumerable.Empty<EventDescriptor<InventoryItemEvent>>();
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts) => Task.FromResult(Unit.Instance);
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    appendEvents,
-                    getEventsSince,
-                    resolveRemoteAddress,
-                    forward,
+                    new EventStoreStub(appendEvents, getEventsSince),
                     findConflict,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());
@@ -89,8 +84,6 @@ namespace Radix.Tests
                 return Task.FromResult(Ok<Version, SaveEventsError>(1));
             };
 
-            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
-            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = FindConflict;
 
@@ -101,14 +94,11 @@ namespace Radix.Tests
                 return Task.FromResult(Unit.Instance);
             };
 
-            
+
             // for testing purposes make the aggregate block the current thread while processing
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    appendEvents,
-                    getEventsSince,
-                    resolveRemoteAddress,
-                    forward,
+                    new EventStoreStub(appendEvents, getEventsSince),
                     findConflict,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());
@@ -151,19 +141,13 @@ namespace Radix.Tests
                 return Task.FromResult(Error<Version, SaveEventsError>(new OptimisticConcurrencyError()));
             };
 
-            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
-            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts) => Task.FromResult(Unit.Instance);
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    appendEvents,
-                    getEventsSince,
-                    resolveRemoteAddress,
-                    forward,
+                    new EventStoreStub(appendEvents, getEventsSince),
                     findConflict,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());
@@ -193,17 +177,12 @@ namespace Radix.Tests
 
             // event stream is at version 3
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
-            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts) => Task.FromResult(Unit.Instance);
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    appendEvents,
-                    getEventsSince,
-                    resolveRemoteAddress,
-                    forward,
+                    new EventStoreStub(appendEvents, getEventsSince),
                     findConflict,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());
@@ -232,18 +211,13 @@ namespace Radix.Tests
                 return Task.FromResult(Ok<Version, SaveEventsError>(1));
             };
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            ResolveRemoteAddress resolveRemoteAddress = address => Task.FromResult(Ok<Uri, ResolveRemoteAddressError>(new Uri("")));
-            Forward<InventoryItemCommand> forward = (_, __, ___) => Task.FromResult(Ok<Unit, ForwardError>(Unit.Instance));
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = (conflicts) => Task.FromResult(Unit.Instance);
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    appendEvents,
-                    getEventsSince,
-                    resolveRemoteAddress,
-                    forward,
+                    new EventStoreStub(appendEvents, getEventsSince),
                     findConflict,
                     onConflictingCommandRejected,
                     garbageCollectionSettings), new CurrentThreadTaskScheduler());

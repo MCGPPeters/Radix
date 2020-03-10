@@ -7,7 +7,8 @@ namespace Radix.Blazor
 {
 
     public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>
-        where TEvent : Event where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, IObservable<TViewModel>, new()
+        where TEvent : Event 
+        where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
     {
 
         private readonly IDisposable _subscription;
@@ -42,10 +43,10 @@ namespace Radix.Blazor
         }
 
         public void OnNext(TViewModel readModel)
-        { 
+        {
             _oldReadModel = currentReadModel;
             currentReadModel = readModel;
-            if(ShouldRender(_oldReadModel, currentReadModel))
+            if (ShouldRender(_oldReadModel, currentReadModel))
                 // force render
                 StateHasChanged();
         }
@@ -53,7 +54,7 @@ namespace Radix.Blazor
 
         protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext);
 
-        protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel) 
+        protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel)
             => !oldViewModel.Equals(currentViewModel);
 
 
