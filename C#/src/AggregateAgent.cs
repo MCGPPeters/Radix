@@ -43,7 +43,7 @@ namespace Radix
                     LastActivity = DateTimeOffset.Now;
                     var expectedVersion = commandDescriptor.ExpectedVersion;
 
-                    var eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version);
+                    var eventsSince = _boundedContextSettings.EventStore.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version);
                     await foreach(var eventDescriptor in eventsSince)
                     {
                         var optionalConflict = _boundedContextSettings.FindConflict(commandDescriptor.Command, eventDescriptor);
@@ -60,7 +60,7 @@ namespace Radix
 
                     var transientEvents = _state.Decide(commandDescriptor);
                     // try to save the events
-                    var saveResult = await _boundedContextSettings.AppendEvents(commandDescriptor.Address, expectedVersion, transientEvents);
+                    var saveResult = await _boundedContextSettings.EventStore.AppendEvents(commandDescriptor.Address, expectedVersion, transientEvents);
 
                     switch (saveResult)
                     {

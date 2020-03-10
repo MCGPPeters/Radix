@@ -99,7 +99,7 @@ namespace Radix
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-            var history = _boundedContextSettings.GetEventsSince(address, new Version(0L));
+            var history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
             
             var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history, _taskScheduler);
             _registry.Add(address, agent);
