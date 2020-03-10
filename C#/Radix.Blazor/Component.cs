@@ -45,6 +45,9 @@ namespace Radix.Blazor
         { 
             _oldReadModel = currentReadModel;
             currentReadModel = readModel;
+            if(ShouldRender(_oldReadModel, currentReadModel))
+                // force render
+                StateHasChanged();
         }
 
 
