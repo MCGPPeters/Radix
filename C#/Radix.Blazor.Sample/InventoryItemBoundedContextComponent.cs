@@ -5,6 +5,7 @@ using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample
 {
+    // ReSharper disable once ClassNeverInstantiated.Global : Instantiated via DI
     public class InventoryItemBoundedContextComponent : BoundedContextComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
     {
 
@@ -12,9 +13,6 @@ namespace Radix.Blazor.Sample
         {
             return new Text("Hello");
         }
-
-        public InventoryItemBoundedContextComponent(ReadModel<IndexViewModel, InventoryItemEvent> readModel, BoundedContext<InventoryItemCommand, InventoryItemEvent> context) : base(readModel, context)
-        {
-        }
+        
     }
 }
