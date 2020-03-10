@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Radix.Tests.Models
 {
-    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>
+    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>, IEquatable<InventoryItem>
     {
         
         public InventoryItem()
@@ -44,5 +44,40 @@ namespace Radix.Tests.Models
             InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
             _ => throw new NotSupportedException("Unknown event")
         };
+
+        public bool Equals(InventoryItem? other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return Name == other.Name && Activated == other.Activated && Count == other.Count;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+            if (obj.GetType() != this.GetType())
+                return false;
+            return Equals((InventoryItem) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, Activated, Count);
+        }
+
+        public static bool operator ==(InventoryItem? left, InventoryItem? right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(InventoryItem? left, InventoryItem? right)
+        {
+            return !Equals(left, right);
+        }
     }
 }

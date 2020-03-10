@@ -18,8 +18,6 @@ namespace Radix.Blazor.Sample
 
         private static readonly IStreamStore streamStore = new InMemoryStreamStore();
 
-        // private static readonly EventStoreClient client = new EventStoreClient(new EventStoreClientSettings(new Uri("tcp://admin:changeit@localhost:1113")));
-        //
         public static AppendEvents<InventoryItemEvent> AppendEvents => async (address, version, events) =>
         {
             var newStreamMessages = events.Select(
