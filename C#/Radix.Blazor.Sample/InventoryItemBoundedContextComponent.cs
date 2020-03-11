@@ -1,10 +1,9 @@
-﻿using System;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.Components;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Radix.Blazor.Html;
+using Radix.Tests.Models;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
-using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample
 {
@@ -14,8 +13,17 @@ namespace Radix.Blazor.Sample
 
         protected override Node View(BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext)
         {
-            return h1(new[] { value("Hello world") });
+            return concat(
+                div(new[] {@class("container")}, new[]
+                {
+                    nav(new []{@class("navbar navbar-expand-lg navbar-light bg-light") }, new[]
+                    {
+                        a(new []{@class("navbar-brand"), href("#")}, new[]
+                        {
+                            text("Inventory")
+                        })
+                    })
+                }));
         }
-
     }
 }
