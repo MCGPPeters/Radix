@@ -52,11 +52,10 @@ namespace Radix.Blazor
                             {
                                 foreach (var elementChild in component.Children)
                                 {
-                                    RenderNode(currentComponent, builder, sequence, elementChild);
-                                    sequence++;
+                                    RenderNode(currentComponent, renderTreeBuilder, sequence, elementChild);
                                 }
                             });
-                        builder.AddAttribute(sequence, "ChildComponent", fragment);
+                        builder.AddAttribute(sequence, "ChildContent", fragment);
                     }
 
                     builder.CloseComponent();
@@ -75,6 +74,9 @@ namespace Radix.Blazor
                 {
                     case Attribute (var name, var values):
                         builder.AddAttribute(sequence++, name, values.Aggregate((current, next) => current + " " + next));
+                        break;
+                    case ComponentAttribute(var name, var value):
+                        builder.AddAttribute(sequence, name, value);
                         break;
                     case ExplicitAttribute explicitAttribute:
                         sequence = explicitAttribute.Factory(builder, sequence, currentComponent);
