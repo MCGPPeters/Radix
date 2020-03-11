@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
+using static Radix.Blazor.Html.Elements;
+using static Radix.Blazor.Html.Attributes;
 using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample
@@ -11,8 +14,8 @@ namespace Radix.Blazor.Sample
 
         protected override Node View(BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext)
         {
-            return new Text("Hello");
+            return h1(new[] { value("Hello world") });
         }
-        
+
     }
 }
