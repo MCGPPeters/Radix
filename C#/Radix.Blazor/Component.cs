@@ -14,9 +14,9 @@ namespace Radix.Blazor
 
         private IDisposable? _subscription;
 
-        [Inject]public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
+        [Inject]public BoundedContext<TCommand, TEvent>? BoundedContext { get; set; }
 
-        [Inject]public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
+        [Inject]public ReadModel<TViewModel, TEvent>? ReadModel { get; set; }
 
 
         protected TViewModel OldViewModel { get; set; }
@@ -55,7 +55,13 @@ namespace Radix.Blazor
         }
 
 
-        protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext);
+        /// <summary>
+        /// This function is called whenever it is decided the state of the viewmodel has changed 
+        /// </summary>
+        /// <param name="boundedContext"></param>
+        /// <param name="currentViewModel"></param>
+        /// <returns></returns>
+        protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext, TViewModel currentViewModel);
 
         protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel)
         {
@@ -71,7 +77,7 @@ namespace Radix.Blazor
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            Rendering.RenderNode(this, builder, 0, View(BoundedContext));
+            Rendering.RenderNode(this, builder, 0, View(BoundedContext, CurrentViewModel));
         }
 
         protected virtual void Dispose(bool disposing)
