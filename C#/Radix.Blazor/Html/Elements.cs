@@ -396,7 +396,7 @@ namespace Radix.Blazor.Html
         public static Empty empty
             => new Empty();
 
-        public static Text text(string text)
+        public static Node text(string text)
         {
             return new Text(text);
         }

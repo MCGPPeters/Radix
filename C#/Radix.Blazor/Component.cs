@@ -10,25 +10,22 @@ namespace Radix.Blazor
         where TEvent : Event 
         where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
     {
+        [Inject]
+        public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
 
-        private IDisposable _subscription;
+        [Inject]
+        public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
+
+        private IDisposable? _subscription;
         private bool _disposedValue;
 
-        
-        [Inject]
-        protected BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
-        
-        
-        [Inject]
-        protected ReadModel<TViewModel, TEvent> ReadModel
+        protected override void OnInitialized()
         {
-            set
-            {
-                CurrentViewModel = value.State;
-                OldViewModel = CurrentViewModel;
-                _subscription = value.Subscribe(this);
-            }
+            CurrentViewModel = ReadModel.State;
+            OldViewModel = CurrentViewModel;
+            _subscription = ReadModel.Subscribe(this);
         }
+
 
         protected TViewModel OldViewModel { get; set; }
         protected TViewModel CurrentViewModel { get; set; }
