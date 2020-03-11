@@ -3,8 +3,8 @@ using System;
 namespace Radix
 {
 
-    public interface State<out TState, in TEvent> 
-        where TEvent : Event 
+    public interface State<out TState, in TEvent>
+        where TEvent : Event
         where TState : IEquatable<TState>, new()
     {
         /// <summary>

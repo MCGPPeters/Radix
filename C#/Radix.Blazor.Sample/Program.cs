@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +17,12 @@ namespace Radix.Blazor.Sample
 
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = conflict => Task.FromResult(Unit.Instance);
-            var boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(new SqlStreamStore<InventoryItemEvent>(), findConflict, onConflictingCommandRejected, new GarbageCollectionSettings() );
-            BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
+            var boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
+                new SqlStreamStore<InventoryItemEvent>(),
+                findConflict,
+                onConflictingCommandRejected,
+                new GarbageCollectionSettings());
+            var boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
 
             var indexReadModel = await ReadModel<IndexViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>());
 

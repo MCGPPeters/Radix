@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -13,8 +12,6 @@ namespace Radix
     internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand>
         where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() where TEvent : Event
     {
-        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler) 
-            => new AggregateAgent<TState, TCommand, TEvent>(await Initial<TState, TEvent>.State(history), boundedContextSettings, scheduler);
 
         private readonly ActionBlock<CommandDescriptor<TCommand>> _actionBlock;
 
@@ -44,7 +41,7 @@ namespace Radix
                     var expectedVersion = commandDescriptor.ExpectedVersion;
 
                     var eventsSince = _boundedContextSettings.EventStore.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version);
-                    await foreach(var eventDescriptor in eventsSince)
+                    await foreach (var eventDescriptor in eventsSince)
                     {
                         var optionalConflict = _boundedContextSettings.FindConflict(commandDescriptor.Command, eventDescriptor);
                         switch (optionalConflict)
@@ -98,6 +95,12 @@ namespace Radix
         public void Deactivate()
         {
             _actionBlock.Complete();
+        }
+
+        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
+            IAsyncEnumerable<EventDescriptor<TEvent>> history, TaskScheduler scheduler)
+        {
+            return new AggregateAgent<TState, TCommand, TEvent>(await Initial<TState, TEvent>.State(history), boundedContextSettings, scheduler);
         }
     }
 

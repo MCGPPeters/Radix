@@ -1,4 +1,3 @@
-
 namespace Radix
 {
     public abstract class Event
@@ -8,12 +7,12 @@ namespace Radix
             Address = address;
         }
 
+        public Address Address { get; }
+
         public override string ToString()
         {
             var typeName = GetType().ToString();
             return char.ToLowerInvariant(typeName[0]) + typeName.Substring(1);
         }
-
-        public Address Address { get; }
     }
 }

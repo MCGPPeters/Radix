@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Radix
 {
@@ -13,12 +12,13 @@ namespace Radix
     /// </typeparam>
     /// <typeparam name="TEvent">The type of events the aggregate root generates</typeparam>
     /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
-    public interface Aggregate<out TState, TEvent, TCommand> : State<TState, TEvent> 
-        where TState : IEquatable<TState>, new() 
+    public interface Aggregate<out TState, TEvent, TCommand> : State<TState, TEvent>
+        where TState : IEquatable<TState>, new()
         where TEvent : Event
     {
         /// <summary>
-        ///     This is the place to validate (and log validation errors for instance of) a commandDescriptor and decide of any events will be generated as a
+        ///     This is the place to validate (and log validation errors for instance of) a commandDescriptor and decide of any
+        ///     events will be generated as a
         ///     consequence of this commandDescriptor.
         ///     You MUST NOT change the state here
         ///     You MAY call external services

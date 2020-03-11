@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Radix.Async;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
-using static Radix.Option.Extensions;
 using Extensions = Radix.Result.Extensions;
 
 namespace Radix
@@ -63,18 +62,17 @@ namespace Radix
                 case Version v:
                     // IAsyncEnumerable<ReadStreamPage> readAllEventsForwardAsync =
                     var fromVersionInclusive = Convert.ToInt32(v.Value);
-                    var readStreamPage = await streamStore.ReadStreamForwards(streamId, fromVersionInclusive, Int32.MaxValue, false);
+                    var readStreamPage = await streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
-                    var eventDescriptors = readStreamPage.Messages.Select(async streamMessage =>
-                    {
-                        var @event = JsonSerializer.Deserialize<TEvent>(await streamMessage.GetJsonData());
-                        return new EventDescriptor<TEvent>(@event, streamMessage.StreamVersion);
-                    });
+                    var eventDescriptors = readStreamPage.Messages.Select(
+                        async streamMessage =>
+                        {
+                            var @event = JsonSerializer.Deserialize<TEvent>(await streamMessage.GetJsonData());
+                            return new EventDescriptor<TEvent>(@event, streamMessage.StreamVersion);
+                        });
 
                     foreach (var eventDescriptor in eventDescriptors)
-                    {
                         yield return await eventDescriptor;
-                    }
 
                     break;
                 default:
@@ -83,4 +81,3 @@ namespace Radix
         }
     }
 }
-

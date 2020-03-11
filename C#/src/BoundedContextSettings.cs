@@ -2,13 +2,12 @@ namespace Radix
 {
     public class BoundedContextSettings<TCommand, TEvent> where TEvent : Event
     {
-        private readonly EventStore<TEvent> _eventStore;
 
         public BoundedContextSettings(EventStore<TEvent> eventStore,
             FindConflict<TCommand, TEvent> findConflict, OnConflictingCommandRejected<TCommand, TEvent> onConflictingCommandRejected,
             GarbageCollectionSettings garbageCollectionSettings)
         {
-            _eventStore = eventStore;
+            EventStore = eventStore;
             FindConflict = findConflict;
             OnConflictingCommandRejected = onConflictingCommandRejected;
             GarbageCollectionSettings = garbageCollectionSettings;
@@ -19,7 +18,7 @@ namespace Radix
         public OnConflictingCommandRejected<TCommand, TEvent> OnConflictingCommandRejected { get; }
         public GarbageCollectionSettings GarbageCollectionSettings { get; }
 
-        public EventStore<TEvent> EventStore => _eventStore;
+        public EventStore<TEvent> EventStore { get; }
     }
 
 }

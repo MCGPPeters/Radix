@@ -15,24 +15,24 @@ namespace Radix
 
             // restore the initialState (if any)
             if (history is object)
-            {
-                initialState = await history.AggregateAsync(initialState, (state, eventDescriptor)
-                    => state.Apply(eventDescriptor.Event));
-            }
+                initialState = await history.AggregateAsync(
+                    initialState,
+                    (state, eventDescriptor)
+                        => state.Apply(eventDescriptor.Event));
 
             return initialState;
         }
-        
+
         public static async Task<TState> State(IAsyncEnumerable<TEvent> history)
         {
             var initialState = new TState();
 
             // restore the initialState (if any)
             if (history is object)
-            {
-                initialState = await history.AggregateAsync(initialState, (state, @event)
-                    => state.Apply(@event));
-            }
+                initialState = await history.AggregateAsync(
+                    initialState,
+                    (state, @event)
+                        => state.Apply(@event));
 
             return initialState;
         }

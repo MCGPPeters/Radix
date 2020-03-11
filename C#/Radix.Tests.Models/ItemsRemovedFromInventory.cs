@@ -18,7 +18,7 @@ namespace Radix.Tests.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ItemsRemovedFromInventory)obj);
+            return obj.GetType() == GetType() && Equals((ItemsRemovedFromInventory) obj);
         }
 
         public override int GetHashCode()
