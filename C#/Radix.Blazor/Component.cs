@@ -7,24 +7,16 @@ namespace Radix.Blazor
 {
 
     public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>
-        where TEvent : Event 
+        where TEvent : Event
         where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
     {
-        [Inject]
-        public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
-
-        [Inject]
-        public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
-
-        private IDisposable? _subscription;
         private bool _disposedValue;
 
-        protected override void OnInitialized()
-        {
-            CurrentViewModel = ReadModel.State;
-            OldViewModel = CurrentViewModel;
-            _subscription = ReadModel.Subscribe(this);
-        }
+        private IDisposable? _subscription;
+
+        [Inject]public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
+
+        [Inject]public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
 
 
         protected TViewModel OldViewModel { get; set; }
@@ -55,15 +47,26 @@ namespace Radix.Blazor
                 StateHasChanged();
         }
 
+        protected override void OnInitialized()
+        {
+            CurrentViewModel = ReadModel.State;
+            OldViewModel = CurrentViewModel;
+            _subscription = ReadModel.Subscribe(this);
+        }
+
 
         protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext);
 
         protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel)
-            => !oldViewModel.Equals(currentViewModel);
+        {
+            return !oldViewModel.Equals(currentViewModel);
+        }
 
 
         protected override bool ShouldRender()
-            => ShouldRender(OldViewModel, CurrentViewModel);
+        {
+            return ShouldRender(OldViewModel, CurrentViewModel);
+        }
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {

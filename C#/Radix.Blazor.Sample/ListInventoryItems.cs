@@ -1,11 +1,4 @@
-﻿using System;
-using System.Linq;
- // using System.ServiceModel;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Radix.Blazor.Html;
-using static Radix.Blazor.Html.Elements;
-using static Radix.Blazor.Html.Attributes;
+﻿// using System.ServiceModel;
 
 namespace Radix.Blazor.Sample
 {
@@ -15,6 +8,5 @@ namespace Radix.Blazor.Sample
         //    h2(new[] { value("Add") }, text("Add new item")),
         //    Elements.form(Enumerable.Empty<IAttribute>(), input(type("text")), button(new []{name("submit"), on.click(e => , text("Submit")))
         //);
-
     }
 }

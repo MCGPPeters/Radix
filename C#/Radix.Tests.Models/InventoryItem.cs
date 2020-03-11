@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Radix.Tests.Models
 {
     public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>, IEquatable<InventoryItem>
     {
-        
+
         public InventoryItem()
         {
             Name = "";
@@ -24,26 +23,35 @@ namespace Radix.Tests.Models
         private bool Activated { get; }
         private int Count { get; }
 
-        public InventoryItemEvent[] Decide(CommandDescriptor<InventoryItemCommand> commandDescriptor) => commandDescriptor.Command switch
+        public InventoryItemEvent[] Decide(CommandDescriptor<InventoryItemCommand> commandDescriptor)
         {
-            DeactivateInventoryItem _ => new InventoryItemEvent[] {new InventoryItemDeactivated(commandDescriptor.Address)},
-            CreateInventoryItem createInventoryItem => new InventoryItemEvent[] { new InventoryItemCreated(createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count, commandDescriptor.Address) },
-            RenameInventoryItem renameInventoryItem => new InventoryItemEvent[] { new InventoryItemRenamed(renameInventoryItem.Name, commandDescriptor.Address) },
-            CheckInItemsToInventory checkInItemsToInventory => new InventoryItemEvent[] { new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, commandDescriptor.Address) },
-            RemoveItemsFromInventory removeItemsFromInventory => new InventoryItemEvent[] { new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, commandDescriptor.Address) },
-            _ => throw new NotSupportedException("Unknown command")
-        };
+            return commandDescriptor.Command switch
+            {
+                DeactivateInventoryItem _ => new InventoryItemEvent[] {new InventoryItemDeactivated(commandDescriptor.Address)},
+                CreateInventoryItem createInventoryItem => new InventoryItemEvent[]
+                    {new InventoryItemCreated(createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count, commandDescriptor.Address)},
+                RenameInventoryItem renameInventoryItem => new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, commandDescriptor.Address)},
+                CheckInItemsToInventory checkInItemsToInventory => new InventoryItemEvent[]
+                    {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, commandDescriptor.Address)},
+                RemoveItemsFromInventory removeItemsFromInventory => new InventoryItemEvent[]
+                    {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, commandDescriptor.Address)},
+                _ => throw new NotSupportedException("Unknown command")
+            };
+        }
 
 
-        public InventoryItem Apply(InventoryItemEvent @event) => @event switch
+        public InventoryItem Apply(InventoryItemEvent @event)
         {
-            InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
-            InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
-            ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
-            ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
-            InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
-            _ => throw new NotSupportedException("Unknown event")
-        };
+            return @event switch
+            {
+                InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
+                InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
+                ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
+                ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
+                InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
+                _ => throw new NotSupportedException("Unknown event")
+            };
+        }
 
         public bool Equals(InventoryItem? other)
         {
@@ -60,7 +68,7 @@ namespace Radix.Tests.Models
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
                 return false;
             return Equals((InventoryItem) obj);
         }

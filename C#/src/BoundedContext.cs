@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Radix
 {
@@ -25,9 +25,11 @@ namespace Radix
     public class BoundedContext<TCommand, TEvent> : IDisposable where TEvent : Event
     {
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
-        private readonly TaskScheduler _taskScheduler;
         private readonly Dictionary<Address, Agent<TCommand>> _registry = new Dictionary<Address, Agent<TCommand>>();
+        private readonly TaskScheduler _taskScheduler;
         private readonly Timer _timer;
+
+        private bool disposedValue; // To detect redundant calls
 
         public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler taskScheduler)
         {
@@ -36,6 +38,17 @@ namespace Radix
             _timer = new Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};
             _timer.Elapsed += RunGarbageCollection;
             _timer.Enabled = true;
+        }
+
+        public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings) : this(boundedContextSettings, TaskScheduler.Default)
+        {
+
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         private void RunGarbageCollection(object sender, ElapsedEventArgs e)
@@ -52,14 +65,7 @@ namespace Radix
             }
 
             foreach (var deactivatedAgent in deactivatedAgents)
-            {
                 _registry.Remove(deactivatedAgent);
-            }
-        }
-
-        public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings) : this(boundedContextSettings, TaskScheduler.Default)
-        {
-
         }
 
         public async Task<Address> CreateAggregate<TState>()
@@ -100,13 +106,11 @@ namespace Radix
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
             var history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
-            
+
             var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history, _taskScheduler);
             _registry.Add(address, agent);
             return agent;
         }
-
-        private bool disposedValue; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
@@ -117,12 +121,6 @@ namespace Radix
 
                 disposedValue = true;
             }
-        }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }

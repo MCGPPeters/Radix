@@ -7,40 +7,18 @@ namespace Radix
 {
     public class
         ReadModel<TState, TEvent> : IObserver<TEvent>, IEquatable<ReadModel<TState, TEvent>>
-            where TEvent : Event
-            where TState : State<TState, TEvent>, IEquatable<TState>, new()
+        where TEvent : Event
+        where TState : State<TState, TEvent>, IEquatable<TState>, new()
     {
-        public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history)
-        {
-            return new ReadModel<TState, TEvent>(await Initial<TState, TEvent>.State(history));
-        }
 
         private IObserver<TState>? _observer;
 
-        private ReadModel(TState state) => State = state;
-
-        public IDisposable Subscribe(IObserver<TState> observer)
+        private ReadModel(TState state)
         {
-            _observer = observer;
-            return Disposable.Empty;
+            State = state;
         }
 
-        public void OnCompleted()
-        {
-            
-        }
-
-        public void OnError(Exception error)
-        {
-            
-        }
-
-        public void OnNext(TEvent @event)
-        {
-            State = State.Apply(@event);
-            if (_observer is object)
-                _observer.OnNext(State);
-        }
+        public TState State { get; private set; }
 
         public bool Equals(ReadModel<TState, TEvent>? other)
         {
@@ -51,13 +29,41 @@ namespace Radix
             return State.Equals(other.State);
         }
 
+        public void OnCompleted()
+        {
+
+        }
+
+        public void OnError(Exception error)
+        {
+
+        }
+
+        public void OnNext(TEvent @event)
+        {
+            State = State.Apply(@event);
+            if (_observer is object)
+                _observer.OnNext(State);
+        }
+
+        public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history)
+        {
+            return new ReadModel<TState, TEvent>(await Initial<TState, TEvent>.State(history));
+        }
+
+        public IDisposable Subscribe(IObserver<TState> observer)
+        {
+            _observer = observer;
+            return Disposable.Empty;
+        }
+
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
                 return false;
             return Equals((ReadModel<TState, TEvent>) obj);
         }
@@ -76,7 +82,5 @@ namespace Radix
         {
             return !Equals(left, right);
         }
-
-        public TState State { get; private set; }
     }
 }
