@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Radix.Tests.Models;
 
-namespace Radix.Blazor.Sample
+namespace Radix.Blazor.Sample.Components
 { 
 
     public class IndexViewModel : State<IndexViewModel, InventoryItemEvent>, IEquatable<IndexViewModel>

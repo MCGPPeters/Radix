@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests.Models", "Radix
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Sample", "Radix.Blazor.Sample\Radix.Blazor.Sample.csproj", "{EEBD24FC-0E49-47B8-A264-25B60BD253CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Blazor.Inventory", "Radix.Blazor.Inventory\Radix.Blazor.Inventory.csproj", "{3ED71520-5585-4994-9303-E6B12FFD3C8F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,18 +97,6 @@ Global
 		{EEBD24FC-0E49-47B8-A264-25B60BD253CE}.Release|x64.Build.0 = Release|Any CPU
 		{EEBD24FC-0E49-47B8-A264-25B60BD253CE}.Release|x86.ActiveCfg = Release|Any CPU
 		{EEBD24FC-0E49-47B8-A264-25B60BD253CE}.Release|x86.Build.0 = Release|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Debug|x64.Build.0 = Debug|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Debug|x86.Build.0 = Debug|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Release|x64.ActiveCfg = Release|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Release|x64.Build.0 = Release|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Release|x86.ActiveCfg = Release|Any CPU
-		{3ED71520-5585-4994-9303-E6B12FFD3C8F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

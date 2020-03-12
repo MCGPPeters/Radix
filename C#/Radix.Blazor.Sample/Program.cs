@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Radix.Blazor.Sample.Components;
 using Radix.Tests.Models;
 using static Radix.Option.Extensions;
 
@@ -29,7 +30,7 @@ namespace Radix.Blazor.Sample
             builder.Services.AddSingleton(boundedContext);
             builder.Services.AddSingleton(indexReadModel);
 
-            builder.RootComponents.Add<InventoryItemBoundedContextComponent>("app");
+            builder.RootComponents.Add<IndexComponent>("#app");
 
 
             await builder.Build().RunAsync();
