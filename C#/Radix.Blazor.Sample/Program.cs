@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Blazor.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Radix.Blazor.Sample.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Radix.Tests.Models;
 using static Radix.Option.Extensions;
 
@@ -15,6 +15,7 @@ namespace Radix.Blazor.Sample
 
 
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Services.AddBaseAddressHttpClient();
 
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = conflict => Task.FromResult(Unit.Instance);
@@ -33,7 +34,9 @@ namespace Radix.Blazor.Sample
             builder.RootComponents.Add<IndexComponent>("#app");
 
 
-            await builder.Build().RunAsync();
+            var host = builder.Build();
+
+            await host.RunAsync();
         }
     }
 

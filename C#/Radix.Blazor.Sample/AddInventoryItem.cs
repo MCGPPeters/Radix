@@ -1,4 +1,0 @@
-﻿namespace Radix.Blazor.Sample
-{
-
-}

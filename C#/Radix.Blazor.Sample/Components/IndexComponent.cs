@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Tests.Models;
 using static Radix.Blazor.Html.Elements;
+using static Radix.Blazor.Html.Attributes;
+using static Radix.Blazor.Html.Components;
 
 namespace Radix.Blazor.Sample.Components
 {
@@ -16,8 +18,9 @@ namespace Radix.Blazor.Sample.Components
             var InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 
             return concat(
+                navLinkMatchAll(new[] {@class("btn btn-primary"), href("Add")}, text("Add")),
                 h1(Enumerable.Empty<IAttribute>(), text("All items")),
-                    ul(Enumerable.Empty<IAttribute>(), InventoryItemNodes)
+                ul(Enumerable.Empty<IAttribute>(), InventoryItemNodes)
             );
         }
 
