@@ -56,7 +56,7 @@ namespace Radix.Blazor
 
 
         /// <summary>
-        /// This function is called whenever it is decided the state of the viewmodel has changed 
+        /// This function is called whenever it is decided the state of the viewmodel has cha 
         /// </summary>
         /// <param name="boundedContext"></param>
         /// <param name="currentViewModel"></param>
