@@ -43,6 +43,11 @@ namespace Radix
             return Value.CompareTo(((Value<T>) other).Value);
         }
 
+        string ToString()
+        {
+            return Value.ToString();
+        }
+
         public static bool operator >(Value<T> operand1, Value<T> operand2)
         {
             return operand1.CompareTo(operand2.Value) == 1;

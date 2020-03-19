@@ -39,12 +39,12 @@ namespace Radix
                         case AnyVersion _:
                             appendToStream = () => streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
                             result = await appendToStream.Retry(Backoff.Exponentially());
-                            return Extensions.Ok<Version, SaveEventsError>(result.CurrentVersion);
+                            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
                         case Version v:
                             var expectedVersion = Convert.ToInt32(v.Value);
                             appendToStream = () => streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
                             result = await appendToStream.Retry(Backoff.Exponentially());
-                            return Extensions.Ok<Version, SaveEventsError>(result.CurrentVersion);
+                            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
                         default:
                             throw new NotSupportedException("Unknown type of version");
                     }

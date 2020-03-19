@@ -15,5 +15,10 @@ namespace Radix
         {
             return new Address(guid);
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

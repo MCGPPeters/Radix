@@ -25,24 +25,17 @@ namespace Radix
     public class BoundedContext<TCommand, TEvent> : IDisposable where TEvent : Event
     {
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
-        private readonly Dictionary<Address, Agent<TCommand>> _registry = new Dictionary<Address, Agent<TCommand>>();
-        private readonly TaskScheduler _taskScheduler;
+        private readonly Dictionary<Address, Agent<TCommand, TEvent>> _registry = new Dictionary<Address, Agent<TCommand, TEvent>>();
         private readonly Timer _timer;
 
         private bool disposedValue; // To detect redundant calls
 
-        public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, TaskScheduler taskScheduler)
+        public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
-            _taskScheduler = taskScheduler;
             _timer = new Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};
             _timer.Elapsed += RunGarbageCollection;
             _timer.Enabled = true;
-        }
-
-        public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings) : this(boundedContextSettings, TaskScheduler.Default)
-        {
-
         }
 
         // This code added to correctly implement the disposable pattern.
@@ -73,7 +66,7 @@ namespace Radix
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable(), _taskScheduler);
+            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable());
 
             _registry.Add(address, agent);
             return address;
@@ -91,14 +84,14 @@ namespace Radix
             return await CreateAggregate<TState>();
         }
 
-        public async Task Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
+        public async Task<Result<TEvent[], string[]>> Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
 
             if (!_registry.TryGetValue(commandDescriptor.Address, out var agent))
-                agent = await GetAggregate<TState>(commandDescriptor.Address);
+                agent = await GetAggregate<TState>(commandDescriptor.Address).ConfigureAwait(false);
 
-            await agent.Post(commandDescriptor);
+            return await agent.Post(commandDescriptor);
 
         }
 
@@ -107,7 +100,7 @@ namespace Radix
         {
             var history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
 
-            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history, _taskScheduler);
+            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history);
             _registry.Add(address, agent);
             return agent;
         }

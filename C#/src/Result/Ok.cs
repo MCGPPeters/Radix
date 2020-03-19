@@ -4,7 +4,7 @@ namespace Radix.Result
 {
 
     public readonly struct
-        Ok<T, TError> : Result<T, TError> where TError : Monoid<TError>
+        Ok<T, TError> : Result<T, TError>
     {
         internal Ok(T t)
         {
