@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using static Radix.Result.Extensions;
 
 namespace Radix.Tests.Models
 {
@@ -23,18 +25,18 @@ namespace Radix.Tests.Models
         private bool Activated { get; }
         private int Count { get; }
 
-        public InventoryItemEvent[] Decide(CommandDescriptor<InventoryItemCommand> commandDescriptor)
+        public Task<Result<InventoryItemEvent[], CommandDecisionError>> Decide(CommandDescriptor<InventoryItemCommand> commandDescriptor)
         {
             return commandDescriptor.Command switch
             {
-                DeactivateInventoryItem _ => new InventoryItemEvent[] {new InventoryItemDeactivated(commandDescriptor.Address)},
-                CreateInventoryItem createInventoryItem => new InventoryItemEvent[]
-                    {new InventoryItemCreated(createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count, commandDescriptor.Address)},
-                RenameInventoryItem renameInventoryItem => new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, commandDescriptor.Address)},
-                CheckInItemsToInventory checkInItemsToInventory => new InventoryItemEvent[]
-                    {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, commandDescriptor.Address)},
-                RemoveItemsFromInventory removeItemsFromInventory => new InventoryItemEvent[]
-                    {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, commandDescriptor.Address)},
+                DeactivateInventoryItem _ => Task.FromResult(Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(commandDescriptor.Address)})),
+                CreateInventoryItem createInventoryItem => Task.FromResult(Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[]
+                    {new InventoryItemCreated(createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count, commandDescriptor.Address)})),
+                RenameInventoryItem renameInventoryItem => Task.FromResult(Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, commandDescriptor.Address)})),
+                CheckInItemsToInventory checkInItemsToInventory => Task.FromResult(Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[]
+                    {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, commandDescriptor.Address)})),
+                RemoveItemsFromInventory removeItemsFromInventory => Task.FromResult(Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[]
+                    {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, commandDescriptor.Address)})),
                 _ => throw new NotSupportedException("Unknown command")
             };
         }

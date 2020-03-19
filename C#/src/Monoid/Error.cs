@@ -1,6 +1,6 @@
 namespace Radix.Monoid
 {
-    public readonly struct Error<T, TError> : Result<T, TError> where TError : Monoid<TError>
+    public readonly struct Error<T, TError> : Result<T, TError>
     {
         internal Error(TError error)
         {

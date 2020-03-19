@@ -4,21 +4,25 @@ using System.Linq;
 using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample.Components
-{ 
+{
 
     public class IndexViewModel : State<IndexViewModel, InventoryItemEvent>, IEquatable<IndexViewModel>
     {
         /// <summary>
-        /// This is just an example.. in real life this would be a database or something
+        ///     This is just an example.. in real life this would be a database or something
         /// </summary>
         private static readonly List<(Address address, string Name)> _inventoryItems = new List<(Address, string)>
         {
             (new Address(Guid.NewGuid()), "First item"),
-            (new Address(Guid.NewGuid()), "Second item"),
+            (new Address(Guid.NewGuid()), "Second item")
         };
 
         public IEnumerable<(Address, string)> InventoryItems => _inventoryItems;
 
+        public bool Equals(IndexViewModel other)
+        {
+            return InventoryItems.SequenceEqual(other.InventoryItems);
+        }
 
 
         public IndexViewModel Apply(InventoryItemEvent @event)
@@ -40,11 +44,6 @@ namespace Radix.Blazor.Sample.Components
             }
 
             return this;
-        }
-
-        public bool Equals(IndexViewModel other)
-        {
-            return InventoryItems.SequenceEqual(other.InventoryItems);
         }
     }
 }

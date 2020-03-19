@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Tests.Models;
@@ -9,7 +8,7 @@ using static Radix.Blazor.Html.Components;
 
 namespace Radix.Blazor.Sample.Components
 {
-    [Route("Add")]
+    [Route("/Add")]
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
     {
         protected override Node View(BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext, AddInventoryItemViewModel currentViewModel)
@@ -30,17 +29,4 @@ namespace Radix.Blazor.Sample.Components
         }
     }
 
-    public class AddInventoryItemViewModel : State<AddInventoryItemViewModel, InventoryItemEvent>, IEquatable<AddInventoryItemViewModel>
-    {
-
-        public bool Equals(AddInventoryItemViewModel other)
-        {
-            return true;
-        }
-
-        public AddInventoryItemViewModel Apply(InventoryItemEvent @event)
-        {
-            return new AddInventoryItemViewModel();
-        }
-    }
 }

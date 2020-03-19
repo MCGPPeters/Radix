@@ -41,20 +41,17 @@ namespace Radix.Tests
             {
                 appendedEvents.AddRange(events);
                 completionSource.SetResult(appendedEvents);
-                return Task.FromResult(Ok<Version, SaveEventsError>(1));
+                return Task.FromResult(Ok<Version, AppendEventsError>(1));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
-            OnConflictingCommandRejected<InventoryItemCommand, InventoryItemEvent> onConflictingCommandRejected = _ => Task.FromResult(Unit.Instance);
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     findConflict,
-                    onConflictingCommandRejected,
-                    garbageCollectionSettings),
-                new CurrentThreadTaskScheduler());
+                    garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = await context.CreateAggregate<InventoryItem>();
             await Task.Delay(TimeSpan.FromSeconds(1));

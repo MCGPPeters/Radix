@@ -8,8 +8,9 @@
             Value = value;
         }
 
-        public Name Name { get; set; }
         public object Value { get; }
+
+        public Name Name { get; set; }
 
         public void Deconstruct(out Name name, out object value)
 

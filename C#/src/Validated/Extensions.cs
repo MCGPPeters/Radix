@@ -11,7 +11,7 @@ namespace Radix.Validated
             return new Valid<T>(t);
         }
 
-        public static Validated<T> Invalid<T>(IEnumerable<string> reasons)
+        public static Validated<T> Invalid<T>(params string[] reasons)
         {
             return new Invalid<T>(reasons);
         }
@@ -75,7 +75,7 @@ namespace Radix.Validated
                 (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid(f(x)),
                 (Invalid<Func<T, TResult>>(var error), Valid<T>(_)) => Invalid<TResult>(error),
                 (Valid<Func<T, TResult>>(_), Invalid<T>(var error)) => Invalid<TResult>(error),
-                (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError)),
+                (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError).ToArray()),
                 _ => throw new NotSupportedException("Unlikely")
             };
         }
@@ -99,7 +99,7 @@ namespace Radix.Validated
 
         }
 
-        public static IEnumerable<List<string>> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)
+        public static IEnumerable<string[]> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)
         {
             foreach (var validated in xs)
             {

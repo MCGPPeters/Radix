@@ -15,7 +15,7 @@ namespace Radix.Tests
 
             return person.Age >= 18
                 ? Valid(person)
-                : Invalid<Person>(new List<string> {"Must have a valid age"});
+                : Invalid<Person>("Must have a valid age");
         }
 
         [Fact(
@@ -28,15 +28,15 @@ namespace Radix.Tests
                     .Apply(
                         11 >= 18
                             ? Valid(18)
-                            : Invalid<int>(new List<string> {"Must have a valid age"}))
+                            : Invalid<int>("Must have a valid age"))
                     .Apply(
                         !string.IsNullOrWhiteSpace("")
                             ? Valid("")
-                            : Invalid<string>(new List<string> {"Must have a valid first name"}))
+                            : Invalid<string>("Must have a valid first name"))
                     .Apply(
                         !string.IsNullOrWhiteSpace("Doe")
                             ? Valid("")
-                            : Invalid<string>(new List<string> {"Must have a valid last name"}));
+                            : Invalid<string>("Must have a valid last name"));
 
 
             //Func<Person, Person> create2 = _ =>  person;

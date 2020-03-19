@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace Radix
 {
@@ -12,6 +14,7 @@ namespace Radix
     /// </typeparam>
     /// <typeparam name="TEvent">The type of events the aggregate root generates</typeparam>
     /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
+    /// <typeparam name="TError"></typeparam>
     public interface Aggregate<out TState, TEvent, TCommand> : State<TState, TEvent>
         where TState : IEquatable<TState>, new()
         where TEvent : Event
@@ -25,7 +28,7 @@ namespace Radix
         /// </summary>
         /// <param name="commandDescriptor"></param>
         /// <returns></returns>
-        TEvent[] Decide(CommandDescriptor<TCommand> commandDescriptor);
+        Task<Result<TEvent[], CommandDecisionError>> Decide(CommandDescriptor<TCommand> commandDescriptor);
     }
 
 }

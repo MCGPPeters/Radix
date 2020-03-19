@@ -5,7 +5,6 @@ using Radix.Blazor.Html;
 
 namespace Radix.Blazor
 {
-
     public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>
         where TEvent : Event
         where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
@@ -56,7 +55,7 @@ namespace Radix.Blazor
 
 
         /// <summary>
-        /// This function is called whenever it is decided the state of the viewmodel has cha 
+        ///     This function is called whenever it is decided the state of the viewmodel has cha
         /// </summary>
         /// <param name="boundedContext"></param>
         /// <param name="currentViewModel"></param>

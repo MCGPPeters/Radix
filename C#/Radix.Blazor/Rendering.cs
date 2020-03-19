@@ -51,9 +51,7 @@ namespace Radix.Blazor
                             renderTreeBuilder =>
                             {
                                 foreach (var elementChild in component.Children)
-                                {
                                     RenderNode(currentComponent, renderTreeBuilder, sequence, elementChild);
-                                }
                             });
                         builder.AddAttribute(sequence, "ChildContent", fragment);
                     }

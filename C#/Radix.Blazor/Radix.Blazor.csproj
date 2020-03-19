@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Router\" />
+    <Folder Include="Routing\" />
   </ItemGroup>
 
 </Project>
