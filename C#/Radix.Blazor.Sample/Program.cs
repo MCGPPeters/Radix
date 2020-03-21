@@ -19,10 +19,10 @@ namespace Radix.Blazor.Sample
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddBaseAddressHttpClient();
 
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             var boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                 new SqlStreamStore<InventoryItemEvent>(),
-                findConflict,
+                checkForConflict,
                 new GarbageCollectionSettings());
             var boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
 

@@ -22,7 +22,7 @@ namespace Radix
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
-    public class BoundedContext<TCommand, TEvent> : IDisposable where TEvent : Event
+    public class BoundedContext<TCommand, TEvent> : IDisposable where TEvent : Event where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
         private readonly Dictionary<Address, Agent<TCommand, TEvent>> _registry = new Dictionary<Address, Agent<TCommand, TEvent>>();
@@ -61,7 +61,7 @@ namespace Radix
                 _registry.Remove(deactivatedAgent);
         }
 
-        public async Task<Address> CreateAggregate<TState>()
+        public async Task<Address> Create<TState>()
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
             var address = new Address(Guid.NewGuid());
@@ -81,7 +81,7 @@ namespace Radix
         public async Task<Address> GetAggregate<TState>()
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-            return await CreateAggregate<TState>();
+            return await Create<TState>();
         }
 
         public async Task<Result<TEvent[], string[]>> Send<TState>(CommandDescriptor<TCommand> commandDescriptor)

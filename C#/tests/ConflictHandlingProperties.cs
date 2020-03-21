@@ -6,9 +6,11 @@ using FluentAssertions;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
+using Radix.Validated;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Option.Extensions;
+using static Radix.Validated.Extensions;
 
 namespace Radix.Tests
 {
@@ -53,22 +55,26 @@ namespace Radix.Tests
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => AsyncEnumerable.Empty<EventDescriptor<InventoryItemEvent>>();
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
-                    findConflict,
+                    checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.CreateAggregate<InventoryItem>();
+            var inventoryItem = await context.Create<InventoryItem>();
 
-            InventoryItemCommand command = new CreateInventoryItem("Product 1", true, 0);
-            IVersion expectedVersion = new AnyVersion();
-            await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, command, expectedVersion));
-            InventoryItemCommand command1 = new CheckInItemsToInventory(10);
-            IVersion expectedVersion1 = new AnyVersion();
-            await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, command1, expectedVersion1));
+            var item = CreateInventoryItem.Create("Product 1", true, 0);
+            var command = Command<InventoryItemCommand>.Create(() => item);
+            switch (command)
+            {
+                case Valid<Command<InventoryItemCommand>> validCommand:
+                    IVersion expectedVersion = new AnyVersion();
+                    await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    break;
+            }
+            
 
             eventStream.Should().Equal(
                 new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
@@ -88,27 +94,33 @@ namespace Radix.Tests
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = FindConflict;
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
 
             // for testing purposes make the aggregate block the current thread while processing
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
-                    findConflict,
+                    checkForConflict,
                     garbageCollectionSettings));
-            var inventoryItem = await context.CreateAggregate<InventoryItem>();
-            Version expectedVersion = 2L;
-            InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(10);
 
-            var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
-
-            switch (result)
+            var inventoryItem = await context.Create<InventoryItem>();
+            var checkin = CheckInItemsToInventory.Create(10);
+            var command = Command<InventoryItemCommand>.Create(() => checkin);
+            switch (command)
             {
-                case Ok<InventoryItemEvent[], string[]>(var events):   
-                    events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
-                    break;
-                case Error<InventoryItemEvent[], string[]>(var errors):
-                    errors.Should().Contain("Just another conflict");
+                case Valid<Command<InventoryItemCommand>> validCommand:
+                    Version expectedVersion = 2L;
+                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    
+                    switch (result)
+                    {
+                        case Ok<InventoryItemEvent[], string[]>(var events):
+                            events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
+                            break;
+                        case Error<InventoryItemEvent[], string[]>(var errors):
+                            errors.Should().Contain("Just another conflict");
+                            break;
+                    }
                     break;
             }
         }
@@ -135,21 +147,34 @@ namespace Radix.Tests
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
-                    findConflict,
+                    checkForConflict,
                     garbageCollectionSettings));
-            // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.CreateAggregate<InventoryItem>();
-            Version expectedVersion = 2L;
-            InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(10);
 
-            var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
+            var inventoryItem = await context.Create<InventoryItem>();
+            var checkin = CheckInItemsToInventory.Create(10);
+            var command = Command<InventoryItemCommand>.Create(() => checkin);
+            switch (command)
+            {
+                case Valid<Command<InventoryItemCommand>> validCommand:
+                    Version expectedVersion = 2L;
+                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
 
-            result.Select(events => events.Should().Equal(new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }));
+                    switch (result)
+                    {
+                        case Ok<InventoryItemEvent[], string[]>(var events):
+                            events.Should().Equal((new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }, "the event should be appended"));
+                            break;
+                        case Error<InventoryItemEvent[], string[]>(var errors):
+                            errors.Should().BeEmpty();
+                            break;
+                    }
+                    break;
+            }
         }
 
         [Fact(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
@@ -164,24 +189,35 @@ namespace Radix.Tests
 
             // event stream is at version 3
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, eventDescriptors) =>
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
-                    findConflict,
+                    checkForConflict,
                     garbageCollectionSettings));
-            // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.CreateAggregate<InventoryItem>();
 
-            // expected version is 2
-            Version expectedVersion = 2L;
+            var inventoryItem = await context.Create<InventoryItem>();
+            var checkin = CheckInItemsToInventory.Create(10);
+            var command = Command<InventoryItemCommand>.Create(() => checkin);
+            switch (command)
+            {
+                case Valid<Command<InventoryItemCommand>> validCommand:
+                    Version expectedVersion = 2L;
+                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
 
-            InventoryItemCommand inventoryItemCommand = new CheckInItemsToInventory(10);
-            var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
-
-            result.Select(events => events.Should().Equal(new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }));
+                    switch (result)
+                    {
+                        case Ok<InventoryItemEvent[], string[]>(var events):
+                            events.Should().Equal((new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }, "the event should be appended"));
+                            break;
+                        case Error<InventoryItemEvent[], string[]>(var errors):
+                            errors.Should().BeEmpty();
+                            break;
+                    }
+                    break;
+            }
         }
 
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
@@ -194,22 +230,36 @@ namespace Radix.Tests
                 return Task.FromResult(Ok<Version, AppendEventsError>(1));
             };
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (command, eventDescriptors) =>
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
-                    findConflict,
+                    checkForConflict,
                     garbageCollectionSettings));
-            // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.CreateAggregate<InventoryItem>();
-            Version expectedVersion = 1L;
-            InventoryItemCommand inventoryItemCommand = new CreateInventoryItem("Product 1", true, 0);
 
-            var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, inventoryItemCommand, expectedVersion));
+            var inventoryItem = await context.Create<InventoryItem>();
 
-            result.Select(events => events.Should().Equal(new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 0, inventoryItem) }));
+            var item = CreateInventoryItem.Create("Product 1", true, 0);
+            var command = Command<InventoryItemCommand>.Create(() => item);
+            switch (command)
+            {
+                case Valid<Command<InventoryItemCommand>> validCommand:
+                    IVersion expectedVersion = new AnyVersion();
+                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    switch (result)
+                    {
+                        case Ok<InventoryItemEvent[], string[]>(var events):
+                            events.Should().Equal(
+                                new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
+                            break;
+                        case Error<InventoryItemEvent[], string[]>(var errors):
+                            errors.Should().BeEmpty();
+                            break;
+                    }
+                    break;
+            }
         }
     }
 }

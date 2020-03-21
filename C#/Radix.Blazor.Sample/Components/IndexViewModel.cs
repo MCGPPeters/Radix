@@ -25,25 +25,32 @@ namespace Radix.Blazor.Sample.Components
         }
 
 
-        public IndexViewModel Apply(InventoryItemEvent @event)
+        public IndexViewModel Apply(params InventoryItemEvent[] events)
         {
-            (Address address, string Name) item;
-            switch (@event)
-            {
-                case InventoryItemCreated inventoryItemCreated:
-                    _inventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
-                    break;
-                case InventoryItemDeactivated inventoryItemDeactivated:
-                    item = _inventoryItems.Find(item => item.address.Equals(inventoryItemDeactivated.Address));
-                    _inventoryItems.Remove(item);
-                    break;
-                case InventoryItemRenamed inventoryItemRenamed:
-                    item = _inventoryItems.Find(item => item.address.Equals(inventoryItemRenamed.Address));
-                    item.Name = inventoryItemRenamed.Name;
-                    break;
-            }
+            return events.Aggregate(
+                this,
+                (_, @event) =>
+                {
+                    (Address address, string Name) item;
+                    switch (@event)
+                    {
+                        case InventoryItemCreated inventoryItemCreated:
+                            _inventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
+                            break;
+                        case InventoryItemDeactivated _:
+                            item = _inventoryItems.Find(item => item.address.Equals(@event.Address));
+                            _inventoryItems.Remove(item);
+                            break;
+                        case InventoryItemRenamed inventoryItemRenamed:
+                            item = _inventoryItems.Find(item => item.address.Equals(inventoryItemRenamed.Address));
+                            item.Name = inventoryItemRenamed.Name;
+                            break;
+                        default:
+                            throw new NotSupportedException("Unknown event");
+                    }
 
-            return this;
+                    return this;
+                });
         }
     }
 }

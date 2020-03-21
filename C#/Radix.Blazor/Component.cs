@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.JSInterop;
 using Radix.Blazor.Html;
 
 namespace Radix.Blazor
@@ -8,6 +9,7 @@ namespace Radix.Blazor
     public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>
         where TEvent : Event
         where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
+        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         private bool _disposedValue;
 
@@ -16,6 +18,8 @@ namespace Radix.Blazor
         [Inject]public BoundedContext<TCommand, TEvent>? BoundedContext { get; set; }
 
         [Inject]public ReadModel<TViewModel, TEvent>? ReadModel { get; set; }
+
+        [Inject] public IJSRuntime JSRuntime { get; set; }
 
 
         protected TViewModel OldViewModel { get; set; }
@@ -57,10 +61,10 @@ namespace Radix.Blazor
         /// <summary>
         ///     This function is called whenever it is decided the state of the viewmodel has cha
         /// </summary>
-        /// <param name="boundedContext"></param>
+        /// <param name="context"></param>
         /// <param name="currentViewModel"></param>
         /// <returns></returns>
-        protected abstract Node View(BoundedContext<TCommand, TEvent> boundedContext, TViewModel currentViewModel);
+        protected abstract Node View(BoundedContext<TCommand, TEvent> context, TViewModel currentViewModel);
 
         protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel)
         {

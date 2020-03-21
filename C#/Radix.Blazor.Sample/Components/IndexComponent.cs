@@ -13,7 +13,7 @@ namespace Radix.Blazor.Sample.Components
     // ReSharper disable once ClassNeverInstantiated.Global : Instantiated via DI
     public class IndexComponent : BoundedContextComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
     {
-        protected override Node View(BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext, IndexViewModel currentViewModel)
+        protected override Node View(BoundedContext<InventoryItemCommand, InventoryItemEvent> context, IndexViewModel currentViewModel)
         {
             Node[] InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 

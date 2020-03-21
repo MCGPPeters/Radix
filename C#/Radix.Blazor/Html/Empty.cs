@@ -1,8 +1,7 @@
-﻿using Radix.Blazor.Html;
-
-namespace Radix.Blazor
+﻿namespace Radix.Blazor.Html
 {
     public readonly struct Empty : Node
     {
+       
     }
 }
