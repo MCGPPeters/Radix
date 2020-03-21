@@ -5,15 +5,15 @@ namespace Radix
     {
 
         public BoundedContextSettings(EventStore<TEvent> eventStore,
-            FindConflict<TCommand, TEvent> findConflict, 
+            CheckForConflict<TCommand, TEvent> checkForConflict, 
             GarbageCollectionSettings garbageCollectionSettings)
         {
             EventStore = eventStore;
-            FindConflict = findConflict;
+            CheckForConflict = checkForConflict;
             GarbageCollectionSettings = garbageCollectionSettings;
         }
 
-        public FindConflict<TCommand, TEvent> FindConflict { get; }
+        public CheckForConflict<TCommand, TEvent> CheckForConflict { get; }
         public GarbageCollectionSettings GarbageCollectionSettings { get; }
 
         public EventStore<TEvent> EventStore { get; }

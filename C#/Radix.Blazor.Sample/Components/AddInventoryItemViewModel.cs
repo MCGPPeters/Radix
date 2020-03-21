@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Radix.Tests.Models;
 
 namespace Radix.Blazor.Sample.Components
@@ -11,9 +12,13 @@ namespace Radix.Blazor.Sample.Components
             return true;
         }
 
-        public AddInventoryItemViewModel Apply(InventoryItemEvent @event)
+        public AddInventoryItemViewModel Apply(params InventoryItemEvent[] @event)
         {
             return new AddInventoryItemViewModel();
         }
+
+        public string? InventoryItemName { get; set; }
+        public int InventoryItemCount { get; set; }
+        public IEnumerable<string> Errors { get; set; }
     }
 }

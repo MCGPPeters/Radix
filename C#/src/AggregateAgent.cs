@@ -12,7 +12,7 @@ using static Radix.Result.Extensions;
 namespace Radix
 {
     internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand, TEvent>
-        where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() where TEvent : Event
+        where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() where TEvent : Event where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
 
         private readonly ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], string[]>>)> _actionBlock;
@@ -46,7 +46,7 @@ namespace Radix
                     var eventsSince = _boundedContextSettings.EventStore.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version).ConfigureAwait(false);
                     await foreach (var eventDescriptor in eventsSince)
                     {
-                        var optionalConflict = _boundedContextSettings.FindConflict(commandDescriptor.Command, eventDescriptor);
+                        var optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
                         switch (optionalConflict)
                         {
                             case None<Conflict<TCommand, TEvent>> _:

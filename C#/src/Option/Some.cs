@@ -1,18 +1,13 @@
-using System;
-
 namespace Radix.Option
 {
 
-    public readonly struct Some<T> : Option<T>
+    public readonly struct Some<T> : Option<T> where T : notnull
     {
         internal T Value { get; }
 
         internal Some(T value)
         {
-            if (value is object)
-                Value = value;
-            else
-                throw new ArgumentNullException(nameof(value));
+            Value = value;
         }
 
         /// <summary>

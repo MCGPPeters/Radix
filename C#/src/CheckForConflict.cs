@@ -7,5 +7,5 @@ namespace Radix
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
     /// <returns></returns>
-    public delegate Option<Conflict<TCommand, TEvent>> FindConflict<TCommand, TEvent>(TCommand command, EventDescriptor<TEvent> eventDescriptor) where TEvent : Event;
+    public delegate Option<Conflict<TCommand, TEvent>> CheckForConflict<TCommand, TEvent>(TCommand command, EventDescriptor<TEvent> eventDescriptor) where TEvent : Event;
 }

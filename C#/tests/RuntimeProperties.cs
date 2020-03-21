@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Radix.Monoid;
+using Radix.Result;
 using Radix.Tests.Models;
+using Radix.Validated;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Option.Extensions;
@@ -36,30 +39,44 @@ namespace Radix.Tests
         public async Task Test1()
         {
             var appendedEvents = new List<InventoryItemEvent>();
-            var completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
-                completionSource.SetResult(appendedEvents);
                 return Task.FromResult(Ok<Version, AppendEventsError>(1));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-            FindConflict<InventoryItemCommand, InventoryItemEvent> findConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
-                    findConflict,
+                    checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.CreateAggregate<InventoryItem>();
+            var inventoryItem = await context.Create<InventoryItem>();
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, new RemoveItemsFromInventory(1), new Version(3L)));
-            await completionSource.Task;
+            var removeItems = RemoveItemsFromInventory.Create(1);
+            var command = Command<InventoryItemCommand>.Create(() => removeItems);
 
-            appendedEvents.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, inventoryItem)});
+            switch (command)
+            {
+                case Valid<Command<InventoryItemCommand>> validCommand:
+                    IVersion expectedVersion = new AnyVersion();
+                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, new Version(3L)));
+                    switch (result)
+                    {
+                        case Ok<InventoryItemEvent[], string[]>(var events):
+                            events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, inventoryItem)});
+                            break;
+                        case Error<InventoryItemEvent[], string[]>(var errors):
+                            errors.Should().BeEmpty();
+                            break;
+                    }
+
+                    break;
+            }
         }
     }
 }

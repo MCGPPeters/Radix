@@ -18,6 +18,7 @@ namespace Radix
     public interface Aggregate<out TState, TEvent, TCommand> : State<TState, TEvent>
         where TState : IEquatable<TState>, new()
         where TEvent : Event
+        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         /// <summary>
         ///     This is the place to validate (and log validation errors for instance of) a commandDescriptor and decide of any
