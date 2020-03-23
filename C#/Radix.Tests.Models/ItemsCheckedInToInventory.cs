@@ -3,7 +3,7 @@ namespace Radix.Tests.Models
     public class ItemsCheckedInToInventory : InventoryItemEvent
     {
 
-        public ItemsCheckedInToInventory(int amount, Address address) : base(address)
+        public ItemsCheckedInToInventory(int amount, Address aggregate) : base(aggregate)
         {
             Amount = amount;
 

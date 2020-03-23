@@ -15,7 +15,7 @@ namespace Radix
         where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() where TEvent : Event where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
 
-        private readonly ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], string[]>>)> _actionBlock;
+        private readonly ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
@@ -33,7 +33,7 @@ namespace Radix
             LastActivity = DateTimeOffset.Now;
             _state = initialState;
 
-            _actionBlock = new ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], string[]>>)>(
+            _actionBlock = new ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
                 {
                     var (commandDescriptor, taskCompletionSource) = input;
@@ -53,7 +53,7 @@ namespace Radix
                                 expectedVersion = eventDescriptor.Version;
                                 break;
                             case Some<Conflict<TCommand, TEvent>>(var conflict):
-                                taskCompletionSource.SetResult(Error<TEvent[], string[]>(new []{conflict.Reason}));
+                                taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {conflict.Reason}));
                                 return;
                         }
                     }
@@ -68,7 +68,7 @@ namespace Radix
                                 case Ok<Version, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
                                     _state = events.Aggregate(_state, (s, @event) => s.Apply(@event));
-                                    taskCompletionSource.SetResult(Ok<TEvent[], string[]>(events));
+                                    taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;
                                 case Error<Version, AppendEventsError>(var error):
                                     switch (error)
@@ -86,7 +86,7 @@ namespace Radix
 
                             break;
                         case Error<TEvent[], CommandDecisionError> (var error):
-                            taskCompletionSource.SetResult(Error<TEvent[], string[]>(error.Messages));
+                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[]{error.Message}));
                             break;
                     }
                 }
@@ -94,9 +94,9 @@ namespace Radix
 
         }
 
-        public async Task<Result<TEvent[], string[]>> Post(CommandDescriptor<TCommand> commandDescriptor)
+        public async Task<Result<TEvent[], Error[]>> Post(CommandDescriptor<TCommand> commandDescriptor)
         {
-            var taskCompletionSource = new TaskCompletionSource<Result<TEvent[], string[]>>();
+            var taskCompletionSource = new TaskCompletionSource<Result<TEvent[], Error[]>>();
             await _actionBlock.SendAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
             return await taskCompletionSource.Task.ConfigureAwait(false);
         }

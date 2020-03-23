@@ -8,10 +8,9 @@ namespace Radix
     /// </summary>
     public class AppendEventsError : CommandProcessingError
     {
-    }
-
-    public interface CommandProcessingError
-    {
+        internal AppendEventsError(string Message) : base(Message)
+        {
+        }
     }
 
 

@@ -2,12 +2,12 @@ namespace Radix
 {
     public abstract class Event
     {
-        protected Event(Address address)
+        protected Event(Address aggregate)
         {
-            Address = address;
+            Aggregate = aggregate;
         }
 
-        public Address Address { get; }
+        public Address Aggregate { get; }
 
         public override string ToString()
         {

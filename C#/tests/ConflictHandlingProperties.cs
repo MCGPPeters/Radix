@@ -114,10 +114,10 @@ namespace Radix.Tests
                     
                     switch (result)
                     {
-                        case Ok<InventoryItemEvent[], string[]>(var events):
+                        case Ok<InventoryItemEvent[], Error[]>(var events):
                             events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
                             break;
-                        case Error<InventoryItemEvent[], string[]>(var errors):
+                        case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().Contain("Just another conflict");
                             break;
                     }
@@ -143,7 +143,7 @@ namespace Radix.Tests
                 }
 
                 calledBefore = true;
-                return Task.FromResult(Error<Version, AppendEventsError>(new OptimisticConcurrencyError()));
+                return Task.FromResult(Error<Version, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
@@ -166,10 +166,10 @@ namespace Radix.Tests
 
                     switch (result)
                     {
-                        case Ok<InventoryItemEvent[], string[]>(var events):
+                        case Ok<InventoryItemEvent[], Error[]>(var events):
                             events.Should().Equal((new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }, "the event should be appended"));
                             break;
-                        case Error<InventoryItemEvent[], string[]>(var errors):
+                        case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }
@@ -209,10 +209,10 @@ namespace Radix.Tests
 
                     switch (result)
                     {
-                        case Ok<InventoryItemEvent[], string[]>(var events):
+                        case Ok<InventoryItemEvent[], Error[]>(var events):
                             events.Should().Equal((new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }, "the event should be appended"));
                             break;
-                        case Error<InventoryItemEvent[], string[]>(var errors):
+                        case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }
@@ -250,11 +250,11 @@ namespace Radix.Tests
                     var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
                     switch (result)
                     {
-                        case Ok<InventoryItemEvent[], string[]>(var events):
+                        case Ok<InventoryItemEvent[], Error[]>(var events):
                             events.Should().Equal(
                                 new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
                             break;
-                        case Error<InventoryItemEvent[], string[]>(var errors):
+                        case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }

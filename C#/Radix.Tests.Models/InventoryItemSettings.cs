@@ -6,7 +6,7 @@ namespace Radix.Tests.Models
     /// <summary>
     ///     The setting class is needed for signaling the found actual concurrency conflicts
     /// </summary>
-    public class InventoryItemSettings : AggregateSettings<InventoryItemCommand, InventoryItemEvent>
+    public class InventoryItemSettings : AggregateSettings
     {
         private readonly TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> _taskCompletionSource;
 

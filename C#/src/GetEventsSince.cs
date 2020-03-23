@@ -5,7 +5,7 @@ namespace Radix
     /// <summary>
     ///     Get all event descriptors for an aggregate since (excluding) the supplied version
     /// </summary>
-    /// <param name="address">Address of the aggregate</param>
+    /// <param name="address">Aggregate of the aggregate</param>
     /// <param name="version"></param>
     /// <typeparam name="TEvent"></typeparam>
     /// <returns></returns>

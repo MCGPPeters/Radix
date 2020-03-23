@@ -19,7 +19,7 @@ namespace Radix.Blazor
 
         [Inject]public ReadModel<TViewModel, TEvent>? ReadModel { get; set; }
 
-        [Inject] public IJSRuntime JSRuntime { get; set; }
+        [Inject] public IJSRuntime? JSRuntime { get; set; }
 
 
         protected TViewModel OldViewModel { get; set; }
@@ -52,9 +52,13 @@ namespace Radix.Blazor
 
         protected override void OnInitialized()
         {
-            CurrentViewModel = ReadModel.State;
-            OldViewModel = CurrentViewModel;
-            _subscription = ReadModel.Subscribe(this);
+            if (ReadModel is object)
+            {
+                CurrentViewModel = ReadModel.State;
+                OldViewModel = CurrentViewModel;
+                _subscription = ReadModel.Subscribe(this);
+            }
+
         }
 
 
@@ -80,7 +84,8 @@ namespace Radix.Blazor
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            Rendering.RenderNode(this, builder, 0, View(BoundedContext, CurrentViewModel));
+            if (BoundedContext is object)
+                Rendering.RenderNode(this, builder, 0, View(BoundedContext, CurrentViewModel));
         }
 
         protected virtual void Dispose(bool disposing)
@@ -88,7 +93,8 @@ namespace Radix.Blazor
             if (!_disposedValue)
             {
                 if (disposing)
-                    _subscription.Dispose();
+                    if (_subscription is object)
+                        _subscription.Dispose();
 
                 _disposedValue = true;
             }

@@ -1,6 +1,9 @@
 namespace Radix
 {
-    public interface ForwardError : Monoid<ForwardError>
+    public class ForwardError : Error
     {
+        internal ForwardError(string Message) : base(Message)
+        {
+        }
     }
 }

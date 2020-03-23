@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Radix.Blazor.Html;
 
 namespace Radix.Blazor.Html
 {
     public delegate Node element(IEnumerable<IAttribute> attributes, params Node[] children);
 
     public delegate Node element<in T>(params T[] attributes) where T : IAttribute;
+   
 
     public static class Elements
     {
 
         public static element a = (attributes, children)
             => element(nameof(a), attributes, children);
-
+        
         public static element abbr = (attributes, children)
             => element(nameof(abbr), attributes, children);
 
@@ -414,6 +417,11 @@ namespace Radix.Blazor.Html
         public static Element element(Name name, params IAttribute[] attributes)
         {
             return new Element(name, attributes);
+        }
+        
+        public static Element element(Name name, params Node[] nodes)
+        {
+            return new Element(name, nodes);
         }
     }
 }
