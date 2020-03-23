@@ -84,7 +84,7 @@ namespace Radix
             return await Create<TState>();
         }
 
-        public async Task<Result<TEvent[], string[]>> Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
+        public async Task<Result<TEvent[], Error[]>> Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Radix.Blazor.Html;
@@ -32,6 +33,7 @@ namespace Radix.Blazor
                     builder.OpenElement(sequence, element.Name);
                     sequence += 1;
                     sequence = RenderAttributes(currentComponent, builder, sequence, element.Attributes);
+
                     foreach (var elementChild in element.Children)
                     {
                         RenderNode(currentComponent, builder, sequence, elementChild);
@@ -71,7 +73,9 @@ namespace Radix.Blazor
                 switch (attribute)
                 {
                     case Attribute (var name, var values):
-                        builder.AddAttribute(sequence++, name, values.Aggregate((current, next) => current + " " + next));
+                        var attributeValues = values as string[] ?? values.ToArray();
+                        if(attributeValues.Any())
+                            builder.AddAttribute(sequence++, name, attributeValues.Aggregate((current, next) => current + " " + next));
                         break;
                     case ComponentAttribute(var name, var value):
                         builder.AddAttribute(sequence, name, value);

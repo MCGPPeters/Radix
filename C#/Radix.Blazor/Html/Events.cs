@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Runtime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -10,10 +12,13 @@ namespace Radix.Blazor.Html
     {
         public static IAttribute @event<T>(Name name, Func<T, Task> callback) where T : EventArgs
         {
+            
+
+
             return new ExplicitAttribute(
                 name,
                 (builder, sequence, receiver) =>
-                {
+                { 
                     builder.AddAttribute(sequence, "on" + name, EventCallback.Factory.Create(receiver, callback));
                     return sequence + 1;
                 });
@@ -21,12 +26,12 @@ namespace Radix.Blazor.Html
 
         public static IAttribute focus(Func<FocusEventArgs, Task> callback)
         {
-            return @event("focus", callback);
+            return @event(nameof(focus), callback);
         }
 
         public static IAttribute blur(Func<FocusEventArgs, Task> callback)
         {
-            return @event("blur", callback);
+            return @event(nameof(blur), callback);
         }
 
         public static IAttribute focusin(Func<FocusEventArgs, Task> callback)

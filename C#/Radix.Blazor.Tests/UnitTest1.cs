@@ -17,7 +17,12 @@ namespace Radix.Blazor.Tests
             {
                 case SetInput(var text):
                     if (text is object)
-                        model.Input = text.ToString();
+                    {
+                        var modelInput = text.ToString();
+                        if (modelInput is object)
+                            model.Input = modelInput;
+                    }
+
                     return model;
                 default:
                     return model;

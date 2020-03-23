@@ -1,6 +1,9 @@
 namespace Radix
 {
-    public interface ResolveRemoteAddressError : Monoid<ResolveRemoteAddressError>
+    public class ResolveRemoteAddressError : Error
     {
+        internal ResolveRemoteAddressError(string Message) : base(Message)
+        {
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Radix
                         inventoryItemEvent =>
                         {
                             var jsonMessage = JsonSerializer.Serialize(inventoryItemEvent);
-                            var messageId = inventoryItemEvent.Address.Value;
+                            var messageId = inventoryItemEvent.Aggregate.Value;
                             return new NewStreamMessage(messageId, inventoryItemEvent.ToString(), jsonMessage);
                         }).ToArray();
 

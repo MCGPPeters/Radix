@@ -67,10 +67,10 @@ namespace Radix.Tests
                     var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, new Version(3L)));
                     switch (result)
                     {
-                        case Ok<InventoryItemEvent[], string[]>(var events):
+                        case Ok<InventoryItemEvent[], Error[]>(var events):
                             events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, inventoryItem)});
                             break;
-                        case Error<InventoryItemEvent[], string[]>(var errors):
+                        case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }

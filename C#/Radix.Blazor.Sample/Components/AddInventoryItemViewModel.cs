@@ -19,6 +19,10 @@ namespace Radix.Blazor.Sample.Components
 
         public string? InventoryItemName { get; set; }
         public int InventoryItemCount { get; set; }
-        public IEnumerable<string> Errors { get; set; }
+        public IEnumerable<Error> Errors
+        {
+            get => new List<Error>();
+            set => throw new NotImplementedException();
+        }
     }
 }

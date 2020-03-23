@@ -3,7 +3,7 @@ namespace Radix.Tests.Models
     public class InventoryItemCreated : InventoryItemEvent
     {
 
-        public InventoryItemCreated(string name, bool activated, int count, Address address) : base(address)
+        public InventoryItemCreated(string name, bool activated, int count, Address aggregate) : base(aggregate)
         {
             Name = name;
             Activated = activated;

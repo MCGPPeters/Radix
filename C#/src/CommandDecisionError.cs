@@ -2,12 +2,9 @@ namespace Radix
 {
     public class CommandDecisionError : CommandProcessingError
     {
-        public CommandDecisionError(string[] messages)
+        internal CommandDecisionError(string Message) : base(Message)
         {
-            Messages = messages;
         }
-
-        public string[] Messages { get; }
     }
 
 

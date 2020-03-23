@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Radix.Blazor.Html
 {
@@ -6,14 +7,15 @@ namespace Radix.Blazor.Html
     {
         public Attribute(Name name, params string[] values)
         {
+            
             Name = name;
-            Values = values;
+            Values = values ?? Array.Empty<string>();
         }
 
         public Name Name { get; set; }
-        public string[] Values { get; set; }
+        public IEnumerable<string> Values { get; set; }
 
-        public void Deconstruct(out Name name, out string[] values)
+        public void Deconstruct(out Name name, out IEnumerable<string> values)
 
         {
             name = Name;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -22,7 +23,7 @@ namespace Radix.Blazor.Sample.Components
             return concat(
                 h1(Enumerable.Empty<IAttribute>(), text("Add new item")),
                 Elements.form(
-                    new[] {@class("needs - validation"), novalidate()},
+                    new[] {@class("needs-validation"), novalidate()},
                     div(
                         new[] {@class("form-group")},
                         Elements.label(
@@ -41,16 +42,17 @@ namespace Radix.Blazor.Sample.Components
                             new[] {@for("countInput")},
                             text("Count")),
                         input(@class("form-control"), id("countInput"), value(currentViewModel.InventoryItemCount.ToString()))),
-                    navLinkMatchAll(
+                    button(
                         new[]
                         {
-                            @class("btn btn-primary"), href("/"),
+                            @class("btn btn-primary"),
                             on.click(
                                 async args =>
                                 {
                                     var inventoryItem = await context.Create<InventoryItem>();
                                     var item = CreateInventoryItem.Create(currentViewModel.InventoryItemName, true, currentViewModel.InventoryItemCount);
                                     var command = Command<InventoryItemCommand>.Create(() => item);
+;
                                     switch (command)
                                     {
                                         case Valid<Command<InventoryItemCommand>> validCommand:
@@ -59,42 +61,47 @@ namespace Radix.Blazor.Sample.Components
                                                 new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
                                             switch (result)
                                             {
-                                                case Ok<InventoryItemEvent[], string[]>(var events):
+                                                case Ok<InventoryItemEvent[], Error[]>(var events):
                                                     OnNext(currentViewModel.Apply(events));
                                                     break;
-                                                case Error<InventoryItemEvent[], string[]>(var errors):
+                                                case Error<InventoryItemEvent[], Error[]>(var errors):
                                                     currentViewModel.Errors = errors;
                                                     OnNext(currentViewModel);
-                                                    await JSRuntime.InvokeAsync<string>("$('.toast').toast(option)", Array.Empty<object>());
+                                                    if (JSRuntime is object)
+                                                        await JSRuntime.InvokeAsync<string>("$('.toast').toast(option)", Array.Empty<object>());
                                                     break;
                                             }
 
                                             break;
                                     }
                                 })
-                        }),
-                        text("Ok")),
-                    navLinkMatchAll(new[] {@class("btn btn-primary"), href("/")}, text("Cancel")),
-                    div(
-                        new[] {@class("toast"), attribute("data-autohide", "true")},
+                        }, text("Ok")
+                ),
+                navLinkMatchAll(new[] {@class("btn btn-primary"), href("/")}, text("Cancel")),
+                currentViewModel.Errors.Any()
+                    ? div(
+                        Enumerable.Empty<IAttribute>(),
                         div(
-                            new[] {@class("toast-header")},
-                            img(new[] {src("..."), @class("rounded-mr2"), alt("...")}),
-                            strong(new[] {@class("mr-auto")}, text("Invalid input")),
-                            small(Array.Empty<IAttribute>(), text(DateTimeOffset.UtcNow.ToString()))),
-                        div(
-                            new[] {@class("toast-body")},
-                            FormatErrorMessages(currentViewModel.Errors)
-                        )));
+                            new[] {@class("toast"), attribute("data-autohide", "true")},
+                            div(
+                                new[] {@class("toast-header")},
+                                img(new[] {src("..."), @class("rounded-mr2"), alt("...")}),
+                                strong(new[] {@class("mr-auto")}, text("Invalid input")),
+                                small(Array.Empty<IAttribute>(), text(DateTimeOffset.UtcNow.ToString()))),
+                            div(
+                                new[] {@class("toast-body")},
+                                FormatErrorMessages(currentViewModel.Errors)
+                            )))
+                    : empty));
+        }
 
-            Node FormatErrorMessages(IEnumerable<string> errors)
-            {
-                Node node = new Empty();
-                if (errors is object)
-                    node = ul(Array.Empty<IAttribute>(), errors.Select(error => li(Array.Empty<IAttribute>(), text(error))).ToArray());
+        private Node FormatErrorMessages(IEnumerable<Error> errors)
+        {
+            Node node = new Empty();
+            if (errors is object)
+                node = ul(Array.Empty<IAttribute>(), errors.Select(error => li(Array.Empty<IAttribute>(), text(error.ToString()))).ToArray());
 
-                return node;
-            }
+            return node;
         }
     }
 }

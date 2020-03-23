@@ -4,7 +4,7 @@ namespace Radix.Option
 {
     public static class Extensions
     {
-        public static Option<T> Some<T>(T value)
+        public static Option<T> Some<T>(T value) where T : notnull
         {
             return new Some<T>(value); // wrap the given value into a Some
         }
@@ -16,6 +16,8 @@ namespace Radix.Option
 
         public static Option<TResult> Bind<T, TResult>
             (this Option<T> option, Func<T, Option<TResult>> f)
+            where T : notnull
+            where TResult : notnull
         {
             return option switch
             {
@@ -27,6 +29,8 @@ namespace Radix.Option
 
         public static Option<TResult> Map<T, TResult>
             (this Option<T> option, Func<T, TResult> f)
+        where T : notnull
+        where TResult : notnull
         {
             return option switch
             {

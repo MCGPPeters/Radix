@@ -35,14 +35,14 @@ namespace Radix.Blazor.Sample.Components
                     switch (@event)
                     {
                         case InventoryItemCreated inventoryItemCreated:
-                            _inventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
+                            _inventoryItems.Add((inventoryItemCreated.Aggregate, inventoryItemCreated.Name));
                             break;
                         case InventoryItemDeactivated _:
-                            item = _inventoryItems.Find(item => item.address.Equals(@event.Address));
+                            item = _inventoryItems.Find(item => item.address.Equals(@event.Aggregate));
                             _inventoryItems.Remove(item);
                             break;
                         case InventoryItemRenamed inventoryItemRenamed:
-                            item = _inventoryItems.Find(item => item.address.Equals(inventoryItemRenamed.Address));
+                            item = _inventoryItems.Find(item => item.address.Equals(inventoryItemRenamed.Aggregate));
                             item.Name = inventoryItemRenamed.Name;
                             break;
                         default:
