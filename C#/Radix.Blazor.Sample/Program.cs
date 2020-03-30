@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using Radix.Blazor.Sample.Components;
 using Radix.Tests.Models;
 using static Radix.Option.Extensions;
@@ -15,9 +16,9 @@ namespace Radix.Blazor.Sample
     {
         public static async Task Main(string[] args)
         {
-            
+
+
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.Services.AddBaseAddressHttpClient();
 
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             var boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
@@ -32,15 +33,21 @@ namespace Radix.Blazor.Sample
             builder.Services.AddSingleton(boundedContext);
             builder.Services.AddSingleton(indexReadModel);
             builder.Services.AddSingleton(addInventoryItemReadModel);
+            builder.Services.AddSingleton(s =>
+            {
+                IJSRuntime jsRuntime = s.GetRequiredService<IJSRuntime>();
+                return new Dictionary<string, View>()
+                {
+                    { "Home", new IndexComponent(boundedContext, indexReadModel, jsRuntime) },
+                    { "Add", new AddInventoryItemComponent(boundedContext, addInventoryItemReadModel, jsRuntime) },
+                };
+            });
 
-            builder.RootComponents.Add<AddInventoryItemComponent>("#app");
+            builder.RootComponents.Add<RouterComponent<InventoryItemCommand, InventoryItemEvent>>("#app");
 
+            
 
-            var host = builder.Build();
-
-            await host.RunAsync();
+            await builder.Build().RunAsync();
         }
     }
-
-
 }
