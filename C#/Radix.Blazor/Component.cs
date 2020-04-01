@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
@@ -6,12 +7,12 @@ using Radix.Blazor.Html;
 
 namespace Radix.Blazor
 {
-    public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel>, View where TEvent : Event
+    public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IComponent, IDisposable, IObserver<TViewModel>, View where TEvent : Event
         where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         private bool _disposedValue;
-        private readonly IDisposable? _subscription;
+        private IDisposable? _subscription;
 
         protected Component(BoundedContext<TCommand, TEvent> boundedContext, ReadModel<TViewModel, TEvent> readModel, IJSRuntime jsRuntime)
         {
@@ -20,7 +21,6 @@ namespace Radix.Blazor
             OldViewModel = readModel.State;
             CurrentViewModel = readModel.State;
             JSRuntime = jsRuntime;
-            _subscription = ReadModel.Subscribe(this);
         }
 
         public BoundedContext<TCommand, TEvent> BoundedContext { get; }
@@ -33,6 +33,7 @@ namespace Radix.Blazor
         protected TViewModel OldViewModel { get; set; }
         protected TViewModel CurrentViewModel { get; set; }
 
+        
 
         public void Dispose()
         {
@@ -56,6 +57,13 @@ namespace Radix.Blazor
             if (ShouldRender(OldViewModel, CurrentViewModel))
                 // force render
                 StateHasChanged();
+        }
+
+
+        protected override void OnAfterRender(bool firstRender)
+        {
+            _subscription = ReadModel.Subscribe(this);
+            base.OnAfterRender(firstRender);
         }
 
         /// <summary>

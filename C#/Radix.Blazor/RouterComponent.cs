@@ -20,7 +20,6 @@ namespace Radix.Blazor
         public void Attach(RenderHandle renderHandle)
         {
             _renderHandle = renderHandle;
-            Console.Out.WriteLine("Attach");
 
             NavigationManager.LocationChanged += OnLocationChanged;
 

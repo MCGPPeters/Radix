@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -38,7 +39,7 @@ namespace Radix.Blazor.Sample.Components
                         input(
                             @class("form-control"),
                             id("nameInput"),
-                            on.change(
+                            on.input(
                                 args =>
                                 {
                                     currentViewModel.InventoryItemName = args.Value.ToString();
@@ -58,7 +59,7 @@ namespace Radix.Blazor.Sample.Components
                                     var inventoryItem = await BoundedContext.Create<InventoryItem>();
                                     var item = CreateInventoryItem.Create(currentViewModel.InventoryItemName, true, currentViewModel.InventoryItemCount);
                                     var command = Command<InventoryItemCommand>.Create(() => item);
-                                    ;
+                                    
                                     switch (command)
                                     {
                                         case Valid<Command<InventoryItemCommand>> validCommand:
@@ -72,6 +73,7 @@ namespace Radix.Blazor.Sample.Components
                                                     break;
                                                 case Error<InventoryItemEvent[], Error[]>(var errors):
                                                     currentViewModel.Errors = errors;
+                                                    
                                                     OnNext(currentViewModel);
                                                     if (JSRuntime is object)
                                                         await JSRuntime.InvokeAsync<string>("$('.toast').toast(option)", Array.Empty<object>());

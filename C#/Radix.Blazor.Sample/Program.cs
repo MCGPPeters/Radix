@@ -36,6 +36,7 @@ namespace Radix.Blazor.Sample
             builder.Services.AddSingleton(s =>
             {
                 IJSRuntime jsRuntime = s.GetRequiredService<IJSRuntime>();
+
                 return new Dictionary<string, View>()
                 {
                     { "Home", new IndexComponent(boundedContext, indexReadModel, jsRuntime) },
@@ -44,8 +45,6 @@ namespace Radix.Blazor.Sample
             });
 
             builder.RootComponents.Add<RouterComponent<InventoryItemCommand, InventoryItemEvent>>("#app");
-
-            
 
             await builder.Build().RunAsync();
         }
