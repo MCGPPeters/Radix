@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Radix.Tests.Models;
+using System;
 using System.Collections.Generic;
-using Radix.Tests.Models;
 
-namespace Radix.Blazor.Sample.Components
+namespace Radix.Blazor.Inventory.Pages
 {
     public class AddInventoryItemViewModel : State<AddInventoryItemViewModel, InventoryItemEvent>, IEquatable<AddInventoryItemViewModel>
     {
@@ -17,7 +17,7 @@ namespace Radix.Blazor.Sample.Components
             return new AddInventoryItemViewModel();
         }
 
-        public string? InventoryItemName { get; set; }
+        public string InventoryItemName { get; set; }
         public int InventoryItemCount { get; set; }
         public IEnumerable<Error> Errors
         {

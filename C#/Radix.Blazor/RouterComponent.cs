@@ -6,13 +6,10 @@ using Microsoft.AspNetCore.Components.Routing;
 
 namespace Radix.Blazor
 {
-    public class RouterComponent<TCommand, TEvent> : IComponent, IDisposable
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand> where TEvent : Event
+    public class RouterComponent : IComponent, IDisposable
     {
         private bool _navigationInterceptionEnabled;
         private RenderHandle _renderHandle;
-
-        [Inject]public BoundedContext<TCommand, TEvent>? BoundedContext { get; set; }
         [Inject]private NavigationManager NavigationManager { get; set; }
         [Inject]private INavigationInterception NavigationInterception { get; set; }
         [Inject]private Dictionary<string, View> UriComponentMap { get; set; }
@@ -49,13 +46,11 @@ namespace Radix.Blazor
 
             Console.Out.WriteLine("OnLocationChanged");
 
-
             _renderHandle.Render(builder =>
             {
                 View currentComponent = UriComponentMap[relativeUri];
                 Rendering.RenderNode(currentComponent, builder, 0, currentComponent.Render());
             });
-
         }
 
         #region IDisposable Support
@@ -78,6 +73,11 @@ namespace Radix.Blazor
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
+        }
+
+        public Task OnAfterRenderAsync()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -14,26 +14,25 @@ namespace Radix.Blazor
         private bool _disposedValue;
         private IDisposable? _subscription;
 
-        protected Component(BoundedContext<TCommand, TEvent> boundedContext, ReadModel<TViewModel, TEvent> readModel, IJSRuntime jsRuntime)
-        {
-            BoundedContext = boundedContext;
-            ReadModel = readModel;
-            OldViewModel = readModel.State;
-            CurrentViewModel = readModel.State;
-            JSRuntime = jsRuntime;
-        }
+        [Inject]
+        public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
 
-        public BoundedContext<TCommand, TEvent> BoundedContext { get; }
+        [Inject]
+        public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
 
-        public ReadModel<TViewModel, TEvent> ReadModel { get; }
-
-        public IJSRuntime JSRuntime { get; }
+        [Inject]
+        public IJSRuntime JSRuntime { get; set; }
 
 
         protected TViewModel OldViewModel { get; set; }
         protected TViewModel CurrentViewModel { get; set; }
 
-        
+        protected override void OnInitialized()
+        {
+            CurrentViewModel = ReadModel.State;
+            OldViewModel = CurrentViewModel;
+            base.OnInitialized();
+        }
 
         public void Dispose()
         {
@@ -90,8 +89,7 @@ namespace Radix.Blazor
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            if (BoundedContext is object)
-                Rendering.RenderNode(this, builder, 0, Render(CurrentViewModel));
+            Rendering.RenderNode(this, builder, 0, Render(CurrentViewModel));
         }
 
         protected virtual void Dispose(bool disposing)

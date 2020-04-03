@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Radix.Tests.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Radix.Tests.Models;
 
-namespace Radix.Blazor.Sample.Components
+namespace Radix.Blazor.Inventory.Pages
 {
 
     public class IndexViewModel : State<IndexViewModel, InventoryItemEvent>, IEquatable<IndexViewModel>

@@ -12,9 +12,6 @@ namespace Radix.Blazor.Html
     {
         public static IAttribute @event<T>(Name name, Func<T, Task> callback) where T : EventArgs
         {
-            
-
-
             return new ExplicitAttribute(
                 name,
                 (builder, sequence, receiver) =>

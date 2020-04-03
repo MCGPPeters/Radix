@@ -1,40 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
+using Radix.Blazor.Inventory.Pages;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
 using Radix.Validated;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Blazor.Html.Components;
 using static Radix.Blazor.Html.Elements;
 
 namespace Radix.Blazor.Sample.Components
 {
+    [Route("/Add")]
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
     {
-
-
-        public AddInventoryItemComponent(BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext,
-            ReadModel<AddInventoryItemViewModel, InventoryItemEvent> readModel, IJSRuntime jsRuntime) : base(boundedContext, readModel, jsRuntime)
-        {
-        }
-
         public override Node Render(AddInventoryItemViewModel currentViewModel)
         {
+            
             return concat(
                 h1(Enumerable.Empty<IAttribute>(), text("Add new item")),
                 Elements.form(
-                    new[] {@class("needs-validation"), novalidate()},
+                    new[] { @class("needs-validation"), novalidate() },
                     div(
-                        new[] {@class("form-group")},
+                        new[] { @class("form-group") },
                         Elements.label(
-                            new[] {@for("nameInput")},
+                            new[] { @for("nameInput") },
                             text("Name")),
                         input(
                             @class("form-control"),
@@ -46,9 +40,15 @@ namespace Radix.Blazor.Sample.Components
                                     return Task.CompletedTask;
                                 })),
                         Elements.label(
-                            new[] {@for("countInput")},
+                            new[] { @for("countInput") },
                             text("Count")),
-                        input(@class("form-control"), id("countInput"), value(currentViewModel.InventoryItemCount.ToString()))),
+                        input(@class("form-control"), id("countInput"), value(currentViewModel.InventoryItemCount.ToString()), on.input(
+                                args =>
+                                {
+                                    Console.Out.WriteLine(args.Value);
+                                    currentViewModel.InventoryItemCount = int.Parse(args.Value.ToString());
+                                    return Task.CompletedTask;
+                                }))),
                     button(
                         new[]
                         {
@@ -56,24 +56,31 @@ namespace Radix.Blazor.Sample.Components
                             on.click(
                                 async args =>
                                 {
+                                    
                                     var inventoryItem = await BoundedContext.Create<InventoryItem>();
                                     var item = CreateInventoryItem.Create(currentViewModel.InventoryItemName, true, currentViewModel.InventoryItemCount);
                                     var command = Command<InventoryItemCommand>.Create(() => item);
-                                    
+                                    Console.Out.WriteLine(inventoryItem);
+                                    Console.Out.WriteLine(command);
                                     switch (command)
                                     {
                                         case Valid<Command<InventoryItemCommand>> validCommand:
+                                            Console.Out.WriteLine(validCommand.Value);
                                             IVersion expectedVersion = new AnyVersion();
                                             var result = await BoundedContext.Send<InventoryItem>(
                                                 new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                                            Console.Out.WriteLine($"result : {result}");
+
                                             switch (result)
                                             {
                                                 case Ok<InventoryItemEvent[], Error[]>(var events):
+                                                    Console.Out.WriteLine(events);
                                                     OnNext(currentViewModel.Apply(events));
                                                     break;
                                                 case Error<InventoryItemEvent[], Error[]>(var errors):
+                                                    Console.Out.WriteLine(errors);
                                                     currentViewModel.Errors = errors;
-                                                    
+
                                                     OnNext(currentViewModel);
                                                     if (JSRuntime is object)
                                                         await JSRuntime.InvokeAsync<string>("$('.toast').toast(option)", Array.Empty<object>());
@@ -86,19 +93,19 @@ namespace Radix.Blazor.Sample.Components
                         },
                         text("Ok")
                     ),
-                    navLinkMatchAll(new[] {@class("btn btn-primary"), href("/")}, text("Cancel")),
+                    navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
                     currentViewModel.Errors.Any()
                         ? div(
                             Enumerable.Empty<IAttribute>(),
                             div(
-                                new[] {@class("toast"), attribute("data-autohide", "true")},
+                                new[] { @class("toast"), attribute("data-autohide", "true") },
                                 div(
-                                    new[] {@class("toast-header")},
-                                    img(new[] {src("..."), @class("rounded-mr2"), alt("...")}),
-                                    strong(new[] {@class("mr-auto")}, text("Invalid input")),
+                                    new[] { @class("toast-header") },
+                                    img(new[] { src("..."), @class("rounded-mr2"), alt("...") }),
+                                    strong(new[] { @class("mr-auto") }, text("Invalid input")),
                                     small(Array.Empty<IAttribute>(), text(DateTimeOffset.UtcNow.ToString()))),
                                 div(
-                                    new[] {@class("toast-body")},
+                                    new[] { @class("toast-body") },
                                     FormatErrorMessages(currentViewModel.Errors)
                                 )))
                         : empty));
