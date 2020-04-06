@@ -65,19 +65,21 @@ namespace Radix.Tests
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = await context.Create<InventoryItem>();
 
-            var item = CreateInventoryItem.Create("Product 1", true, 0);
-            var command = Command<InventoryItemCommand>.Create(() => item);
-            switch (command)
+            var checkin =
+                CheckInItemsToInventory
+                    .Create(10);
+
+            switch (checkin)
             {
-                case Valid<Command<InventoryItemCommand>> validCommand:
+                case Valid<InventoryItemCommand> (var validCommand):
                     IVersion expectedVersion = new AnyVersion();
-                    await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
                     break;
             }
             
 
             eventStream.Should().Equal(
-                new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
+                new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 1, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
 
         }
 
@@ -104,13 +106,14 @@ namespace Radix.Tests
                     garbageCollectionSettings));
 
             var inventoryItem = await context.Create<InventoryItem>();
-            var checkin = CheckInItemsToInventory.Create(10);
-            var command = Command<InventoryItemCommand>.Create(() => checkin);
-            switch (command)
+            var checkin = 
+                CheckInItemsToInventory
+                    .Create(10);
+            switch (checkin)
             {
-                case Valid<Command<InventoryItemCommand>> validCommand:
+                case Valid<InventoryItemCommand> (var validCommand):
                     Version expectedVersion = 2L;
-                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
                     
                     switch (result)
                     {
@@ -157,12 +160,11 @@ namespace Radix.Tests
 
             var inventoryItem = await context.Create<InventoryItem>();
             var checkin = CheckInItemsToInventory.Create(10);
-            var command = Command<InventoryItemCommand>.Create(() => checkin);
-            switch (command)
+            switch (checkin)
             {
-                case Valid<Command<InventoryItemCommand>> validCommand:
+                case Valid<InventoryItemCommand>(var validCommand):
                     Version expectedVersion = 2L;
-                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
 
                     switch (result)
                     {
@@ -200,12 +202,11 @@ namespace Radix.Tests
 
             var inventoryItem = await context.Create<InventoryItem>();
             var checkin = CheckInItemsToInventory.Create(10);
-            var command = Command<InventoryItemCommand>.Create(() => checkin);
-            switch (command)
+            switch (checkin)
             {
-                case Valid<Command<InventoryItemCommand>> validCommand:
+                case Valid<InventoryItemCommand>(var validCommand):
                     Version expectedVersion = 2L;
-                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
 
                     switch (result)
                     {
@@ -242,12 +243,11 @@ namespace Radix.Tests
             var inventoryItem = await context.Create<InventoryItem>();
 
             var item = CreateInventoryItem.Create("Product 1", true, 0);
-            var command = Command<InventoryItemCommand>.Create(() => item);
-            switch (command)
+            switch (item)
             {
-                case Valid<Command<InventoryItemCommand>> validCommand:
+                case Valid<InventoryItemCommand> (var validCommand):
                     IVersion expectedVersion = new AnyVersion();
-                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, expectedVersion));
+                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):

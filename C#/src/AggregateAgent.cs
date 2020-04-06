@@ -43,10 +43,14 @@ namespace Radix
                     LastActivity = DateTimeOffset.Now;
                     var expectedVersion = commandDescriptor.ExpectedVersion;
 
+                    Console.Out.WriteLine("getting histroy");
                     var eventsSince = _boundedContextSettings.EventStore.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version).ConfigureAwait(false);
+                    Console.Out.WriteLine("getting histroy done");
                     await foreach (var eventDescriptor in eventsSince)
                     {
+                        Console.Out.WriteLine("checking for conflicts");
                         var optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
+                        Console.Out.WriteLine("done checking for conflicts");
                         switch (optionalConflict)
                         {
                             case None<Conflict<TCommand, TEvent>> _:
@@ -57,17 +61,20 @@ namespace Radix
                                 return;
                         }
                     }
-
+                    Console.Out.WriteLine("decide");
                     var result = await _state.Decide(commandDescriptor).ConfigureAwait(false);
+                    Console.Out.WriteLine("decide done");
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
                             var appendResult = _boundedContextSettings.EventStore.AppendEvents(commandDescriptor.Address, expectedVersion, events).ConfigureAwait(false);
+                            Console.Out.WriteLine("append done");
                             switch (await appendResult)
                             {
                                 case Ok<Version, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
                                     _state = events.Aggregate(_state, (s, @event) => s.Apply(@event));
+                                    Console.Out.WriteLine("append succesfull");
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;
                                 case Error<Version, AppendEventsError>(var error):
@@ -75,23 +82,30 @@ namespace Radix
                                     {
                                         case OptimisticConcurrencyError _:
                                             // re issue the command to try again
-                                            await _actionBlock.SendAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(true);;
+                                            await _actionBlock.SendAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+                                            Console.Out.WriteLine("conflict, retrying");
                                             break;
-                                        default: throw new NotSupportedException();
+                                        default:
+                                            Console.Out.WriteLine("append failed because of unknown reason"); 
+                                            throw new NotSupportedException();
                                     }
 
                                     break;
-                                default: throw new NotSupportedException();
+                                default:
+                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { "Unexpected state" }));
+                                    break;
                             }
 
                             break;
                         case Error<TEvent[], CommandDecisionError> (var error):
+                            Console.Out.WriteLine($"append not successfull {error.Message}");
                             taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[]{error.Message}));
+
                             break;
                     }
                 }
             );
-
+            
         }
 
         public async Task<Result<TEvent[], Error[]>> Post(CommandDescriptor<TCommand> commandDescriptor)

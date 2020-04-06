@@ -7,7 +7,7 @@ using Radix.Blazor.Html;
 
 namespace Radix.Blazor
 {
-    public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IComponent, IDisposable, IObserver<TViewModel>, View where TEvent : Event
+    public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase, IDisposable, IObserver<TViewModel> where TEvent : Event
         where TViewModel : State<TViewModel, TEvent>, IEquatable<TViewModel>, new()
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
@@ -53,9 +53,11 @@ namespace Radix.Blazor
         {
             OldViewModel = CurrentViewModel;
             CurrentViewModel = viewModel;
-            if (ShouldRender(OldViewModel, CurrentViewModel))
-                // force render
-                StateHasChanged();
+            Console.Out.WriteLine(OldViewModel);
+            Console.Out.WriteLine(CurrentViewModel);
+            //if (ShouldRender(OldViewModel, CurrentViewModel))
+            //    // force render
+            //    StateHasChanged();
         }
 
 
@@ -73,11 +75,9 @@ namespace Radix.Blazor
         /// <returns></returns>
         public abstract Node Render(TViewModel currentViewModel);
 
-        public  Node Render() => Render(CurrentViewModel);
-
         protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel)
         {
-            return !oldViewModel.Equals(currentViewModel);
+            return true;
         }
 
 

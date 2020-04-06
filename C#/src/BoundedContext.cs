@@ -66,7 +66,7 @@ namespace Radix
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable());
+            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable()).ConfigureAwait(false);
 
             _registry.Add(address, agent);
             return address;
@@ -84,15 +84,16 @@ namespace Radix
             return await Create<TState>();
         }
 
-        public async Task<Result<TEvent[], Error[]>> Send<TState>(CommandDescriptor<TCommand> commandDescriptor)
+        public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, TCommand command, IVersion expectedVersion)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-
+            var commandDescriptor = new CommandDescriptor<TCommand>(address, command, expectedVersion);
             if (!_registry.TryGetValue(commandDescriptor.Address, out var agent))
                 agent = await GetAggregate<TState>(commandDescriptor.Address).ConfigureAwait(false);
-
-            return await agent.Post(commandDescriptor);
-
+            Console.Out.WriteLine(commandDescriptor.Address);
+            var result = await agent.Post(commandDescriptor).ConfigureAwait(false);
+            Console.Out.WriteLine("got result after posting");
+            return result;
         }
 
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
