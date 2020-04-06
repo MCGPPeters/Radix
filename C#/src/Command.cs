@@ -3,7 +3,7 @@ using Radix.Validated;
 
 namespace Radix
 {
-    public readonly struct Command<T> : Value<T> where T : IComparable<T>, IEquatable<T>, IComparable
+    public readonly struct Command<T>
     {
         public static Validated<Command<T>> Create(Func<Validated<T>> create)
         {

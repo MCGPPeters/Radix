@@ -58,13 +58,11 @@ namespace Radix.Tests
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             var removeItems = RemoveItemsFromInventory.Create(1);
-            var command = Command<InventoryItemCommand>.Create(() => removeItems);
-
-            switch (command)
+           
+            switch (removeItems)
             {
-                case Valid<Command<InventoryItemCommand>> validCommand:
-                    IVersion expectedVersion = new AnyVersion();
-                    var result = await context.Send<InventoryItem>(new CommandDescriptor<InventoryItemCommand>(inventoryItem, validCommand, new Version(3L)));
+                case Valid<InventoryItemCommand> (var validCommand):
+                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, new Version(3L));
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):

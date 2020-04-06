@@ -5,7 +5,7 @@ namespace Radix
 {
     public class CommandDescriptor<TCommand> where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
-        public CommandDescriptor(Address address, Valid<Command<TCommand>> command, IVersion expectedVersion)
+        public CommandDescriptor(Address address, TCommand command, IVersion expectedVersion)
         {
             Address = address;
             Command = command;

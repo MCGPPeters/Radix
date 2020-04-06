@@ -30,7 +30,7 @@ namespace Radix.Tests.Models
 
         public Task<Result<InventoryItemEvent[], CommandDecisionError>> Decide(CommandDescriptor<InventoryItemCommand> commandDescriptor)
         {
-
+            Console.Out.WriteLine($"in aggregate {commandDescriptor.Address}");
             switch (commandDescriptor.Command.Value)
             {
                 case DeactivateInventoryItem _:

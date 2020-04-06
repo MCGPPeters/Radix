@@ -14,15 +14,25 @@ namespace Radix.Blazor.Inventory.Pages
 
         public AddInventoryItemViewModel Apply(params InventoryItemEvent[] @event)
         {
-            return new AddInventoryItemViewModel();
+            foreach (var inventoryItemEvent in @event)
+            {
+                switch (inventoryItemEvent)
+                {
+                    case InventoryItemCreated created:
+                        Messages.Add($"Created a new item: {created.Name}");
+                        InventoryItemCount = created.Count;
+                        InventoryItemName = created.Name;
+                        break;
+                }
+            }
+            return this;
         }
 
         public string InventoryItemName { get; set; }
         public int InventoryItemCount { get; set; }
-        public IEnumerable<Error> Errors
-        {
-            get => new List<Error>();
-            set => throw new NotImplementedException();
-        }
+
+        public List<Error> Errors { get; set; } = new List<Error>();
+
+        public List<string> Messages { get; set; } = new List<string>();
     }
 }

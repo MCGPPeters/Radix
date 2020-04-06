@@ -9,7 +9,7 @@ using static Radix.Blazor.Html.Elements;
 
 namespace Radix.Blazor.Inventory.Pages
 {
-    [Route("/Home")]
+    [Route("/")]
     public class HomeComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
     {
         public override Node Render(IndexViewModel currentViewModel)
