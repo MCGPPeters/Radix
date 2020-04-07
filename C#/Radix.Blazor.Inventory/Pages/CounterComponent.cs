@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Tests.Models;
@@ -29,11 +26,9 @@ namespace Radix.Blazor.Inventory.Pages
                     new[]
                     {
                         @class("btn", "btn-primary"), on.click(
-                            args =>
-                            {
-                                IncrementCount();
-                            })
-                    }, text("Click me")));
+                            args => { IncrementCount(); })
+                    },
+                    text("Click me")));
         }
     }
 }

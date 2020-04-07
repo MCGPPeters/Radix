@@ -10,12 +10,12 @@ namespace Radix.Result
             return new Ok<T, TError>(t);
         }
 
-        public static Result<T, TError> Error<T, TError>(TError error) 
+        public static Result<T, TError> Error<T, TError>(TError error)
         {
             return new Error<T, TError>(error);
         }
 
-        public static Result<TResult, TError> Bind<T, TResult, TError>(this Result<T, TError> result, Func<T, Result<TResult, TError>> function) 
+        public static Result<TResult, TError> Bind<T, TResult, TError>(this Result<T, TError> result, Func<T, Result<TResult, TError>> function)
         {
             return result switch
             {
@@ -25,7 +25,7 @@ namespace Radix.Result
             };
         }
 
-        public static Result<TResult, TError> Map<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function) 
+        public static Result<TResult, TError> Map<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function)
         {
             return result switch
             {
@@ -35,12 +35,14 @@ namespace Radix.Result
             };
         }
 
-        public static Result<TResult, TError> Select<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function)  =>
-            Map(result, function);
+        public static Result<TResult, TError> Select<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function)
+        {
+            return Map(result, function);
+        }
 
 
         public static Result<T, TErrorResult> MapError<T, TError, TErrorResult>(this Result<T, TError> result, Func<TError, TErrorResult> function)
-            
+
         {
             return result switch
             {
@@ -57,7 +59,7 @@ namespace Radix.Result
                 (Ok<Func<T, TResult>, TError>(var f), Ok<T, TError>(var x)) => Ok<TResult, TError>(f(x)),
                 (Error<Func<T, TResult>, TError>(var error), Ok<T, TError>(_)) => Error<TResult, TError>(error),
                 (Ok<Func<T, TResult>, TError>(_), Error<T, TError>(var error)) => Error<TResult, TError>(error),
-                (Error<Func<T, TResult>, TError>(var error), Error<T, TError>_) => Error<TResult, TError>(error),
+                (Error<Func<T, TResult>, TError>(var error), Error<T, TError> _) => Error<TResult, TError>(error),
                 _ => throw new NotSupportedException("Unlikely")
             };
         }

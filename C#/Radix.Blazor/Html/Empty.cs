@@ -2,6 +2,6 @@
 {
     public readonly struct Empty : Node
     {
-       
+
     }
 }

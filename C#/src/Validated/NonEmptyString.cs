@@ -17,7 +17,7 @@ namespace Radix.Validated
             return value.IsNotNullNorEmpty(errorMessage) switch
             {
                 Valid<string>(var s) => Valid(new NonEmptyString(s)),
-                _ => Invalid<NonEmptyString>(new[] {errorMessage})
+                _ => Invalid<NonEmptyString>(errorMessage)
             };
         }
 

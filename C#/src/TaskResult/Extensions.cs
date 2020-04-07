@@ -1,11 +1,8 @@
 using System;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Radix.Monoid;
 using Radix.Result;
 using static Radix.Result.Extensions;
-using static Radix.Async.Extensions;
 
 namespace Radix.TaskResult
 {
@@ -22,8 +19,8 @@ namespace Radix.TaskResult
             };
         }
 
-        public static async Task<Result<TResult, TError> >Bind<T, TResult, TError> 
-                (this Task<Result<T, TError>> taskResult, Func<T, Task<Result<TResult, TError>>> f)
+        public static async Task<Result<TResult, TError>> Bind<T, TResult, TError>
+            (this Task<Result<T, TError>> taskResult, Func<T, Task<Result<TResult, TError>>> f)
         {
             var result = await taskResult;
             return result switch
@@ -34,7 +31,8 @@ namespace Radix.TaskResult
             };
         }
 
-        public static async Task<Result<TProjected, TError>> SelectMany<T, TResult, TProjected, TError>(this Task<Result<T, TError>> taskResult, Func<T, Task<Result<TResult, TError>>> f, Func<T, TResult, TProjected> project)
+        public static async Task<Result<TProjected, TError>> SelectMany<T, TResult, TProjected, TError>(this Task<Result<T, TError>> taskResult,
+            Func<T, Task<Result<TResult, TError>>> f, Func<T, TResult, TProjected> project)
 
         {
             var result = await taskResult;

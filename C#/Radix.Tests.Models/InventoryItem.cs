@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Radix.Validated;
-using static Radix.Validated.Extensions;
 using static Radix.Result.Extensions;
 
 namespace Radix.Tests.Models
@@ -60,16 +58,21 @@ namespace Radix.Tests.Models
         }
 
 
-        public InventoryItem Apply(params InventoryItemEvent[] events) => events.Aggregate(new InventoryItem(), (_, @event) => @event switch
-            {
-                InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
-                InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
-                ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
-                ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
-                InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
-                _ => throw new NotSupportedException("Unknown event")
-            });
-        
+        public InventoryItem Apply(params InventoryItemEvent[] events)
+        {
+            return events.Aggregate(
+                new InventoryItem(),
+                (_, @event) => @event switch
+                {
+                    InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
+                    InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
+                    ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
+                    ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
+                    InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
+                    _ => throw new NotSupportedException("Unknown event")
+                });
+        }
+
         public bool Equals(InventoryItem? other)
         {
             if (ReferenceEquals(null, other))

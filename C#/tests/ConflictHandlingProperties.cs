@@ -10,7 +10,6 @@ using Radix.Validated;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Option.Extensions;
-using static Radix.Validated.Extensions;
 
 namespace Radix.Tests
 {
@@ -76,10 +75,10 @@ namespace Radix.Tests
                     await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
                     break;
             }
-            
+
 
             eventStream.Should().Equal(
-                new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 1, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
+                new List<InventoryItemEvent> {new InventoryItemCreated("Product 1", true, 1, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem)});
 
         }
 
@@ -106,7 +105,7 @@ namespace Radix.Tests
                     garbageCollectionSettings));
 
             var inventoryItem = await context.Create<InventoryItem>();
-            var checkin = 
+            var checkin =
                 CheckInItemsToInventory
                     .Create(10);
             switch (checkin)
@@ -114,7 +113,7 @@ namespace Radix.Tests
                 case Valid<InventoryItemCommand> (var validCommand):
                     Version expectedVersion = 2L;
                     var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
-                    
+
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):
@@ -124,6 +123,7 @@ namespace Radix.Tests
                             errors.Should().Contain("Just another conflict");
                             break;
                     }
+
                     break;
             }
         }
@@ -169,12 +169,13 @@ namespace Radix.Tests
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal((new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }, "the event should be appended"));
+                            events.Should().Equal((new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended"));
                             break;
                         case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }
+
                     break;
             }
         }
@@ -211,12 +212,13 @@ namespace Radix.Tests
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal((new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) }, "the event should be appended"));
+                            events.Should().Equal((new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended"));
                             break;
                         case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }
+
                     break;
             }
         }
@@ -252,12 +254,13 @@ namespace Radix.Tests
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):
                             events.Should().Equal(
-                                new List<InventoryItemEvent> { new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem) });
+                                new List<InventoryItemEvent> {new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem)});
                             break;
                         case Error<InventoryItemEvent[], Error[]>(var errors):
                             errors.Should().BeEmpty();
                             break;
                     }
+
                     break;
             }
         }

@@ -1,9 +1,9 @@
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Radix.Blazor.Inventory.Pages;
 using Radix.Tests.Models;
-using System.Linq;
-using System.Threading.Tasks;
 using static Radix.Option.Extensions;
 
 namespace Radix.Blazor.Inventory
@@ -31,7 +31,6 @@ namespace Radix.Blazor.Inventory
 
             builder.RootComponents.Add<App>("app");
 
-            
 
             await builder.Build().RunAsync();
         }

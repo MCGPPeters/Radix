@@ -7,7 +7,7 @@ namespace Radix.Blazor.Html
     {
         public Attribute(Name name, params string[] values)
         {
-            
+
             Name = name;
             Values = values ?? Array.Empty<string>();
         }

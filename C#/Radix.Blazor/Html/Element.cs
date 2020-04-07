@@ -16,8 +16,8 @@ namespace Radix.Blazor
 
         public Element(Name name, IEnumerable<IAttribute> attributes) : this(name, attributes, Array.Empty<Node>())
         {
-        } 
-        
+        }
+
         public Element(Name name, IEnumerable<Node> nodes) : this(name, Enumerable.Empty<IAttribute>(), nodes)
         {
         }

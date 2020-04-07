@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Runtime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -455,7 +453,7 @@ namespace Radix.Blazor.Html
         {
             return @event(nameof(scroll), callback);
         }
-    
+
         public static class task
         {
 

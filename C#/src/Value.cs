@@ -6,6 +6,21 @@ namespace Radix
     {
         public T Value { get; }
 
+        int IComparable.CompareTo(object other)
+        {
+            return Value.CompareTo(((Value<T>) other).Value);
+        }
+
+        int IComparable<T>.CompareTo(T other)
+        {
+            return CompareTo(other);
+        }
+
+        bool IEquatable<T>.Equals(T other)
+        {
+            return Equals(other);
+        }
+
         new int CompareTo(T other)
         {
             return Value.CompareTo(other);
@@ -26,21 +41,6 @@ namespace Radix
         bool Equals(object obj)
         {
             return Value.Equals(obj);
-        }
-
-        bool IEquatable<T>.Equals(T other)
-        {
-            return Equals(other);
-        }
-
-        int IComparable<T>.CompareTo(T other)
-        {
-            return CompareTo(other);
-        }
-
-        int IComparable.CompareTo(object other)
-        {
-            return Value.CompareTo(((Value<T>) other).Value);
         }
 
         string ToString()

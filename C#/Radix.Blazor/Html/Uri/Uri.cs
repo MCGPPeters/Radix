@@ -7,10 +7,11 @@
             Value = value;
 
         }
+
         public string Value { get; }
     }
 
-    class Uri
+    internal class Uri
     {
     }
 }

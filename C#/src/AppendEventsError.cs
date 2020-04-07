@@ -1,5 +1,3 @@
-using Radix.Monoid;
-
 namespace Radix
 {
 

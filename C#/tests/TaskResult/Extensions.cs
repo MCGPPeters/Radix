@@ -22,7 +22,7 @@ namespace Radix.Tests.TaskResult
         }
 
         public static Task<Result<TResult, TError>> Bind<T, TResult, TError>(this Task<Result<T, TError>> task, Func<T, Task<Result<TResult, TError>>> function)
-            
+
         {
             return task.SelectMany(
                 result => result switch

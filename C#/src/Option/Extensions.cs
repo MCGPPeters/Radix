@@ -29,8 +29,8 @@ namespace Radix.Option
 
         public static Option<TResult> Map<T, TResult>
             (this Option<T> option, Func<T, TResult> f)
-        where T : notnull
-        where TResult : notnull
+            where T : notnull
+            where TResult : notnull
         {
             return option switch
             {

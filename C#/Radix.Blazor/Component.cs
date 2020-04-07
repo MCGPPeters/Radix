@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
@@ -14,25 +13,15 @@ namespace Radix.Blazor
         private bool _disposedValue;
         private IDisposable? _subscription;
 
-        [Inject]
-        public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
+        [Inject]public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
 
-        [Inject]
-        public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
+        [Inject]public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
 
-        [Inject]
-        public IJSRuntime JSRuntime { get; set; }
+        [Inject]public IJSRuntime JSRuntime { get; set; }
 
 
         protected TViewModel OldViewModel { get; set; }
         protected TViewModel CurrentViewModel { get; set; }
-
-        protected override void OnInitialized()
-        {
-            CurrentViewModel = ReadModel.State;
-            OldViewModel = CurrentViewModel;
-            base.OnInitialized();
-        }
 
         public void Dispose()
         {
@@ -58,6 +47,13 @@ namespace Radix.Blazor
             //if (ShouldRender(OldViewModel, CurrentViewModel))
             //    // force render
             //    StateHasChanged();
+        }
+
+        protected override void OnInitialized()
+        {
+            CurrentViewModel = ReadModel.State;
+            OldViewModel = CurrentViewModel;
+            base.OnInitialized();
         }
 
 
