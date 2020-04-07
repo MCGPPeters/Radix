@@ -1,11 +1,11 @@
 namespace Radix
 {
-    public class BoundedContextSettings<TCommand, TEvent> 
+    public class BoundedContextSettings<TCommand, TEvent>
         where TEvent : Event
     {
 
         public BoundedContextSettings(EventStore<TEvent> eventStore,
-            CheckForConflict<TCommand, TEvent> checkForConflict, 
+            CheckForConflict<TCommand, TEvent> checkForConflict,
             GarbageCollectionSettings garbageCollectionSettings)
         {
             EventStore = eventStore;

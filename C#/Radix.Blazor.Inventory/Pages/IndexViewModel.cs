@@ -1,7 +1,7 @@
-﻿using Radix.Tests.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Radix.Tests.Models;
 
 namespace Radix.Blazor.Inventory.Pages
 {

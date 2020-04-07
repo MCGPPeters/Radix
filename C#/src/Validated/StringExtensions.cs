@@ -10,14 +10,14 @@ namespace Radix.Validated
         {
             return !IsNullOrEmpty(subject)
                 ? Valid(subject)
-                : Invalid<string>(new[] {errorMessage});
+                : Invalid<string>(errorMessage);
         }
 
         public static Validated<string> IsPathFullyQualified(this string? subject, string errorMessage)
         {
             return !IsNullOrEmpty(subject) && Path.IsPathFullyQualified(subject)
                 ? Valid(subject)
-                : Invalid<string>(new[] {errorMessage});
+                : Invalid<string>(errorMessage);
         }
     }
 }

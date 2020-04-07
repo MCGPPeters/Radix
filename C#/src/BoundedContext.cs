@@ -66,7 +66,8 @@ namespace Radix
         {
             var address = new Address(Guid.NewGuid());
 
-            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable()).ConfigureAwait(false);
+            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable())
+                .ConfigureAwait(false);
 
             _registry.Add(address, agent);
             return address;

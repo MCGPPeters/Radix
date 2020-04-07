@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Radix.Blazor.Html;
@@ -74,7 +73,7 @@ namespace Radix.Blazor
                 {
                     case Attribute (var name, var values):
                         var attributeValues = values as string[] ?? values.ToArray();
-                        if(attributeValues.Any())
+                        if (attributeValues.Any())
                             builder.AddAttribute(sequence++, name, attributeValues.Aggregate((current, next) => current + " " + next));
                         break;
                     case ComponentAttribute(var name, var value):

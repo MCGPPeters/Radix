@@ -29,8 +29,10 @@ namespace Radix.Async
         }
 
         public static Task<TResult> SelectMany<T, TResult>
-            (this Task<T> task, Func<T, Task<TResult>> f) => 
-                Bind(task, f);
+            (this Task<T> task, Func<T, Task<TResult>> f)
+        {
+            return Bind(task, f);
+        }
 
         public static async Task<TResult> SelectMany<T, TResult>
             (this Task task, Func<Unit, Task<T>> bind, Func<Unit, T, TResult> project)

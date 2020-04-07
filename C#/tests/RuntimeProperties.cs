@@ -58,7 +58,7 @@ namespace Radix.Tests
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             var removeItems = RemoveItemsFromInventory.Create(1);
-           
+
             switch (removeItems)
             {
                 case Valid<InventoryItemCommand> (var validCommand):
