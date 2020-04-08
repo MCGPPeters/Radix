@@ -18,9 +18,11 @@ namespace Radix.Blazor.Tests
                 case SetInput(var text):
                     if (text is object)
                     {
-                        var modelInput = text.ToString();
+                        string? modelInput = text.ToString();
                         if (modelInput is object)
+                        {
                             model.Input = modelInput;
+                        }
                     }
 
                     return model;
@@ -30,13 +32,10 @@ namespace Radix.Blazor.Tests
         }
 
 
-        private Node FormView(IJSRuntime _, Model model, Func<Message, Task> dispatch)
-        {
-            return concat(
-                h1(new[] {value("Title"), @class("nice")}, text("Title")),
-                input(value(model.Input), on.change(async args => await dispatch(new SetInput(args.Value))))
-            );
-        }
+        private Node FormView(IJSRuntime _, Model model, Func<Message, Task> dispatch) => concat(
+            h1(new[] {value("Title"), @class("nice")}, text("Title")),
+            input(value(model.Input), on.change(async args => await dispatch(new SetInput(args.Value))))
+        );
 
         [Fact]
         public void Test1()
@@ -49,15 +48,9 @@ namespace Radix.Blazor.Tests
     {
         private readonly object _argsValue;
 
-        public SetInput(object argsValue)
-        {
-            _argsValue = argsValue;
-        }
+        public SetInput(object argsValue) => _argsValue = argsValue;
 
-        public void Deconstruct(out object value)
-        {
-            value = _argsValue;
-        }
+        public void Deconstruct(out object value) => value = _argsValue;
     }
 
     internal class Model

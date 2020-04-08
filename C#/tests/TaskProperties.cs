@@ -18,7 +18,7 @@ namespace Radix.Tests
             Verbose = true)]
         public async void Property2(NonNegativeInt numberOfCalls)
         {
-            var numberOfTries = 0;
+            int numberOfTries = 0;
 
             try
             {

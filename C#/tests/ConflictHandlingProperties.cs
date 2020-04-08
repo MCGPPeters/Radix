@@ -19,8 +19,7 @@ namespace Radix.Tests
     {
         private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
         {
-            ScanInterval = TimeSpan.FromMinutes(1),
-            IdleTimeout = TimeSpan.FromMinutes(60)
+            ScanInterval = TimeSpan.FromMinutes(1), IdleTimeout = TimeSpan.FromMinutes(60)
         };
 
 
@@ -37,7 +36,7 @@ namespace Radix.Tests
 
         private static Option<Conflict<InventoryItemCommand, InventoryItemEvent>> FindConflict(InventoryItemCommand command, EventDescriptor<InventoryItemEvent> descriptor)
         {
-            var @event = descriptor.Event;
+            InventoryItemEvent @event = descriptor.Event;
             return Some(new Conflict<InventoryItemCommand, InventoryItemEvent>(command, @event, "Just another conflict"));
         }
 
@@ -46,7 +45,7 @@ namespace Radix.Tests
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
         public async Task Property1()
         {
-            var eventStream = new List<InventoryItemEvent>();
+            List<InventoryItemEvent> eventStream = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 eventStream.AddRange(events);
@@ -56,15 +55,15 @@ namespace Radix.Tests
             GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => AsyncEnumerable.Empty<EventDescriptor<InventoryItemEvent>>();
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Create<InventoryItem>();
+            Address inventoryItem = await context.Create<InventoryItem>();
 
-            var checkin =
+            Validated<InventoryItemCommand> checkin =
                 CheckInItemsToInventory
                     .Create(10);
 
@@ -86,7 +85,7 @@ namespace Radix.Tests
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
         public async Task Property2()
         {
-            var AppendedEvents = new List<InventoryItemEvent>();
+            List<InventoryItemEvent> AppendedEvents = new List<InventoryItemEvent>();
 
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
@@ -98,21 +97,21 @@ namespace Radix.Tests
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
 
             // for testing purposes make the aggregate block the current thread while processing
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create<InventoryItem>();
-            var checkin =
+            Address inventoryItem = await context.Create<InventoryItem>();
+            Validated<InventoryItemCommand> checkin =
                 CheckInItemsToInventory
                     .Create(10);
             switch (checkin)
             {
                 case Valid<InventoryItemCommand> (var validCommand):
                     Version expectedVersion = 2L;
-                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
+                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
 
                     switch (result)
                     {
@@ -134,9 +133,9 @@ namespace Radix.Tests
                 "Given there is a concurrency conflict and conflict resolution determines that it is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
         public async Task Property3()
         {
-            var calledBefore = false;
-            var appendedEvents = new List<InventoryItemEvent>();
-            var completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
+            bool calledBefore = false;
+            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
+            TaskCompletionSource<List<InventoryItemEvent>> completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 if (calledBefore)
@@ -152,19 +151,19 @@ namespace Radix.Tests
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create<InventoryItem>();
-            var checkin = CheckInItemsToInventory.Create(10);
+            Address inventoryItem = await context.Create<InventoryItem>();
+            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
             switch (checkin)
             {
                 case Valid<InventoryItemCommand>(var validCommand):
                     Version expectedVersion = 2L;
-                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
+                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
 
                     switch (result)
                     {
@@ -183,7 +182,7 @@ namespace Radix.Tests
         [Fact(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
         public async Task Property4()
         {
-            var appendedEvents = new List<InventoryItemEvent>();
+            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
@@ -195,19 +194,19 @@ namespace Radix.Tests
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create<InventoryItem>();
-            var checkin = CheckInItemsToInventory.Create(10);
+            Address inventoryItem = await context.Create<InventoryItem>();
+            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
             switch (checkin)
             {
                 case Valid<InventoryItemCommand>(var validCommand):
                     Version expectedVersion = 2L;
-                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
+                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
 
                     switch (result)
                     {
@@ -226,7 +225,7 @@ namespace Radix.Tests
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
         public async Task Property5()
         {
-            var appendedEvents = new List<InventoryItemEvent>();
+            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
@@ -236,20 +235,20 @@ namespace Radix.Tests
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create<InventoryItem>();
+            Address inventoryItem = await context.Create<InventoryItem>();
 
-            var item = CreateInventoryItem.Create("Product 1", true, 0);
+            Validated<InventoryItemCommand> item = CreateInventoryItem.Create("Product 1", true, 0);
             switch (item)
             {
                 case Valid<InventoryItemCommand> (var validCommand):
                     IVersion expectedVersion = new AnyVersion();
-                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
+                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):

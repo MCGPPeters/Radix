@@ -7,15 +7,9 @@ namespace Radix
     /// </summary>
     public struct EventDescriptor<TEvent> where TEvent : Event
     {
-        public bool Equals(EventDescriptor<TEvent> other)
-        {
-            return EqualityComparer<TEvent>.Default.Equals(Event, other.Event) && Version.Equals(other.Version);
-        }
+        public bool Equals(EventDescriptor<TEvent> other) => EqualityComparer<TEvent>.Default.Equals(Event, other.Event) && Version.Equals(other.Version);
 
-        public override bool Equals(object obj)
-        {
-            return obj is EventDescriptor<TEvent> other && Equals(other);
-        }
+        public override bool Equals(object obj) => obj is EventDescriptor<TEvent> other && Equals(other);
 
         public override int GetHashCode()
         {
@@ -35,14 +29,8 @@ namespace Radix
 
         public Version Version { get; }
 
-        public static bool operator ==(EventDescriptor<TEvent> left, EventDescriptor<TEvent> right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(EventDescriptor<TEvent> left, EventDescriptor<TEvent> right) => left.Equals(right);
 
-        public static bool operator !=(EventDescriptor<TEvent> left, EventDescriptor<TEvent> right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(EventDescriptor<TEvent> left, EventDescriptor<TEvent> right) => !(left == right);
     }
 }

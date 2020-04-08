@@ -17,8 +17,7 @@ namespace Radix.Tests
     {
         private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
         {
-            ScanInterval = TimeSpan.FromMilliseconds(500),
-            IdleTimeout = TimeSpan.FromMilliseconds(500)
+            ScanInterval = TimeSpan.FromMilliseconds(500), IdleTimeout = TimeSpan.FromMilliseconds(500)
         };
 
 
@@ -38,7 +37,7 @@ namespace Radix.Tests
                 "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored and process the command")]
         public async Task Test1()
         {
-            var appendedEvents = new List<InventoryItemEvent>();
+            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events);
@@ -48,21 +47,21 @@ namespace Radix.Tests
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-            var context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
                     new EventStoreStub(appendEvents, getEventsSince),
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Create<InventoryItem>();
+            Address inventoryItem = await context.Create<InventoryItem>();
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            var removeItems = RemoveItemsFromInventory.Create(1);
+            Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1);
 
             switch (removeItems)
             {
                 case Valid<InventoryItemCommand> (var validCommand):
-                    var result = await context.Send<InventoryItem>(inventoryItem, validCommand, new Version(3L));
+                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, new Version(3L));
                     switch (result)
                     {
                         case Ok<InventoryItemEvent[], Error[]>(var events):

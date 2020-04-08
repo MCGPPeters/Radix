@@ -13,19 +13,22 @@ namespace Radix
 
         private IObserver<TState>? _observer;
 
-        private ReadModel(TState state)
-        {
-            State = state;
-        }
+        private ReadModel(TState state) => State = state;
 
         public TState State { get; private set; }
 
         public bool Equals(ReadModel<TState, TEvent>? other)
         {
             if (ReferenceEquals(null, other))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
+
             return State.Equals(other.State);
         }
 
@@ -43,13 +46,12 @@ namespace Radix
         {
             State = State.Apply(@event);
             if (_observer is object)
+            {
                 _observer.OnNext(State);
+            }
         }
 
-        public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history)
-        {
-            return new ReadModel<TState, TEvent>(await Initial<TState, TEvent>.State(history));
-        }
+        public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history) => new ReadModel<TState, TEvent>(await Initial<TState, TEvent>.State(history));
 
         public IDisposable Subscribe(IObserver<TState> observer)
         {
@@ -60,27 +62,27 @@ namespace Radix
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
+
             if (obj.GetType() != GetType())
+            {
                 return false;
-            return Equals((ReadModel<TState, TEvent>) obj);
+            }
+
+            return Equals((ReadModel<TState, TEvent>)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return State.GetHashCode();
-        }
+        public override int GetHashCode() => State.GetHashCode();
 
-        public static bool operator ==(ReadModel<TState, TEvent>? left, ReadModel<TState, TEvent>? right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(ReadModel<TState, TEvent>? left, ReadModel<TState, TEvent>? right) => Equals(left, right);
 
-        public static bool operator !=(ReadModel<TState, TEvent>? left, ReadModel<TState, TEvent>? right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(ReadModel<TState, TEvent>? left, ReadModel<TState, TEvent>? right) => !Equals(left, right);
     }
 }

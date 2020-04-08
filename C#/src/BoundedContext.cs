@@ -39,17 +39,14 @@ namespace Radix
         }
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         private void RunGarbageCollection(object sender, ElapsedEventArgs e)
         {
-            var deactivatedAgents = new List<Address>();
-            foreach (var (address, agent) in _registry)
+            List<Address> deactivatedAgents = new List<Address>();
+            foreach ((Address address, Agent<TCommand, TEvent> agent) in _registry)
             {
-                var idleTime = DateTimeOffset.Now.Subtract(agent.LastActivity);
+                TimeSpan idleTime = DateTimeOffset.Now.Subtract(agent.LastActivity);
                 if (idleTime >= _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
                 {
                     agent.Deactivate();
@@ -57,16 +54,19 @@ namespace Radix
                 }
             }
 
-            foreach (var deactivatedAgent in deactivatedAgents)
+            foreach (Address deactivatedAgent in deactivatedAgents)
+            {
                 _registry.Remove(deactivatedAgent);
+            }
         }
 
         public async Task<Address> Create<TState>()
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-            var address = new Address(Guid.NewGuid());
+            Address address = new Address(Guid.NewGuid());
 
-            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable())
+            AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>
+                .Create(_boundedContextSettings, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable())
                 .ConfigureAwait(false);
 
             _registry.Add(address, agent);
@@ -80,19 +80,19 @@ namespace Radix
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
         public async Task<Address> GetAggregate<TState>()
-            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
-        {
-            return await Create<TState>();
-        }
+            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() => await Create<TState>();
 
         public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, TCommand command, IVersion expectedVersion)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-            var commandDescriptor = new CommandDescriptor<TCommand>(address, command, expectedVersion);
-            if (!_registry.TryGetValue(commandDescriptor.Address, out var agent))
+            CommandDescriptor<TCommand> commandDescriptor = new CommandDescriptor<TCommand>(address, command, expectedVersion);
+            if (!_registry.TryGetValue(commandDescriptor.Address, out Agent<TCommand, TEvent> agent))
+            {
                 agent = await GetAggregate<TState>(commandDescriptor.Address).ConfigureAwait(false);
+            }
+
             Console.Out.WriteLine(commandDescriptor.Address);
-            var result = await agent.Post(commandDescriptor).ConfigureAwait(false);
+            Result<TEvent[], Error[]> result = await agent.Post(commandDescriptor).ConfigureAwait(false);
             Console.Out.WriteLine("got result after posting");
             return result;
         }
@@ -100,9 +100,9 @@ namespace Radix
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-            var history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
+            IAsyncEnumerable<EventDescriptor<TEvent>> history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
 
-            var agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history);
+            AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, history);
             _registry.Add(address, agent);
             return agent;
         }
@@ -112,7 +112,9 @@ namespace Radix
             if (!disposedValue)
             {
                 if (disposing)
+                {
                     _timer.Dispose();
+                }
 
                 disposedValue = true;
             }

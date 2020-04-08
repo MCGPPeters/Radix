@@ -12,23 +12,17 @@ namespace Radix.Blazor.Inventory.Pages
     {
         private int currentCount;
 
-        private void IncrementCount()
-        {
-            currentCount++;
-        }
+        private void IncrementCount() => currentCount++;
 
-        public override Node Render(AddInventoryItemViewModel currentViewModel)
-        {
-            return concat(
-                h1(Enumerable.Empty<IAttribute>(), text("Counter")),
-                p(Enumerable.Empty<IAttribute>(), text(currentCount.ToString())),
-                button(
-                    new[]
-                    {
-                        @class("btn", "btn-primary"), on.click(
-                            args => { IncrementCount(); })
-                    },
-                    text("Click me")));
-        }
+        public override Node Render(AddInventoryItemViewModel currentViewModel) => concat(
+            h1(Enumerable.Empty<IAttribute>(), text("Counter")),
+            p(Enumerable.Empty<IAttribute>(), text(currentCount.ToString())),
+            button(
+                new[]
+                {
+                    @class("btn", "btn-primary"), on.click(
+                        args => { IncrementCount(); })
+                },
+                text("Click me")));
     }
 }

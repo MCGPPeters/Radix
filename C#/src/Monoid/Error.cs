@@ -2,20 +2,11 @@ namespace Radix.Monoid
 {
     public readonly struct Error<T, TError> : Result<T, TError>
     {
-        internal Error(TError error)
-        {
-            Value = error;
-        }
+        internal Error(TError error) => Value = error;
 
-        public static implicit operator Error<T, TError>(TError t)
-        {
-            return new Error<T, TError>(t);
-        }
+        public static implicit operator Error<T, TError>(TError t) => new Error<T, TError>(t);
 
-        public static implicit operator TError(Error<T, TError> ok)
-        {
-            return ok.Value;
-        }
+        public static implicit operator TError(Error<T, TError> ok) => ok.Value;
 
         public TError Value { get; }
 
@@ -23,9 +14,6 @@ namespace Radix.Monoid
         ///     Type deconstructor, don't remove even though no references are obvious
         /// </summary>
         /// <param name="error"></param>
-        public void Deconstruct(out TError error)
-        {
-            error = Value;
-        }
+        public void Deconstruct(out TError error) => error = Value;
     }
 }

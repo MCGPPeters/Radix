@@ -18,10 +18,7 @@ namespace Radix.Tests
     /// <typeparam name="T"></typeparam>
     internal class Singleton<T> : NonEmpty<T>
     {
-        public Singleton(T value)
-        {
-            Value = value;
-        }
+        public Singleton(T value) => Value = value;
 
         public T Value { get; }
     }
@@ -37,14 +34,8 @@ namespace Radix.Tests
         public T Head { get; }
         public T[] Tail { get; }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return null;
-        }
+        public IEnumerator<T> GetEnumerator() => null;
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return null;
-        }
+        IEnumerator IEnumerable.GetEnumerator() => null;
     }
 }

@@ -21,7 +21,7 @@ namespace Radix.Blazor
                     builder.AddMarkupContent(sequence, html.Value);
                     return sequence + 1;
                 case Concat nodes:
-                    foreach (var n in nodes)
+                    foreach (Node n in nodes)
                     {
                         RenderNode(currentComponent, builder, sequence, n);
                         sequence++;
@@ -33,7 +33,7 @@ namespace Radix.Blazor
                     sequence += 1;
                     sequence = RenderAttributes(currentComponent, builder, sequence, element.Attributes);
 
-                    foreach (var elementChild in element.Children)
+                    foreach (Node elementChild in element.Children)
                     {
                         RenderNode(currentComponent, builder, sequence, elementChild);
                         sequence++;
@@ -51,8 +51,10 @@ namespace Radix.Blazor
                             sequence++,
                             renderTreeBuilder =>
                             {
-                                foreach (var elementChild in component.Children)
+                                foreach (Node elementChild in component.Children)
+                                {
                                     RenderNode(currentComponent, renderTreeBuilder, sequence, elementChild);
+                                }
                             });
                         builder.AddAttribute(sequence, "ChildContent", fragment);
                     }
@@ -68,13 +70,17 @@ namespace Radix.Blazor
 
         private static int RenderAttributes(object currentComponent, RenderTreeBuilder builder, int sequence, IEnumerable<IAttribute> attributes)
         {
-            foreach (var attribute in attributes)
+            foreach (IAttribute attribute in attributes)
+            {
                 switch (attribute)
                 {
                     case Attribute (var name, var values):
-                        var attributeValues = values as string[] ?? values.ToArray();
+                        string[] attributeValues = values as string[] ?? values.ToArray();
                         if (attributeValues.Any())
+                        {
                             builder.AddAttribute(sequence++, name, attributeValues.Aggregate((current, next) => current + " " + next));
+                        }
+
                         break;
                     case ComponentAttribute(var name, var value):
                         builder.AddAttribute(sequence, name, value);
@@ -83,6 +89,7 @@ namespace Radix.Blazor
                         sequence = explicitAttribute.Factory(builder, sequence, currentComponent);
                         break;
                 }
+            }
 
             return sequence;
         }

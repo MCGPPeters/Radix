@@ -58,54 +58,57 @@ namespace Radix.Tests.Models
         }
 
 
-        public InventoryItem Apply(params InventoryItemEvent[] events)
-        {
-            return events.Aggregate(
-                new InventoryItem(),
-                (_, @event) => @event switch
-                {
-                    InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
-                    InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
-                    ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
-                    ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
-                    InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
-                    _ => throw new NotSupportedException("Unknown event")
-                });
-        }
+        public InventoryItem Apply(params InventoryItemEvent[] events) => events.Aggregate(
+            new InventoryItem(),
+            (_, @event) => @event switch
+            {
+                InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
+                InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
+                ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
+                ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
+                InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
+                _ => throw new NotSupportedException("Unknown event")
+            });
 
         public bool Equals(InventoryItem? other)
         {
             if (ReferenceEquals(null, other))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
+
             return Name == other.Name && Activated == other.Activated && Count == other.Count;
         }
 
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
+
             if (obj.GetType() != GetType())
+            {
                 return false;
-            return Equals((InventoryItem) obj);
+            }
+
+            return Equals((InventoryItem)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Name, Activated, Count);
-        }
+        public override int GetHashCode() => HashCode.Combine(Name, Activated, Count);
 
-        public static bool operator ==(InventoryItem? left, InventoryItem? right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(InventoryItem? left, InventoryItem? right) => Equals(left, right);
 
-        public static bool operator !=(InventoryItem? left, InventoryItem? right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(InventoryItem? left, InventoryItem? right) => !Equals(left, right);
     }
 }

@@ -11,44 +11,35 @@ namespace Radix
 
         private static readonly IStreamStore streamStore = new InMemoryStreamStore();
 
-        public AppendEvents<TEvent> AppendEvents
-        {
-            get
-            {
-                //return async (address, version, events) =>
-                //{
-                //    var newStreamMessages = events.Select(
-                //        inventoryItemEvent =>
-                //        {
-                //            var jsonMessage = JsonSerializer.Serialize(inventoryItemEvent);
-                //            var messageId = inventoryItemEvent.Aggregate.Value;
-                //            return new NewStreamMessage(messageId, inventoryItemEvent.ToString(), jsonMessage);
-                //        }).ToArray();
-
-                //    Func<Task<AppendResult>> appendToStream;
-                //    AppendResult result;
-                //    var streamId = $"InventoryItem-{address.ToString()}";
-
-                //    switch (version)
-                //    {
-                //        case AnyVersion _:
-                //            appendToStream = () => streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
-                //            result = await appendToStream.Retry(Backoff.Exponentially());
-
-                //            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
-                //        case Version v:
-                //            var expectedVersion = Convert.ToInt32(v.Value);
-                //            appendToStream = () => streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
-                //            result = await appendToStream.Retry(Backoff.Exponentially());
-                //            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
-                //        default:
-                //            throw new NotSupportedException("Unknown type of version");
-                //    }
-                //};
-
-                return (address, version, events) => Task.FromResult(Extensions.Ok<Version, AppendEventsError>(new Version()));
-            }
-        }
+        public AppendEvents<TEvent> AppendEvents =>
+            //return async (address, version, events) =>
+            //{
+            //    var newStreamMessages = events.Select(
+            //        inventoryItemEvent =>
+            //        {
+            //            var jsonMessage = JsonSerializer.Serialize(inventoryItemEvent);
+            //            var messageId = inventoryItemEvent.Aggregate.Value;
+            //            return new NewStreamMessage(messageId, inventoryItemEvent.ToString(), jsonMessage);
+            //        }).ToArray();
+            //    Func<Task<AppendResult>> appendToStream;
+            //    AppendResult result;
+            //    var streamId = $"InventoryItem-{address.ToString()}";
+            //    switch (version)
+            //    {
+            //        case AnyVersion _:
+            //            appendToStream = () => streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
+            //            result = await appendToStream.Retry(Backoff.Exponentially());
+            //            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
+            //        case Version v:
+            //            var expectedVersion = Convert.ToInt32(v.Value);
+            //            appendToStream = () => streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
+            //            result = await appendToStream.Retry(Backoff.Exponentially());
+            //            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
+            //        default:
+            //            throw new NotSupportedException("Unknown type of version");
+            //    }
+            //};
+            (address, version, events) => Task.FromResult(Extensions.Ok<Version, AppendEventsError>(new Version()));
 
         public GetEventsSince<TEvent> GetEventsSince => EventsSince;
 

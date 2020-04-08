@@ -9,20 +9,16 @@ namespace Radix.Tests
     public class ValidationProperties
     {
 
-        private static Validated<Person> XValidated(Person person)
-        {
-
-            return person.Age >= 18
-                ? Valid(person)
-                : Invalid<Person>("Must have a valid age");
-        }
+        private static Validated<Person> XValidated(Person person) => person.Age >= 18
+            ? Valid(person)
+            : Invalid<Person>("Must have a valid age");
 
         [Fact(
             DisplayName =
                 "Check will aggregate all failed validations")]
         public void Test4()
         {
-            var validationResult =
+            Validated<Person> validationResult =
                 Valid(Person.Create)
                     .Apply(
                         11 >= 18
@@ -61,12 +57,7 @@ namespace Radix.Tests
     public class Person
     {
         public static Func<int, string, string, Person> Create = (age, firstName, lastName)
-            => new Person
-            {
-                Age = age,
-                FirstName = firstName,
-                LastName = lastName
-            };
+            => new Person {Age = age, FirstName = firstName, LastName = lastName};
 
 
         public int Age { get; set; }

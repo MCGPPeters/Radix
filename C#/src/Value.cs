@@ -6,72 +6,36 @@ namespace Radix
     {
         public T Value { get; }
 
-        int IComparable.CompareTo(object other)
-        {
-            return Value.CompareTo(((Value<T>) other).Value);
-        }
+        int IComparable.CompareTo(object other) => Value.CompareTo(((Value<T>)other).Value);
 
-        int IComparable<T>.CompareTo(T other)
-        {
-            return CompareTo(other);
-        }
+        int IComparable<T>.CompareTo(T other) => CompareTo(other);
 
-        bool IEquatable<T>.Equals(T other)
-        {
-            return Equals(other);
-        }
+        bool IEquatable<T>.Equals(T other) => Equals(other);
 
-        new int CompareTo(T other)
-        {
-            return Value.CompareTo(other);
-        }
+        new int CompareTo(T other) => Value.CompareTo(other);
 
         new bool Equals(T other)
         {
-            var v = ValueTuple.Create(Value);
-            var o = ValueTuple.Create(other);
+            ValueTuple<T> v = ValueTuple.Create(Value);
+            ValueTuple<T> o = ValueTuple.Create(other);
             return v.Equals(o);
         }
 
-        int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
+        int GetHashCode() => Value.GetHashCode();
 
-        bool Equals(object obj)
-        {
-            return Value.Equals(obj);
-        }
+        bool Equals(object obj) => Value.Equals(obj);
 
-        string ToString()
-        {
-            return Value.ToString();
-        }
+        string ToString() => Value.ToString();
 
-        public static bool operator >(Value<T> operand1, Value<T> operand2)
-        {
-            return operand1.CompareTo(operand2.Value) == 1;
-        }
+        public static bool operator >(Value<T> operand1, Value<T> operand2) => operand1.CompareTo(operand2.Value) == 1;
 
-        public static bool operator <(Value<T> operand1, Value<T> operand2)
-        {
-            return operand1.CompareTo(operand2.Value) == -1;
-        }
+        public static bool operator <(Value<T> operand1, Value<T> operand2) => operand1.CompareTo(operand2.Value) == -1;
 
-        public static bool operator >=(Value<T> operand1, Value<T> operand2)
-        {
-            return operand1.CompareTo(operand2.Value) >= 0;
-        }
+        public static bool operator >=(Value<T> operand1, Value<T> operand2) => operand1.CompareTo(operand2.Value) >= 0;
 
         // Define the is less than or equal to operator.
-        public static bool operator <=(Value<T> operand1, Value<T> operand2)
-        {
-            return operand1.CompareTo(operand2.Value) <= 0;
-        }
+        public static bool operator <=(Value<T> operand1, Value<T> operand2) => operand1.CompareTo(operand2.Value) <= 0;
 
-        void Deconstruct(out T value)
-        {
-            value = Value;
-        }
+        void Deconstruct(out T value) => value = Value;
     }
 }
