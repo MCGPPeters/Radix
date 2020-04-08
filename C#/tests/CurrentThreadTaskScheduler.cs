@@ -18,27 +18,18 @@ namespace Radix.Tests
         /// <summary>
         ///     <inheritdoc />
         /// </summary>
-        protected override void QueueTask(Task task)
-        {
-            TryExecuteTask(task);
-        }
+        protected override void QueueTask(Task task) => TryExecuteTask(task);
 
         /// <summary>
         ///     <inheritdoc />
         /// </summary>
         protected override bool TryExecuteTaskInline(
             Task task,
-            bool taskWasPreviouslyQueued)
-        {
-            return TryExecuteTask(task);
-        }
+            bool taskWasPreviouslyQueued) => TryExecuteTask(task);
 
         /// <summary>
         ///     <inheritdoc />
         /// </summary>
-        protected override IEnumerable<Task> GetScheduledTasks()
-        {
-            return Enumerable.Empty<Task>();
-        }
+        protected override IEnumerable<Task> GetScheduledTasks() => Enumerable.Empty<Task>();
     }
 }

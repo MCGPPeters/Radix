@@ -10,10 +10,8 @@ namespace Radix.Tests.Models
     {
         private readonly TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> _taskCompletionSource;
 
-        public InventoryItemSettings(TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> taskCompletionSource)
-        {
+        public InventoryItemSettings(TaskCompletionSource<IEnumerable<Conflict<InventoryItemCommand, InventoryItemEvent>>> taskCompletionSource) =>
             _taskCompletionSource = taskCompletionSource;
-        }
 
         /// <summary>
         ///     Signals the conflicts that were passed on by the runtime

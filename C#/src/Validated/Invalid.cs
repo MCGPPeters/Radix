@@ -2,20 +2,11 @@ namespace Radix.Validated
 {
     public readonly struct Invalid<T> : Validated<T>
     {
-        internal Invalid(params string[] reasons)
-        {
-            Reasons = reasons;
-        }
+        internal Invalid(params string[] reasons) => Reasons = reasons;
 
-        public static implicit operator Invalid<T>(string[] reasons)
-        {
-            return new Invalid<T>(reasons);
-        }
+        public static implicit operator Invalid<T>(string[] reasons) => new Invalid<T>(reasons);
 
-        public static implicit operator string[](Invalid<T> invalid)
-        {
-            return invalid.Reasons;
-        }
+        public static implicit operator string[](Invalid<T> invalid) => invalid.Reasons;
 
         public string[] Reasons { get; }
 
@@ -24,9 +15,6 @@ namespace Radix.Validated
         /// </summary>
         /// <param name="subject"></param>
         /// <param name="reasons"></param>
-        public void Deconstruct(out string[] reasons)
-        {
-            reasons = Reasons;
-        }
+        public void Deconstruct(out string[] reasons) => reasons = Reasons;
     }
 }

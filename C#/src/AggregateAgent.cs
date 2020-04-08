@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Radix.Monoid;
@@ -35,21 +36,25 @@ namespace Radix
             _actionBlock = new ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
                 {
-                    var (commandDescriptor, taskCompletionSource) = input;
+                    (CommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource) = input;
 
-                    if (commandDescriptor is null) return;
+                    if (commandDescriptor is null)
+                    {
+                        return;
+                    }
 
                     LastActivity = DateTimeOffset.Now;
-                    var expectedVersion = commandDescriptor.ExpectedVersion;
+                    IVersion expectedVersion = commandDescriptor.ExpectedVersion;
 
                     Console.Out.WriteLine("getting histroy");
-                    var eventsSince = _boundedContextSettings.EventStore.GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version)
+                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.EventStore
+                        .GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version)
                         .ConfigureAwait(false);
                     Console.Out.WriteLine("getting histroy done");
-                    await foreach (var eventDescriptor in eventsSince)
+                    await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
                     {
                         Console.Out.WriteLine("checking for conflicts");
-                        var optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
+                        Option<Conflict<TCommand, TEvent>> optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
                         Console.Out.WriteLine("done checking for conflicts");
                         switch (optionalConflict)
                         {
@@ -63,12 +68,13 @@ namespace Radix
                     }
 
                     Console.Out.WriteLine("decide");
-                    var result = await _state.Decide(commandDescriptor).ConfigureAwait(false);
+                    Result<TEvent[], CommandDecisionError> result = await _state.Decide(commandDescriptor).ConfigureAwait(false);
                     Console.Out.WriteLine("decide done");
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
-                            var appendResult = _boundedContextSettings.EventStore.AppendEvents(commandDescriptor.Address, expectedVersion, events).ConfigureAwait(false);
+                            ConfiguredTaskAwaitable<Result<Version, AppendEventsError>> appendResult =
+                                _boundedContextSettings.EventStore.AppendEvents(commandDescriptor.Address, expectedVersion, events).ConfigureAwait(false);
                             Console.Out.WriteLine("append done");
                             switch (await appendResult)
                             {
@@ -111,7 +117,7 @@ namespace Radix
 
         public async Task<Result<TEvent[], Error[]>> Post(CommandDescriptor<TCommand> commandDescriptor)
         {
-            var taskCompletionSource = new TaskCompletionSource<Result<TEvent[], Error[]>>();
+            TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource = new TaskCompletionSource<Result<TEvent[], Error[]>>();
             await _actionBlock.SendAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
             return await taskCompletionSource.Task.ConfigureAwait(false);
         }
@@ -119,15 +125,11 @@ namespace Radix
 
         public DateTimeOffset LastActivity { get; set; }
 
-        public void Deactivate()
-        {
-            _actionBlock.Complete();
-        }
+        public void Deactivate() => _actionBlock.Complete();
 
         public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
-            IAsyncEnumerable<EventDescriptor<TEvent>> history)
-        {
-            return new AggregateAgent<TState, TCommand, TEvent>(await Initial<TState, TEvent>.State(history).ConfigureAwait(false), boundedContextSettings);
-        }
+            IAsyncEnumerable<EventDescriptor<TEvent>> history) => new AggregateAgent<TState, TCommand, TEvent>(
+            await Initial<TState, TEvent>.State(history).ConfigureAwait(false),
+            boundedContextSettings);
     }
 }

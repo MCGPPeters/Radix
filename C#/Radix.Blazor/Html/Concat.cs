@@ -5,10 +5,7 @@ namespace Radix.Blazor.Html
 {
     public readonly struct Concat : Node, IEnumerable<Node>
     {
-        public Concat(Node[] nodes)
-        {
-            Nodes = new List<Node>(nodes);
-        }
+        public Concat(Node[] nodes) => Nodes = new List<Node>(nodes);
 
         public Node this[int index]
         {
@@ -18,14 +15,8 @@ namespace Radix.Blazor.Html
 
         public List<Node> Nodes { get; }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<Node> GetEnumerator()
-        {
-            return Nodes.GetEnumerator();
-        }
+        public IEnumerator<Node> GetEnumerator() => Nodes.GetEnumerator();
     }
 }

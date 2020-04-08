@@ -7,7 +7,7 @@ namespace Radix
     {
         public static Validated<Command<T>> Create(Func<Validated<T>> create)
         {
-            var t = create();
+            Validated<T> t = create();
             switch (t)
             {
                 case Valid<T>(var valid):
@@ -19,20 +19,11 @@ namespace Radix
             }
         }
 
-        public static implicit operator Command<T>(T t)
-        {
-            return new Command<T>(t);
-        }
+        public static implicit operator Command<T>(T t) => new Command<T>(t);
 
-        public static implicit operator T(Command<T> command)
-        {
-            return command.Value;
-        }
+        public static implicit operator T(Command<T> command) => command.Value;
 
-        private Command(T command)
-        {
-            Value = command;
-        }
+        private Command(T command) => Value = command;
 
         public T Value { get; }
     }

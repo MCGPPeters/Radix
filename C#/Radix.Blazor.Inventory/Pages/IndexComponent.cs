@@ -14,7 +14,7 @@ namespace Radix.Blazor.Inventory.Pages
     {
         public override Node Render(IndexViewModel currentViewModel)
         {
-            var InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
+            Node[] InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 
             return concat(
                 navLinkMatchAll(new[] {@class("btn btn-primary"), href("Add")}, text("Add")),
@@ -23,15 +23,12 @@ namespace Radix.Blazor.Inventory.Pages
             );
         }
 
-        private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems)
-        {
-            return inventoryItems.Select(
-                inventoryItem =>
-                    li(
-                        Enumerable.Empty<IAttribute>(),
-                        navLinkMatchAll(
-                            new[] {href($"/Details/{inventoryItem.address}")},
-                            text(inventoryItem.name)))).ToArray();
-        }
+        private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
+            inventoryItem =>
+                li(
+                    Enumerable.Empty<IAttribute>(),
+                    navLinkMatchAll(
+                        new[] {href($"/Details/{inventoryItem.address}")},
+                        text(inventoryItem.name)))).ToArray();
     }
 }
