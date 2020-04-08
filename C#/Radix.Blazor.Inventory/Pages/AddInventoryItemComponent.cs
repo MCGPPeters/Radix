@@ -20,7 +20,7 @@ namespace Radix.Blazor.Inventory.Pages
         {
 
             return concat(
-                h1(Enumerable.Empty<IAttribute>(), text("Add new item")),
+                h1(NoAttributes(), text("Add new item")),
                 div(
                     new[] {@class("form-group")},
                     Elements.label(
@@ -29,22 +29,15 @@ namespace Radix.Blazor.Inventory.Pages
                     input(
                         @class("form-control"),
                         id("nameInput"),
-                        on.input(
-                            args => { CurrentViewModel.InventoryItemName = args.Value.ToString(); }),
-                        value(currentViewModel.InventoryItemName)),
+                        bind.input(currentViewModel.InventoryItemName, name => currentViewModel.InventoryItemName = name)),
                     Elements.label(
                         new[] {@for("countInput")},
                         text("Count")),
                     input(
                         @class("form-control"),
                         id("countInput"),
-                        value(CurrentViewModel.InventoryItemCount.ToString()),
-                        on.input(
-                            args =>
-                            {
-                                Console.Out.WriteLine(args.Value);
-                                currentViewModel.InventoryItemCount = int.Parse(args.Value.ToString());
-                            }))),
+                        bind.input(currentViewModel.InventoryItemCount, count => currentViewModel.InventoryItemCount = count)
+                    )),
                 button(
                     new[]
                     {
@@ -67,19 +60,17 @@ namespace Radix.Blazor.Inventory.Pages
 
                                                 break;
                                             case Error<InventoryItemEvent[], Error[]>(var errors):
-                                                Console.Out.WriteLine($"errors : {errors}");
-                                                currentViewModel.Errors = errors.ToList();
+                                                currentViewModel.Errors = errors.Select(error => error.Message).ToList();
                                                 if (JSRuntime is object)
-                                                    await JSRuntime.InvokeAsync<string>("$('.toast').toast(option)", Array.Empty<object>());
+                                                    await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                                 break;
                                         }
 
                                         break;
-                                    case Invalid<InventoryItemCommand> invalidCommand:
-                                        Console.Out.WriteLine($"invalid : {invalidCommand.Reasons.Aggregate((s1, s2) => s1 + " " + s2)}");
-                                        // OnNext(currentViewModel);
+                                    case Invalid<InventoryItemCommand> (var errors):
+                                        currentViewModel.Errors = errors.Select(s1 => s1).ToList();
                                         if (JSRuntime is object)
-                                            await JSRuntime.InvokeAsync<string>("$('.toast').toast(option)", Array.Empty<object>());
+                                            await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                         break;
                                     default:
                                         throw new InvalidOperationException();
@@ -90,24 +81,30 @@ namespace Radix.Blazor.Inventory.Pages
                     text("Ok")
                 ),
                 navLinkMatchAll(new[] {@class("btn btn-primary"), href("/")}, text("Cancel")),
-                currentViewModel.Errors.Any()
-                    ? div(
-                        Enumerable.Empty<IAttribute>(),
+                div(
+                        NoAttributes(),
                         div(
-                            new[] {@class("toast"), attribute("data-autohide", "true")},
+                            new[] {@class("toast"), attribute("data-autohide", "false")},
                             div(
                                 new[] {@class("toast-header")},
-                                img(new[] {src("..."), @class("rounded-mr2"), alt("...")}),
+
                                 strong(new[] {@class("mr-auto")}, text("Invalid input")),
-                                small(Array.Empty<IAttribute>(), text(DateTimeOffset.UtcNow.ToString()))),
+                                small(NoAttributes(), text(DateTimeOffset.UtcNow.ToString())),
+                                button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(NoAttributes(), text("🗙")))),
                             div(
                                 new[] {@class("toast-body")},
                                 FormatErrorMessages(currentViewModel.Errors)
-                            )))
-                    : empty);
+                            ))))
+                    ;
         }
 
-        private Node FormatErrorMessages(IEnumerable<Error> errors)
+        private static IEnumerable<IAttribute> NoAttributes()
+        {
+
+            return Enumerable.Empty<IAttribute>();
+        }
+
+        private Node FormatErrorMessages(IEnumerable<string> errors)
         {
             Node node = new Empty();
             if (errors is object)

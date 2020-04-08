@@ -10,7 +10,7 @@ namespace Radix.Blazor.Inventory.Pages
         public string InventoryItemName { get; set; }
         public int InventoryItemCount { get; set; }
 
-        public List<Error> Errors { get; set; } = new List<Error>();
+        public List<string> Errors { get; set; } = new List<string>();
 
         public List<string> Messages { get; set; } = new List<string>();
 
