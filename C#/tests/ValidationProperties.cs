@@ -39,7 +39,7 @@ namespace Radix.Tests
             //var validationResult2 =
             //    person
             //        .Check(p => p.Age >= 18, _ =>  "Must have a valid age")
-            //        .Apply(p => !string.IsNullOrWhiteSpace(p.FirstName), "Must have a first name" )
+            //        .Update(p => !string.IsNullOrWhiteSpace(p.FirstName), "Must have a first name" )
             //        .Check()
 
             switch (validationResult)

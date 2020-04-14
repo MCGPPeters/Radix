@@ -23,15 +23,19 @@ namespace Radix
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
 
+        private Version _version;
+
         /// <summary>
         /// </summary>
         /// <param name="initialState"></param>
+        /// <param name="version">The agent maintains the expected version for sending commands</param>
         /// <param name="boundedContextSettings"></param>
-        private AggregateAgent(TState initialState, BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
+        private AggregateAgent(TState initialState, Version version, BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
             LastActivity = DateTimeOffset.Now;
             _state = initialState;
+            _version = version;
 
             _actionBlock = new ActionBlock<(CommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
@@ -44,22 +48,20 @@ namespace Radix
                     }
 
                     LastActivity = DateTimeOffset.Now;
-                    IVersion expectedVersion = commandDescriptor.ExpectedVersion;
 
-                    Console.Out.WriteLine("getting histroy");
                     ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.EventStore
-                        .GetEventsSince(commandDescriptor.Address, expectedVersion).OrderBy(descriptor => descriptor.Version)
+                        .GetEventsSince(commandDescriptor.Address, _version).OrderBy(descriptor => descriptor.Version)
                         .ConfigureAwait(false);
-                    Console.Out.WriteLine("getting histroy done");
+
                     await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
                     {
-                        Console.Out.WriteLine("checking for conflicts");
+
                         Option<Conflict<TCommand, TEvent>> optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
-                        Console.Out.WriteLine("done checking for conflicts");
+
                         switch (optionalConflict)
                         {
                             case None<Conflict<TCommand, TEvent>> _:
-                                expectedVersion = eventDescriptor.Version;
+                                _version = eventDescriptor.Version;
                                 break;
                             case Some<Conflict<TCommand, TEvent>>(var conflict):
                                 taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {conflict.Reason}));
@@ -67,21 +69,20 @@ namespace Radix
                         }
                     }
 
-                    Console.Out.WriteLine("decide");
                     Result<TEvent[], CommandDecisionError> result = await _state.Decide(commandDescriptor).ConfigureAwait(false);
-                    Console.Out.WriteLine("decide done");
+
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
                             ConfiguredTaskAwaitable<Result<Version, AppendEventsError>> appendResult =
-                                _boundedContextSettings.EventStore.AppendEvents(commandDescriptor.Address, expectedVersion, events).ConfigureAwait(false);
-                            Console.Out.WriteLine("append done");
+                                _boundedContextSettings.EventStore.AppendEvents(commandDescriptor.Address, _version, events).ConfigureAwait(false);
+
                             switch (await appendResult)
                             {
                                 case Ok<Version, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
-                                    _state = events.Aggregate(_state, (s, @event) => s.Apply(@event));
-                                    Console.Out.WriteLine("append succesfull");
+                                    _state = events.Aggregate(_state, (s, @event) => s.Update(@event));
+
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;
                                 case Error<Version, AppendEventsError>(var error):
@@ -90,10 +91,10 @@ namespace Radix
                                         case OptimisticConcurrencyError _:
                                             // re issue the command to try again
                                             await _actionBlock.SendAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
-                                            Console.Out.WriteLine("conflict, retrying");
+
                                             break;
                                         default:
-                                            Console.Out.WriteLine("append failed because of unknown reason");
+
                                             throw new NotSupportedException();
                                     }
 
@@ -105,7 +106,6 @@ namespace Radix
 
                             break;
                         case Error<TEvent[], CommandDecisionError> (var error):
-                            Console.Out.WriteLine($"append not successfull {error.Message}");
                             taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {error.Message}));
 
                             break;
@@ -128,8 +128,11 @@ namespace Radix
         public void Deactivate() => _actionBlock.Complete();
 
         public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
-            IAsyncEnumerable<EventDescriptor<TEvent>> history) => new AggregateAgent<TState, TCommand, TEvent>(
-            await Initial<TState, TEvent>.State(history).ConfigureAwait(false),
-            boundedContextSettings);
+            IAsyncEnumerable<EventDescriptor<TEvent>> history)
+        {
+            (TState state, Version currentVersion) x = await Initial<TState, TEvent>.State(history).ConfigureAwait(false);
+            return new AggregateAgent<TState, TCommand, TEvent>(
+                x.state, x.currentVersion, boundedContextSettings);
+        }
     }
 }

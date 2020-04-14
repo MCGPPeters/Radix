@@ -10,13 +10,13 @@ namespace Radix.Blazor.Inventory.Pages
     [Route("/counter")]
     public class CounterComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
     {
-        private int currentCount;
+        private int _currentCount;
 
-        private void IncrementCount() => currentCount++;
+        private void IncrementCount() => _currentCount++;
 
-        public override Node Render(AddInventoryItemViewModel currentViewModel) => concat(
+        public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(Enumerable.Empty<IAttribute>(), text("Counter")),
-            p(Enumerable.Empty<IAttribute>(), text(currentCount.ToString())),
+            p(Enumerable.Empty<IAttribute>(), text(_currentCount.ToString())),
             button(
                 new[]
                 {

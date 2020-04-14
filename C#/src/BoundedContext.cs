@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using Radix.Monoid;
+using Radix.Validated;
 
 namespace Radix
 {
@@ -28,7 +30,7 @@ namespace Radix
         private readonly Dictionary<Address, Agent<TCommand, TEvent>> _registry = new Dictionary<Address, Agent<TCommand, TEvent>>();
         private readonly Timer _timer;
 
-        private bool disposedValue; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
         public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
         {
@@ -82,19 +84,23 @@ namespace Radix
         public async Task<Address> GetAggregate<TState>()
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() => await Create<TState>();
 
-        public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, TCommand command, IVersion expectedVersion)
+        public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, Validated<TCommand> command)
             where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         {
-            CommandDescriptor<TCommand> commandDescriptor = new CommandDescriptor<TCommand>(address, command, expectedVersion);
-            if (!_registry.TryGetValue(commandDescriptor.Address, out Agent<TCommand, TEvent> agent))
+            switch (command)
             {
-                agent = await GetAggregate<TState>(commandDescriptor.Address).ConfigureAwait(false);
-            }
+                case Valid<TCommand>(var validCommand):
+                    CommandDescriptor<TCommand> commandDescriptor = new CommandDescriptor<TCommand>(address, validCommand);
+                    if (!_registry.TryGetValue(commandDescriptor.Address, out Agent<TCommand, TEvent> agent))
+                    {
+                        agent = await GetAggregate<TState>(commandDescriptor.Address).ConfigureAwait(false);
+                    }
 
-            Console.Out.WriteLine(commandDescriptor.Address);
-            Result<TEvent[], Error[]> result = await agent.Post(commandDescriptor).ConfigureAwait(false);
-            Console.Out.WriteLine("got result after posting");
-            return result;
+                    return await agent.Post(commandDescriptor).ConfigureAwait(false);
+                case Invalid<TCommand>(var messages):
+                    return new Error<TEvent[], Error[]>(messages.Select(s => new Error(s)).ToArray());
+                default: throw new InvalidOperationException();
+            };
         }
 
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
@@ -109,14 +115,14 @@ namespace Radix
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     _timer.Dispose();
                 }
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
     }

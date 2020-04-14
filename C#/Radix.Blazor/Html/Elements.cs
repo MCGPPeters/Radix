@@ -397,29 +397,14 @@ namespace Radix.Blazor.Html
         public static Empty empty
             => new Empty();
 
-        public static Node text(string text)
-        {
-            return new Text(text);
-        }
+        public static Node text(string text) => new Text(text);
 
-        public static Concat concat(params Node[] nodes)
-        {
-            return new Concat(nodes);
-        }
+        public static Concat concat(params Node[] nodes) => new Concat(nodes);
 
-        public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children)
-        {
-            return new Element(name, attributes, children);
-        }
+        public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children) => new Element(name, attributes, children);
 
-        public static Element element(Name name, params IAttribute[] attributes)
-        {
-            return new Element(name, attributes);
-        }
+        public static Element element(Name name, params IAttribute[] attributes) => new Element(name, attributes);
 
-        public static Element element(Name name, params Node[] nodes)
-        {
-            return new Element(name, nodes);
-        }
+        public static Element element(Name name, params Node[] nodes) => new Element(name, nodes);
     }
 }

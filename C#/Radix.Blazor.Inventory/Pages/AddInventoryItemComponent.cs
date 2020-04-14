@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
-using Radix.Validated;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Blazor.Html.Components;
 using static Radix.Blazor.Html.Elements;
@@ -16,7 +16,7 @@ namespace Radix.Blazor.Inventory.Pages
     [Route("/Add")]
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
     {
-        public override Node Render(AddInventoryItemViewModel currentViewModel) => concat(
+        public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(NoAttributes(), text("Add new item")),
             div(
                 new[] {@class("form-group")},
@@ -41,43 +41,28 @@ namespace Radix.Blazor.Inventory.Pages
                     @class("btn btn-primary"), on.click(
                         async args =>
                         {
+                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(
+                                currentViewModel.InventoryItemName,
+                                true,
+                                currentViewModel.InventoryItemCount);
+
+                            // todo creating an aggregate only makes sense when the command is valid
                             Address inventoryItem = await BoundedContext.Create<InventoryItem>();
-                            Validated<InventoryItemCommand> item = CreateInventoryItem.Create(currentViewModel.InventoryItemName, true, currentViewModel.InventoryItemCount);
-                            switch (item)
+                            Result<InventoryItemEvent[], Error[]> result = await BoundedContext.Send<InventoryItem>(inventoryItem, validCommand);
+                            switch (result)
                             {
-                                case Valid<InventoryItemCommand> (var validCommand):
-                                    IVersion expectedVersion = new AnyVersion();
-
-                                    Result<InventoryItemEvent[], Error[]> result = await BoundedContext.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
-                                    switch (result)
-                                    {
-                                        case Ok<InventoryItemEvent[], Error[]>(var events):
-                                            currentViewModel.Apply(events);
-
-                                            break;
-                                        case Error<InventoryItemEvent[], Error[]>(var errors):
-                                            currentViewModel.Errors = errors.Select(error => error.Message).ToList();
-                                            if (JSRuntime is object)
-                                            {
-                                                await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
-                                            }
-
-                                            break;
-                                    }
-
+                                case Ok<InventoryItemEvent[], Error[]>(var events):
+                                    currentViewModel.Update(events);
                                     break;
-                                case Invalid<InventoryItemCommand> (var errors):
-                                    currentViewModel.Errors = errors.Select(s1 => s1).ToList();
+                                case Error<InventoryItemEvent[], Error[]>(var errors):
+                                    currentViewModel.Errors = errors.Select(error => error.Message).ToList();
                                     if (JSRuntime is object)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                     }
 
                                     break;
-                                default:
-                                    throw new InvalidOperationException();
                             }
-
                         })
                 },
                 text("Ok")
@@ -90,7 +75,7 @@ namespace Radix.Blazor.Inventory.Pages
                     div(
                         new[] {@class("toast-header")},
                         strong(new[] {@class("mr-auto")}, text("Invalid input")),
-                        small(NoAttributes(), text(DateTimeOffset.UtcNow.ToString())),
+                        small(NoAttributes(), text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
                         button(new[] {type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast")}, Elements.span(NoAttributes(), text("🗙")))),
                     div(
                         new[] {@class("toast-body")},
@@ -99,7 +84,7 @@ namespace Radix.Blazor.Inventory.Pages
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
-        private Node FormatErrorMessages(IEnumerable<string> errors)
+        private static Node FormatErrorMessages(IEnumerable<string> errors)
         {
             Node node = new Empty();
             if (errors is object)

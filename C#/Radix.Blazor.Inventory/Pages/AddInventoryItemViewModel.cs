@@ -14,14 +14,12 @@ namespace Radix.Blazor.Inventory.Pages
 
         public List<string> Messages { get; set; } = new List<string>();
 
-        public bool Equals(AddInventoryItemViewModel other)
-        {
-            return true;
-        }
+        public bool Equals(AddInventoryItemViewModel other) => true;
 
-        public AddInventoryItemViewModel Apply(params InventoryItemEvent[] @event)
+        public AddInventoryItemViewModel Update(params InventoryItemEvent[] @event)
         {
-            foreach (var inventoryItemEvent in @event)
+            foreach (InventoryItemEvent inventoryItemEvent in @event)
+            {
                 switch (inventoryItemEvent)
                 {
                     case InventoryItemCreated created:
@@ -30,6 +28,7 @@ namespace Radix.Blazor.Inventory.Pages
                         InventoryItemName = created.Name;
                         break;
                 }
+            }
 
             return this;
         }

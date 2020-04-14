@@ -5,7 +5,6 @@ using FluentAssertions;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
-using Radix.Validated;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Option.Extensions;
@@ -58,22 +57,17 @@ namespace Radix.Tests
 
             Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1);
 
-            switch (removeItems)
+            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, removeItems);
+            switch (result)
             {
-                case Valid<InventoryItemCommand> (var validCommand):
-                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, new Version(3L));
-                    switch (result)
-                    {
-                        case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, inventoryItem)});
-                            break;
-                        case Error<InventoryItemEvent[], Error[]>(var errors):
-                            errors.Should().BeEmpty();
-                            break;
-                    }
-
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, inventoryItem)});
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
                     break;
             }
+
         }
     }
 }
