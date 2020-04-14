@@ -6,7 +6,6 @@ using FluentAssertions;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
-using Radix.Validated;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Option.Extensions;
@@ -45,14 +44,8 @@ namespace Radix.Tests
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
         public async Task Property1()
         {
-            List<InventoryItemEvent> eventStream = new List<InventoryItemEvent>();
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
-            {
-                eventStream.AddRange(events);
-                return Task.FromResult(Ok<Version, AppendEventsError>(0L));
-            };
-
-            GetEventsSince<InventoryItemEvent> getEventsSince = (_, __) => AsyncEnumerable.Empty<EventDescriptor<InventoryItemEvent>>();
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<Version, AppendEventsError>(0L));
+            GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
@@ -67,32 +60,26 @@ namespace Radix.Tests
                 CheckInItemsToInventory
                     .Create(10);
 
-            switch (checkin)
+            var result = await context.Send<InventoryItem>(inventoryItem, checkin);
+
+            
+            switch (result)
             {
-                case Valid<InventoryItemCommand> (var validCommand):
-                    IVersion expectedVersion = new AnyVersion();
-                    await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().Equal(
+                        new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) });
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
                     break;
             }
-
-
-            eventStream.Should().Equal(
-                new List<InventoryItemEvent> {new InventoryItemCreated("Product 1", true, 1, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem)});
-
         }
 
         [Fact(
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
         public async Task Property2()
         {
-            List<InventoryItemEvent> AppendedEvents = new List<InventoryItemEvent>();
-
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
-            {
-                AppendedEvents.AddRange(events);
-                return Task.FromResult(Ok<Version, AppendEventsError>(1));
-            };
-
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<Version, AppendEventsError>(1));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
 
@@ -104,27 +91,21 @@ namespace Radix.Tests
                     garbageCollectionSettings));
 
             Address inventoryItem = await context.Create<InventoryItem>();
-            Validated<InventoryItemCommand> checkin =
-                CheckInItemsToInventory
+            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
                     .Create(10);
-            switch (checkin)
+
+            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, checkin);
+
+            switch (result)
             {
-                case Valid<InventoryItemCommand> (var validCommand):
-                    Version expectedVersion = 2L;
-                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
-
-                    switch (result)
-                    {
-                        case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
-                            break;
-                        case Error<InventoryItemEvent[], Error[]>(var errors):
-                            errors.Should().Contain("Just another conflict");
-                            break;
-                    }
-
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().Contain(error => error.Message == "Just another conflict");
                     break;
             }
+
         }
 
 
@@ -135,7 +116,6 @@ namespace Radix.Tests
         {
             bool calledBefore = false;
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-            TaskCompletionSource<List<InventoryItemEvent>> completionSource = new TaskCompletionSource<List<InventoryItemEvent>>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 if (calledBefore)
@@ -159,22 +139,16 @@ namespace Radix.Tests
 
             Address inventoryItem = await context.Create<InventoryItem>();
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
-            switch (checkin)
+
+            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, checkin);
+
+            switch (result)
             {
-                case Valid<InventoryItemCommand>(var validCommand):
-                    Version expectedVersion = 2L;
-                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
-
-                    switch (result)
-                    {
-                        case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal((new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended"));
-                            break;
-                        case Error<InventoryItemEvent[], Error[]>(var errors):
-                            errors.Should().BeEmpty();
-                            break;
-                    }
-
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().BeEquivalentTo(new [] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
                     break;
             }
         }
@@ -202,24 +176,18 @@ namespace Radix.Tests
 
             Address inventoryItem = await context.Create<InventoryItem>();
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
-            switch (checkin)
+            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, checkin);
+
+            switch (result)
             {
-                case Valid<InventoryItemCommand>(var validCommand):
-                    Version expectedVersion = 2L;
-                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
-
-                    switch (result)
-                    {
-                        case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal((new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended"));
-                            break;
-                        case Error<InventoryItemEvent[], Error[]>(var errors):
-                            errors.Should().BeEmpty();
-                            break;
-                    }
-
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().BeEquivalentTo(new [] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
                     break;
             }
+
         }
 
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
@@ -243,23 +211,16 @@ namespace Radix.Tests
 
             Address inventoryItem = await context.Create<InventoryItem>();
 
-            Validated<InventoryItemCommand> item = CreateInventoryItem.Create("Product 1", true, 0);
-            switch (item)
-            {
-                case Valid<InventoryItemCommand> (var validCommand):
-                    IVersion expectedVersion = new AnyVersion();
-                    Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, validCommand, expectedVersion);
-                    switch (result)
-                    {
-                        case Ok<InventoryItemEvent[], Error[]>(var events):
-                            events.Should().Equal(
-                                new List<InventoryItemEvent> {new InventoryItemCreated("Product 1", true, 0, inventoryItem), new ItemsCheckedInToInventory(10, inventoryItem)});
-                            break;
-                        case Error<InventoryItemEvent[], Error[]>(var errors):
-                            errors.Should().BeEmpty();
-                            break;
-                    }
+            Validated<InventoryItemCommand> createInventoryItem = CheckInItemsToInventory.Create( 15);
 
+            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, createInventoryItem);
+            switch (result)
+            {
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(15, inventoryItem));
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
                     break;
             }
         }

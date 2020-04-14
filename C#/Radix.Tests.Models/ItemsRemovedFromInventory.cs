@@ -2,7 +2,7 @@ namespace Radix.Tests.Models
 {
     public class ItemsRemovedFromInventory : InventoryItemEvent
     {
-        public ItemsRemovedFromInventory(int amount, Address aggregate) : base(aggregate) => Amount = amount;
+        public ItemsRemovedFromInventory(int amount, Address aggregate) : base(aggregate)=> Amount = amount;
 
         public int Amount { get; }
 

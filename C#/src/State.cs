@@ -12,6 +12,6 @@ namespace Radix
         ///     You ONLY mutate the state here. You MUST NOT call any external services.
         ///     The new state will be returned as an effect
         /// </summary>
-        public TState Apply(params TEvent[] events);
+        public TState Update(params TEvent[] events);
     }
 }

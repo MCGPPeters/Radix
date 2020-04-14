@@ -12,7 +12,7 @@ namespace Radix.Blazor.Inventory.Pages
     [Route("/")]
     public class HomeComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
     {
-        public override Node Render(IndexViewModel currentViewModel)
+        public override Node View(IndexViewModel currentViewModel)
         {
             Node[] InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 

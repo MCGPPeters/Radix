@@ -44,7 +44,7 @@ namespace Radix
 
         public void OnNext(TEvent @event)
         {
-            State = State.Apply(@event);
+            State = State.Update(@event);
             if (_observer is object)
             {
                 _observer.OnNext(State);

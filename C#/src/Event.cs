@@ -2,7 +2,10 @@ namespace Radix
 {
     public abstract class Event
     {
-        protected Event(Address aggregate) => Aggregate = aggregate;
+        protected Event(Address aggregate)
+        {
+            Aggregate = aggregate;
+        }
 
         public Address Aggregate { get; }
 

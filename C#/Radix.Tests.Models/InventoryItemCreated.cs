@@ -4,7 +4,7 @@ namespace Radix.Tests.Models
     {
 
         public InventoryItemCreated(string name, bool activated, int count, Address aggregate) : base(aggregate)
-        {
+        { 
             Name = name;
             Activated = activated;
             Count = count;

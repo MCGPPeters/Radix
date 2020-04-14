@@ -58,7 +58,7 @@ namespace Radix.Tests.Models
         }
 
 
-        public InventoryItem Apply(params InventoryItemEvent[] events) => events.Aggregate(
+        public InventoryItem Update(params InventoryItemEvent[] events) => events.Aggregate(
             new InventoryItem(),
             (_, @event) => @event switch
             {

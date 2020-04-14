@@ -9,20 +9,18 @@ namespace Radix
         where TState : State<TState, TEvent>, IEquatable<TState>, new()
         where TEvent : Event
     {
-        public static async Task<TState> State(IAsyncEnumerable<EventDescriptor<TEvent>> history)
+        public static async Task<(TState, Version currentVersion)> State(IAsyncEnumerable<EventDescriptor<TEvent>> history)
         {
             TState initialState = new TState();
+            Version currentVersion = 0L;
 
-            // restore the initialState (if any)
-            if (history is object)
+            await foreach(var eventDescriptor in history)
             {
-                initialState = await history.AggregateAsync(
-                    initialState,
-                    (state, eventDescriptor)
-                        => state.Apply(eventDescriptor.Event));
+                initialState.Update(eventDescriptor.Event);
+                currentVersion = eventDescriptor.Version;
             }
 
-            return initialState;
+            return (initialState, currentVersion);
         }
 
         public static async Task<TState> State(IAsyncEnumerable<TEvent> history)
@@ -35,7 +33,7 @@ namespace Radix
                 initialState = await history.AggregateAsync(
                     initialState,
                     (state, @event)
-                        => state.Apply(@event));
+                        => state.Update(@event));
             }
 
             return initialState;

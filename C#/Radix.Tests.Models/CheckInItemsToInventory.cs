@@ -11,7 +11,7 @@ namespace Radix.Tests.Models
         public int Amount { get; }
 
 
-        private static Func<int, CheckInItemsToInventory> New => amount =>
+        private static Func<int, InventoryItemCommand> New => amount =>
             new CheckInItemsToInventory(amount);
 
         public int CompareTo(object obj) => throw new NotImplementedException();
