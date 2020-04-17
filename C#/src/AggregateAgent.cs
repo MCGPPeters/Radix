@@ -50,7 +50,8 @@ namespace Radix
                     LastActivity = DateTimeOffset.Now;
 
                     ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.EventStore
-                        .GetEventsSince(commandDescriptor.Address, _version).OrderBy(descriptor => descriptor.Version)
+                        .GetEventsSince(commandDescriptor.Address, _version)
+                        .OrderBy(descriptor => descriptor.Version)
                         .ConfigureAwait(false);
 
                     await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)

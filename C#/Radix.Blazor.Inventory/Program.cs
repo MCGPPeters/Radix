@@ -28,7 +28,6 @@ namespace Radix.Blazor.Inventory
             builder.Services.AddSingleton(boundedContext);
             builder.Services.AddSingleton(indexReadModel);
             builder.Services.AddSingleton(addInventoryItemReadModel);
-            builder.Services.AddBaseAddressHttpClient();
 
             builder.RootComponents.Add<App>("app");
 
