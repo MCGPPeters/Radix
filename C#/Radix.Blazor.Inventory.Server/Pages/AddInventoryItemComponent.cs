@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
+using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
@@ -47,12 +48,12 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 currentViewModel.InventoryItemCount);
 
                             // todo creating an aggregate only makes sense when the command is valid
-                            Address inventoryItem = await BoundedContext.Create<InventoryItem>();
-                            Result<InventoryItemEvent[], Radix.Error[]> result = await BoundedContext.Send<InventoryItem>(inventoryItem, validCommand);
+                            Address inventoryItem = await BoundedContext.Create(InventoryItem.Update);
+                            Result<InventoryItemEvent[], Radix.Error[]> result = await BoundedContext.Send(inventoryItem, validCommand, InventoryItem.Update);
                             switch (result)
                             {
                                 case Ok<InventoryItemEvent[], Radix.Error[]>(var events):
-                                    currentViewModel.Update(events);
+                                    currentViewModel = events.Aggregate(currentViewModel, (current, @event) => AddInventoryItemViewModel.Update(current, @event));
                                     break;
                                 case Error<InventoryItemEvent[], Radix.Error[]>(var errors):
                                     currentViewModel.Errors = errors.Select(error => error.Message).ToList();

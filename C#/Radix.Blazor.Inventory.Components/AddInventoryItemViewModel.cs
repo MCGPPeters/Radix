@@ -16,7 +16,7 @@ namespace Radix.Blazor.Inventory.Components
 
         public bool Equals(AddInventoryItemViewModel other) => true;
 
-        public AddInventoryItemViewModel Update(params InventoryItemEvent[] @event)
+        public AddInventoryItemViewModel Update(InventoryItem inventoryItem, params InventoryItemEvent[] @event)
         {
             foreach (InventoryItemEvent inventoryItemEvent in @event)
             {

@@ -11,6 +11,7 @@ using static Radix.Result.Extensions;
 
 namespace Radix
 {
+
     internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand, TEvent>
         where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
         where TEvent : Event
@@ -26,15 +27,18 @@ namespace Radix
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
+        private Update<TState, TEvent> _update;
 
         /// <summary>
         /// </summary>
         /// <param name="initialState"></param>
         /// <param name="expectedVersion">The agent maintains the expected expectedVersion for sending commands</param>
         /// <param name="boundedContextSettings"></param>
-        private AggregateAgent(TState initialState, Version expectedVersion, BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
+        /// <param name="update"></param>
+        private AggregateAgent(TState initialState, Version expectedVersion, BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
+            _update = update;
             LastActivity = DateTimeOffset.Now;
             _state = initialState;
             _expectedVersion = expectedVersion;
@@ -86,7 +90,7 @@ namespace Radix
                             {
                                 case Ok<Version, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
-                                    _state = events.Aggregate(_state, (s, @event) => s.Update(@event));
+                                    _state = events.Aggregate(_state, _update.Invoke);
 
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;
@@ -132,14 +136,15 @@ namespace Radix
 
         public void Deactivate() => _actionBlock.Complete();
 
-        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
+        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Update<TState, TEvent> update,
             IAsyncEnumerable<EventDescriptor<TEvent>> history)
         {
-            (TState state, Version currentVersion) x = await Initial<TState, TEvent>.State(history).ConfigureAwait(false);
+            (TState state, Version currentVersion) x = await Initial<TState, TEvent>.State(history, update).ConfigureAwait(false);
             return new AggregateAgent<TState, TCommand, TEvent>(
                 x.state,
                 x.currentVersion,
-                boundedContextSettings);
+                boundedContextSettings,
+                update);
         }
     }
 

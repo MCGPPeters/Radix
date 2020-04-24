@@ -52,7 +52,7 @@ namespace Radix.Blazor.Inventory.Components
                             switch (result)
                             {
                                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                                    currentViewModel.Update(events);
+                                    currentViewModel.Update(new InventoryItem(), events);
                                     break;
                                 case Error<InventoryItemEvent[], Error[]>(var errors):
                                     currentViewModel.Errors = Enumerable.ToList<string>(errors.Select(error => error.Message));

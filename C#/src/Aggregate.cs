@@ -14,7 +14,7 @@ namespace Radix
     /// <typeparam name="TEvent">The type of events the aggregate root generates</typeparam>
     /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
     /// <typeparam name="TError"></typeparam>
-    public interface Aggregate<out TState, TEvent, TCommand> : State<TState, TEvent>
+    public interface Aggregate<TState, TEvent, TCommand>
         where TState : IEquatable<TState>, new()
         where TEvent : Event
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>

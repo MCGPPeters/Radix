@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Radix.Blazor.Inventory.Server.Data;
-using Radix.Blazor.Inventory.Server.Pages;
-using Radix.Option;
+using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Tests.Models;
 using static Radix.Option.Extensions;
 
@@ -36,8 +34,9 @@ namespace Radix.Blazor.Inventory.Server
 
             services.AddSingleton(boundedContext);
             // fix async init
-            services.AddSingleton(ReadModel<AddInventoryItemViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>()).Result);
-            services.AddSingleton(ReadModel<IndexViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>()).Result);
+            ReadModel<AddInventoryItemViewModel, InventoryItemEvent> implementationInstance = ReadModel<AddInventoryItemViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), AddInventoryItemViewModel.Update).Result;
+            services.AddSingleton(implementationInstance);
+            services.AddSingleton(ReadModel<IndexViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), IndexViewModel.Update).Result);
 
         }
 

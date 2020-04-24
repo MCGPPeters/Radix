@@ -3,7 +3,7 @@ using System;
 namespace Radix
 {
 
-    public interface State<out TState, in TEvent>
+    public interface State<TState, in TEvent>
         where TEvent : Event
         where TState : IEquatable<TState>, new()
     {
@@ -12,6 +12,6 @@ namespace Radix
         ///     You ONLY mutate the state here. You MUST NOT call any external services.
         ///     The new state will be returned as an effect
         /// </summary>
-        public TState Update(params TEvent[] events);
+        public TState Update(TState state, params TEvent[] events);
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Radix;
 using Radix.Tests.Models;
 
-namespace Radix.Blazor.Inventory.Wasm.Pages
+namespace Radix.Blazor.Inventory.Interface.Logic
 {
 
-    public class IndexViewModel : State<IndexViewModel, InventoryItemEvent>, IEquatable<IndexViewModel>
+    public class IndexViewModel : IEquatable<IndexViewModel>
     {
         /// <summary>
         ///     This is just an example.. in real life this would be a database or something
@@ -16,34 +17,37 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
             (new Address(Guid.NewGuid()), "First item"), (new Address(Guid.NewGuid()), "Second item")
         };
 
-        public IEnumerable<(Address, string)> InventoryItems => _inventoryItems;
+        public List<(Address address, string name)> InventoryItems
+        {
+            get => _inventoryItems;
+            set => throw new NotImplementedException();
+        }
 
         public bool Equals(IndexViewModel other) => InventoryItems.SequenceEqual(other.InventoryItems);
 
-
-        public IndexViewModel Update(params InventoryItemEvent[] events) => events.Aggregate(
-            this,
-            (_, @event) =>
+        public static Update<IndexViewModel, InventoryItemEvent> Update =
+            (state, @event) =>
             {
                 (Address address, string Name) item;
                 switch (@event)
                 {
                     case InventoryItemCreated inventoryItemCreated:
-                        _inventoryItems.Add((inventoryItemCreated.Aggregate, inventoryItemCreated.Name));
+                        state.InventoryItems.Add((inventoryItemCreated.Aggregate, inventoryItemCreated.Name));
                         break;
                     case InventoryItemDeactivated _:
-                        item = _inventoryItems.Find(item => item.address.Equals(@event.Aggregate));
-                        _inventoryItems.Remove(item);
+                        item = state.InventoryItems.Find((item) => item.address.Equals(@event.Aggregate));
+                        state.InventoryItems.Remove(item);
                         break;
                     case InventoryItemRenamed inventoryItemRenamed:
-                        item = _inventoryItems.Find(item => item.address.Equals(inventoryItemRenamed.Aggregate));
-                        item.Name = inventoryItemRenamed.Name;
+                        state.InventoryItems = state.InventoryItems
+                            .Select(_ => (@event.Aggregate, inventoryItemRenamed.Name))
+                            .Where(tuple => tuple.Aggregate.Equals(@event.Aggregate)).ToList();
                         break;
                     default:
                         throw new NotSupportedException("Unknown event");
                 }
 
-                return this;
-            });
+                return state;
+            };
     }
 }

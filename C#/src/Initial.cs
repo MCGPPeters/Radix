@@ -6,37 +6,22 @@ using System.Threading.Tasks;
 namespace Radix
 {
     public static class Initial<TState, TEvent>
-        where TState : State<TState, TEvent>, IEquatable<TState>, new()
+        where TState : new()
         where TEvent : Event
     {
-        public static async Task<(TState, Version currentVersion)> State(IAsyncEnumerable<EventDescriptor<TEvent>> history)
+        public static async Task<(TState, Version currentVersion)> State(IAsyncEnumerable<EventDescriptor<TEvent>> history, Update<TState, TEvent> update)
         {
-            TState initialState = new TState();
+            TState state = new TState();
             Version currentVersion = 0L;
 
             await foreach (EventDescriptor<TEvent> eventDescriptor in history)
             {
-                initialState.Update(eventDescriptor.Event);
+                state = update(state, eventDescriptor.Event);
                 currentVersion = eventDescriptor.Version;
             }
 
-            return (initialState, currentVersion);
+            return (state, currentVersion);
         }
 
-        public static async Task<TState> State(IAsyncEnumerable<TEvent> history)
-        {
-            TState initialState = new TState();
-
-            // restore the initialState (if any)
-            if (history is object)
-            {
-                initialState = await history.AggregateAsync(
-                    initialState,
-                    (state, @event)
-                        => state.Update(@event));
-            }
-
-            return initialState;
-        }
     }
 }

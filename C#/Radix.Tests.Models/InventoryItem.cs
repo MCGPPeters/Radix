@@ -7,6 +7,18 @@ namespace Radix.Tests.Models
 {
     public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>, IEquatable<InventoryItem>
     {
+        public static Update<InventoryItem, InventoryItemEvent> Update = (state, @event) =>
+        {
+            return @event switch
+            {
+                InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, state.Activated, state.Count),
+                InventoryItemDeactivated _ => new InventoryItem(state.Name, false, state.Count),
+                ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(state.Name, state.Activated, state.Count + itemsCheckedInToInventory.Amount),
+                ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(state.Name, state.Activated, state.Count - itemsRemovedFromInventory.Amount),
+                InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, state.Activated, state.Count),
+                _ => throw new NotSupportedException("Unknown event")
+            };
+        };
 
         public InventoryItem()
         {
@@ -61,19 +73,6 @@ namespace Radix.Tests.Models
                     throw new NotSupportedException("Unknown transientCommand");
             }
         }
-
-
-        public InventoryItem Update(params InventoryItemEvent[] events) => events.Aggregate(
-            new InventoryItem(),
-            (_, @event) => @event switch
-            {
-                InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, Activated, Count),
-                InventoryItemDeactivated _ => new InventoryItem(Name, false, Count),
-                ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(Name, Activated, Count + itemsCheckedInToInventory.Amount),
-                ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(Name, Activated, Count - itemsRemovedFromInventory.Amount),
-                InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, Activated, Count),
-                _ => throw new NotSupportedException("Unknown event")
-            });
 
         public bool Equals(InventoryItem? other)
         {
