@@ -19,7 +19,8 @@ namespace Radix
             return state;
         }
 
-        public static async Task<(TState, Version currentVersion)> Create<TState, TEvent>(IAsyncEnumerable<EventDescriptor<TEvent>> history, Update<TState, TEvent> update) where TState : new()
+        public static async Task<(TState, Version currentVersion)> Create<TState, TEvent>(IAsyncEnumerable<EventDescriptor<TEvent>> history, Update<TState, TEvent> update)
+            where TState : new()
         {
             TState state = new TState();
             Version currentVersion = 0L;

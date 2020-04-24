@@ -10,9 +10,6 @@ namespace Radix.Blazor.Inventory.Server
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(
-                    webBuilder =>
-                    {
-                        webBuilder.UseStartup<Startup>();
-                    });
+                    webBuilder => { webBuilder.UseStartup<Startup>(); });
     }
 }

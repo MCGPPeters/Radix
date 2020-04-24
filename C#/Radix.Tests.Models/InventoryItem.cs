@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using static Radix.Result.Extensions;
 
@@ -19,24 +18,6 @@ namespace Radix.Tests.Models
                 _ => throw new NotSupportedException("Unknown event")
             };
         };
-
-        public InventoryItem()
-        {
-            Name = "";
-            Activated = true;
-            Count = 0;
-        }
-
-        public InventoryItem(string name, bool activated, int count)
-        {
-            Name = name;
-            Activated = activated;
-            Count = count;
-        }
-
-        private string Name { get; }
-        private bool Activated { get; }
-        private int Count { get; }
 
         public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, descriptor) =>
         {
@@ -60,6 +41,24 @@ namespace Radix.Tests.Models
                 _ => throw new NotSupportedException("Unknown transientCommand")
             };
         };
+
+        public InventoryItem()
+        {
+            Name = "";
+            Activated = true;
+            Count = 0;
+        }
+
+        public InventoryItem(string name, bool activated, int count)
+        {
+            Name = name;
+            Activated = activated;
+            Count = count;
+        }
+
+        private string Name { get; }
+        private bool Activated { get; }
+        private int Count { get; }
 
         public bool Equals(InventoryItem? other)
         {
