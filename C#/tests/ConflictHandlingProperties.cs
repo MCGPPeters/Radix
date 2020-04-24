@@ -25,12 +25,26 @@ namespace Radix.Tests
         private static async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, IVersion version)
         {
             yield return new EventDescriptor<InventoryItemEvent>(
+                address,
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
                 new InventoryItemCreated("Product 1", true, 0, address),
                 1L);
             yield return new EventDescriptor<InventoryItemEvent>(
+                address,
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
                 new ItemsCheckedInToInventory(10, address),
                 2L);
-            yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L);
+            yield return new EventDescriptor<InventoryItemEvent>(
+                address,
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new InventoryItemRenamed("Product 2", address),
+                3L);
         }
 
         private static Option<Conflict<InventoryItemCommand, InventoryItemEvent>> FindConflict(InventoryItemCommand command, EventDescriptor<InventoryItemEvent> descriptor)
@@ -60,14 +74,14 @@ namespace Radix.Tests
                 CheckInItemsToInventory
                     .Create(10);
 
-            var result = await context.Send<InventoryItem>(inventoryItem, checkin);
+            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, checkin);
 
-            
+
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
                     events.Should().Equal(
-                        new List<InventoryItemEvent> { new ItemsCheckedInToInventory(10, inventoryItem) });
+                        new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)});
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -92,7 +106,7 @@ namespace Radix.Tests
 
             Address inventoryItem = await context.Create<InventoryItem>();
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
-                    .Create(10);
+                .Create(10);
 
             Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, checkin);
 
@@ -120,7 +134,7 @@ namespace Radix.Tests
             {
                 if (calledBefore)
                 {
-                    appendedEvents.AddRange(events);
+                    appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                     return Task.FromResult(Ok<Version, AppendEventsError>(1));
                 }
 
@@ -145,7 +159,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new [] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
+                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -159,7 +173,7 @@ namespace Radix.Tests
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
-                appendedEvents.AddRange(events);
+                appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                 return Task.FromResult(Ok<Version, AppendEventsError>(0L));
             };
 
@@ -181,7 +195,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new [] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
+                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -196,7 +210,7 @@ namespace Radix.Tests
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
-                appendedEvents.AddRange(events);
+                appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                 return Task.FromResult(Ok<Version, AppendEventsError>(1));
             };
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
@@ -211,13 +225,13 @@ namespace Radix.Tests
 
             Address inventoryItem = await context.Create<InventoryItem>();
 
-            Validated<InventoryItemCommand> createInventoryItem = CheckInItemsToInventory.Create( 15);
+            Validated<InventoryItemCommand> createInventoryItem = CheckInItemsToInventory.Create(15);
 
             Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, createInventoryItem);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(15, inventoryItem));
+                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(1, inventoryItem));
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();

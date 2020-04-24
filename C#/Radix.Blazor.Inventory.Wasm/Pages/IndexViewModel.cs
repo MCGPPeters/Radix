@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Radix.Tests.Models;
 
-namespace Radix.Blazor.Inventory.Pages
+namespace Radix.Blazor.Inventory.Wasm.Pages
 {
 
     public class IndexViewModel : State<IndexViewModel, InventoryItemEvent>, IEquatable<IndexViewModel>

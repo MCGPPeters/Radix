@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Radix.Tests.Models;
 
-namespace Radix.Blazor.Inventory.Pages
+namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     public class AddInventoryItemViewModel : State<AddInventoryItemViewModel, InventoryItemEvent>, IEquatable<AddInventoryItemViewModel>
     {

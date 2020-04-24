@@ -1,4 +1,4 @@
-﻿namespace Radix
+namespace Radix
 {
     public interface EventStore<TEvent>
         where TEvent : Event
