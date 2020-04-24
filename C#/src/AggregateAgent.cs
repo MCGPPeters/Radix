@@ -13,7 +13,7 @@ namespace Radix
 {
 
     internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand, TEvent>
-        where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
+        where TState : new()
         where TEvent : Event
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
@@ -22,6 +22,7 @@ namespace Radix
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
+        private readonly Decide<TState, TCommand, TEvent> _decide;
 
         private Version _expectedVersion;
 
@@ -34,10 +35,12 @@ namespace Radix
         /// <param name="initialState"></param>
         /// <param name="expectedVersion">The agent maintains the expected expectedVersion for sending commands</param>
         /// <param name="boundedContextSettings"></param>
+        /// <param name="decide"></param>
         /// <param name="update"></param>
-        private AggregateAgent(TState initialState, Version expectedVersion, BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Update<TState, TEvent> update)
+        private AggregateAgent(TState initialState, Version expectedVersion, BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
+            _decide = decide;
             _update = update;
             LastActivity = DateTimeOffset.Now;
             _state = initialState;
@@ -76,7 +79,7 @@ namespace Radix
                         }
                     }
 
-                    Result<TEvent[], CommandDecisionError> result = await _state.Decide(commandDescriptor).ConfigureAwait(false);
+                    Result<TEvent[], CommandDecisionError> result = await _decide(initialState, commandDescriptor).ConfigureAwait(false);
 
                     switch (result)
                     {
@@ -136,7 +139,7 @@ namespace Radix
 
         public void Deactivate() => _actionBlock.Complete();
 
-        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Update<TState, TEvent> update,
+        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update,
             IAsyncEnumerable<EventDescriptor<TEvent>> history)
         {
             (TState state, Version currentVersion) x = await Initial<TState, TEvent>.State(history, update).ConfigureAwait(false);
@@ -144,6 +147,7 @@ namespace Radix
                 x.state,
                 x.currentVersion,
                 boundedContextSettings,
+                decide,
                 update);
         }
     }

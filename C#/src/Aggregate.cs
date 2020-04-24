@@ -1,34 +1,27 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Radix
 {
-    /// <summary>
-    ///     The interface an Aggregate root must conform to
-    /// </summary>
-    /// <typeparam name="TState">
-    ///     The type of the aggregate root.
-    ///     The new() constraint is intended to enforce the ability to create an aggregate root with its initial values. Its
-    ///     initial state.
-    /// </typeparam>
-    /// <typeparam name="TEvent">The type of events the aggregate root generates</typeparam>
-    /// <typeparam name="TCommand">The type of commands the aggregate root accepts</typeparam>
-    /// <typeparam name="TError"></typeparam>
-    public interface Aggregate<TState, TEvent, TCommand>
-        where TState : IEquatable<TState>, new()
-        where TEvent : Event
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
-    {
-        /// <summary>
-        ///     This is the place to validate (and log validation errors for instance of) a commandDescriptor and decide of any
-        ///     events will be generated as a
-        ///     consequence of this commandDescriptor.
-        ///     You MUST NOT change the state here
-        ///     You MAY call external services
-        /// </summary>
-        /// <param name="commandDescriptor"></param>
-        /// <returns></returns>
-        Task<Result<TEvent[], CommandDecisionError>> Decide(TransientCommandDescriptor<TCommand> commandDescriptor);
-    }
 
+    public delegate TState Create<TState, TEvent>(IAsyncEnumerable<TEvent> history, Update<TState, TEvent> update);
+    public delegate Task<Result<TEvent[], CommandDecisionError>> Decide<in TState, TCommand, TEvent>(TState state, TransientCommandDescriptor<TCommand> commandDescriptor) where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>;
+
+    public static class StateExtensions
+    {
+        public static async Task<TState> Create<TState, TEvent>(IAsyncEnumerable<TEvent> history, Update<TState, TEvent> update) where TState : new()
+        {
+            TState state = new TState();
+
+            // restore the initialState (if any)
+            if (history is object)
+            {
+                state = await history.AggregateAsync(state, update.Invoke);
+            }
+
+            return state;
+        }
+    }
 }
