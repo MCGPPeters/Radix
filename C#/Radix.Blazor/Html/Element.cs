@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Radix.Blazor.Html;
 
-namespace Radix.Blazor
+namespace Radix.Blazor.Html
 {
     public struct Element : Node
     {

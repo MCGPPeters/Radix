@@ -14,7 +14,7 @@ namespace Radix
             TState initialState = new TState();
             Version currentVersion = 0L;
 
-            await foreach(var eventDescriptor in history)
+            await foreach (EventDescriptor<TEvent> eventDescriptor in history)
             {
                 initialState.Update(eventDescriptor.Event);
                 currentVersion = eventDescriptor.Version;

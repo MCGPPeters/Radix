@@ -7,7 +7,7 @@ namespace Radix
     {
         DateTimeOffset LastActivity { get; set; }
 
-        Task<Result<TEvent[], Error[]>> Post(CommandDescriptor<TCommand> command);
+        Task<Result<TEvent[], Error[]>> Post(TransientCommandDescriptor<TCommand> transientCommand);
 
         void Deactivate();
     }

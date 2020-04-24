@@ -66,7 +66,7 @@ namespace Radix
             //    default:
             //        throw new NotSupportedException("Unknown type of version");
             //}
-            yield return new EventDescriptor<TEvent>();
+            yield return new EventDescriptor<TEvent>(address, new MessageId(), new MessageId(), new MessageId(), null, new Version());
         }
     }
 }

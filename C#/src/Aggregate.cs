@@ -28,7 +28,7 @@ namespace Radix
         /// </summary>
         /// <param name="commandDescriptor"></param>
         /// <returns></returns>
-        Task<Result<TEvent[], CommandDecisionError>> Decide(CommandDescriptor<TCommand> commandDescriptor);
+        Task<Result<TEvent[], CommandDecisionError>> Decide(TransientCommandDescriptor<TCommand> commandDescriptor);
     }
 
 }

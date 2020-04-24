@@ -3,7 +3,7 @@ namespace Radix
     public class Error
     {
 
-        internal Error(string message) => this.Message = message;
+        internal Error(string message) => Message = message;
 
         public string Message { get; }
 

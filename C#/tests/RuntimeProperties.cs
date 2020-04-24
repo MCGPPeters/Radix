@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Radix.Monoid;
@@ -23,12 +24,26 @@ namespace Radix.Tests
         private static async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, IVersion version)
         {
             yield return new EventDescriptor<InventoryItemEvent>(
+                address,
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
                 new InventoryItemCreated("Product 1", true, 0, address),
                 1L);
             yield return new EventDescriptor<InventoryItemEvent>(
+                address,
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
                 new ItemsCheckedInToInventory(19, address),
                 2L);
-            yield return new EventDescriptor<InventoryItemEvent>(new InventoryItemRenamed("Product 2", address), 3L);
+            yield return new EventDescriptor<InventoryItemEvent>(
+                address,
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new MessageId(Guid.NewGuid()),
+                new InventoryItemRenamed("Product 2", address),
+                3L);
         }
 
         [Fact(
@@ -39,7 +54,7 @@ namespace Radix.Tests
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
-                appendedEvents.AddRange(events);
+                appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                 return Task.FromResult(Ok<Version, AppendEventsError>(1));
             };
 

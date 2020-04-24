@@ -7,11 +7,11 @@ using Radix.Blazor.Html;
 using Radix.Monoid;
 using Radix.Result;
 using Radix.Tests.Models;
+using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Blazor.Html.Components;
-using static Radix.Blazor.Html.Elements;
 
-namespace Radix.Blazor.Inventory.Pages
+namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     [Route("/Add")]
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
@@ -55,7 +55,7 @@ namespace Radix.Blazor.Inventory.Pages
                                     currentViewModel.Update(events);
                                     break;
                                 case Error<InventoryItemEvent[], Error[]>(var errors):
-                                    currentViewModel.Errors = errors.Select(error => error.Message).ToList();
+                                    currentViewModel.Errors = Enumerable.ToList<string>(errors.Select(error => error.Message));
                                     if (JSRuntime is object)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());

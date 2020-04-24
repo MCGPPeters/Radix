@@ -2,11 +2,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Radix.Blazor.Inventory.Pages;
+using Radix.Blazor.Inventory.Wasm.Pages;
 using Radix.Tests.Models;
 using static Radix.Option.Extensions;
 
-namespace Radix.Blazor.Inventory
+namespace Radix.Blazor.Inventory.Wasm
 {
     public class Program
     {

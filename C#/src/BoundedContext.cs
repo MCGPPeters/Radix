@@ -90,17 +90,19 @@ namespace Radix
             switch (command)
             {
                 case Valid<TCommand>(var validCommand):
-                    CommandDescriptor<TCommand> commandDescriptor = new CommandDescriptor<TCommand>(address, validCommand);
-                    if (!_registry.TryGetValue(commandDescriptor.Address, out Agent<TCommand, TEvent> agent))
+                    TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
+                    if (!_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
                     {
-                        agent = await GetAggregate<TState>(commandDescriptor.Address).ConfigureAwait(false);
+                        agent = await GetAggregate<TState>(transientCommandDescriptor.Recipient).ConfigureAwait(false);
                     }
 
-                    return await agent.Post(commandDescriptor).ConfigureAwait(false);
+                    return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                 case Invalid<TCommand>(var messages):
                     return new Error<TEvent[], Error[]>(messages.Select(s => new Error(s)).ToArray());
                 default: throw new InvalidOperationException();
-            };
+            }
+
+            ;
         }
 
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address)
