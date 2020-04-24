@@ -5,7 +5,7 @@ using static Radix.Result.Extensions;
 
 namespace Radix.Tests.Models
 {
-    public class InventoryItem : Aggregate<InventoryItem, InventoryItemEvent, InventoryItemCommand>, IEquatable<InventoryItem>
+    public class InventoryItem : IEquatable<InventoryItem>
     {
         public static Update<InventoryItem, InventoryItemEvent> Update = (state, @event) =>
         {
@@ -38,13 +38,13 @@ namespace Radix.Tests.Models
         private bool Activated { get; }
         private int Count { get; }
 
-        public Task<Result<InventoryItemEvent[], CommandDecisionError>> Decide(TransientCommandDescriptor<InventoryItemCommand> transientCommandDescriptor)
+        public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, descriptor) =>
         {
-            switch (transientCommandDescriptor.Command.Value)
+            switch (descriptor.Command.Value)
             {
                 case DeactivateInventoryItem _:
                     return Task.FromResult(
-                        Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(transientCommandDescriptor.Recipient)}));
+                        Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(descriptor.Recipient)}));
                 case CreateInventoryItem createInventoryItem:
 
                     return Task.FromResult(
@@ -55,24 +55,24 @@ namespace Radix.Tests.Models
                                     createInventoryItem.Name,
                                     createInventoryItem.Activated,
                                     createInventoryItem.Count,
-                                    transientCommandDescriptor.Recipient)
+                                    descriptor.Recipient)
                             }));
                 case RenameInventoryItem renameInventoryItem:
                     return Task.FromResult(
                         Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, transientCommandDescriptor.Recipient)}));
+                            new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, descriptor.Recipient)}));
                 case CheckInItemsToInventory checkInItemsToInventory:
                     return Task.FromResult(
                         Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[] {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, transientCommandDescriptor.Recipient)}));
+                            new InventoryItemEvent[] {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, descriptor.Recipient)}));
                 case RemoveItemsFromInventory removeItemsFromInventory:
                     return Task.FromResult(
                         Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[] {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, transientCommandDescriptor.Recipient)}));
+                            new InventoryItemEvent[] {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, descriptor.Recipient)}));
                 default:
                     throw new NotSupportedException("Unknown transientCommand");
             }
-        }
+        };
 
         public bool Equals(InventoryItem? other)
         {

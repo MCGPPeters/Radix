@@ -62,13 +62,13 @@ namespace Radix
             }
         }
 
-        public async Task<Address> Create<TState>(Update<TState, TEvent> update)
-            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
+        public async Task<Address> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState : new()
         {
             Address address = new Address(Guid.NewGuid());
 
             AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>
-                .Create(_boundedContextSettings, update, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable())
+                .Create(_boundedContextSettings, decide, update, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable())
                 .ConfigureAwait(false);
 
             _registry.Add(address, agent);
@@ -81,11 +81,11 @@ namespace Radix
         /// <typeparam name="TState"></typeparam>
         /// <typeparam name="TSettings"></typeparam>
         /// <returns></returns>
-        public async Task<Address> GetAggregate<TState>(Update<TState, TEvent> update)
-            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new() => await Create(update);
+        public async Task<Address> GetAggregate<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState : new() => await Create(decide, update);
 
-        public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, Validated<TCommand> command, Update<TState, TEvent> update)
-            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
+        public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, Validated<TCommand> command, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState :  new()
         {
             switch (command)
             {
@@ -93,7 +93,7 @@ namespace Radix
                     TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
                     if (!_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
                     {
-                        agent = await GetAggregate(transientCommandDescriptor.Recipient, update).ConfigureAwait(false);
+                        agent = await GetAggregate(transientCommandDescriptor.Recipient,decide, update).ConfigureAwait(false);
                     }
 
                     return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
@@ -105,13 +105,13 @@ namespace Radix
             ;
         }
 
-        private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, Update<TState, TEvent> update)
-            where TState : Aggregate<TState, TEvent, TCommand>, IEquatable<TState>, new()
+        private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState : new()
         {
             IAsyncEnumerable<EventDescriptor<TEvent>> history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
 
-            AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings,update, history);
-            _registry.Add(address, agent);
+            AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, decide, update, history);
+            _registry.Add(address, agent); 
             return agent;
         }
 
