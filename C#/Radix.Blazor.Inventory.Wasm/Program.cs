@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Blazor.Inventory.Wasm.Pages;
 using Radix.Tests.Models;
 using static Radix.Option.Extensions;
 
@@ -21,14 +20,13 @@ namespace Radix.Blazor.Inventory.Wasm
                 new GarbageCollectionSettings());
             BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
 
-            ReadModel<IndexViewModel, InventoryItemEvent> indexReadModel = await ReadModel<IndexViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), IndexViewModel.Update);
-            ReadModel<AddInventoryItemViewModel, InventoryItemEvent> addInventoryItemReadModel =
-                await ReadModel<AddInventoryItemViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), AddInventoryItemViewModel.Update);
+            IndexViewModel indexViewModel = await State.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), IndexViewModel.Update);
+            AddInventoryItemViewModel addInventoryItemViewModel = await State.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), AddInventoryItemViewModel.Update);
 
 
             builder.Services.AddSingleton(boundedContext);
-            builder.Services.AddSingleton(indexReadModel);
-            builder.Services.AddSingleton(addInventoryItemReadModel);
+            builder.Services.AddSingleton(indexViewModel);
+            builder.Services.AddSingleton(addInventoryItemViewModel);
 
             builder.RootComponents.Add<App>("app");
 

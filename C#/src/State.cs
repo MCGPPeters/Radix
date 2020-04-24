@@ -1,17 +1,36 @@
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Radix
 {
-
-    public interface State<TState, in TEvent>
-        where TEvent : Event
-        where TState : IEquatable<TState>, new()
+    public static class State
     {
-        /// <summary>
-        ///     Here the effect of the event on the state of the aggregate is determined.
-        ///     You ONLY mutate the state here. You MUST NOT call any external services.
-        ///     The new state will be returned as an effect
-        /// </summary>
-        public TState Update(TState state, params TEvent[] events);
+        public static async Task<TState> Create<TState, TEvent>(IAsyncEnumerable<TEvent> history, Update<TState, TEvent> update) where TState : new()
+        {
+            TState state = new TState();
+
+            // restore the initialState (if any)
+            if (history is object)
+            {
+                state = await history.AggregateAsync(state, update.Invoke);
+            }
+
+            return state;
+        }
+
+        public static async Task<(TState, Version currentVersion)> Create<TState, TEvent>(IAsyncEnumerable<EventDescriptor<TEvent>> history, Update<TState, TEvent> update) where TState : new()
+        {
+            TState state = new TState();
+            Version currentVersion = 0L;
+
+            await foreach (EventDescriptor<TEvent> eventDescriptor in history)
+            {
+                state = update(state, eventDescriptor.Event);
+                currentVersion = eventDescriptor.Version;
+            }
+
+            return (state, currentVersion);
+        }
     }
 }

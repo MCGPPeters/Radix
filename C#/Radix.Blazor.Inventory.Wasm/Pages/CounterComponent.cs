@@ -15,6 +15,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
 
         private void IncrementCount() => _currentCount++;
 
+
         public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(Enumerable.Empty<IAttribute>(), text("Counter")),
             p(Enumerable.Empty<IAttribute>(), text(_currentCount.ToString())),
