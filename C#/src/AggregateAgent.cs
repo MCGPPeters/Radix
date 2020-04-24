@@ -28,7 +28,7 @@ namespace Radix
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
-        private Update<TState, TEvent> _update;
+        private readonly Update<TState, TEvent> _update;
 
         /// <summary>
         /// </summary>
@@ -37,7 +37,8 @@ namespace Radix
         /// <param name="boundedContextSettings"></param>
         /// <param name="decide"></param>
         /// <param name="update"></param>
-        private AggregateAgent(TState initialState, Version expectedVersion, BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+        private AggregateAgent(TState initialState, Version expectedVersion, BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
+            Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
             _decide = decide;
@@ -139,7 +140,8 @@ namespace Radix
 
         public void Deactivate() => _actionBlock.Complete();
 
-        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update,
+        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
+            Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update,
             IAsyncEnumerable<EventDescriptor<TEvent>> history)
         {
             (TState state, Version currentVersion) x = await Initial<TState, TEvent>.State(history, update).ConfigureAwait(false);

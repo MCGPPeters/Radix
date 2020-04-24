@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Radix;
 using Radix.Tests.Models;
 
 namespace Radix.Blazor.Inventory.Interface.Logic
@@ -17,14 +16,6 @@ namespace Radix.Blazor.Inventory.Interface.Logic
             (new Address(Guid.NewGuid()), "First item"), (new Address(Guid.NewGuid()), "Second item")
         };
 
-        public List<(Address address, string name)> InventoryItems
-        {
-            get => _inventoryItems;
-            set => throw new NotImplementedException();
-        }
-
-        public bool Equals(IndexViewModel other) => InventoryItems.SequenceEqual(other.InventoryItems);
-
         public static Update<IndexViewModel, InventoryItemEvent> Update =
             (state, @event) =>
             {
@@ -35,7 +26,7 @@ namespace Radix.Blazor.Inventory.Interface.Logic
                         state.InventoryItems.Add((inventoryItemCreated.Aggregate, inventoryItemCreated.Name));
                         break;
                     case InventoryItemDeactivated _:
-                        item = state.InventoryItems.Find((item) => item.address.Equals(@event.Aggregate));
+                        item = state.InventoryItems.Find(item => item.address.Equals(@event.Aggregate));
                         state.InventoryItems.Remove(item);
                         break;
                     case InventoryItemRenamed inventoryItemRenamed:
@@ -49,5 +40,13 @@ namespace Radix.Blazor.Inventory.Interface.Logic
 
                 return state;
             };
+
+        public List<(Address address, string name)> InventoryItems
+        {
+            get => _inventoryItems;
+            set => throw new NotImplementedException();
+        }
+
+        public bool Equals(IndexViewModel other) => InventoryItems.SequenceEqual(other.InventoryItems);
     }
 }

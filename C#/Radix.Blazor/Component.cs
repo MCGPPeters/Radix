@@ -16,8 +16,7 @@ namespace Radix.Blazor
 
         [Inject]public IJSRuntime JSRuntime { get; set; }
 
-        [Inject]
-        public  TViewModel ViewModel { get; set; }
+        [Inject]public TViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     This function is called whenever it is decided the state of the viewmodel has changed

@@ -16,7 +16,7 @@ namespace Radix
 
         private ReadModel(TState state) => State = state;
 
-        public TState State { get; private set; }
+        public TState State { get; }
 
         public bool Equals(ReadModel<TState, TEvent>? other)
         {

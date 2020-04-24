@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Radix.Async;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
-using static Radix.Option.Extensions;
 using Extensions = Radix.Result.Extensions;
 
 namespace Radix
@@ -17,41 +16,36 @@ namespace Radix
 
         private static readonly IStreamStore streamStore = new InMemoryStreamStore();
 
-        public AppendEvents<TEvent> AppendEvents
-        {
-            get
+        public AppendEvents<TEvent> AppendEvents =>
+            async (address, version, events) =>
             {
-                return async (address, version, events) =>
-                {
-                    var newStreamMessages = events.Select(
-                        inventoryItemEvent =>
-                        {
-                            var jsonMessage = JsonSerializer.Serialize(inventoryItemEvent);
-                            var messageId = inventoryItemEvent.Event.Aggregate.Value;
-                            return new NewStreamMessage(messageId, inventoryItemEvent.ToString(), jsonMessage);
-                        }).ToArray();
-
-                    Func<Task<AppendResult>> appendToStream;
-                    AppendResult result;
-                    var streamId = $"InventoryItem-{address.ToString()}";
-
-                    switch (version)
+                NewStreamMessage[] newStreamMessages = events.Select(
+                    inventoryItemEvent =>
                     {
-                        case AnyVersion _:
-                            appendToStream = () => streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
-                            result = await appendToStream.Retry(Backoff.Exponentially());
-                            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
-                        case Version v:
-                            var expectedVersion = Convert.ToInt32(v.Value);
-                            appendToStream = () => streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
-                            result = await appendToStream.Retry(Backoff.Exponentially());
-                            return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
-                        default:
-                            throw new NotSupportedException("Unknown type of version");
-                    }
-                };
-            }
-        }
+                        string jsonMessage = JsonSerializer.Serialize(inventoryItemEvent);
+                        Guid messageId = inventoryItemEvent.Event.Aggregate.Value;
+                        return new NewStreamMessage(messageId, inventoryItemEvent.ToString(), jsonMessage);
+                    }).ToArray();
+
+                Func<Task<AppendResult>> appendToStream;
+                AppendResult result;
+                string streamId = $"InventoryItem-{address.ToString()}";
+
+                switch (version)
+                {
+                    case AnyVersion _:
+                        appendToStream = () => streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
+                        result = await appendToStream.Retry(Backoff.Exponentially());
+                        return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
+                    case Version v:
+                        int expectedVersion = Convert.ToInt32(v.Value);
+                        appendToStream = () => streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
+                        result = await appendToStream.Retry(Backoff.Exponentially());
+                        return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
+                    default:
+                        throw new NotSupportedException("Unknown type of version");
+                }
+            };
 
         public GetEventsSince<TEvent> GetEventsSince => (address, version) => EventsSince(address, version, $"InventoryItem-{address.ToString()}");
 
@@ -61,16 +55,23 @@ namespace Radix
             {
                 case Version v:
                     // IAsyncEnumerable<ReadStreamPage> readAllEventsForwardAsync =
-                    var fromVersionInclusive = Convert.ToInt32(v.Value);
-                    var readStreamPage = await streamStore.ReadStreamForwards(streamId, fromVersionInclusive, Int32.MaxValue, false);
+                    int fromVersionInclusive = Convert.ToInt32(v.Value);
+                    ReadStreamPage readStreamPage = await streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
-                    var eventDescriptors = readStreamPage.Messages.Select(async streamMessage =>
-                    {
-                        var @event = JsonSerializer.Deserialize<TransientEventDescriptor<TEvent>>(await streamMessage.GetJsonData());
-                        return new EventDescriptor<TEvent>(@event.Event.Aggregate, @event.MessageId, @event.CausationId, @event.CorrelationId, @event.Event, streamMessage.StreamVersion);
-                    });
+                    IEnumerable<Task<EventDescriptor<TEvent>>> eventDescriptors = readStreamPage.Messages.Select(
+                        async streamMessage =>
+                        {
+                            TransientEventDescriptor<TEvent> @event = JsonSerializer.Deserialize<TransientEventDescriptor<TEvent>>(await streamMessage.GetJsonData());
+                            return new EventDescriptor<TEvent>(
+                                @event.Event.Aggregate,
+                                @event.MessageId,
+                                @event.CausationId,
+                                @event.CorrelationId,
+                                @event.Event,
+                                streamMessage.StreamVersion);
+                        });
 
-                    foreach (var eventDescriptor in eventDescriptors)
+                    foreach (Task<EventDescriptor<TEvent>> eventDescriptor in eventDescriptors)
                     {
                         yield return await eventDescriptor;
                     }
@@ -82,4 +83,3 @@ namespace Radix
         }
     }
 }
-
