@@ -32,11 +32,13 @@ namespace Radix.Blazor.Inventory.Server
                 new GarbageCollectionSettings());
             BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
 
+            IndexViewModel indexViewModel = State.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), IndexViewModel.Update).Result;
+            AddInventoryItemViewModel addInventoryItemViewModel = State.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), AddInventoryItemViewModel.Update).Result;
+
+
             services.AddSingleton(boundedContext);
-            // fix async init
-            ReadModel<AddInventoryItemViewModel, InventoryItemEvent> implementationInstance = ReadModel<AddInventoryItemViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), AddInventoryItemViewModel.Update).Result;
-            services.AddSingleton(implementationInstance);
-            services.AddSingleton(ReadModel<IndexViewModel, InventoryItemEvent>.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), IndexViewModel.Update).Result);
+            services.AddSingleton(indexViewModel);
+            services.AddSingleton(addInventoryItemViewModel);
 
         }
 

@@ -11,16 +11,16 @@ using static Radix.Blazor.Html.Components;
 namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     [Route("/")]
-    public class HomeComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
+    public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
     {
         public override Node View(IndexViewModel currentViewModel)
         {
-            Node[] InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
+            Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 
             return concat(
                 navLinkMatchAll(new[] {@class("btn btn-primary"), href("Add")}, text("Add")),
                 h1(Enumerable.Empty<IAttribute>(), text("All items")),
-                ul(Enumerable.Empty<IAttribute>(), InventoryItemNodes)
+                ul(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
             );
         }
 

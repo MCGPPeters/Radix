@@ -14,20 +14,10 @@ namespace Radix.Blazor
 
         [Inject]public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
 
-        [Inject]public ReadModel<TViewModel, TEvent> ReadModel { get; set; }
-
         [Inject]public IJSRuntime JSRuntime { get; set; }
 
-
-        protected TViewModel OldViewModel { get; set; }
-        protected TViewModel CurrentViewModel { get; set; }
-
-        protected override void OnInitialized()
-        {
-            CurrentViewModel = ReadModel.State;
-            OldViewModel = CurrentViewModel;
-            base.OnInitialized();
-        }
+        [Inject]
+        public  TViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     This function is called whenever it is decided the state of the viewmodel has changed
@@ -37,15 +27,10 @@ namespace Radix.Blazor
         /// <returns></returns>
         public abstract Node View(TViewModel currentViewModel);
 
-        protected virtual bool ShouldRender(TViewModel oldViewModel, TViewModel currentViewModel) => true;
-
-
-        protected override bool ShouldRender() => ShouldRender(OldViewModel, CurrentViewModel);
-
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            Rendering.RenderNode(this, builder, 0, View(CurrentViewModel));
+            Rendering.RenderNode(this, builder, 0, View(ViewModel));
         }
     }
 

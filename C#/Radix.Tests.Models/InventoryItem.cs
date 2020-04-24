@@ -40,38 +40,25 @@ namespace Radix.Tests.Models
 
         public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, descriptor) =>
         {
-            switch (descriptor.Command.Value)
+            return descriptor.Command.Value switch
             {
-                case DeactivateInventoryItem _:
-                    return Task.FromResult(
-                        Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(descriptor.Recipient)}));
-                case CreateInventoryItem createInventoryItem:
-
-                    return Task.FromResult(
-                        Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[]
-                            {
-                                new InventoryItemCreated(
-                                    createInventoryItem.Name,
-                                    createInventoryItem.Activated,
-                                    createInventoryItem.Count,
-                                    descriptor.Recipient)
-                            }));
-                case RenameInventoryItem renameInventoryItem:
-                    return Task.FromResult(
-                        Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, descriptor.Recipient)}));
-                case CheckInItemsToInventory checkInItemsToInventory:
-                    return Task.FromResult(
-                        Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[] {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, descriptor.Recipient)}));
-                case RemoveItemsFromInventory removeItemsFromInventory:
-                    return Task.FromResult(
-                        Ok<InventoryItemEvent[], CommandDecisionError>(
-                            new InventoryItemEvent[] {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, descriptor.Recipient)}));
-                default:
-                    throw new NotSupportedException("Unknown transientCommand");
-            }
+                DeactivateInventoryItem _ => Task.FromResult(
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(descriptor.Recipient)})),
+                CreateInventoryItem createInventoryItem => Task.FromResult(
+                    Ok<InventoryItemEvent[], CommandDecisionError>(
+                        new InventoryItemEvent[]
+                        {
+                            new InventoryItemCreated(createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count, descriptor.Recipient)
+                        })),
+                RenameInventoryItem renameInventoryItem => Task.FromResult(
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemRenamed(renameInventoryItem.Name, descriptor.Recipient)})),
+                CheckInItemsToInventory checkInItemsToInventory => Task.FromResult(
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new ItemsCheckedInToInventory(checkInItemsToInventory.Amount, descriptor.Recipient)})),
+                RemoveItemsFromInventory removeItemsFromInventory => Task.FromResult(
+                    Ok<InventoryItemEvent[], CommandDecisionError>(
+                        new InventoryItemEvent[] {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, descriptor.Recipient)})),
+                _ => throw new NotSupportedException("Unknown transientCommand")
+            };
         };
 
         public bool Equals(InventoryItem? other)
