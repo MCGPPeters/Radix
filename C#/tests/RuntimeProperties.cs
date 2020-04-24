@@ -67,12 +67,12 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            Address inventoryItem = await context.Create<InventoryItem>();
+            Address inventoryItem = await context.Create(InventoryItem.Update);
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1);
 
-            Result<InventoryItemEvent[], Error[]> result = await context.Send<InventoryItem>(inventoryItem, removeItems);
+            Result<InventoryItemEvent[], Error[]> result = await context.Send(inventoryItem, removeItems, InventoryItem.Update);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):

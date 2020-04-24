@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 
 namespace Radix
 {
     public class
-        ReadModel<TState, TEvent> : IObserver<TEvent>, IEquatable<ReadModel<TState, TEvent>>
+        ReadModel<TState, TEvent> : IEquatable<ReadModel<TState, TEvent>>
         where TEvent : Event
-        where TState : State<TState, TEvent>, IEquatable<TState>, new()
+        where TState : new()
     {
 
         private IObserver<TState>? _observer;
@@ -42,16 +43,18 @@ namespace Radix
 
         }
 
-        public void OnNext(TEvent @event)
+        public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history, Update<TState, TEvent> update)
         {
-            State = State.Update(@event);
-            if (_observer is object)
-            {
-                _observer.OnNext(State);
-            }
-        }
+            TState state = new TState();
 
-        public static async Task<ReadModel<TState, TEvent>> Create(IAsyncEnumerable<TEvent> history) => new ReadModel<TState, TEvent>(await Initial<TState, TEvent>.State(history));
+            // restore the initialState (if any)
+            if (history is object)
+            {
+                state = await history.AggregateAsync(state, update.Invoke);
+            }
+
+            return new ReadModel<TState, TEvent>(state);
+        }
 
         public IDisposable Subscribe(IObserver<TState> observer)
         {

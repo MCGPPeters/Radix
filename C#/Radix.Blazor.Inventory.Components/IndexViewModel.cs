@@ -21,7 +21,7 @@ namespace Radix.Blazor.Inventory.Components
         public bool Equals(IndexViewModel other) => InventoryItems.SequenceEqual(other.InventoryItems);
 
 
-        public IndexViewModel Update(params InventoryItemEvent[] events) => events.Aggregate(
+        public IndexViewModel Update(InventoryItem inventoryItem, params InventoryItemEvent[] events) => events.Aggregate(
             this,
             (_, @event) =>
             {
