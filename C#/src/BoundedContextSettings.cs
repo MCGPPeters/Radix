@@ -4,19 +4,20 @@ namespace Radix
         where TEvent : Event
     {
 
-        public BoundedContextSettings(EventStore<TEvent> eventStore,
+        public BoundedContextSettings(AppendEvents<TEvent> appendEvents, GetEventsSince<TEvent> getEventsSince,
             CheckForConflict<TCommand, TEvent> checkForConflict,
             GarbageCollectionSettings garbageCollectionSettings)
         {
-            EventStore = eventStore;
+            AppendEvents = appendEvents;
+            GetEventsSince = getEventsSince;
             CheckForConflict = checkForConflict;
             GarbageCollectionSettings = garbageCollectionSettings;
         }
 
+        public AppendEvents<TEvent> AppendEvents { get; }
+        public GetEventsSince<TEvent> GetEventsSince { get; }
         public CheckForConflict<TCommand, TEvent> CheckForConflict { get; }
         public GarbageCollectionSettings GarbageCollectionSettings { get; }
-
-        public EventStore<TEvent> EventStore { get; }
     }
 
 }

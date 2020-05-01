@@ -21,7 +21,7 @@ namespace Radix.Tests
         };
 
 
-        private static async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, IVersion version)
+        private static async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, Version version, string streamIdentifier)
         {
             yield return new EventDescriptor<InventoryItemEvent>(
                 address,
@@ -55,7 +55,7 @@ namespace Radix.Tests
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                return Task.FromResult(Ok<Version, AppendEventsError>(1));
+                return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
@@ -63,7 +63,7 @@ namespace Radix.Tests
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    new EventStoreStub(appendEvents, getEventsSince),
+                    appendEvents, getEventsSince,
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing

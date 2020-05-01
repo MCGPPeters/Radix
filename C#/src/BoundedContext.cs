@@ -70,7 +70,7 @@ namespace Radix
             Address address = new Address(Guid.NewGuid());
 
             AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>
-                .Create(_boundedContextSettings, decide, update, Array.Empty<EventDescriptor<TEvent>>().ToAsyncEnumerable())
+                .Create(address, _boundedContextSettings, decide, update)
                 .ConfigureAwait(false);
 
             _registry.Add(address, agent);
@@ -88,7 +88,8 @@ namespace Radix
                         TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
                         if (!_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
                         {
-                            agent = await GetAggregate(transientCommandDescriptor.Recipient, decide, update).ConfigureAwait(false);
+                            agent = await AggregateAgent<TState, TCommand, TEvent>.Create(address, _boundedContextSettings, decide, update);
+                            _registry.Add(transientCommandDescriptor.Recipient, agent);
                         }
 
                         return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
@@ -97,16 +98,6 @@ namespace Radix
                     default: throw new InvalidOperationException();
                 }
             };
-
-        private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new()
-        {
-            IAsyncEnumerable<EventDescriptor<TEvent>> history = _boundedContextSettings.EventStore.GetEventsSince(address, new Version(0L));
-
-            AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>.Create(_boundedContextSettings, decide, update, history);
-            _registry.Add(address, agent);
-            return agent;
-        }
 
         protected virtual void Dispose(bool disposing)
         {
