@@ -48,7 +48,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 currentViewModel.InventoryItemCount);
 
                             // todo creating an aggregate only makes sense when the command is valid
-                            var inventoryItem = await BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
+                            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
                             Result<InventoryItemEvent[], Radix.Error[]> result = await inventoryItem.Send(validCommand);
                             switch (result)
                             {

@@ -68,7 +68,7 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
 
             Validated<InventoryItemCommand> checkin =
                 CheckInItemsToInventory
@@ -104,7 +104,7 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
                 .Create(10);
 
@@ -151,7 +151,7 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
 
             Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
@@ -188,7 +188,7 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
             Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
 
@@ -223,7 +223,7 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
 
             Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(15);
 
