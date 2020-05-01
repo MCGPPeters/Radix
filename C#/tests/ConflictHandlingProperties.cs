@@ -68,20 +68,20 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
-            Address inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
 
             Validated<InventoryItemCommand> checkin =
                 CheckInItemsToInventory
                     .Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await context.Send(inventoryItem, checkin, InventoryItem.Decide, InventoryItem.Update);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
 
 
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
                     events.Should().Equal(
-                        new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem)});
+                        new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem.Address)});
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -104,11 +104,11 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            Address inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
                 .Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await context.Send(inventoryItem, checkin, InventoryItem.Decide, InventoryItem.Update);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
 
             switch (result)
             {
@@ -151,15 +151,15 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            Address inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await context.Send(inventoryItem, checkin, InventoryItem.Decide, InventoryItem.Update);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
 
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
+                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem.Address)}, "the event should be appended");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -188,14 +188,14 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            Address inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
-            Result<InventoryItemEvent[], Error[]> result = await context.Send(inventoryItem, checkin, InventoryItem.Decide, InventoryItem.Update);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
 
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem)}, "the event should be appended");
+                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem.Address)}, "the event should be appended");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -223,15 +223,15 @@ namespace Radix.Tests
                     checkForConflict,
                     garbageCollectionSettings));
 
-            Address inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            var inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
 
-            Validated<InventoryItemCommand> createInventoryItem = CheckInItemsToInventory.Create(15);
+            Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(15);
 
-            Result<InventoryItemEvent[], Error[]> result = await context.Send(inventoryItem, createInventoryItem, InventoryItem.Decide, InventoryItem.Update);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(create);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(15, inventoryItem));
+                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(15, inventoryItem.Address));
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();

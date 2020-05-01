@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Timers;
 using Radix.Monoid;
@@ -8,6 +9,7 @@ using Radix.Validated;
 
 namespace Radix
 {
+
     /// <summary>
     ///     The bounded context is responsible for managing the runtime.
     ///     - Once an aggregate is created, it is never destroyed
@@ -62,7 +64,8 @@ namespace Radix
             }
         }
 
-        public async Task<Address> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+
+        public async Task<Aggregate<TCommand, TEvent>> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
             Address address = new Address(Guid.NewGuid());
@@ -72,39 +75,29 @@ namespace Radix
                 .ConfigureAwait(false);
 
             _registry.Add(address, agent);
-            return address;
+            return new Aggregate<TCommand, TEvent>(address, CreateSend<TState>()(address, decide, update));
         }
 
-        /// <summary>
-        ///     Creates a new aggregate that schedules work using the default task scheduler (TaskScheduler.Default)
-        /// </summary>
-        /// <typeparam name="TState"></typeparam>
-        /// <typeparam name="TSettings"></typeparam>
-        /// <returns></returns>
-        public async Task<Address> GetAggregate<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new() => await Create(decide, update);
 
-        public async Task<Result<TEvent[], Error[]>> Send<TState>(Address address, Validated<TCommand> command, Decide<TState, TCommand, TEvent> decide,
-            Update<TState, TEvent> update)
-            where TState : new()
-        {
-            switch (command)
+        private Func<Address, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Send<TCommand, TEvent>> CreateSend<TState>()
+            where TState : new() => (address, decide, update)
+            => async validatedCommand =>
             {
-                case Valid<TCommand>(var validCommand):
-                    TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
-                    if (!_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
-                    {
-                        agent = await GetAggregate(transientCommandDescriptor.Recipient, decide, update).ConfigureAwait(false);
-                    }
+                switch (validatedCommand)
+                {
+                    case Valid<TCommand>(var validCommand):
+                        TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
+                        if (!_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
+                        {
+                            agent = await GetAggregate(transientCommandDescriptor.Recipient, decide, update).ConfigureAwait(false);
+                        }
 
-                    return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
-                case Invalid<TCommand>(var messages):
-                    return new Error<TEvent[], Error[]>(messages.Select(s => new Error(s)).ToArray());
-                default: throw new InvalidOperationException();
-            }
-
-            ;
-        }
+                        return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
+                    case Invalid<TCommand>(var messages):
+                        return new Error<TEvent[], Error[]>(messages.Select(s => new Error(s)).ToArray());
+                    default: throw new InvalidOperationException();
+                }
+            };
 
         private async Task<AggregateAgent<TState, TCommand, TEvent>> GetAggregate<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
