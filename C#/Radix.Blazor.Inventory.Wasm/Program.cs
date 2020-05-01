@@ -15,7 +15,7 @@ namespace Radix.Blazor.Inventory.Wasm
             WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             BoundedContextSettings<InventoryItemCommand, InventoryItemEvent> boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                new SqlStreamStore<InventoryItemEvent>(),
+                SqlStreamStore<InventoryItemEvent>.AppendEvents, SqlStreamStore<InventoryItemEvent>.GetEventsSince,
                 checkForConflict,
                 new GarbageCollectionSettings());
             BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);

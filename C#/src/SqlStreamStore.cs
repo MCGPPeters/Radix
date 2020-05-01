@@ -11,12 +11,12 @@ using Extensions = Radix.Result.Extensions;
 namespace Radix
 {
 
-    public class SqlStreamStore<TEvent> : EventStore<TEvent> where TEvent : Event
+    public class SqlStreamStore<TEvent> where TEvent : Event
     {
 
-        private static readonly IStreamStore streamStore = new InMemoryStreamStore();
+        private static readonly IStreamStore _streamStore = new InMemoryStreamStore();
 
-        public AppendEvents<TEvent> AppendEvents =>
+        public static AppendEvents<TEvent> AppendEvents =>
             async (address, version, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
@@ -29,34 +29,39 @@ namespace Radix
 
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
-                string streamId = $"InventoryItem-{address.ToString()}";
+                string streamId = $"InventoryItem-{address}";
+                int expectedVersion;
 
                 switch (version)
                 {
                     case AnyVersion _:
-                        appendToStream = () => streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
-                    case Version v:
-                        int expectedVersion = Convert.ToInt32(v.Value);
-                        appendToStream = () => streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
+                        return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
+                    case NoneExistentVersion _:
+                        expectedVersion = ExpectedVersion.NoStream;
+                        appendToStream = () => _streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<Version, AppendEventsError>(result.CurrentVersion);
+                        return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
+                    case ExistentVersion existentVersion:
+                        expectedVersion = Convert.ToInt32(existentVersion.Value);
+                        appendToStream = () => _streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
+                        result = await appendToStream.Retry(Backoff.Exponentially());
+                        return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
                     default:
-                        throw new NotSupportedException("Unknown type of version");
+                        throw new NotSupportedException("Unknown type of existentVersion");
                 }
             };
 
-        public GetEventsSince<TEvent> GetEventsSince => (address, version) => EventsSince(address, version, $"InventoryItem-{address.ToString()}");
+        public static GetEventsSince<TEvent> GetEventsSince => EventsSince;
 
-        private async IAsyncEnumerable<EventDescriptor<TEvent>> EventsSince(Address address, IVersion version, string streamId)
+        private static async IAsyncEnumerable<EventDescriptor<TEvent>> EventsSince(Address address, Version version, string streamId)
         {
             switch (version)
             {
-                case Version v:
-                    // IAsyncEnumerable<ReadStreamPage> readAllEventsForwardAsync =
-                    int fromVersionInclusive = Convert.ToInt32(v.Value);
-                    ReadStreamPage readStreamPage = await streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
+                case ExistentVersion existentVersion:
+                    int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
+                    ReadStreamPage readStreamPage = await _streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
                     IEnumerable<Task<EventDescriptor<TEvent>>> eventDescriptors = readStreamPage.Messages.Select(
                         async streamMessage =>
@@ -77,8 +82,10 @@ namespace Radix
                     }
 
                     break;
+                case NoneExistentVersion _:
+                    break;
                 default:
-                    throw new NotSupportedException("Unknown type of version");
+                    throw new NotSupportedException("Unknown type of existentVersion");
             }
         }
     }

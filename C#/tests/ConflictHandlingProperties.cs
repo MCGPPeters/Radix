@@ -22,7 +22,7 @@ namespace Radix.Tests
         };
 
 
-        private static async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, IVersion version)
+        private static async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, Version version, string streamIdentifier)
         {
             yield return new EventDescriptor<InventoryItemEvent>(
                 address,
@@ -58,13 +58,12 @@ namespace Radix.Tests
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
         public async Task Property1()
         {
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<Version, AppendEventsError>(0L));
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    new EventStoreStub(appendEvents, getEventsSince),
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(appendEvents, getEventsSince,
                     checkForConflict,
                     garbageCollectionSettings));
             // for testing purposes make the aggregate block the current thread while processing
@@ -93,14 +92,14 @@ namespace Radix.Tests
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
         public async Task Property2()
         {
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<Version, AppendEventsError>(1));
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
 
             // for testing purposes make the aggregate block the current thread while processing
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    new EventStoreStub(appendEvents, getEventsSince),
+                    appendEvents, getEventsSince,
                     checkForConflict,
                     garbageCollectionSettings));
 
@@ -135,11 +134,11 @@ namespace Radix.Tests
                 if (calledBefore)
                 {
                     appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                    return Task.FromResult(Ok<Version, AppendEventsError>(1));
+                    return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
                 }
 
                 calledBefore = true;
-                return Task.FromResult(Error<Version, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
+                return Task.FromResult(Error<ExistentVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
@@ -147,7 +146,7 @@ namespace Radix.Tests
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    new EventStoreStub(appendEvents, getEventsSince),
+                    appendEvents, getEventsSince,
                     checkForConflict,
                     garbageCollectionSettings));
 
@@ -174,17 +173,17 @@ namespace Radix.Tests
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                return Task.FromResult(Ok<Version, AppendEventsError>(0L));
+                return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
             };
 
-            // event stream is at version 3
+            // event stream is at existentVersion 3
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    new EventStoreStub(appendEvents, getEventsSince),
+                    appendEvents, getEventsSince,
                     checkForConflict,
                     garbageCollectionSettings));
 
@@ -211,7 +210,7 @@ namespace Radix.Tests
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                return Task.FromResult(Ok<Version, AppendEventsError>(1));
+                return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
             };
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
@@ -219,7 +218,7 @@ namespace Radix.Tests
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                    new EventStoreStub(appendEvents, getEventsSince),
+                    appendEvents, getEventsSince,
                     checkForConflict,
                     garbageCollectionSettings));
 

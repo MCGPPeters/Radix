@@ -8,26 +8,26 @@ namespace Radix
     public class EventDescriptor<TEvent> : MessageDescriptor
     {
 
-        public EventDescriptor(Address aggregate, MessageId messageId, MessageId causationId, MessageId correlationId, TEvent @event, Version version)
+        public EventDescriptor(Address aggregate, MessageId messageId, MessageId causationId, MessageId correlationId, TEvent @event, ExistentVersion existentVersion)
         {
             Event = @event;
             Aggregate = aggregate;
             CausationId = causationId;
             CorrelationId = correlationId;
             MessageId = messageId;
-            Version = version;
+            ExistentVersion = existentVersion;
         }
 
         public TEvent Event { get; }
         public Address Aggregate { get; }
 
-        public Version Version { get; }
+        public ExistentVersion ExistentVersion { get; }
         public MessageId CausationId { get; }
 
         public MessageId MessageId { get; }
         public MessageId CorrelationId { get; }
 
-        public bool Equals(EventDescriptor<TEvent> other) => EqualityComparer<TEvent>.Default.Equals(Event, other.Event) && Version.Equals(other.Version);
+        public bool Equals(EventDescriptor<TEvent> other) => EqualityComparer<TEvent>.Default.Equals(Event, other.Event) && ExistentVersion.Equals(other.ExistentVersion);
 
         public override bool Equals(object obj) => obj is EventDescriptor<TEvent> other && Equals(other);
 
@@ -35,7 +35,7 @@ namespace Radix
         {
             unchecked
             {
-                return (EqualityComparer<TEvent>.Default.GetHashCode(Event) * 397) ^ Version.GetHashCode();
+                return (EqualityComparer<TEvent>.Default.GetHashCode(Event) * 397) ^ ExistentVersion.GetHashCode();
             }
         }
 
