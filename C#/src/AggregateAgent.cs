@@ -23,12 +23,12 @@ namespace Radix
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
         private readonly Decide<TState, TCommand, TEvent> _decide;
+        private readonly Update<TState, TEvent> _update;
 
         private Version _expectedVersion;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
-        private readonly Update<TState, TEvent> _update;
 
         /// <summary>
         /// </summary>
@@ -144,10 +144,10 @@ namespace Radix
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update,
             IAsyncEnumerable<EventDescriptor<TEvent>> history)
         {
-            (TState state, Version currentVersion) x = await Initial<TState, TEvent>.State(history, update).ConfigureAwait(false);
+            (TState state, Version currentVersion) = await Initial<TState, TEvent>.State(history, update).ConfigureAwait(false);
             return new AggregateAgent<TState, TCommand, TEvent>(
-                x.state,
-                x.currentVersion,
+                state,
+                currentVersion,
                 boundedContextSettings,
                 decide,
                 update);

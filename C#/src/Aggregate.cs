@@ -11,6 +11,7 @@ namespace Radix
             Send = send;
 
         }
+
         public Address Address { get; }
         public Send<TCommand, TEvent> Send { get; }
     }
