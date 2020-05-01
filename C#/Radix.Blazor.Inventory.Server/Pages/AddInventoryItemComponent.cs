@@ -54,6 +54,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             {
                                 case Ok<InventoryItemEvent[], Radix.Error[]>(var events):
                                     currentViewModel = events.Aggregate(currentViewModel, (current, @event) => AddInventoryItemViewModel.Update(current, @event));
+                                    NavigationManager.NavigateTo("/");
                                     break;
                                 case Error<InventoryItemEvent[], Radix.Error[]>(var errors):
                                     currentViewModel.Errors = errors.Select(error => error.Message).ToList();
