@@ -19,15 +19,14 @@ namespace Radix.Blazor.Inventory.Interface.Logic
         public static Update<IndexViewModel, InventoryItemEvent> Update =
             (state, @event) =>
             {
-                (Address address, string Name) item;
                 switch (@event)
                 {
                     case InventoryItemCreated inventoryItemCreated:
                         state.InventoryItems.Add((inventoryItemCreated.Aggregate, inventoryItemCreated.Name));
                         break;
                     case InventoryItemDeactivated _:
-                        item = state.InventoryItems.Find(item => item.address.Equals(@event.Aggregate));
-                        state.InventoryItems.Remove(item);
+                        (Address address, string Name) itemToDeactivate = state.InventoryItems.Find(item => item.address.Equals(@event.Aggregate));
+                        state.InventoryItems.Remove(itemToDeactivate);
                         break;
                     case InventoryItemRenamed inventoryItemRenamed:
                         state.InventoryItems = state.InventoryItems

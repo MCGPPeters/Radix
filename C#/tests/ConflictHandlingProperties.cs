@@ -58,7 +58,7 @@ namespace Radix.Tests
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
         public async Task Property1()
         {
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
@@ -92,7 +92,7 @@ namespace Radix.Tests
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
         public async Task Property2()
         {
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
 
@@ -129,7 +129,7 @@ namespace Radix.Tests
         {
             bool calledBefore = false;
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 if (calledBefore)
                 {
@@ -170,7 +170,7 @@ namespace Radix.Tests
         public async Task Property4()
         {
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                 return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
@@ -207,7 +207,7 @@ namespace Radix.Tests
         public async Task Property5()
         {
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                 return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
