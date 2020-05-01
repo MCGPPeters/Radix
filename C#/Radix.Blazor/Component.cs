@@ -15,6 +15,7 @@ namespace Radix.Blazor
         [Inject]public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
 
         [Inject]public IJSRuntime JSRuntime { get; set; }
+        [Inject]public NavigationManager NavigationManager { get; set; }
 
         [Inject]public TViewModel ViewModel { get; set; }
 
