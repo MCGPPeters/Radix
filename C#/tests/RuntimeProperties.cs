@@ -52,7 +52,7 @@ namespace Radix.Tests
         public async Task Test1()
         {
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, events) =>
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
                 return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));

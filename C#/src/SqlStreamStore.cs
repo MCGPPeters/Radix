@@ -17,7 +17,7 @@ namespace Radix
         private static readonly IStreamStore _streamStore = new InMemoryStreamStore();
 
         public static AppendEvents<TEvent> AppendEvents =>
-            async (address, version, events) =>
+            async (address, version, streamIdentifier, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
                     inventoryItemEvent =>
@@ -29,23 +29,22 @@ namespace Radix
 
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
-                string streamId = $"InventoryItem-{address}";
                 int expectedVersion;
 
                 switch (version)
                 {
                     case AnyVersion _:
-                        appendToStream = () => _streamStore.AppendToStream(streamId, ExpectedVersion.Any, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(streamIdentifier, ExpectedVersion.Any, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
                         return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
                     case NoneExistentVersion _:
                         expectedVersion = ExpectedVersion.NoStream;
-                        appendToStream = () => _streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(streamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
                         return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
                     case ExistentVersion existentVersion:
                         expectedVersion = Convert.ToInt32(existentVersion.Value);
-                        appendToStream = () => _streamStore.AppendToStream(streamId, expectedVersion, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(streamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
                         return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
                     default:

@@ -90,7 +90,7 @@ namespace Radix
                             TransientEventDescriptor<TEvent>[]
                                 eventDescriptors = events.Select(@event => new TransientEventDescriptor<TEvent>(commandDescriptor, @event)).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistentVersion, AppendEventsError>> appendResult =
-                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, _expectedVersion, eventDescriptors).ConfigureAwait(false);
+                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, _expectedVersion, _eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
 
                             switch (await appendResult)
                             {
