@@ -73,7 +73,7 @@ namespace Radix.Tests
                 CheckInItemsToInventory
                     .Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
 
             switch (result)
@@ -107,7 +107,7 @@ namespace Radix.Tests
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
                 .Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
             switch (result)
             {
@@ -153,7 +153,7 @@ namespace Radix.Tests
             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
             switch (result)
             {
@@ -189,7 +189,7 @@ namespace Radix.Tests
 
             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
             Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(checkin);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
             switch (result)
             {
@@ -226,7 +226,7 @@ namespace Radix.Tests
 
             Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(15);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(create);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(create);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):

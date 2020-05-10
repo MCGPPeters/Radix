@@ -65,10 +65,11 @@ namespace Radix
 
 
         public async Task<Aggregate<TCommand, TEvent>> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState : new() => await Get(new Address(), decide, update);
+
+        public async Task<Aggregate<TCommand, TEvent>> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
-            Address address = new Address(Guid.NewGuid());
-
             AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>
                 .Create(address, _boundedContextSettings, decide, update)
                 .ConfigureAwait(false);
@@ -86,11 +87,13 @@ namespace Radix
                 {
                     case Valid<TCommand>(var validCommand):
                         TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
-                        if (!_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
+                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
                         {
-                            agent = await AggregateAgent<TState, TCommand, TEvent>.Create(address, _boundedContextSettings, decide, update);
-                            _registry.Add(transientCommandDescriptor.Recipient, agent);
+                            return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                         }
+
+                        agent = await AggregateAgent<TState, TCommand, TEvent>.Create(address, _boundedContextSettings, decide, update).ConfigureAwait(false);
+                        _registry.Add(transientCommandDescriptor.Recipient, agent);
 
                         return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                     case Invalid<TCommand>(var messages):
