@@ -72,7 +72,7 @@ namespace Radix.Tests
 
             Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Send(removeItems);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(removeItems);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
