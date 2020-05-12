@@ -11,7 +11,7 @@ using Extensions = Radix.Result.Extensions;
 namespace Radix
 {
 
-    public class SqlStreamStore<TEvent> where TEvent : Event
+    public static class SqlStreamStore<TEvent> where TEvent : Event
     {
 
         private static readonly IStreamStore _streamStore = new InMemoryStreamStore();

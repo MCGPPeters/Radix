@@ -23,15 +23,9 @@ namespace Radix
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
-        private readonly Decide<TState, TCommand, TEvent> _decide;
-        private readonly Update<TState, TEvent> _update;
-
-        private Version _expectedVersion;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
-
-        private EventStreamDescriptor<TState> _eventStreamDescriptor;
 
         /// <summary>
         /// </summary>
@@ -43,12 +37,10 @@ namespace Radix
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
-            _decide = decide;
-            _update = update;
             LastActivity = DateTimeOffset.Now;
             _state = new TState();
-            _expectedVersion = new NoneExistentVersion();
-            _eventStreamDescriptor = new NoneExistentEventStreamDescriptor<TState>(address);
+            Version expectedVersion = new NoneExistentVersion();
+            EventStreamDescriptor<TState> eventStreamDescriptor = new NoneExistentEventStreamDescriptor<TState>(address);
 
             _actionBlock = new ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
@@ -62,7 +54,7 @@ namespace Radix
 
                     LastActivity = DateTimeOffset.Now;
 
-                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Recipient, _expectedVersion, _eventStreamDescriptor.StreamIdentifier)
+                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
                         .OrderBy(descriptor => descriptor.ExistentVersion)
                         .ConfigureAwait(false);
 
@@ -74,7 +66,7 @@ namespace Radix
                         switch (optionalConflict)
                         {
                             case None<Conflict<TCommand, TEvent>> _:
-                                _expectedVersion = eventDescriptor.ExistentVersion;
+                                expectedVersion = eventDescriptor.ExistentVersion;
                                 break;
                             case Some<Conflict<TCommand, TEvent>>(var conflict):
                                 taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {conflict.Reason}));
@@ -82,7 +74,7 @@ namespace Radix
                         }
                     }
 
-                    Result<TEvent[], CommandDecisionError> result = await _decide(_state, commandDescriptor).ConfigureAwait(false);
+                    Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor).ConfigureAwait(false);
 
                     switch (result)
                     {
@@ -90,13 +82,13 @@ namespace Radix
                             TransientEventDescriptor<TEvent>[]
                                 eventDescriptors = events.Select(@event => new TransientEventDescriptor<TEvent>(commandDescriptor, @event)).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistentVersion, AppendEventsError>> appendResult =
-                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, _expectedVersion, _eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
+                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
 
                             switch (await appendResult)
                             {
                                 case Ok<ExistentVersion, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
-                                    _state = events.Aggregate(_state, _update.Invoke);
+                                    _state = events.Aggregate(_state, update.Invoke);
 
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;
