@@ -58,7 +58,7 @@ namespace Radix.Tests
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
         public async Task Property1()
         {
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
@@ -92,7 +92,7 @@ namespace Radix.Tests
             DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
         public async Task Property2()
         {
-            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
+            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
 
@@ -134,11 +134,11 @@ namespace Radix.Tests
                 if (calledBefore)
                 {
                     appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                    return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
+                    return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
                 }
 
                 calledBefore = true;
-                return Task.FromResult(Error<ExistentVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
+                return Task.FromResult(Error<ExistingVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
@@ -173,10 +173,10 @@ namespace Radix.Tests
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(0L));
+                return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
             };
 
-            // event stream is at existentVersion 3
+            // event stream is at existingVersion 3
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
@@ -210,7 +210,7 @@ namespace Radix.Tests
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
+                return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
             };
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Radix
 {
     /// <summary>
-    ///     Get all event descriptors for an aggregate since (excluding) the supplied existentVersion
+    ///     Get all event descriptors for an aggregate since (excluding) the supplied existingVersion
     /// </summary>
     /// <param name="address">State of the aggregate</param>
     /// <param name="version"></param>

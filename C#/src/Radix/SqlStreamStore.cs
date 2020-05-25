@@ -36,19 +36,19 @@ namespace Radix
                     case AnyVersion _:
                         appendToStream = () => _streamStore.AppendToStream(streamIdentifier, ExpectedVersion.Any, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
+                        return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case NoneExistentVersion _:
                         expectedVersion = ExpectedVersion.NoStream;
                         appendToStream = () => _streamStore.AppendToStream(streamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
-                    case ExistentVersion existentVersion:
+                        return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                    case ExistingVersion existentVersion:
                         expectedVersion = Convert.ToInt32(existentVersion.Value);
                         appendToStream = () => _streamStore.AppendToStream(streamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<ExistentVersion, AppendEventsError>(result.CurrentVersion);
+                        return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     default:
-                        throw new NotSupportedException("Unknown type of existentVersion");
+                        throw new NotSupportedException("Unknown type of existingVersion");
                 }
             };
 
@@ -58,7 +58,7 @@ namespace Radix
         {
             switch (version)
             {
-                case ExistentVersion existentVersion:
+                case ExistingVersion existentVersion:
                     int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
                     ReadStreamPage readStreamPage = await _streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
@@ -84,7 +84,7 @@ namespace Radix
                 case NoneExistentVersion _:
                     break;
                 default:
-                    throw new NotSupportedException("Unknown type of existentVersion");
+                    throw new NotSupportedException("Unknown type of existingVersion");
             }
         }
     }

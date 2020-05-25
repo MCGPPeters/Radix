@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Radix.Blazor\Radix.Blazor.csproj" />
-    <ProjectReference Include="..\Radix.Tests.Models\Radix.Tests.Models.csproj" />
+    <ProjectReference Include="..\..\src\Radix.Blazor\Radix.Blazor.csproj" />
+    <ProjectReference Include="..\..\src\Radix.Tests.Models\Radix.Tests.Models.csproj" />
   </ItemGroup>
 
 </Project>

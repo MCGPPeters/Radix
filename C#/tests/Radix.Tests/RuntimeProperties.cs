@@ -55,7 +55,7 @@ namespace Radix.Tests
             AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
             {
                 appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-                return Task.FromResult(Ok<ExistentVersion, AppendEventsError>(1));
+                return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
             };
 
             GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
