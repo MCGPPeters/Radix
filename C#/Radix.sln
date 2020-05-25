@@ -3,21 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix", "src\Radix.csproj", "{EC4C0B3B-7189-4D0B-AC0A-32BBB870B389}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix", "src\Radix\Radix.csproj", "{EC4C0B3B-7189-4D0B-AC0A-32BBB870B389}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests", "tests\Radix.Tests.csproj", "{684F9300-593A-4008-9B37-221896608904}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests", "tests\Radix.Tests\Radix.Tests.csproj", "{684F9300-593A-4008-9B37-221896608904}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor", "Radix.Blazor\Radix.Blazor.csproj", "{8DB81B4C-FE0E-48FD-9CD4-E98FDD8787CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor", "src\Radix.Blazor\Radix.Blazor.csproj", "{8DB81B4C-FE0E-48FD-9CD4-E98FDD8787CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Tests", "Radix.Blazor.Tests\Radix.Blazor.Tests.csproj", "{A0FBFB55-5518-4071-B8C3-651FA4E36632}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Tests", "tests\Radix.Blazor.Tests\Radix.Blazor.Tests.csproj", "{A0FBFB55-5518-4071-B8C3-651FA4E36632}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests.Models", "Radix.Tests.Models\Radix.Tests.Models.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests.Models", "src\Radix.Tests.Models\Radix.Tests.Models.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Wasm", "Radix.Blazor.Inventory.Wasm\Radix.Blazor.Inventory.Wasm.csproj", "{282D3139-1308-4440-840D-B8DD716489B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Wasm", "src\Radix.Blazor.Inventory.Wasm\Radix.Blazor.Inventory.Wasm.csproj", "{282D3139-1308-4440-840D-B8DD716489B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Server", "Radix.Blazor.Inventory.Server\Radix.Blazor.Inventory.Server.csproj", "{BD27E966-0A2F-4FA6-B0D1-46177B34087E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Server", "src\Radix.Blazor.Inventory.Server\Radix.Blazor.Inventory.Server.csproj", "{BD27E966-0A2F-4FA6-B0D1-46177B34087E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Blazor.Inventory.Interface.Logic", "Radix.Blazor.Inventory.Interface.Logic\Radix.Blazor.Inventory.Interface.Logic.csproj", "{C30E2BB1-098F-4F4A-BDD4-B83145D2443F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Blazor.Inventory.Interface.Logic", "src\Radix.Blazor.Inventory.Interface.Logic\Radix.Blazor.Inventory.Interface.Logic.csproj", "{C30E2BB1-098F-4F4A-BDD4-B83145D2443F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

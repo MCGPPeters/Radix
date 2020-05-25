@@ -55,7 +55,7 @@ namespace Radix
                     LastActivity = DateTimeOffset.Now;
 
                     ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
-                        .OrderBy(descriptor => descriptor.ExistentVersion)
+                        .OrderBy(descriptor => descriptor.ExistingVersion)
                         .ConfigureAwait(false);
 
                     await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
@@ -66,7 +66,7 @@ namespace Radix
                         switch (optionalConflict)
                         {
                             case None<Conflict<TCommand, TEvent>> _:
-                                expectedVersion = eventDescriptor.ExistentVersion;
+                                expectedVersion = eventDescriptor.ExistingVersion;
                                 break;
                             case Some<Conflict<TCommand, TEvent>>(var conflict):
                                 taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {conflict.Reason}));
@@ -81,18 +81,18 @@ namespace Radix
                         case Ok<TEvent[], CommandDecisionError>(var events):
                             TransientEventDescriptor<TEvent>[]
                                 eventDescriptors = events.Select(@event => new TransientEventDescriptor<TEvent>(commandDescriptor, @event)).ToArray();
-                            ConfiguredTaskAwaitable<Result<ExistentVersion, AppendEventsError>> appendResult =
+                            ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
                                 _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
 
                             switch (await appendResult)
                             {
-                                case Ok<ExistentVersion, AppendEventsError>(_):
+                                case Ok<ExistingVersion, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
                                     _state = events.Aggregate(_state, update.Invoke);
 
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;
-                                case Error<ExistentVersion, AppendEventsError>(var error):
+                                case Error<ExistingVersion, AppendEventsError>(var error):
                                     switch (error)
                                     {
                                         case OptimisticConcurrencyError _:
@@ -148,7 +148,7 @@ namespace Radix
             Address = address;
         }
 
-        public ExistentVersion ExpectedExistentVersion { get; set; } = new ExistentVersion(0L);
+        public ExistingVersion ExpectedExistingVersion { get; set; } = new ExistingVersion(0L);
         public Address Address { get;  }
     }
 

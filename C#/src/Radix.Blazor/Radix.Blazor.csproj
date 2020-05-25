@@ -15,11 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Radix.csproj" />
+    <Folder Include="Components\Forms\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Forms\" />
+    <ProjectReference Include="..\Radix\Radix.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@
     <ProjectReference Include="..\Radix.Blazor.Inventory.Interface.Logic\Radix.Blazor.Inventory.Interface.Logic.csproj" />
     <ProjectReference Include="..\Radix.Blazor\Radix.Blazor.csproj" />
     <ProjectReference Include="..\Radix.Tests.Models\Radix.Tests.Models.csproj" />
-    <ProjectReference Include="..\src\Radix.csproj" />
+    <ProjectReference Include="..\Radix\Radix.csproj" />
   </ItemGroup>
 
 </Project>
