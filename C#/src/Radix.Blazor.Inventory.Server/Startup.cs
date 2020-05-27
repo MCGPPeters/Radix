@@ -1,4 +1,7 @@
+using System;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Tests.Models;
+using SqlStreamStore;
 using static Radix.Option.Extensions;
 
 namespace Radix.Blazor.Inventory.Server
@@ -23,15 +27,45 @@ namespace Radix.Blazor.Inventory.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
-            BoundedContextSettings<InventoryItemCommand, InventoryItemEvent> boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-                SqlStreamStore<InventoryItemEvent>.AppendEvents, SqlStreamStore<InventoryItemEvent>.GetEventsSince,
-                checkForConflict,
-                new GarbageCollectionSettings());
-            BoundedContext<InventoryItemCommand, InventoryItemEvent> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(boundedContextSettings);
+            IStreamStore streamStore = new InMemoryStreamStore();
+            SqlStreamStore sqlStreamStore = new SqlStreamStore(streamStore);
 
-            IndexViewModel indexViewModel = State.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), IndexViewModel.Update).Result;
-            AddInventoryItemViewModel addInventoryItemViewModel = State.Create(AsyncEnumerable.Empty<InventoryItemEvent>(), AddInventoryItemViewModel.Update).Result;
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            FromEventDescriptor<InventoryItemEvent, Json> fromEventDescriptor = (parseEvent, parseMetaData, descriptor) =>
+            {
+                if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
+                {
+                    return JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value);
+                }
+
+                if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemDeactivated), StringComparison.Ordinal))
+                {
+                    return JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value);
+                }
+
+                if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
+                {
+                    return JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                }
+
+                if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
+                {
+                    return JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                }
+
+                throw new InvalidOperationException("Unknown event");
+            };
+            ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (@event, serialize, eventMetaData, serializeMetaData) => new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData));
+            Serialize<InventoryItemEvent, Json> serializeEvent = input => new Json(JsonSerializer.Serialize(input));
+            Serialize<EventMetaData, Json> serializeMetaData = json => new Json(JsonSerializer.Serialize(json));
+            BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json> boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                sqlStreamStore.AppendEvents, sqlStreamStore.GetEventsSince,
+                checkForConflict,
+                new GarbageCollectionSettings(), fromEventDescriptor, toTransientEventDescriptor, serializeEvent, serializeMetaData);
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
+
+            IndexViewModel indexViewModel = new IndexViewModel();
+            AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();
 
             services.AddSingleton(boundedContext);
             services.AddSingleton(indexViewModel);

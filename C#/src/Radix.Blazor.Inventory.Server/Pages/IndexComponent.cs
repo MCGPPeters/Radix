@@ -11,25 +11,25 @@ using static Radix.Blazor.Html.Components;
 namespace Radix.Blazor.Inventory.Server.Pages
 {
     [Route("/")]
-    public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
+    public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         public override Node View(IndexViewModel currentViewModel)
         {
-            Node[] InventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
+            Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 
             return concat(
                 navLinkMatchAll(new[] {@class("btn btn-primary"), href("Add")}, text("Add")),
                 h1(Enumerable.Empty<IAttribute>(), text("All items")),
-                ul(Enumerable.Empty<IAttribute>(), InventoryItemNodes)
+                ul(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
             );
         }
 
-        private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
+        private static Node[] GetInventoryItemNodes(IEnumerable<(long id, string name)> inventoryItems) => inventoryItems.Select(
             inventoryItem =>
                 li(
                     Enumerable.Empty<IAttribute>(),
                     navLinkMatchAll(
-                        new[] {href($"/Details/{inventoryItem.address}")},
+                        new[] {href($"/Details/{inventoryItem.id}")},
                         text(inventoryItem.name)))).ToArray();
     }
 }

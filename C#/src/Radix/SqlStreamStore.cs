@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Radix.Async;
 using SqlStreamStore;
@@ -11,20 +10,24 @@ using Extensions = Radix.Result.Extensions;
 namespace Radix
 {
 
-    public static class SqlStreamStore<TEvent> where TEvent : Event
+    public class SqlStreamStore
     {
 
-        private static readonly IStreamStore _streamStore = new InMemoryStreamStore();
+        private readonly IStreamStore _streamStore;
 
-        public static AppendEvents<TEvent> AppendEvents =>
+        public SqlStreamStore(IStreamStore streamStore)
+        {
+            _streamStore = streamStore;
+        }
+
+        public AppendEvents<Json> AppendEvents =>
             async (address, version, streamIdentifier, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
                     inventoryItemEvent =>
                     {
-                        string jsonMessage = JsonSerializer.Serialize(inventoryItemEvent);
-                        Guid messageId = inventoryItemEvent.Event.Aggregate.Value;
-                        return new NewStreamMessage(messageId, inventoryItemEvent.ToString(), jsonMessage);
+                        Guid messageId = address.Value;
+                        return new NewStreamMessage(messageId, inventoryItemEvent.EventType.Value, inventoryItemEvent.Event.Value, inventoryItemEvent.EventMetaData.Value);
                     }).ToArray();
 
                 Func<Task<AppendResult>> appendToStream;
@@ -52,9 +55,9 @@ namespace Radix
                 }
             };
 
-        public static GetEventsSince<TEvent> GetEventsSince => EventsSince;
+        public GetEventsSince<Json> GetEventsSince => EventsSince;
 
-        private static async IAsyncEnumerable<EventDescriptor<TEvent>> EventsSince(Address address, Version version, string streamId)
+        private async IAsyncEnumerable<EventDescriptor<Json>> EventsSince(Address address, Version version, string streamId)
         {
             switch (version)
             {
@@ -62,20 +65,14 @@ namespace Radix
                     int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
                     ReadStreamPage readStreamPage = await _streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
-                    IEnumerable<Task<EventDescriptor<TEvent>>> eventDescriptors = readStreamPage.Messages.Select(
-                        async streamMessage =>
-                        {
-                            TransientEventDescriptor<TEvent> @event = JsonSerializer.Deserialize<TransientEventDescriptor<TEvent>>(await streamMessage.GetJsonData());
-                            return new EventDescriptor<TEvent>(
-                                @event.Event.Aggregate,
-                                @event.MessageId,
-                                @event.CausationId,
-                                @event.CorrelationId,
-                                @event.Event,
-                                streamMessage.StreamVersion);
-                        });
+                    IEnumerable<Task<EventDescriptor<Json>>> eventDescriptors = readStreamPage.Messages.Select(
+                        async streamMessage => new EventDescriptor<Json>(
+                            new Address(streamMessage.MessageId),
+                            new Json(streamMessage.JsonMetadata),
+                            new Json(await streamMessage.GetJsonData()), 
+                            streamMessage.StreamVersion, new EventType(streamMessage.Type)));
 
-                    foreach (Task<EventDescriptor<TEvent>> eventDescriptor in eventDescriptors)
+                    foreach (Task<EventDescriptor<Json>> eventDescriptor in eventDescriptors)
                     {
                         yield return await eventDescriptor;
                     }

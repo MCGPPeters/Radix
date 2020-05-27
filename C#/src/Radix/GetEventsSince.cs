@@ -8,6 +8,7 @@ namespace Radix
     /// <param name="address">State of the aggregate</param>
     /// <param name="version"></param>
     /// <typeparam name="TEvent"></typeparam>
+    /// <typeparam name="TFormat"></typeparam>
     /// <returns></returns>
-    public delegate IAsyncEnumerable<EventDescriptor<TEvent>> GetEventsSince<TEvent>(Address address, Version version, string streamId) where TEvent : Event;
+    public delegate IAsyncEnumerable<EventDescriptor<TFormat>> GetEventsSince<TFormat>(Address address, Version version, string streamId);
 }

@@ -8,4 +8,5 @@ namespace Radix
 
         public Guid Value { get; }
     }
+
 }

@@ -1,30 +1,36 @@
-using System;
+using System.Text.Json;
 
 namespace Radix
 {
+
+    public delegate TFormat Serialize<in T, out TFormat>(T input);
+    public delegate T Parse<out T, in TFormat>(TFormat input);
+
     /// <summary>
     ///     A descriptor for an event that has not yet been persisted into an event stream. Combining the metadata with the
     ///     event itself
     /// </summary>
-    /// <typeparam name="TEvent">The type of the event</typeparam>
-    public class TransientEventDescriptor<TEvent> : MessageDescriptor
+    public class TransientEventDescriptor<TFormat>
     {
-
         /// <summary>
         /// </summary>
-        /// <param name="causingMessageDescriptor">The description of the message that caused this event to be created</param>
+        /// <param name="eventType"></param>
+        /// <param name="serialize"></param>
         /// <param name="event"></param>
-        public TransientEventDescriptor(MessageDescriptor causingMessageDescriptor, TEvent @event)
+        /// <param name="eventMetaData"></param>
+        /// <param name="causationId"></param>
+        /// <param name="correlationId"></param>
+        public TransientEventDescriptor(EventType eventType, TFormat @event, TFormat eventMetaData)
         {
             Event = @event;
-            CausationId = causingMessageDescriptor.MessageId;
-            CorrelationId = causingMessageDescriptor.CorrelationId;
+            EventMetaData = eventMetaData;
+            EventType = eventType;
         }
 
-        public TEvent Event { get; }
-        public MessageId CausationId { get; }
+        public TFormat Event { get; }
 
-        public MessageId MessageId { get; } = new MessageId(Guid.NewGuid());
-        public MessageId CorrelationId { get; }
+        public EventType EventType { get; }
+
+        public TFormat EventMetaData { get; }
     }
 }

@@ -7,19 +7,21 @@ namespace Radix.Tests.Models
     public class CreateInventoryItem : InventoryItemCommand
     {
 
-        private CreateInventoryItem(string name, bool activated, int count)
+        private CreateInventoryItem(long id, string name, bool activated, int count)
         {
+            Id = id;
             Name = name;
             Activated = activated;
             Count = count;
         }
 
+        public long Id { get; }
         public string Name { get; }
         public bool Activated { get; }
         public int Count { get; }
 
-        private static Func<string, bool, int, InventoryItemCommand> New => (name, activated, count) =>
-            new CreateInventoryItem(name, activated, count);
+        private static Func<long, string, bool, int, InventoryItemCommand> New => (id, name, activated, count) =>
+            new CreateInventoryItem(id, name, activated, count);
 
         public int CompareTo(object obj) => throw new NotImplementedException();
 
@@ -27,7 +29,8 @@ namespace Radix.Tests.Models
 
         public bool Equals(InventoryItemCommand other) => throw new NotImplementedException();
 
-        public static Validated<InventoryItemCommand> Create(string? name, bool activated, int count) => Valid(New)
+        public static Validated<InventoryItemCommand> Create(long id, string? name, bool activated, int count) => Valid(New)
+            .Apply(id > 0 ? Valid(id) :Invalid<long>( "Id must be larger than 0"))
             .Apply(name.IsNotNullNorEmpty("An inventory item must have a name"))
             .Apply(Valid(activated))
             .Apply(

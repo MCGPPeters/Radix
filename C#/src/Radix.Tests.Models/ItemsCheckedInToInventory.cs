@@ -3,7 +3,7 @@ namespace Radix.Tests.Models
     public class ItemsCheckedInToInventory : InventoryItemEvent
     {
 
-        public ItemsCheckedInToInventory(int amount, Address aggregate) : base(aggregate) => Amount = amount;
+        public ItemsCheckedInToInventory(int amount) => Amount = amount;
 
         public int Amount { get; }
 
@@ -25,5 +25,7 @@ namespace Radix.Tests.Models
         }
 
         public override int GetHashCode() => Amount;
+
+        public long Id { get; set; }
     }
 }

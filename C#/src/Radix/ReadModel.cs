@@ -8,7 +8,6 @@ namespace Radix
 {
     public class
         ReadModel<TState, TEvent> : IEquatable<ReadModel<TState, TEvent>>
-        where TEvent : Event
         where TState : new()
     {
 
