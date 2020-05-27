@@ -25,15 +25,16 @@ namespace Radix
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
-    public class BoundedContext<TCommand, TEvent> : IDisposable where TEvent : Event where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+    /// <typeparam name="TFormat">The serialization format</typeparam>
+    public class BoundedContext<TCommand, TEvent, TFormat> : IDisposable where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
-        private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
+        private readonly BoundedContextSettings<TCommand, TEvent, TFormat> _boundedContextSettings;
         private readonly Dictionary<Address, Agent<TCommand, TEvent>> _registry = new Dictionary<Address, Agent<TCommand, TEvent>>();
         private readonly Timer _timer;
 
         private bool _disposedValue; // To detect redundant calls
 
-        public BoundedContext(BoundedContextSettings<TCommand, TEvent> boundedContextSettings)
+        public BoundedContext(BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
             _timer = new Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};
@@ -70,9 +71,8 @@ namespace Radix
         public async Task<Aggregate<TCommand, TEvent>> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
-            AggregateAgent<TState, TCommand, TEvent> agent = await AggregateAgent<TState, TCommand, TEvent>
-                .Create(address, _boundedContextSettings, decide, update)
-                .ConfigureAwait(false);
+            AggregateAgent<TState, TCommand, TEvent, TFormat> agent = AggregateAgent<TState, TCommand, TEvent, TFormat>
+                .Create(address, _boundedContextSettings, decide, update);
 
             _registry.Add(address, agent);
             return new Aggregate<TCommand, TEvent>(address, CreateSend<TState>()(address, decide, update));
@@ -92,7 +92,7 @@ namespace Radix
                             return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                         }
 
-                        agent = await AggregateAgent<TState, TCommand, TEvent>.Create(address, _boundedContextSettings, decide, update).ConfigureAwait(false);
+                        agent = AggregateAgent<TState, TCommand, TEvent, TFormat>.Create(address, _boundedContextSettings, decide, update);
                         _registry.Add(transientCommandDescriptor.Recipient, agent);
 
                         return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);

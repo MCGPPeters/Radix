@@ -3,8 +3,9 @@ namespace Radix.Tests.Models
     public class InventoryItemCreated : InventoryItemEvent
     {
 
-        public InventoryItemCreated(string name, bool activated, int count, Address aggregate) : base(aggregate)
+        public InventoryItemCreated(long id, string name, bool activated, int count)
         {
+            Id = id;
             Name = name;
             Activated = activated;
             Count = count;
@@ -13,6 +14,7 @@ namespace Radix.Tests.Models
         public string Name { get; }
         public bool Activated { get; }
         public int Count { get; set; }
+        public long Id { get; set; }
 
         protected bool Equals(InventoryItemCreated other) => string.Equals(Name, other.Name);
 

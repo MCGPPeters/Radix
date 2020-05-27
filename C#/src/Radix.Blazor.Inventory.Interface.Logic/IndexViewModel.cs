@@ -11,27 +11,24 @@ namespace Radix.Blazor.Inventory.Interface.Logic
         /// <summary>
         ///     This is just an example.. in real life this would be a database or something
         /// </summary>
-        private static readonly List<(Address address, string Name)> _inventoryItems = new List<(Address, string)>
-        {
-            (new Address(Guid.NewGuid()), "First item"), (new Address(Guid.NewGuid()), "Second item")
-        };
+        private static readonly List<(long id, string Name)> _inventoryItems = new List<(long, string)>();
 
-        public static Update<IndexViewModel, InventoryItemEvent> Update =
+        public Update<IndexViewModel, InventoryItemEvent> Update =
             (state, @event) =>
             {
                 switch (@event)
                 {
                     case InventoryItemCreated inventoryItemCreated:
-                        state.InventoryItems.Add((inventoryItemCreated.Aggregate, inventoryItemCreated.Name));
+                        state.InventoryItems.Add((inventoryItemCreated.Id, inventoryItemCreated.Name));
                         break;
                     case InventoryItemDeactivated _:
-                        (Address address, string Name) itemToDeactivate = state.InventoryItems.Find(item => item.address.Equals(@event.Aggregate));
+                        (long id, string Name) itemToDeactivate = state.InventoryItems.Find(item => item.address.Equals(@event.Id));
                         state.InventoryItems.Remove(itemToDeactivate);
                         break;
                     case InventoryItemRenamed inventoryItemRenamed:
                         state.InventoryItems = state.InventoryItems
-                            .Select(_ => (@event.Aggregate, inventoryItemRenamed.Name))
-                            .Where(tuple => tuple.Aggregate.Equals(@event.Aggregate)).ToList();
+                            .Select(_ => (@event.Id, inventoryItemRenamed.Name))
+                            .Where(tuple => tuple.Id.Equals(@event.Id)).ToList();
                         break;
                     default:
                         throw new NotSupportedException("Unknown event");
@@ -40,7 +37,7 @@ namespace Radix.Blazor.Inventory.Interface.Logic
                 return state;
             };
 
-        public List<(Address address, string name)> InventoryItems
+        public List<(long address, string name)> InventoryItems
         {
             get => _inventoryItems;
             set => throw new NotImplementedException();

@@ -6,13 +6,12 @@ using Radix.Blazor.Html;
 
 namespace Radix.Blazor
 {
-    public abstract class Component<TViewModel, TCommand, TEvent> : ComponentBase where TEvent : Event
-        where TViewModel : IEquatable<TViewModel>, new()
+    public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         private bool _disposedValue;
 
-        [Inject]public BoundedContext<TCommand, TEvent> BoundedContext { get; set; }
+        [Inject]public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
 
         [Inject]public IJSRuntime JSRuntime { get; set; }
         [Inject]public NavigationManager NavigationManager { get; set; }

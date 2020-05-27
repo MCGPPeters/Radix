@@ -15,12 +15,19 @@ using static Radix.Blazor.Html.Components;
 namespace Radix.Blazor.Inventory.Server.Pages
 {
     [Route("/Add")]
-    public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
+    public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(NoAttributes(), text("Add new item")),
             div(
                 new[] {@class("form-group")},
+                Elements.label(
+                    new[] {@for("idInput")},
+                    text("Name")),
+                input(
+                    @class("form-control"),
+                    id("idInput"),
+                    bind.input(currentViewModel.InventoryItemId, id => currentViewModel.InventoryItemId = id)),
                 Elements.label(
                     new[] {@for("nameInput")},
                     text("Name")),
@@ -42,7 +49,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     @class("btn btn-primary"), on.click(
                         async args =>
                         {
-                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(
+                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(currentViewModel.InventoryItemId,
                                 currentViewModel.InventoryItemName,
                                 true,
                                 currentViewModel.InventoryItemCount);
@@ -52,7 +59,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             switch (result)
                             {
                                 case Ok<InventoryItemEvent[], Radix.Error[]>(var events):
-                                    currentViewModel = events.Aggregate(currentViewModel, (current, @event) => AddInventoryItemViewModel.Update(current, @event));
+                                    currentViewModel = events.Aggregate(currentViewModel, (current, @event) => ViewModel.Update(current, @event));
                                     NavigationManager.NavigateTo("/");
                                     break;
                                 case Error<InventoryItemEvent[], Radix.Error[]>(var errors):

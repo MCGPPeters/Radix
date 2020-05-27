@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Radix.Monoid;
@@ -13,16 +15,15 @@ using static Radix.Option.Extensions;
 namespace Radix
 {
 
-    internal class AggregateAgent<TState, TCommand, TEvent> : Agent<TCommand, TEvent>
+    internal class AggregateAgent<TState, TCommand, TEvent, TFormat> : Agent<TCommand, TEvent>
         where TState : new()
-        where TEvent : Event
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
 
         private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
-        private readonly BoundedContextSettings<TCommand, TEvent> _boundedContextSettings;
+        private readonly BoundedContextSettings<TCommand, TEvent, TFormat> _boundedContextSettings;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
@@ -33,7 +34,7 @@ namespace Radix
         /// <param name="boundedContextSettings"></param>
         /// <param name="decide"></param>
         /// <param name="update"></param>
-        private AggregateAgent(Address address, BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
+        private AggregateAgent(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
@@ -54,12 +55,13 @@ namespace Radix
 
                     LastActivity = DateTimeOffset.Now;
 
-                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
+                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TFormat>> eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
                         .OrderBy(descriptor => descriptor.ExistingVersion)
                         .ConfigureAwait(false);
 
-                    await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
+                    await foreach (EventDescriptor<TFormat> eventDescriptor in eventsSince)
                     {
+                        // todo apply events from history. Do not subscribe to server side changes. only apply when processing a command
 
                         Option<Conflict<TCommand, TEvent>> optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
 
@@ -74,13 +76,13 @@ namespace Radix
                         }
                     }
 
-                    Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor).ConfigureAwait(false);
+                    Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor.Command).ConfigureAwait(false);
 
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
-                            TransientEventDescriptor<TEvent>[]
-                                eventDescriptors = events.Select(@event => new TransientEventDescriptor<TEvent>(commandDescriptor, @event)).ToArray();
+                            TransientEventDescriptor<TFormat>[]
+                                eventDescriptors = events.Select(@event => _boundedContextSettings.ToTransientEventDescriptor(@event, _boundedContextSettings.Serialize, new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),  _boundedContextSettings.SerializeMetaData)).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
                                 _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
 
@@ -134,22 +136,11 @@ namespace Radix
 
         public void Deactivate() => _actionBlock.Complete();
 
-        public static async Task<AggregateAgent<TState, TCommand, TEvent>> Create(Address address, BoundedContextSettings<TCommand, TEvent> boundedContextSettings,
+        public static AggregateAgent<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
-            return new AggregateAgent<TState, TCommand, TEvent>(address, boundedContextSettings, decide, update);
+            return new AggregateAgent<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
         }
-    }
-
-    public class ExistentEventStreamDescriptor<TState> : EventStreamDescriptor<TState>
-    {
-        public ExistentEventStreamDescriptor(Address address)
-        {
-            Address = address;
-        }
-
-        public ExistingVersion ExpectedExistingVersion { get; set; } = new ExistingVersion(0L);
-        public Address Address { get;  }
     }
 
     public class NoneExistentEventStreamDescriptor<TState> : EventStreamDescriptor<TState>
