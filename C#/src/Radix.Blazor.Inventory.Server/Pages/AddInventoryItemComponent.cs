@@ -54,12 +54,12 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 true,
                                 currentViewModel.InventoryItemCount);
 
-                            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
+                            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
                             Result<InventoryItemEvent[], Radix.Error[]> result = await inventoryItem.Accept(validCommand);
                             switch (result)
                             {
                                 case Ok<InventoryItemEvent[], Radix.Error[]>(var events):
-                                    currentViewModel = events.Aggregate(currentViewModel, (current, @event) => ViewModel.Update(current, @event));
+                                    currentViewModel = events.Aggregate(currentViewModel, (current, @event) => AddInventoryItemViewModel.Update(current, @event));
                                     NavigationManager.NavigateTo("/");
                                     break;
                                 case Error<InventoryItemEvent[], Radix.Error[]>(var errors):

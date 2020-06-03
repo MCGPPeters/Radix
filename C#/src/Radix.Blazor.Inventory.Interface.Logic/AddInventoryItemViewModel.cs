@@ -7,7 +7,7 @@ namespace Radix.Blazor.Inventory.Interface.Logic
     public class AddInventoryItemViewModel : IEquatable<AddInventoryItemViewModel>
     {
 
-        public Update<AddInventoryItemViewModel, InventoryItemEvent> Update = (state, @event) =>
+        public static Update<AddInventoryItemViewModel, InventoryItemEvent> Update = (state, @event) =>
         {
             switch (@event)
             {

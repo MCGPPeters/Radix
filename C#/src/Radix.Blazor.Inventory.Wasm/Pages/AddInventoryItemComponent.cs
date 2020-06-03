@@ -15,7 +15,7 @@ using static Radix.Blazor.Html.Components;
 namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     [Route("/Add")]
-    public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
+    public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(NoAttributes(), text("Add new item")),
@@ -42,12 +42,12 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                     @class("btn btn-primary"), on.click(
                         async args =>
                         {
-                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(
+                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(currentViewModel.InventoryItemId,
                                 currentViewModel.InventoryItemName,
                                 true,
                                 currentViewModel.InventoryItemCount);
 
-                            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
+                            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
                             Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(validCommand);
                             switch (result)
                             {

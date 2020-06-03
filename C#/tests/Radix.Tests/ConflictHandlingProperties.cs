@@ -1,246 +1,240 @@
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
-//using FluentAssertions;
-//using Radix.Monoid;
-//using Radix.Result;
-//using Radix.Tests.Models;
-//using Xunit;
-//using static Radix.Result.Extensions;
-//using static Radix.Option.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Radix.Monoid;
+using Radix.Result;
+using Radix.Tests.Models;
+using Xunit;
+using static Radix.Result.Extensions;
+using static Radix.Option.Extensions;
 
-//namespace Radix.Tests
-//{
-
-
-//    public class ConflictHandlingProperties
-//    {
-//        private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
-//        {
-//            ScanInterval = TimeSpan.FromMinutes(1), IdleTimeout = TimeSpan.FromMinutes(60)
-//        };
+namespace Radix.Tests
+{
 
 
-//        private static async IAsyncEnumerable<EventDescriptor> GetEventsSince(Address address, Version version, string streamIdentifier)
-//        {
-//            yield return new EventDescriptor(
-//                address,
-//                new MessageId(Guid.NewGuid()),
-//                new MessageId(Guid.NewGuid()),
-//                new MessageId(Guid.NewGuid()),
-//                new InventoryItemCreated("Product 1", true, 0, address),
-//                1L);
-//            yield return new EventDescriptor(
-//                address,
-//                new MessageId(Guid.NewGuid()),
-//                new MessageId(Guid.NewGuid()),
-//                new MessageId(Guid.NewGuid()),
-//                new ItemsCheckedInToInventory(10, address),
-//                2L);
-//            yield return new EventDescriptor(
-//                address,
-//                new MessageId(Guid.NewGuid()),
-//                new MessageId(Guid.NewGuid()),
-//                new MessageId(Guid.NewGuid()),
-//                new InventoryItemRenamed("Product 2", address),
-//                3L);
-//        }
+    public class ConflictHandlingProperties
+    {
+        TestSettings _testSettings = new TestSettings();
 
-//        private static Option<Conflict<InventoryItemCommand, InventoryItemEvent>> FindConflict(InventoryItemCommand command, EventDescriptor descriptor)
-//        {
-//            InventoryItemEvent @event = descriptor.Event;
-//            return Some(new Conflict<InventoryItemCommand, InventoryItemEvent>(command, @event, "Just another conflict"));
-//        }
-
-//        [Fact(
-//            DisplayName =
-//                "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
-//        public async Task Property1()
-//        {
-//            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
-//            GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-//            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
-
-//            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-//                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(appendEvents, getEventsSince,
-//                    checkForConflict,
-//                    garbageCollectionSettings,
-//                    TODO));
-//            // for testing purposes make the aggregate block the current thread while processing
-//            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
-
-//            Validated<InventoryItemCommand> checkin =
-//                CheckInItemsToInventory
-//                    .Create(10);
-
-//            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
+        private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
+        {
+            ScanInterval = TimeSpan.FromMinutes(1),
+            IdleTimeout = TimeSpan.FromMinutes(60)
+        };
 
 
-//            switch (result)
-//            {
-//                case Ok<InventoryItemEvent[], Error[]>(var events):
-//                    events.Should().Equal(
-//                        new List<InventoryItemEvent> {new ItemsCheckedInToInventory(10, inventoryItem.Address)});
-//                    break;
-//                case Error<InventoryItemEvent[], Error[]>(var errors):
-//                    errors.Should().BeEmpty();
-//                    break;
-//            }
-//        }
+        public static async IAsyncEnumerable<EventDescriptor<Json>> GetEventsSince(Address address, Version version, string streamIdentifier)
+        {
+            MessageId messageId = new MessageId(new Guid());
+            yield return new EventDescriptor<Json>(
+                address,
+                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
+                new Json(JsonSerializer.Serialize(new InventoryItemCreated {Count = 1, Name = "Product 1"})),
+                1L,
+                new EventType(nameof(InventoryItemCreated)));
+            yield return new EventDescriptor<Json>(
+                address,
+                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
+                new Json(JsonSerializer.Serialize(new ItemsCheckedInToInventory {Amount = 10})),
+                2L,
+                new EventType(nameof(ItemsCheckedInToInventory)));
+            yield return new EventDescriptor<Json>(
+                address,
+                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
+                new Json(JsonSerializer.Serialize(new InventoryItemRenamed {Name = "Product 2"})),
+                3L,
+                new EventType(nameof(InventoryItemRenamed)));
+        }
 
-//        [Fact(
-//            DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
-//        public async Task Property2()
-//        {
-//            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
-//            GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-//            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = FindConflict;
+        [Fact(
+            DisplayName =
+                "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
+        public async Task Property1()
+        {
+            AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
+            GetEventsSince<Json> getEventsSince = GetEventsSince;
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-//            // for testing purposes make the aggregate block the current thread while processing
-//            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-//                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-//                    appendEvents, getEventsSince,
-//                    checkForConflict,
-//                    garbageCollectionSettings,
-//                    TODO));
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                    appendEvents, _testSettings.GetEventsSince,
+                    checkForConflict,
+                    _testSettings.CollectionSettings,
+                    _testSettings.Descriptor,
+                    _testSettings.ToTransientEventDescriptor,
+                    _testSettings.SerializeEvent,
+                    _testSettings.SerializeMetaData
+                ));
+            // for testing purposes make the aggregate block the current thread while processing
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
 
-//            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
-//            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
-//                .Create(10);
+            Validated<InventoryItemCommand> checkin =
+                CheckInItemsToInventory
+                    .Create(10);
 
-//            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
-
-//            switch (result)
-//            {
-//                case Ok<InventoryItemEvent[], Error[]>(var events):
-//                    events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
-//                    break;
-//                case Error<InventoryItemEvent[], Error[]>(var errors):
-//                    errors.Should().Contain(error => error.Message == "Just another conflict");
-//                    break;
-//            }
-
-//        }
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
 
-//        [Fact(
-//            DisplayName =
-//                "Given there is a concurrency conflict and conflict resolution determines that it is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
-//        public async Task Property3()
-//        {
-//            bool calledBefore = false;
-//            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-//            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
-//            {
-//                if (calledBefore)
-//                {
-//                    appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-//                    return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
-//                }
+            switch (result)
+            {
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().Equal(
+                        new List<InventoryItemEvent> { new ItemsCheckedInToInventory{ Amount = 10}});
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
+                    break;
+            }
+        }
 
-//                calledBefore = true;
-//                return Task.FromResult(Error<ExistingVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
-//            };
+        [Fact(
+            DisplayName = "Given there is a concurrency conflict and conflict resolution determines that there truly is a conflict, the last command should be rejected")]
+        public async Task Property2()
+        {
+            AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => Some(new Conflict<InventoryItemCommand, InventoryItemEvent>(command, _testSettings.Descriptor(null!, null!, descriptor), "Just another conflict")); ;
 
-//            GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-//            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            // for testing purposes make the aggregate block the current thread while processing
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                    appendEvents, _testSettings.GetEventsSince,
+                    checkForConflict,
+                    _testSettings.CollectionSettings,
+                    _testSettings.Descriptor,
+                    _testSettings.ToTransientEventDescriptor,
+                    _testSettings.SerializeEvent,
+                    _testSettings.SerializeMetaData
+                ));
 
-//            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-//                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-//                    appendEvents, getEventsSince,
-//                    checkForConflict,
-//                    garbageCollectionSettings,
-//                    TODO));
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory
+                .Create(5);
 
-//            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
-//            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
-//            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
+            switch (result)
+            {
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().Equal(new List<InventoryItemEvent>(), "no event should be saved to the event store given the command was discarded");
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().Contain(error => error.Message == "Just another conflict");
+                    break;
+            }
 
-//            switch (result)
-//            {
-//                case Ok<InventoryItemEvent[], Error[]>(var events):
-//                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem.Address)}, "the event should be appended");
-//                    break;
-//                case Error<InventoryItemEvent[], Error[]>(var errors):
-//                    errors.Should().BeEmpty();
-//                    break;
-//            }
-//        }
+        }
 
-//        [Fact(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
-//        public async Task Property4()
-//        {
-//            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-//            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
-//            {
-//                appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-//                return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
-//            };
 
-//            // event stream is at existingVersion 3
-//            GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-//            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
-//                None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+        [Fact(
+            DisplayName =
+                "Given there is a concurrency conflict and conflict resolution determines that it is NO conflict and a technical concurrency exception arises when appending events to the stream, when retrying the expected event should be added to the stream")]
+        public async Task Property3()
+        {
+            bool calledBefore = false;
+            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
+            AppendEvents<Json> appendEvents = (_, __, ___, events) =>
+            {
+                if (calledBefore) return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
+                calledBefore = true;
+                return Task.FromResult(Error<ExistingVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
+            };
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-//            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-//                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-//                    appendEvents, getEventsSince,
-//                    checkForConflict,
-//                    garbageCollectionSettings,
-//                    TODO));
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                    appendEvents, _testSettings.GetEventsSince,
+                    checkForConflict,
+                    _testSettings.CollectionSettings,
+                    _testSettings.Descriptor,
+                    _testSettings.ToTransientEventDescriptor,
+                    _testSettings.SerializeEvent,
+                    _testSettings.SerializeMetaData
+                ));
 
-//            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
-//            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
-//            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
 
-//            switch (result)
-//            {
-//                case Ok<InventoryItemEvent[], Error[]>(var events):
-//                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory(10, inventoryItem.Address)}, "the event should be appended");
-//                    break;
-//                case Error<InventoryItemEvent[], Error[]>(var errors):
-//                    errors.Should().BeEmpty();
-//                    break;
-//            }
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
-//        }
+            switch (result)
+            {
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().BeEquivalentTo(new[] { new ItemsCheckedInToInventory {Amount = 10} }, "the event should be appended");
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
+                    break;
+            }
+        }
 
-//        [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
-//        public async Task Property5()
-//        {
-//            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
-//            AppendEvents<InventoryItemEvent> appendEvents = (_, __, ___, events) =>
-//            {
-//                appendedEvents.AddRange(events.Select(descriptor => descriptor.Event));
-//                return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
-//            };
-//            GetEventsSince<InventoryItemEvent> getEventsSince = GetEventsSince;
-//            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
-//                None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+        [Fact(DisplayName = "Given there is a concurrency conflict and conflict resolution waves the conflict, the expected event should be added to the stream")]
+        public async Task Property4()
+        {
+            AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
 
-//            BoundedContext<InventoryItemCommand, InventoryItemEvent> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent>(
-//                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent>(
-//                    appendEvents, getEventsSince,
-//                    checkForConflict,
-//                    garbageCollectionSettings,
-//                    TODO));
+            // event stream is at existingVersion 3
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
-//            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = await context.Create(InventoryItem.Decide, InventoryItem.Update);
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                    appendEvents, _testSettings.GetEventsSince,
+                    checkForConflict,
+                    _testSettings.CollectionSettings,
+                    _testSettings.Descriptor,
+                    _testSettings.ToTransientEventDescriptor,
+                    _testSettings.SerializeEvent,
+                    _testSettings.SerializeMetaData
+                ));
 
-//            Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(15);
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
+            Validated<InventoryItemCommand> checkin = CheckInItemsToInventory.Create(10);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
 
-//            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(create);
-//            switch (result)
-//            {
-//                case Ok<InventoryItemEvent[], Error[]>(var events):
-//                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(15, inventoryItem.Address));
-//                    break;
-//                case Error<InventoryItemEvent[], Error[]>(var errors):
-//                    errors.Should().BeEmpty();
-//                    break;
-//            }
-//        }
-//    }
-//}
+            switch (result)
+            {
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().BeEquivalentTo(new[] { new ItemsCheckedInToInventory{Amount = 10} }, "the event should be appended");
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
+                    break;
+            }
+
+        }
+
+        [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
+        public async Task Property5()
+        {
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                    (address, version, identifier, descriptors) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L)), _testSettings.GetEventsSince,
+                    checkForConflict,
+                    _testSettings.CollectionSettings,
+                    _testSettings.Descriptor,
+                    _testSettings.ToTransientEventDescriptor,
+                    _testSettings.SerializeEvent,
+                    _testSettings.SerializeMetaData
+                ));
+
+            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
+
+            Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(15);
+
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(create);
+            switch (result)
+            {
+                case Ok<InventoryItemEvent[], Error[]>(var events):
+                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory{Amount = 15});
+                    break;
+                case Error<InventoryItemEvent[], Error[]>(var errors):
+                    errors.Should().BeEmpty();
+                    break;
+            }
+        }
+    }
+}

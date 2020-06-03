@@ -7,7 +7,8 @@ using Radix.Blazor.Html;
 namespace Radix.Blazor
 {
     public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand> where TEvent : class, Event
+
     {
         private bool _disposedValue;
 

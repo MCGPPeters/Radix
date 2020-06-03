@@ -18,6 +18,7 @@ namespace Radix
     internal class AggregateAgent<TState, TCommand, TEvent, TFormat> : Agent<TCommand, TEvent>
         where TState : new()
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+        where TEvent : class, Event
     {
 
         private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
@@ -77,7 +78,7 @@ namespace Radix
                     }
 
                     Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor.Command).ConfigureAwait(false);
-
+                    
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
@@ -91,6 +92,11 @@ namespace Radix
                                 case Ok<ExistingVersion, AppendEventsError>(_):
                                     // the events have been saved to the stream successfully. Update the state
                                     _state = events.Aggregate(_state, update.Invoke);
+
+                                    foreach (TEvent @event in events)
+                                    {
+                                        @event.Address = address;
+                                    }
 
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;

@@ -44,25 +44,25 @@ namespace Radix.Tests
         public ToTransientEventDescriptor<InventoryItemEvent, Json> ToTransientEventDescriptor { get; } = (@event, serialize, eventMetaData, serializeMetaData) =>
             new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData));
 
-        public static async IAsyncEnumerable<EventDescriptor<Json>> GetEventsSince(Address address, Version version, string streamIdentifier)
+        public async IAsyncEnumerable<EventDescriptor<Json>> GetEventsSince(Address address, Version version, string streamIdentifier)
         {
             MessageId messageId = new MessageId(new Guid());
             yield return new EventDescriptor<Json>(
                 address,
                 new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
-                new Json(JsonSerializer.Serialize(new InventoryItemCreated(1, "Product 1", true, 0))),
+                new Json(JsonSerializer.Serialize(new InventoryItemCreated{Name = "Product 1", Activated = true, Count = 1})),
                 1L,
                 new EventType(nameof(InventoryItemCreated)));
             yield return new EventDescriptor<Json>(
                 address,
                 new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
-                new Json(JsonSerializer.Serialize(new ItemsCheckedInToInventory(19))),
+                new Json(JsonSerializer.Serialize(new ItemsCheckedInToInventory{Amount = 19})),
                 2L,
                 new EventType(nameof(ItemsCheckedInToInventory)));
             yield return new EventDescriptor<Json>(
                 address,
                 new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
-                new Json(JsonSerializer.Serialize(new InventoryItemRenamed("Product 2"))),
+                new Json(JsonSerializer.Serialize(new InventoryItemRenamed{Name = "Product 2"})),
                 3L,
                 new EventType(nameof(InventoryItemRenamed)));
         }
