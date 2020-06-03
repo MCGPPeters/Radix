@@ -8,7 +8,7 @@ namespace Radix
 {
     public class
         ReadModel<TState, TEvent> : IEquatable<ReadModel<TState, TEvent>>
-        where TState : new()
+        where TState : new() where TEvent : Event
     {
 
         private IObserver<TState>? _observer;

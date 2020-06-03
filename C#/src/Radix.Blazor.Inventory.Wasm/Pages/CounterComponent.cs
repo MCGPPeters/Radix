@@ -9,7 +9,7 @@ using static Radix.Blazor.Html.Attributes;
 namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     [Route("/counter")]
-    public class CounterComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent>
+    public class CounterComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         private int _currentCount;
 

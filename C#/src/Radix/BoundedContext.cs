@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Timers;
 using Radix.Monoid;
 using Radix.Validated;
@@ -26,7 +25,9 @@ namespace Radix
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TFormat">The serialization format</typeparam>
-    public class BoundedContext<TCommand, TEvent, TFormat> : IDisposable where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+    public class BoundedContext<TCommand, TEvent, TFormat> : IDisposable
+        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+        where TEvent : class, Event
     {
         private readonly BoundedContextSettings<TCommand, TEvent, TFormat> _boundedContextSettings;
         private readonly Dictionary<Address, Agent<TCommand, TEvent>> _registry = new Dictionary<Address, Agent<TCommand, TEvent>>();
@@ -65,10 +66,10 @@ namespace Radix
         }
 
 
-        public async Task<Aggregate<TCommand, TEvent>> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new() => await Get(new Address(), decide, update);
+        public Aggregate<TCommand, TEvent> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState : new() => Get(new Address(), decide, update);
 
-        public async Task<Aggregate<TCommand, TEvent>> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+        public Aggregate<TCommand, TEvent> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
             AggregateAgent<TState, TCommand, TEvent, TFormat> agent = AggregateAgent<TState, TCommand, TEvent, TFormat>

@@ -1,8 +1,8 @@
 namespace Radix.Tests.Models
 {
-    public interface InventoryItemEvent
+    public interface InventoryItemEvent : Event
     {
-        long Id { get; set; }
+
     }
 
 }

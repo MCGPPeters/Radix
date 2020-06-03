@@ -2,9 +2,7 @@ namespace Radix.Tests.Models
 {
     public class ItemsRemovedFromInventory : InventoryItemEvent
     {
-        public ItemsRemovedFromInventory(int amount) => Amount = amount;
-
-        public int Amount { get; }
+        public int Amount { get; set; }
 
         protected bool Equals(ItemsRemovedFromInventory other) => Amount == other.Amount;
 
@@ -26,5 +24,6 @@ namespace Radix.Tests.Models
         public override int GetHashCode() => Amount;
 
         public long Id { get; set; }
+        public Address Address { get; set; }
     }
 }

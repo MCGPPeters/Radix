@@ -11,7 +11,7 @@ using static Radix.Blazor.Html.Components;
 namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     [Route("/")]
-    public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent>
+    public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         public override Node View(IndexViewModel currentViewModel)
         {

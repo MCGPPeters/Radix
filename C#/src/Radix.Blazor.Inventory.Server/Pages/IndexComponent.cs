@@ -24,12 +24,12 @@ namespace Radix.Blazor.Inventory.Server.Pages
             );
         }
 
-        private static Node[] GetInventoryItemNodes(IEnumerable<(long id, string name)> inventoryItems) => inventoryItems.Select(
+        private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
             inventoryItem =>
                 li(
                     Enumerable.Empty<IAttribute>(),
                     navLinkMatchAll(
-                        new[] {href($"/Details/{inventoryItem.id}")},
+                        new[] {href($"/Details/{inventoryItem.address}")},
                         text(inventoryItem.name)))).ToArray();
     }
 }
