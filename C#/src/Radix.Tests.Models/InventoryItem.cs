@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using static Radix.Result.Extensions;
 
@@ -6,17 +7,22 @@ namespace Radix.Tests.Models
 {
     public class InventoryItem : IEquatable<InventoryItem>
     {
-        public static Update<InventoryItem, InventoryItemEvent> Update = (state, @event) =>
+        public static Update<InventoryItem, InventoryItemEvent> Update = (state, events) =>
         {
-            return @event switch
-            {
-                InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, state.Activated, state.Count),
-                InventoryItemDeactivated _ => new InventoryItem(state.Name, false, state.Count),
-                ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(state.Name, state.Activated, state.Count + itemsCheckedInToInventory.Amount),
-                ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(state.Name, state.Activated, state.Count - itemsRemovedFromInventory.Amount),
-                InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, state.Activated, state.Count),
-                _ => throw new NotSupportedException("Unknown event")
-            };
+            return events.Aggregate(
+                state,
+                (item, @event) =>
+                {
+                    return @event switch
+                    {
+                        InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, state.Activated, state.Count),
+                        InventoryItemDeactivated _ => new InventoryItem(state.Name, false, state.Count),
+                        ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(state.Name, state.Activated, state.Count + itemsCheckedInToInventory.Amount),
+                        ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(state.Name, state.Activated, state.Count - itemsRemovedFromInventory.Amount),
+                        InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, state.Activated, state.Count),
+                        _ => throw new NotSupportedException("Unknown event")
+                    };
+                });
         };
 
         public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, command) =>

@@ -4,6 +4,6 @@ namespace Radix
 {
     public interface Event
     {
-        Address Address { get; set; }
+        Address? Address { get; set; }
     }
 }

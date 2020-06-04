@@ -24,11 +24,7 @@ namespace Radix
             async (address, version, streamIdentifier, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
-                    inventoryItemEvent =>
-                    {
-                        Guid messageId = address.Value;
-                        return new NewStreamMessage(messageId, inventoryItemEvent.EventType.Value, inventoryItemEvent.Event.Value, inventoryItemEvent.EventMetaData.Value);
-                    }).ToArray();
+                    inventoryItemEvent => new NewStreamMessage(inventoryItemEvent.MessageId.Value, inventoryItemEvent.EventType.Value, inventoryItemEvent.Event.Value, inventoryItemEvent.EventMetaData.Value)).ToArray();
 
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;

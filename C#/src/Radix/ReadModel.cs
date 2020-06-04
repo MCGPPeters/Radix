@@ -11,8 +11,6 @@ namespace Radix
         where TState : new() where TEvent : Event
     {
 
-        private IObserver<TState>? _observer;
-
         private ReadModel(TState state) => State = state;
 
         public TState State { get; }
@@ -49,7 +47,7 @@ namespace Radix
             // restore the initialState (if any)
             if (history is object)
             {
-                state = await history.AggregateAsync(state, update.Invoke);
+                state = await history.AggregateAsync(state, (s, @event) =>  update(s, @event));
             }
 
             return new ReadModel<TState, TEvent>(state);
@@ -57,7 +55,6 @@ namespace Radix
 
         public IDisposable Subscribe(IObserver<TState> observer)
         {
-            _observer = observer;
             return Disposable.Empty;
         }
 

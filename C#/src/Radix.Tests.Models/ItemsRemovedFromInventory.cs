@@ -24,6 +24,6 @@ namespace Radix.Tests.Models
         public override int GetHashCode() => Amount;
 
         public long Id { get; set; }
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
     }
 }
