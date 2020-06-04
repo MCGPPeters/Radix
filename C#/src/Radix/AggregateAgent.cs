@@ -83,20 +83,22 @@ namespace Radix
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
                             TransientEventDescriptor<TFormat>[]
-                                eventDescriptors = events.Select(@event => _boundedContextSettings.ToTransientEventDescriptor(@event, _boundedContextSettings.Serialize, new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),  _boundedContextSettings.SerializeMetaData)).ToArray();
+                                eventDescriptors = events.Select(@event => _boundedContextSettings.ToTransientEventDescriptor(new MessageId(Guid.NewGuid()), @event, _boundedContextSettings.Serialize, new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),  _boundedContextSettings.SerializeMetaData)).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
                                 _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
 
                             switch (await appendResult)
                             {
-                                case Ok<ExistingVersion, AppendEventsError>(_):
+                                case Ok<ExistingVersion, AppendEventsError>(var version):
                                     // the events have been saved to the stream successfully. Update the state
-                                    _state = events.Aggregate(_state, update.Invoke);
+                                    _state = update(_state, events);
 
                                     foreach (TEvent @event in events)
                                     {
                                         @event.Address = address;
                                     }
+
+                                    expectedVersion = version;
 
                                     taskCompletionSource.SetResult(Ok<TEvent[], Error[]>(events));
                                     break;

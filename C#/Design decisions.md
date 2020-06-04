@@ -13,7 +13,7 @@ A command is atomic. If there is a true concurrency conflict, no event that coul
 The best approach for checking for and handling true concurrency conflicts (as opposed to technical optimistic concurrency exceptions) is to:
 
 - Check if the expected version is still the current version of the event stream
-  - If not, get all events since the expected version ( > the expected version) from the event stream. For each event check if there is a conflict according to business defined rules. 
+  - If not, get all events since the expected version ( > the expected version) from the event stream. For each event check if there is a conflict according to business defined rules (conflict resolution). 
     - If the are no conflicts, set the expected version to the latest version of the event stream and go to the next step. 
     - Otherwise there is a true concurrency conflict. Discard the command (and signal the issuer of the command => todo). END
 - Evaluate the command and get the resulting transient events. Try to append these events to the event stream

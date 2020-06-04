@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 
 namespace Radix
@@ -20,10 +21,12 @@ namespace Radix
         /// <param name="eventMetaData"></param>
         /// <param name="causationId"></param>
         /// <param name="correlationId"></param>
-        public TransientEventDescriptor(EventType eventType, TFormat @event, TFormat eventMetaData)
+        /// <param name="messageId"></param>
+        public TransientEventDescriptor(EventType eventType, TFormat @event, TFormat eventMetaData, MessageId messageId)
         {
             Event = @event;
             EventMetaData = eventMetaData;
+            MessageId = messageId;
             EventType = eventType;
         }
 
@@ -32,5 +35,6 @@ namespace Radix
         public EventType EventType { get; }
 
         public TFormat EventMetaData { get; }
+        public MessageId MessageId { get;  }
     }
 }

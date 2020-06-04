@@ -6,7 +6,7 @@ namespace Radix.Tests.Models
     {
         
         public string Name { get; set; }
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
 
         public bool Equals(InventoryItemRenamed? other)
         {

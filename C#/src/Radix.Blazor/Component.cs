@@ -10,14 +10,13 @@ namespace Radix.Blazor
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand> where TEvent : class, Event
 
     {
-        private bool _disposedValue;
 
-        [Inject]public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
+        [Inject] public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
 
-        [Inject]public IJSRuntime JSRuntime { get; set; }
-        [Inject]public NavigationManager NavigationManager { get; set; }
+        [Inject] public IJSRuntime JSRuntime { get; set; }
+        [Inject] public NavigationManager NavigationManager { get; set; }
 
-        [Inject]public TViewModel ViewModel { get; set; }
+        [Inject] public TViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     This function is called whenever it is decided the state of the viewmodel has changed
@@ -27,9 +26,13 @@ namespace Radix.Blazor
         /// <returns></returns>
         public abstract Node View(TViewModel currentViewModel);
 
+
+        public abstract Update<TViewModel, TEvent> Update { get; }
+
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
+
             Rendering.RenderNode(this, builder, 0, View(ViewModel));
         }
     }

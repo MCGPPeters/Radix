@@ -46,7 +46,7 @@ namespace Radix.Blazor.Inventory.Wasm
                     }
 
                     throw new InvalidOperationException("Unknown event");
-                }, (@event, serialize, eventMetaData, serializeMetaData) => new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData)), input => new Json(JsonSerializer.Serialize(input)), Json => new Json(JsonSerializer.Serialize(Json)));
+                }, (messageId, @event, serialize, eventMetaData, serializeMetaData) => new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData), messageId), input => new Json(JsonSerializer.Serialize(input)), Json => new Json(JsonSerializer.Serialize(Json)));
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
 
             IndexViewModel indexViewModel = new IndexViewModel();

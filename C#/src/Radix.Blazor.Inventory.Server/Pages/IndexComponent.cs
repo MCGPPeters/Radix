@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
@@ -23,6 +24,40 @@ namespace Radix.Blazor.Inventory.Server.Pages
                 ul(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
             );
         }
+
+        public override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
+
+            (state, events) =>
+            {
+                return events.Aggregate(
+                    state,
+                    (model, @event) =>
+                    {
+                        switch (@event)
+                        {
+                            case InventoryItemCreated inventoryItemCreated:
+                                state.InventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
+                                break;
+                            case InventoryItemDeactivated _:
+                                (Address address, string Name) itemToDeactivate = state.InventoryItems.Find(item => item.address.Equals(@event.Address));
+                                state.InventoryItems.Remove(itemToDeactivate);
+                                break;
+                            case InventoryItemRenamed inventoryItemRenamed:
+                                state.InventoryItems = state.InventoryItems
+                                    .Select(_ => (@event.Address, inventoryItemRenamed.Name))
+                                    .Where(tuple => tuple.Address.Equals(@event.Address)).ToList();
+                                break;
+                            case ItemsCheckedInToInventory _:
+                                break;
+                            case ItemsRemovedFromInventory _:
+                                break;
+                            default:
+                                throw new NotSupportedException("Unknown event");
+                        }
+
+                        return state;
+                    });
+            };
 
         private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
             inventoryItem =>
