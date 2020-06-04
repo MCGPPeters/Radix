@@ -47,16 +47,13 @@ namespace Radix
             // restore the initialState (if any)
             if (history is object)
             {
-                state = await history.AggregateAsync(state, (s, @event) =>  update(s, @event));
+                state = await history.AggregateAsync(state, (s, @event) => update(s, @event));
             }
 
             return new ReadModel<TState, TEvent>(state);
         }
 
-        public IDisposable Subscribe(IObserver<TState> observer)
-        {
-            return Disposable.Empty;
-        }
+        public IDisposable Subscribe(IObserver<TState> observer) => Disposable.Empty;
 
         public override bool Equals(object? obj)
         {

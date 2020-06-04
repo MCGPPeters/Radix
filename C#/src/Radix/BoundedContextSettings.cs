@@ -6,7 +6,8 @@ namespace Radix
 
         public BoundedContextSettings(AppendEvents<TFormat> appendEvents, GetEventsSince<TFormat> getEventsSince,
             CheckForConflict<TCommand, TEvent, TFormat> checkForConflict,
-            GarbageCollectionSettings garbageCollectionSettings, FromEventDescriptor<TEvent, TFormat> fromEventDescriptor, ToTransientEventDescriptor<TEvent, TFormat> toTransientEventDescriptor, Serialize<TEvent, TFormat> serialize, Serialize<EventMetaData, TFormat> serializeMetaData)
+            GarbageCollectionSettings garbageCollectionSettings, FromEventDescriptor<TEvent, TFormat> fromEventDescriptor,
+            ToTransientEventDescriptor<TEvent, TFormat> toTransientEventDescriptor, Serialize<TEvent, TFormat> serialize, Serialize<EventMetaData, TFormat> serializeMetaData)
         {
             AppendEvents = appendEvents;
             GetEventsSince = getEventsSince;

@@ -17,26 +17,46 @@ namespace Radix.Blazor.Inventory.Server.Pages
     [Route("/Add")]
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
+
+        public override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
+        {
+            return events.Aggregate(
+                state,
+                (model, @event) =>
+                {
+                    switch (@event)
+                    {
+                        case InventoryItemCreated created:
+                            state.Messages.Add($"Created a new item: {created.Name}");
+                            state.InventoryItemCount = created.Count;
+                            state.InventoryItemName = created.Name;
+                            break;
+                    }
+
+                    return state;
+                });
+        };
+
         public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(NoAttributes(), text("Add new item")),
             div(
-                new[] { @class("form-group") },
+                new[] {@class("form-group")},
                 Elements.label(
-                    new[] { @for("idInput") },
+                    new[] {@for("idInput")},
                     text("Name")),
                 input(
                     @class("form-control"),
                     id("idInput"),
                     bind.input(currentViewModel.InventoryItemId, id => currentViewModel.InventoryItemId = id)),
                 Elements.label(
-                    new[] { @for("nameInput") },
+                    new[] {@for("nameInput")},
                     text("Name")),
                 input(
                     @class("form-control"),
                     id("nameInput"),
                     bind.input(currentViewModel.InventoryItemName, name => currentViewModel.InventoryItemName = name)),
                 Elements.label(
-                    new[] { @for("countInput") },
+                    new[] {@for("countInput")},
                     text("Count")),
                 input(
                     @class("form-control"),
@@ -49,7 +69,8 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     @class("btn btn-primary"), on.click(
                         async args =>
                         {
-                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(currentViewModel.InventoryItemId,
+                            Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(
+                                currentViewModel.InventoryItemId,
                                 currentViewModel.InventoryItemName,
                                 true,
                                 currentViewModel.InventoryItemCount);
@@ -75,39 +96,20 @@ namespace Radix.Blazor.Inventory.Server.Pages
                 },
                 text("Ok")
             ),
-            navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
+            navLinkMatchAll(new[] {@class("btn btn-primary"), href("/")}, text("Cancel")),
             div(
                 NoAttributes(),
                 div(
-                    new[] { @class("toast"), attribute("data-autohide", "false") },
+                    new[] {@class("toast"), attribute("data-autohide", "false")},
                     div(
-                        new[] { @class("toast-header") },
-                        strong(new[] { @class("mr-auto") }, text("Invalid input")),
+                        new[] {@class("toast-header")},
+                        strong(new[] {@class("mr-auto")}, text("Invalid input")),
                         small(NoAttributes(), text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
-                        button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(NoAttributes(), text("🗙")))),
+                        button(new[] {type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast")}, Elements.span(NoAttributes(), text("🗙")))),
                     div(
-                        new[] { @class("toast-body") },
+                        new[] {@class("toast-body")},
                         FormatErrorMessages(currentViewModel.Errors)
                     ))));
-
-        public override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
-        {
-            return events.Aggregate(
-                state,
-                (model, @event) =>
-                {
-                    switch (@event)
-                    {
-                        case InventoryItemCreated created:
-                            state.Messages.Add($"Created a new item: {created.Name}");
-                            state.InventoryItemCount = created.Count;
-                            state.InventoryItemName = created.Name;
-                            break;
-                    }
-
-                    return state;
-                });
-        };
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 

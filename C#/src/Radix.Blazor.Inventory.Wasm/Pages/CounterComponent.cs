@@ -2,11 +2,9 @@
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
-using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Blazor.Inventory.Wasm.Pages;
 using Radix.Monoid;
 using Radix.Result;
-using Radix.Tests.Models;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Validated.Extensions;
@@ -16,14 +14,17 @@ namespace Radix.Blazor.Inventory.Server.Pages
     [Route("/counter")]
     public class CounterComponent : Component<CounterViewModel, CounterCommand, CounterEvent, Json>
     {
+        private readonly Aggregate<CounterCommand, CounterEvent> _counter;
         private int _currentCount;
-        private Aggregate<CounterCommand, CounterEvent> _counter;
 
-        public CounterComponent()
+        public CounterComponent() => _counter = BoundedContext.Create(Counter.Decide, Counter.Update);
+
+
+        public override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
         {
-            _counter = BoundedContext.Create(Counter.Decide, Counter.Update);
-
-        }
+            state.Count++;
+            return state;
+        };
 
         public override Node View(CounterViewModel currentViewModel) => concat(
             h1(Enumerable.Empty<IAttribute>(), text("Counter")),
@@ -35,12 +36,12 @@ namespace Radix.Blazor.Inventory.Server.Pages
                         async args =>
                         {
                             Validated<CounterCommand> validCommand = Valid(new CounterCommand());
-                            Result<CounterEvent[], Radix.Error[]> result = await _counter.Accept(validCommand);
+                            Result<CounterEvent[], Error[]> result = await _counter.Accept(validCommand);
                             switch (result)
                             {
-                                case Error<CounterEvent[], Radix.Error[]> error:
+                                case Error<CounterEvent[], Error[]> error:
                                     break;
-                                case Ok<CounterEvent[], Radix.Error[]> (var events):
+                                case Ok<CounterEvent[], Error[]> (var events):
 
                                     Update(ViewModel, events);
 
@@ -52,13 +53,6 @@ namespace Radix.Blazor.Inventory.Server.Pages
                         })
                 },
                 text("Click me")));
-
-
-        public override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
-        {
-            state.Count++;
-            return state;
-        };
     }
 
     public class CounterEvent : Event

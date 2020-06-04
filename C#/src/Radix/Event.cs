@@ -1,5 +1,3 @@
-using System;
-
 namespace Radix
 {
     public interface Event

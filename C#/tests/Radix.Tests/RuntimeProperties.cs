@@ -29,14 +29,15 @@ namespace Radix.Tests
             CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                    appendEvents, getEventsSince,
+                    appendEvents,
+                    getEventsSince,
                     checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
                     _testSettings.ToTransientEventDescriptor,
                     _testSettings.SerializeEvent,
                     _testSettings.SerializeMetaData
-                    ));
+                ));
             // for testing purposes make the aggregate block the current thread while processing
             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -47,8 +48,10 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().Equal(new List<InventoryItemEvent> { new ItemsRemovedFromInventory {Amount = 1}});
-                    events.Select(evt => evt.Address).Should().AllBeEquivalentTo(inventoryItem.Address, "the address of the aggregate should be available when retrieved from an event store");
+                    events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory {Amount = 1}});
+                    events.Select(evt => evt.Address).Should().AllBeEquivalentTo(
+                        inventoryItem.Address,
+                        "the address of the aggregate should be available when retrieved from an event store");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -56,9 +59,5 @@ namespace Radix.Tests
             }
 
         }
-
-       
-
-        
     }
 }

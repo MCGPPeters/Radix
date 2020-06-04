@@ -6,15 +6,15 @@ namespace Radix
     {
         public Address()
         {
-            
+
         }
 
         public Address(Guid guid) => Value = guid;
 
         public Guid Value { get; } = Guid.NewGuid();
 
-        public static implicit operator Address(Guid guid) => new Address(guid);
-
         public override string ToString() => Value.ToString();
+
+        public static implicit operator Address(Guid guid) => new Address(guid);
     }
 }

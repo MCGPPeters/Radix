@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -17,12 +16,11 @@ namespace Radix.Tests
 
     public class ConflictHandlingProperties
     {
-        TestSettings _testSettings = new TestSettings();
+        private readonly TestSettings _testSettings = new TestSettings();
 
         private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
         {
-            ScanInterval = TimeSpan.FromMinutes(1),
-            IdleTimeout = TimeSpan.FromMinutes(60)
+            ScanInterval = TimeSpan.FromMinutes(1), IdleTimeout = TimeSpan.FromMinutes(60)
         };
 
 
@@ -60,7 +58,8 @@ namespace Radix.Tests
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                    appendEvents, _testSettings.GetEventsSince,
+                    appendEvents,
+                    _testSettings.GetEventsSince,
                     checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
@@ -82,7 +81,7 @@ namespace Radix.Tests
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
                     events.Should().Equal(
-                        new List<InventoryItemEvent> { new ItemsCheckedInToInventory{ Amount = 10}});
+                        new List<InventoryItemEvent> {new ItemsCheckedInToInventory {Amount = 10}});
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -95,12 +94,15 @@ namespace Radix.Tests
         public async Task Property2()
         {
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => Some(new Conflict<InventoryItemCommand, InventoryItemEvent>(command, _testSettings.Descriptor(null!, null!, descriptor), "Just another conflict")); ;
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => Some(
+                new Conflict<InventoryItemCommand, InventoryItemEvent>(command, _testSettings.Descriptor(null!, null!, descriptor), "Just another conflict"));
+            ;
 
             // for testing purposes make the aggregate block the current thread while processing
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                    appendEvents, _testSettings.GetEventsSince,
+                    appendEvents,
+                    _testSettings.GetEventsSince,
                     checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
@@ -137,15 +139,21 @@ namespace Radix.Tests
             List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<Json> appendEvents = (_, __, ___, events) =>
             {
-                if (calledBefore) return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
+                if (calledBefore)
+                {
+                    return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
+                }
+
                 calledBefore = true;
                 return Task.FromResult(Error<ExistingVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
             };
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) =>
+                None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                    appendEvents, _testSettings.GetEventsSince,
+                    appendEvents,
+                    _testSettings.GetEventsSince,
                     checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
@@ -162,7 +170,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new[] { new ItemsCheckedInToInventory {Amount = 10} }, "the event should be appended");
+                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory {Amount = 10}}, "the event should be appended");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -176,11 +184,13 @@ namespace Radix.Tests
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
 
             // event stream is at existingVersion 3
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) =>
+                None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                    appendEvents, _testSettings.GetEventsSince,
+                    appendEvents,
+                    _testSettings.GetEventsSince,
                     checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
@@ -196,7 +206,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new[] { new ItemsCheckedInToInventory{Amount = 10} }, "the event should be appended");
+                    events.Should().BeEquivalentTo(new[] {new ItemsCheckedInToInventory {Amount = 10}}, "the event should be appended");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
@@ -208,11 +218,13 @@ namespace Radix.Tests
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
         public async Task Property5()
         {
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) =>
+                None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                    (address, version, identifier, descriptors) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L)), _testSettings.GetEventsSince,
+                    (address, version, identifier, descriptors) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L)),
+                    _testSettings.GetEventsSince,
                     checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
@@ -229,7 +241,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory{Amount = 15});
+                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory {Amount = 15});
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();

@@ -2,10 +2,8 @@
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
-using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Monoid;
 using Radix.Result;
-using Radix.Tests.Models;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Validated.Extensions;
@@ -16,6 +14,13 @@ namespace Radix.Blazor.Inventory.Server.Pages
     public class CounterComponent : Component<CounterViewModel, CounterCommand, CounterEvent, Json>
     {
         private Aggregate<CounterCommand, CounterEvent> _counter;
+
+
+        public override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
+        {
+            state.Count++;
+            return state;
+        };
 
 
         protected override void OnInitialized()
@@ -40,7 +45,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 case Error<CounterEvent[], Radix.Error[]> error:
                                     break;
                                 case Ok<CounterEvent[], Radix.Error[]> (var events):
-                                    
+
                                     Update(ViewModel, events);
 
                                     break;
@@ -51,13 +56,6 @@ namespace Radix.Blazor.Inventory.Server.Pages
                         })
                 },
                 text("Click me")));
-
-
-        public override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
-        {
-            state.Count++;
-            return state;
-        };
     }
 
     public class CounterEvent : Event

@@ -30,7 +30,7 @@ namespace Radix.Tests.Models
         public bool Equals(InventoryItemCommand other) => throw new NotImplementedException();
 
         public static Validated<InventoryItemCommand> Create(long id, string? name, bool activated, int count) => Valid(New)
-            .Apply(id > 0 ? Valid(id) :Invalid<long>( "Id must be larger than 0"))
+            .Apply(id > 0 ? Valid(id) : Invalid<long>("Id must be larger than 0"))
             .Apply(name.IsNotNullNorEmpty("An inventory item must have a name"))
             .Apply(Valid(activated))
             .Apply(

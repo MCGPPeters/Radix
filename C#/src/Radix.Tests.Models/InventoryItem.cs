@@ -38,12 +38,12 @@ namespace Radix.Tests.Models
                             new InventoryItemCreated {Name = createInventoryItem.Name, Activated = createInventoryItem.Activated, Count = createInventoryItem.Count}
                         })),
                 RenameInventoryItem renameInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemRenamed{Name = renameInventoryItem.Name}})),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemRenamed {Name = renameInventoryItem.Name}})),
                 CheckInItemsToInventory checkInItemsToInventory => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new ItemsCheckedInToInventory{Amount = checkInItemsToInventory.Amount}})),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new ItemsCheckedInToInventory {Amount = checkInItemsToInventory.Amount}})),
                 RemoveItemsFromInventory removeItemsFromInventory => Task.FromResult(
                     Ok<InventoryItemEvent[], CommandDecisionError>(
-                        new InventoryItemEvent[] {new ItemsRemovedFromInventory{Amount = removeItemsFromInventory.Amount}})),
+                        new InventoryItemEvent[] {new ItemsRemovedFromInventory {Amount = removeItemsFromInventory.Amount}})),
                 _ => throw new NotSupportedException("Unknown transientCommand")
             };
         };

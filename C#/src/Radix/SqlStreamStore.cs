@@ -15,16 +15,17 @@ namespace Radix
 
         private readonly IStreamStore _streamStore;
 
-        public SqlStreamStore(IStreamStore streamStore)
-        {
-            _streamStore = streamStore;
-        }
+        public SqlStreamStore(IStreamStore streamStore) => _streamStore = streamStore;
 
         public AppendEvents<Json> AppendEvents =>
             async (address, version, streamIdentifier, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
-                    inventoryItemEvent => new NewStreamMessage(inventoryItemEvent.MessageId.Value, inventoryItemEvent.EventType.Value, inventoryItemEvent.Event.Value, inventoryItemEvent.EventMetaData.Value)).ToArray();
+                    inventoryItemEvent => new NewStreamMessage(
+                        inventoryItemEvent.MessageId.Value,
+                        inventoryItemEvent.EventType.Value,
+                        inventoryItemEvent.Event.Value,
+                        inventoryItemEvent.EventMetaData.Value)).ToArray();
 
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
@@ -65,8 +66,9 @@ namespace Radix
                         async streamMessage => new EventDescriptor<Json>(
                             new Address(streamMessage.MessageId),
                             new Json(streamMessage.JsonMetadata),
-                            new Json(await streamMessage.GetJsonData()), 
-                            streamMessage.StreamVersion, new EventType(streamMessage.Type)));
+                            new Json(await streamMessage.GetJsonData()),
+                            streamMessage.StreamVersion,
+                            new EventType(streamMessage.Type)));
 
                     foreach (Task<EventDescriptor<Json>> eventDescriptor in eventDescriptors)
                     {

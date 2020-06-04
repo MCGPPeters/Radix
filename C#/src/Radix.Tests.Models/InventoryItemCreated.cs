@@ -6,6 +6,8 @@ namespace Radix.Tests.Models
         public bool Activated { get; set; }
         public int Count { get; set; }
 
+        public Address? Address { get; set; }
+
         protected bool Equals(InventoryItemCreated other) => string.Equals(Name, other.Name);
 
         public override bool Equals(object obj)
@@ -24,7 +26,5 @@ namespace Radix.Tests.Models
         }
 
         public override int GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-
-        public Address? Address { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Radix.Tests.Models;
 
 namespace Radix.Blazor.Inventory.Interface.Logic
 {
@@ -13,7 +12,6 @@ namespace Radix.Blazor.Inventory.Interface.Logic
         /// </summary>
         private static readonly List<(Address address, string Name)> _inventoryItems = new List<(Address, string)>();
 
-       
 
         public List<(Address address, string name)> InventoryItems
         {

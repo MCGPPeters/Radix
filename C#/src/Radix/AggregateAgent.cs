@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Radix.Monoid;
 using Radix.Option;
 using Radix.Result;
 using static Radix.Result.Extensions;
-using static Radix.Option.Extensions;
 
 namespace Radix
 {
@@ -56,7 +52,8 @@ namespace Radix
 
                     LastActivity = DateTimeOffset.Now;
 
-                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TFormat>> eventsSince = _boundedContextSettings.GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
+                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TFormat>> eventsSince = _boundedContextSettings
+                        .GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
                         .OrderBy(descriptor => descriptor.ExistingVersion)
                         .ConfigureAwait(false);
 
@@ -78,14 +75,21 @@ namespace Radix
                     }
 
                     Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor.Command).ConfigureAwait(false);
-                    
+
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
                             TransientEventDescriptor<TFormat>[]
-                                eventDescriptors = events.Select(@event => _boundedContextSettings.ToTransientEventDescriptor(new MessageId(Guid.NewGuid()), @event, _boundedContextSettings.Serialize, new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),  _boundedContextSettings.SerializeMetaData)).ToArray();
+                                eventDescriptors = events.Select(
+                                    @event => _boundedContextSettings.ToTransientEventDescriptor(
+                                        new MessageId(Guid.NewGuid()),
+                                        @event,
+                                        _boundedContextSettings.Serialize,
+                                        new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),
+                                        _boundedContextSettings.SerializeMetaData)).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
-                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors).ConfigureAwait(false);
+                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors)
+                                    .ConfigureAwait(false);
 
                             switch (await appendResult)
                             {
@@ -145,33 +149,23 @@ namespace Radix
         public void Deactivate() => _actionBlock.Complete();
 
         public static AggregateAgent<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
-            Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-        {
-            return new AggregateAgent<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
-        }
+            Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) =>
+            new AggregateAgent<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
     }
 
     public class NoneExistentEventStreamDescriptor<TState> : EventStreamDescriptor<TState>
     {
-        public Address Address { get; }
 
-        public NoneExistentEventStreamDescriptor(Address address)
-        {
-            Address = address;
-        }
+        public NoneExistentEventStreamDescriptor(Address address) => Address = address;
+
+        public Address Address { get; }
     }
 
     public interface EventStreamDescriptor<TState>
     {
         Address Address { get; }
 
-        public string StreamIdentifier
-        {
-            get
-            {
-                return $"{typeof(TState)}-{Address}";
-            }
-        }
+        public string StreamIdentifier => $"{typeof(TState)}-{Address}";
     }
 
 }
