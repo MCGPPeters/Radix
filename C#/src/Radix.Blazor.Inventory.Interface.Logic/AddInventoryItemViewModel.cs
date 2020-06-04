@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Radix.Tests.Models;
 
 namespace Radix.Blazor.Inventory.Interface.Logic
 {

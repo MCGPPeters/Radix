@@ -14,16 +14,6 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
     [Route("/")]
     public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
-        public override Node View(IndexViewModel currentViewModel)
-        {
-            Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
-
-            return concat(
-                navLinkMatchAll(new[] { @class("btn btn-primary"), href("Add") }, text("Add")),
-                h1(Enumerable.Empty<IAttribute>(), text("All items")),
-                ul(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
-            );
-        }
 
         public override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
 
@@ -59,12 +49,23 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                     });
             };
 
+        public override Node View(IndexViewModel currentViewModel)
+        {
+            Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
+
+            return concat(
+                navLinkMatchAll(new[] {@class("btn btn-primary"), href("Add")}, text("Add")),
+                h1(Enumerable.Empty<IAttribute>(), text("All items")),
+                ul(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
+            );
+        }
+
         private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
             inventoryItem =>
                 li(
                     Enumerable.Empty<IAttribute>(),
                     navLinkMatchAll(
-                        new[] { href($"/Details/{inventoryItem.address}") },
+                        new[] {href($"/Details/{inventoryItem.address}")},
                         text(inventoryItem.name)))).ToArray();
     }
 }

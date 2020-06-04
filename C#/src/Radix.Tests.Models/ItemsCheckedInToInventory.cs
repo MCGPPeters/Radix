@@ -5,6 +5,9 @@ namespace Radix.Tests.Models
 
         public int Amount { get; set; }
 
+        public long Id { get; set; }
+        public Address? Address { get; set; }
+
         protected bool Equals(ItemsCheckedInToInventory other) => Amount == other.Amount;
 
         public override bool Equals(object obj)
@@ -23,8 +26,5 @@ namespace Radix.Tests.Models
         }
 
         public override int GetHashCode() => Amount;
-
-        public long Id { get; set; }
-        public Address? Address { get; set; }
     }
 }

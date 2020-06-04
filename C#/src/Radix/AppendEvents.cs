@@ -14,7 +14,8 @@ namespace Radix
     /// <typeparam name="TError"></typeparam>
     /// <typeparam name="TState"></typeparam>
     /// <returns>
-    ///     Either a next expected existingVersion of the event stream when the action succeeded or an error. The SaveEvents error is
+    ///     Either a next expected existingVersion of the event stream when the action succeeded or an error. The SaveEvents
+    ///     error is
     ///     on if the following:
     ///     - OptimisticConcurrencyError
     /// </returns>

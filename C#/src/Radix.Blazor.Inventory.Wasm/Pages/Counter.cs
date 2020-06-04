@@ -13,12 +13,12 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
             return state;
         };
 
-        public int Count { get; set; }
-
         public static Decide<Counter, CounterCommand, CounterEvent> Decide = (state, command) =>
         {
-            return Task.FromResult(Extensions.Ok<CounterEvent[], CommandDecisionError>(new [] {new CounterEvent()}));
+            return Task.FromResult(Extensions.Ok<CounterEvent[], CommandDecisionError>(new[] {new CounterEvent()}));
         };
+
+        public int Count { get; set; }
 
 
         public bool Equals(Counter? other)
@@ -48,12 +48,12 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
 
-            return Equals((Counter) obj);
+            return Equals((Counter)obj);
         }
 
         public override int GetHashCode() => Count;

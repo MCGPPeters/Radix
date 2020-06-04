@@ -1,10 +1,8 @@
-using System;
-using System.Text.Json;
-
 namespace Radix
 {
 
     public delegate TFormat Serialize<in T, out TFormat>(T input);
+
     public delegate T Parse<out T, in TFormat>(TFormat input);
 
     /// <summary>
@@ -35,6 +33,6 @@ namespace Radix
         public EventType EventType { get; }
 
         public TFormat EventMetaData { get; }
-        public MessageId MessageId { get;  }
+        public MessageId MessageId { get; }
     }
 }

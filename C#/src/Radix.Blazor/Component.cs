@@ -11,12 +11,15 @@ namespace Radix.Blazor
 
     {
 
-        [Inject] public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
+        [Inject]public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
 
-        [Inject] public IJSRuntime JSRuntime { get; set; }
-        [Inject] public NavigationManager NavigationManager { get; set; }
+        [Inject]public IJSRuntime JSRuntime { get; set; }
+        [Inject]public NavigationManager NavigationManager { get; set; }
 
-        [Inject] public TViewModel ViewModel { get; set; }
+        [Inject]public TViewModel ViewModel { get; set; }
+
+
+        public abstract Update<TViewModel, TEvent> Update { get; }
 
         /// <summary>
         ///     This function is called whenever it is decided the state of the viewmodel has changed
@@ -25,9 +28,6 @@ namespace Radix.Blazor
         /// <param name="currentViewModel"></param>
         /// <returns></returns>
         public abstract Node View(TViewModel currentViewModel);
-
-
-        public abstract Update<TViewModel, TEvent> Update { get; }
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {

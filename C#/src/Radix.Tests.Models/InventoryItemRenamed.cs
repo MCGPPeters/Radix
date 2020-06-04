@@ -4,7 +4,7 @@ namespace Radix.Tests.Models
 {
     public class InventoryItemRenamed : InventoryItemEvent
     {
-        
+
         public string Name { get; set; }
         public Address? Address { get; set; }
 
@@ -35,12 +35,12 @@ namespace Radix.Tests.Models
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
 
-            return Equals((InventoryItemRenamed) obj);
+            return Equals((InventoryItemRenamed)obj);
         }
 
         public override int GetHashCode() => HashCode.Combine(Name, Address);

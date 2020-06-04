@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,23 +55,39 @@ namespace Radix.Blazor.Inventory.Server
 
                 throw new InvalidOperationException("Unknown event");
             };
-            ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) => new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData), messageId);
+            ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
+                new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData), messageId);
             Serialize<InventoryItemEvent, Json> serializeEvent = input => new Json(JsonSerializer.Serialize(input));
             Serialize<EventMetaData, Json> serializeMetaData = json => new Json(JsonSerializer.Serialize(json));
-            BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json> boundedContextSettings = new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
-                sqlStreamStore.AppendEvents, sqlStreamStore.GetEventsSince,
-                checkForConflict,
-                new GarbageCollectionSettings(), fromEventDescriptor, toTransientEventDescriptor, serializeEvent, serializeMetaData);
-            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
+            BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json> boundedContextSettings =
+                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                    sqlStreamStore.AppendEvents,
+                    sqlStreamStore.GetEventsSince,
+                    checkForConflict,
+                    new GarbageCollectionSettings(),
+                    fromEventDescriptor,
+                    toTransientEventDescriptor,
+                    serializeEvent,
+                    serializeMetaData);
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =
+                new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
 
 
             Serialize<CounterEvent, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
             BoundedContextSettings<CounterCommand, CounterEvent, Json> counterBoundedContextSettings = new BoundedContextSettings<CounterCommand, CounterEvent, Json>(
-                sqlStreamStore.AppendEvents, sqlStreamStore.GetEventsSince,
+                sqlStreamStore.AppendEvents,
+                sqlStreamStore.GetEventsSince,
                 (command, descriptor) => new None<Conflict<CounterCommand, CounterEvent>>(),
+                new GarbageCollectionSettings(),
+                (parse, data, descriptor) => new CounterEvent(),
+                (id, @event, serialize, data, serializeMetaData) => new TransientEventDescriptor<Json>(
+                    new EventType(@event.GetType().Name),
+                    serializeCounterEvent(@event),
+                    serializeMetaData(data),
+                    id),
+                serializeCounterEvent,
+                serializeMetaData);
 
-                new GarbageCollectionSettings(), (parse, data, descriptor) => new CounterEvent(), (id, @event, serialize, data, serializeMetaData) => new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serializeCounterEvent(@event), serializeMetaData(data), id), serializeCounterEvent, serializeMetaData);
-            
             BoundedContext<CounterCommand, CounterEvent, Json> counterBoundedContext = new BoundedContext<CounterCommand, CounterEvent, Json>(counterBoundedContextSettings);
 
             IndexViewModel indexViewModel = new IndexViewModel();
