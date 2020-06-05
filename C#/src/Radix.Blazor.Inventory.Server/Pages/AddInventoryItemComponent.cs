@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Monoid;
+using Radix.Option;
 using Radix.Result;
 using Radix.Tests.Models;
 using static Radix.Blazor.Html.Elements;
@@ -43,7 +44,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                 new[] {@class("form-group")},
                 Elements.label(
                     new[] {@for("idInput")},
-                    text("Name")),
+                    text("Id")),
                 input(
                     @class("form-control"),
                     id("idInput"),
@@ -76,20 +77,19 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 currentViewModel.InventoryItemCount);
 
                             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
-                            Result<InventoryItemEvent[], Radix.Error[]> result = await inventoryItem.Accept(validCommand);
+                            Option<Radix.Error[]> result = await Dispatch(inventoryItem, validCommand);
                             switch (result)
                             {
-                                case Ok<InventoryItemEvent[], Radix.Error[]>(var events):
-                                    currentViewModel = events.Aggregate(currentViewModel, (current, @event) => Update(current, @event));
-                                    NavigationManager.NavigateTo("/");
-                                    break;
-                                case Error<InventoryItemEvent[], Radix.Error[]>(var errors):
+                                case Some<Radix.Error[]>(var errors):
                                     currentViewModel.Errors = errors.Select(error => error.Message).ToList();
                                     if (JSRuntime is object)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                     }
-
+                                    
+                                    break;
+                                case None<Radix.Error[]> _:
+                                    NavigationManager.NavigateTo("/");
                                     break;
                             }
                         })
