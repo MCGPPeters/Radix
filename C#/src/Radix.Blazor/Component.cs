@@ -15,6 +15,7 @@ namespace Radix.Blazor
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand> where TEvent : class, Event
 
     {
+        private bool _shouldRender;
 
         [Inject]public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
 
@@ -30,17 +31,19 @@ namespace Radix.Blazor
             switch (result)
             {
                 case Ok<TEvent[], Error[]>(var events):
+                    _shouldRender = events.Any();
                     ViewModel = events.Aggregate(ViewModel, (current, @event) => Update(current, @event));
                     StateHasChanged();
                     return None<Error[]>();
                 case Error<TEvent[], Error[]>(var errors):
+                    _shouldRender = false;
                     return Some(errors);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(result));
             }
         }
 
-        //protected override bool ShouldRender() => PreviousViewModel is object && !PreviousViewModel.Equals(ViewModel);
+        protected override bool ShouldRender() => _shouldRender;
 
         public abstract Update<TViewModel, TEvent> Update { get; }
 
