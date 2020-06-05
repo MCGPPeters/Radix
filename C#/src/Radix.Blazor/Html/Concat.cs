@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Radix.Blazor.Html
 {
-    public readonly struct Concat : Node, IEnumerable<Node>
+    public class Concat : Node, IEnumerable<Node>
     {
         public Concat(Node[] nodes) => Nodes = new List<Node>(nodes);
 

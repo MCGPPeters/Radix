@@ -38,7 +38,8 @@ namespace Radix
             LastActivity = DateTimeOffset.Now;
             _state = new TState();
             Version expectedVersion = new NoneExistentVersion();
-            EventStreamDescriptor<TState> eventStreamDescriptor = new NoneExistentEventStreamDescriptor<TState>(address);
+            EventType eventType = new EventType(typeof(TEvent).FullName);
+            EventStreamDescriptor eventStreamDescriptor = new EventStreamDescriptor(eventType, address);
 
             _actionBlock = new ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
@@ -88,7 +89,7 @@ namespace Radix
                                         new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),
                                         _boundedContextSettings.SerializeMetaData)).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
-                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier, eventDescriptors)
+                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
                                     .ConfigureAwait(false);
 
                             switch (await appendResult)
@@ -153,19 +154,5 @@ namespace Radix
             new AggregateAgent<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
     }
 
-    public class NoneExistentEventStreamDescriptor<TState> : EventStreamDescriptor<TState>
-    {
-
-        public NoneExistentEventStreamDescriptor(Address address) => Address = address;
-
-        public Address Address { get; }
-    }
-
-    public interface EventStreamDescriptor<TState>
-    {
-        Address Address { get; }
-
-        public string StreamIdentifier => $"{typeof(TState)}-{Address}";
-    }
 
 }

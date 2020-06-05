@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Rendering;
 
 namespace Radix.Blazor.Html
 {
-    public struct ExplicitAttribute : IAttribute
+    public class ExplicitAttribute : IAttribute
     {
         public ExplicitAttribute(Name name, Func<RenderTreeBuilder, int, object, int> factory)
         {

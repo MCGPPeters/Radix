@@ -78,7 +78,7 @@ namespace Radix.Blazor
                         string[] attributeValues = values as string[] ?? values.ToArray();
                         if (attributeValues.Any())
                         {
-                            builder.AddAttribute(sequence++, name, attributeValues.Aggregate((current, next) => current + " " + next));
+                            builder.AddAttribute(sequence++, name, attributeValues.Aggregate((current, next) => $"{current} {next}"));
                         }
 
                         break;

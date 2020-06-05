@@ -3,7 +3,7 @@ using System;
 namespace Radix.Validated
 {
 
-    public readonly struct Valid<T> : Validated<T>
+    public class Valid<T> : Validated<T>
     {
         internal Valid(T t)
         {

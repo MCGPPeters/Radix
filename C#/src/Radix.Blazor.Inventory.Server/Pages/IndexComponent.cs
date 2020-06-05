@@ -15,7 +15,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
     public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
 
-        public override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
+        protected override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
 
             (state, events) =>
             {
@@ -35,7 +35,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             case InventoryItemRenamed inventoryItemRenamed:
                                 state.InventoryItems = state.InventoryItems
                                     .Select(_ => (@event.Address, inventoryItemRenamed.Name))
-                                    .Where(tuple => tuple.Address.Equals(@event.Address)).ToList();
+                                    .Where(tuple => tuple.Address != null && tuple.Address.Equals(@event.Address)).ToList();
                                 break;
                             case ItemsCheckedInToInventory _:
                                 break;
@@ -49,7 +49,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     });
             };
 
-        public override Node View(IndexViewModel currentViewModel)
+        protected override Node View(IndexViewModel currentViewModel)
         {
             Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 

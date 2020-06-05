@@ -44,24 +44,19 @@ namespace Radix.Tests
         public ToTransientEventDescriptor<InventoryItemEvent, Json> ToTransientEventDescriptor { get; } = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
             new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData), messageId);
 
+#pragma warning disable 1998
         public async IAsyncEnumerable<EventDescriptor<Json>> GetEventsSince(Address address, Version version, string streamIdentifier)
+#pragma warning restore 1998
         {
-            MessageId messageId = new MessageId(new Guid());
             yield return new EventDescriptor<Json>(
-                address,
-                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
                 new Json(JsonSerializer.Serialize(new InventoryItemCreated {Name = "Product 1", Activated = true, Count = 1})),
                 1L,
                 new EventType(nameof(InventoryItemCreated)));
             yield return new EventDescriptor<Json>(
-                address,
-                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
                 new Json(JsonSerializer.Serialize(new ItemsCheckedInToInventory {Amount = 19})),
                 2L,
                 new EventType(nameof(ItemsCheckedInToInventory)));
             yield return new EventDescriptor<Json>(
-                address,
-                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
                 new Json(JsonSerializer.Serialize(new InventoryItemRenamed {Name = "Product 2"})),
                 3L,
                 new EventType(nameof(InventoryItemRenamed)));

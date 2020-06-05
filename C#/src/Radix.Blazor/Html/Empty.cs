@@ -1,6 +1,6 @@
 ﻿namespace Radix.Blazor.Html
 {
-    public readonly struct Empty : Node
+    public class Empty : Node
     {
 
     }

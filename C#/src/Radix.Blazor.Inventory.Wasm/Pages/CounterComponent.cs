@@ -2,15 +2,13 @@
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
-using Radix.Blazor.Inventory.Wasm.Pages;
-using Radix.Monoid;
+using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Option;
-using Radix.Result;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Validated.Extensions;
 
-namespace Radix.Blazor.Inventory.Server.Pages
+namespace Radix.Blazor.Inventory.Wasm.Pages
 {
     [Route("/counter")]
     public class CounterComponent : Component<CounterViewModel, CounterCommand, CounterEvent, Json>
@@ -20,13 +18,13 @@ namespace Radix.Blazor.Inventory.Server.Pages
         public CounterComponent() => _counter = BoundedContext.Create(Counter.Decide, Counter.Update);
 
 
-        public override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
+        protected override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
         {
             state.Count++;
             return state;
         };
 
-        public override Node View(CounterViewModel currentViewModel) => concat(
+        protected override Node View(CounterViewModel currentViewModel) => concat(
             h1(Enumerable.Empty<IAttribute>(), text("Counter")),
             p(Enumerable.Empty<IAttribute>(), text(ViewModel.Count.ToString())),
             button(
@@ -36,7 +34,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                         async args =>
                         {
                             Validated<CounterCommand> validCommand = Valid(new CounterCommand());
-                            Option<Radix.Error[]> result = await Dispatch(_counter, validCommand);
+                            Option<Error[]> result = await Dispatch(_counter, validCommand);
                             switch (result)
                             {
                                 case Some<Error[]>(_):
@@ -47,7 +45,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
                                     break;
                                 case None<Error[]> _:
-                                    
+
                                     break;
 
                             }

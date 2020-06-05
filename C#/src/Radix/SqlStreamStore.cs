@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Radix.Async;
 using SqlStreamStore;
@@ -18,14 +19,14 @@ namespace Radix
         public SqlStreamStore(IStreamStore streamStore) => _streamStore = streamStore;
 
         public AppendEvents<Json> AppendEvents =>
-            async (address, version, streamIdentifier, events) =>
+            async (address, version, eventStreamDescriptor, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
-                    inventoryItemEvent => new NewStreamMessage(
-                        inventoryItemEvent.MessageId.Value,
-                        inventoryItemEvent.EventType.Value,
-                        inventoryItemEvent.Event.Value,
-                        inventoryItemEvent.EventMetaData.Value)).ToArray();
+                    eventDescriptor => new NewStreamMessage(
+                        eventDescriptor.MessageId.Value,
+                        eventDescriptor.EventType.Value,
+                        eventDescriptor.Event.Value,
+                        eventDescriptor.EventMetaData.Value)).ToArray();
 
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
@@ -34,17 +35,18 @@ namespace Radix
                 switch (version)
                 {
                     case AnyVersion _:
-                        appendToStream = () => _streamStore.AppendToStream(streamIdentifier, ExpectedVersion.Any, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, ExpectedVersion.Any, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
                         return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case NoneExistentVersion _:
+                        await _streamStore.SetStreamMetadata(eventStreamDescriptor.StreamIdentifier, metadataJson: JsonSerializer.Serialize(eventStreamDescriptor));
                         expectedVersion = ExpectedVersion.NoStream;
-                        appendToStream = () => _streamStore.AppendToStream(streamIdentifier, expectedVersion, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
                         return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case ExistingVersion existentVersion:
                         expectedVersion = Convert.ToInt32(existentVersion.Value);
-                        appendToStream = () => _streamStore.AppendToStream(streamIdentifier, expectedVersion, newStreamMessages);
+                        appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
                         return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     default:
@@ -60,12 +62,12 @@ namespace Radix
             {
                 case ExistingVersion existentVersion:
                     int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
+                    StreamMetadataResult streamMetadata = await _streamStore.GetStreamMetadata(streamId);
+                    EventStreamDescriptor streamDescriptor = JsonSerializer.Deserialize<EventStreamDescriptor>(streamMetadata.MetadataJson);
                     ReadStreamPage readStreamPage = await _streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
                     IEnumerable<Task<EventDescriptor<Json>>> eventDescriptors = readStreamPage.Messages.Select(
                         async streamMessage => new EventDescriptor<Json>(
-                            new Address(streamMessage.MessageId),
-                            new Json(streamMessage.JsonMetadata),
                             new Json(await streamMessage.GetJsonData()),
                             streamMessage.StreamVersion,
                             new EventType(streamMessage.Type)));
@@ -79,7 +81,7 @@ namespace Radix
                 case NoneExistentVersion _:
                     break;
                 default:
-                    throw new NotSupportedException("Unknown type of existingVersion");
+                    throw new NotSupportedException("Unknown type of version");
             }
         }
     }

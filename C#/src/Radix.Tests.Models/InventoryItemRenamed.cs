@@ -20,7 +20,7 @@ namespace Radix.Tests.Models
                 return true;
             }
 
-            return Name == other.Name && Address.Equals(other.Address);
+            return Address != null && (Name == other.Name && Address.Equals(other.Address));
         }
 
         public override bool Equals(object? obj)
@@ -35,12 +35,8 @@ namespace Radix.Tests.Models
                 return true;
             }
 
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
+            return obj.GetType() == GetType() && Equals((InventoryItemRenamed)obj);
 
-            return Equals((InventoryItemRenamed)obj);
         }
 
         public override int GetHashCode() => HashCode.Combine(Name, Address);

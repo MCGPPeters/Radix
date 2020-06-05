@@ -5,9 +5,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Monoid;
 using Radix.Option;
-using Radix.Result;
 using Radix.Tests.Models;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
@@ -19,7 +17,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
 
-        public override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
+        protected override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
         {
             return events.Aggregate(
                 state,
@@ -28,7 +26,6 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     switch (@event)
                     {
                         case InventoryItemCreated created:
-                            state.Messages.Add($"Created a new item: {created.Name}");
                             state.InventoryItemCount = created.Count;
                             state.InventoryItemName = created.Name;
                             break;
@@ -38,7 +35,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                 });
         };
 
-        public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
+        protected override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(NoAttributes(), text("Add new item")),
             div(
                 new[] {@class("form-group")},
@@ -80,13 +77,12 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             Option<Radix.Error[]> result = await Dispatch(inventoryItem, validCommand);
                             switch (result)
                             {
-                                case Some<Radix.Error[]>(var errors):
-                                    currentViewModel.Errors = errors.Select(error => error.Message).ToList();
+                                case Some<Radix.Error[]>(_):
                                     if (JSRuntime is object)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                     }
-                                    
+
                                     break;
                                 case None<Radix.Error[]> _:
                                     NavigationManager.NavigateTo("/");
@@ -113,7 +109,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
-        private static Node FormatErrorMessages(IEnumerable<string> errors)
+        private static Node FormatErrorMessages(IEnumerable<Radix.Error> errors)
         {
             Node node = new Empty();
             if (errors is object)

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Radix.Blazor.Html
 {
-    public delegate Component component(IEnumerable<IAttribute> attributes, params Node[] children);
+    public delegate Component component(IAttribute[] attributes, params Node[] children);
 
     public delegate Component component<in T>(params T[] attributes) where T : IAttribute;
 
-    public readonly struct Component : Node
+    public class Component : Node
     {
         public Type Type { get; }
         public IEnumerable<IAttribute> Attributes { get; }

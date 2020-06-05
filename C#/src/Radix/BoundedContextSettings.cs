@@ -13,7 +13,6 @@ namespace Radix
             GetEventsSince = getEventsSince;
             CheckForConflict = checkForConflict;
             GarbageCollectionSettings = garbageCollectionSettings;
-            FromEventDescriptor = fromEventDescriptor;
             ToTransientEventDescriptor = toTransientEventDescriptor;
             Serialize = serialize;
             SerializeMetaData = serializeMetaData;
@@ -23,7 +22,6 @@ namespace Radix
         public GetEventsSince<TFormat> GetEventsSince { get; }
         public CheckForConflict<TCommand, TEvent, TFormat> CheckForConflict { get; }
         public GarbageCollectionSettings GarbageCollectionSettings { get; }
-        public FromEventDescriptor<TEvent, TFormat> FromEventDescriptor { get; }
         public ToTransientEventDescriptor<TEvent, TFormat> ToTransientEventDescriptor { get; }
 
         public Serialize<TEvent, TFormat> Serialize { get; }

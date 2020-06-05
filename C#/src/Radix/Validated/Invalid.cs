@@ -1,6 +1,6 @@
 namespace Radix.Validated
 {
-    public readonly struct Invalid<T> : Validated<T>
+    public class Invalid<T> : Validated<T>
     {
         internal Invalid(params string[] reasons) => Reasons = reasons;
 

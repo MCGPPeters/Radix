@@ -6,13 +6,13 @@ namespace Radix.Blazor.Inventory.Server.Pages
 {
     public class Counter : IEquatable<Counter>
     {
-        public static Update<Counter, CounterIncremented> Update = (state, @event) =>
+        public static readonly Update<Counter, CounterIncremented> Update = (state, @event) =>
         {
             state.Count++;
             return state;
         };
 
-        public static Decide<Counter, IncrementCommand, CounterIncremented> Decide = (state, command) =>
+        public static readonly Decide<Counter, IncrementCommand, CounterIncremented> Decide = (state, command) =>
         {
             return Task.FromResult(Extensions.Ok<CounterIncremented[], CommandDecisionError>(new[] {new CounterIncremented()}));
         };

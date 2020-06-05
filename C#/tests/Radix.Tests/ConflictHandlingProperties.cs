@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Radix.Monoid;
@@ -18,42 +16,12 @@ namespace Radix.Tests
     {
         private readonly TestSettings _testSettings = new TestSettings();
 
-        private readonly GarbageCollectionSettings garbageCollectionSettings = new GarbageCollectionSettings
-        {
-            ScanInterval = TimeSpan.FromMinutes(1), IdleTimeout = TimeSpan.FromMinutes(60)
-        };
-
-
-        public static async IAsyncEnumerable<EventDescriptor<Json>> GetEventsSince(Address address, Version version, string streamIdentifier)
-        {
-            MessageId messageId = new MessageId(new Guid());
-            yield return new EventDescriptor<Json>(
-                address,
-                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
-                new Json(JsonSerializer.Serialize(new InventoryItemCreated {Count = 1, Name = "Product 1"})),
-                1L,
-                new EventType(nameof(InventoryItemCreated)));
-            yield return new EventDescriptor<Json>(
-                address,
-                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
-                new Json(JsonSerializer.Serialize(new ItemsCheckedInToInventory {Amount = 10})),
-                2L,
-                new EventType(nameof(ItemsCheckedInToInventory)));
-            yield return new EventDescriptor<Json>(
-                address,
-                new Json(JsonSerializer.Serialize(new EventMetaData(messageId, messageId))),
-                new Json(JsonSerializer.Serialize(new InventoryItemRenamed {Name = "Product 2"})),
-                3L,
-                new EventType(nameof(InventoryItemRenamed)));
-        }
-
         [Fact(
             DisplayName =
                 "Given an inventory item was created previously and we are disregarding concurrency conflicts, and items are checked into the inventory, the expected event should be added to the stream")]
         public async Task Property1()
         {
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
-            GetEventsSince<Json> getEventsSince = GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
@@ -96,7 +64,6 @@ namespace Radix.Tests
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
             CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => Some(
                 new Conflict<InventoryItemCommand, InventoryItemEvent>(command, _testSettings.Descriptor(null!, null!, descriptor), "Just another conflict"));
-            ;
 
             // for testing purposes make the aggregate block the current thread while processing
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
@@ -136,7 +103,6 @@ namespace Radix.Tests
         public async Task Property3()
         {
             bool calledBefore = false;
-            List<InventoryItemEvent> appendedEvents = new List<InventoryItemEvent>();
             AppendEvents<Json> appendEvents = (_, __, ___, events) =>
             {
                 if (calledBefore)

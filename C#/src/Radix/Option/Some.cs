@@ -1,7 +1,7 @@
 namespace Radix.Option
 {
 
-    public readonly struct Some<T> : Option<T> where T : notnull
+    public class Some<T> : Option<T> where T : notnull
     {
         internal T Value { get; }
 

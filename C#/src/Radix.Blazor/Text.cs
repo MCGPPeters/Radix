@@ -2,9 +2,9 @@
 
 namespace Radix.Blazor
 {
-    public readonly struct Text : Node, Value<string>
+    public class Text : Node, Value<string>
     {
-        public Text(string text) : this() => Value = text;
+        public Text(string text) => Value = text;
 
         public string Value { get; }
     }
