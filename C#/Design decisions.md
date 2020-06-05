@@ -4,7 +4,11 @@ An instance of a bounded context can on multiple nodes simultaneously. An aggreg
 
 # Command and event hierarchies
 
-Creating a hierarchy of events and commands helps determining the scope of those. At the top level of the command hierarchy is the overarching type of the bounded context. For instance withing the bounded context of inventory management it could be InventoryCommand. The same goes for events : InventoryEvent. The second level of the hierarchy will be at the aggregate root level. Think of InventoryItemCommand and InventoryItemEvent. The easiest way of implementing these hierarchies is using sum types (discriminating unions) or emulations of those (hierarchy of marker interfaces / abstract classes at the top 2 levels of the hierarchy)  .
+Creating a hierarchy of events and commands helps determining the scope of those. At the top level of the command hierarchy is the overarching type of the bounded context. For instance withing the bounded context of inventory management it could be InventoryCommand. The same goes for events : InventoryEvent. The second level of the hierarchy will be at the aggregate root level. Think of InventoryItemCommand and InventoryItemEvent. The easiest way of implementing these hierarchies is using sum types (discriminating unions) or emulations of those (hierarchy of marker interfaces / abstract classes at the top 2 levels of the hierarchy).
+
+# Correlation and causation
+
+When events are generated the id of the command (UUID) will be added as the causality id of the events generated as a consequence. Events have their own UUIDs. The correlation id of the command will propagate as the correlation id of the event.
 
 # Checking for potential concurrency conflicts
 
@@ -20,7 +24,7 @@ The best approach for checking for and handling true concurrency conflicts (as o
   - If successful, we are END
   - If not, retry and go back to the first step
 
-Radix assumes the event store properly supports optimistic consurrency
+Radix assumes the event store properly supports optimistic concurrency
 
 # Communicating to the outside world
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
+using Radix;
 using Radix.Blazor.Html;
 using Radix.Monoid;
+using Radix.Option;
 using Radix.Result;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
@@ -11,12 +13,12 @@ using static Radix.Validated.Extensions;
 namespace Radix.Blazor.Inventory.Server.Pages
 {
     [Route("/counter")]
-    public class CounterComponent : Component<CounterViewModel, CounterCommand, CounterEvent, Json>
+    public class CounterComponent : Component<CounterViewModel, IncrementCommand, CounterIncremented, Json>
     {
-        private Aggregate<CounterCommand, CounterEvent> _counter;
+        private Aggregate<IncrementCommand, CounterIncremented>? _counter;
 
 
-        public override Update<CounterViewModel, CounterEvent> Update { get; } = (state, @event) =>
+        public override Update<CounterViewModel, CounterIncremented> Update { get; } = (state, @event) =>
         {
             state.Count++;
             return state;
@@ -38,38 +40,32 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     @class("btn", "btn-primary"), on.click(
                         async args =>
                         {
-                            Validated<CounterCommand> validCommand = Valid(new CounterCommand());
-                            Result<CounterEvent[], Radix.Error[]> result = await _counter.Accept(validCommand);
+                            Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());
+                            if (_counter is null)
+                            {
+                                return;
+                            }
+
+                            Option<Radix.Error[]> result = await Dispatch(_counter, validCommand);
                             switch (result)
                             {
-                                case Error<CounterEvent[], Radix.Error[]> error:
-                                    break;
-                                case Ok<CounterEvent[], Radix.Error[]> (var events):
+                                case Some<Radix.Error[]>(_):
+                                    if (JSRuntime is object)
+                                    {
+                                        await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+                                    }
 
-                                    Update(ViewModel, events);
+                                    break;
+                                case None<Radix.Error[]> _:
 
                                     break;
-                                default:
-                                    throw new ArgumentOutOfRangeException(nameof(result));
 
                             }
+
                         })
                 },
                 text("Click me")));
     }
 
-    public class CounterEvent : Event
-    {
-        public Address? Address { get; set; }
-    }
-
-    public class CounterCommand : IComparable, IComparable<CounterCommand>, IEquatable<CounterCommand>
-    {
-        public int CompareTo(object? obj) => throw new NotImplementedException();
-
-        public int CompareTo(CounterCommand other) => throw new NotImplementedException();
-
-        public bool Equals(CounterCommand other) => throw new NotImplementedException();
-    }
 
 }

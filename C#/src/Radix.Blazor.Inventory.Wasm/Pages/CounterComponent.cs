@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Wasm.Pages;
 using Radix.Monoid;
+using Radix.Option;
 using Radix.Result;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
@@ -15,7 +16,6 @@ namespace Radix.Blazor.Inventory.Server.Pages
     public class CounterComponent : Component<CounterViewModel, CounterCommand, CounterEvent, Json>
     {
         private readonly Aggregate<CounterCommand, CounterEvent> _counter;
-        private int _currentCount;
 
         public CounterComponent() => _counter = BoundedContext.Create(Counter.Decide, Counter.Update);
 
@@ -28,7 +28,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         public override Node View(CounterViewModel currentViewModel) => concat(
             h1(Enumerable.Empty<IAttribute>(), text("Counter")),
-            p(Enumerable.Empty<IAttribute>(), text(_currentCount.ToString())),
+            p(Enumerable.Empty<IAttribute>(), text(ViewModel.Count.ToString())),
             button(
                 new[]
                 {
@@ -36,18 +36,19 @@ namespace Radix.Blazor.Inventory.Server.Pages
                         async args =>
                         {
                             Validated<CounterCommand> validCommand = Valid(new CounterCommand());
-                            Result<CounterEvent[], Error[]> result = await _counter.Accept(validCommand);
+                            Option<Radix.Error[]> result = await Dispatch(_counter, validCommand);
                             switch (result)
                             {
-                                case Error<CounterEvent[], Error[]> error:
-                                    break;
-                                case Ok<CounterEvent[], Error[]> (var events):
+                                case Some<Error[]>(_):
+                                    if (JSRuntime is object)
+                                    {
+                                        await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+                                    }
 
-                                    Update(ViewModel, events);
-
                                     break;
-                                default:
-                                    throw new ArgumentOutOfRangeException(nameof(result));
+                                case None<Error[]> _:
+                                    
+                                    break;
 
                             }
                         })

@@ -73,13 +73,13 @@ namespace Radix.Blazor.Inventory.Server
                 new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
 
 
-            Serialize<CounterEvent, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
-            BoundedContextSettings<CounterCommand, CounterEvent, Json> counterBoundedContextSettings = new BoundedContextSettings<CounterCommand, CounterEvent, Json>(
+            Serialize<CounterIncremented, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
+            BoundedContextSettings<IncrementCommand, CounterIncremented, Json> counterBoundedContextSettings = new BoundedContextSettings<IncrementCommand, CounterIncremented, Json>(
                 sqlStreamStore.AppendEvents,
                 sqlStreamStore.GetEventsSince,
-                (command, descriptor) => new None<Conflict<CounterCommand, CounterEvent>>(),
+                (command, descriptor) => new None<Conflict<IncrementCommand, CounterIncremented>>(),
                 new GarbageCollectionSettings(),
-                (parse, data, descriptor) => new CounterEvent(),
+                (parse, data, descriptor) => new CounterIncremented(),
                 (id, @event, serialize, data, serializeMetaData) => new TransientEventDescriptor<Json>(
                     new EventType(@event.GetType().Name),
                     serializeCounterEvent(@event),
@@ -88,7 +88,7 @@ namespace Radix.Blazor.Inventory.Server
                 serializeCounterEvent,
                 serializeMetaData);
 
-            BoundedContext<CounterCommand, CounterEvent, Json> counterBoundedContext = new BoundedContext<CounterCommand, CounterEvent, Json>(counterBoundedContextSettings);
+            BoundedContext<IncrementCommand, CounterIncremented, Json> counterBoundedContext = new BoundedContext<IncrementCommand, CounterIncremented, Json>(counterBoundedContextSettings);
 
             IndexViewModel indexViewModel = new IndexViewModel();
             AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();
