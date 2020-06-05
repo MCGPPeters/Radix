@@ -14,7 +14,7 @@ namespace Radix
     internal class AggregateAgent<TState, TCommand, TEvent, TFormat> : Agent<TCommand, TEvent>
         where TState : new()
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
-        where TEvent : class, Event
+        where TEvent : Event
     {
 
         private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
@@ -80,14 +80,19 @@ namespace Radix
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
+                            
                             TransientEventDescriptor<TFormat>[]
                                 eventDescriptors = events.Select(
-                                    @event => _boundedContextSettings.ToTransientEventDescriptor(
-                                        new MessageId(Guid.NewGuid()),
-                                        @event,
-                                        _boundedContextSettings.Serialize,
-                                        new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),
-                                        _boundedContextSettings.SerializeMetaData)).ToArray();
+                                    @event =>
+                                    {
+                                        @event.Address = address;
+                                        return _boundedContextSettings.ToTransientEventDescriptor(
+                                            new MessageId(Guid.NewGuid()),
+                                            @event,
+                                            _boundedContextSettings.Serialize,
+                                            new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),
+                                            _boundedContextSettings.SerializeMetaData);
+                                    }).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
                                 _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
                                     .ConfigureAwait(false);

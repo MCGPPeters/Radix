@@ -7,6 +7,6 @@ namespace Radix
     /// <typeparam name="TFormat"></typeparam>
     /// <param name="eventDescriptor"></param>
     /// <returns></returns>
-    public delegate TEvent FromEventDescriptor<TEvent, TFormat>(Parse<TEvent, TFormat> parse, Parse<EventMetaData, TFormat> parseEventMetaData,
+    public delegate Option<TEvent> FromEventDescriptor<TEvent, TFormat>(Parse<TEvent, TFormat> parse, Parse<EventMetaData, TFormat> parseEventMetaData,
         EventDescriptor<TFormat> eventDescriptor);
 }

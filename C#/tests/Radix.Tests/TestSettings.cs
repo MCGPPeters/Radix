@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using static Radix.Option.Extensions;
 using Radix.Tests.Models;
 
 namespace Radix.Tests
@@ -20,25 +21,25 @@ namespace Radix.Tests
         {
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
             {
-                return JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value);
+                return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
             }
 
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemDeactivated), StringComparison.Ordinal))
             {
-                return JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value);
+                return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value));
             }
 
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
             {
-                return JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
             }
 
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
             {
-                return JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
             }
 
-            throw new InvalidOperationException("Unknown event");
+            return None<InventoryItemEvent>();
         };
 
         public ToTransientEventDescriptor<InventoryItemEvent, Json> ToTransientEventDescriptor { get; } = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>

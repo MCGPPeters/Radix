@@ -29,25 +29,25 @@ namespace Radix.Blazor.Inventory.Wasm
                     {
                         if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
                         {
-                            return JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value);
+                            return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
                         }
 
                         if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemDeactivated), StringComparison.Ordinal))
                         {
-                            return JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value);
+                            return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value));
                         }
 
                         if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
                         {
-                            return JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                            return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
                         }
 
                         if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
                         {
-                            return JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                            return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
                         }
 
-                        throw new InvalidOperationException("Unknown event");
+                        return None<InventoryItemEvent>();
                     },
                     (messageId, @event, serialize, eventMetaData, serializeMetaData) => new TransientEventDescriptor<Json>(
                         new EventType(@event.GetType().Name),
