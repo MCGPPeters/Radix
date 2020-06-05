@@ -6,26 +6,38 @@ using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
 using Radix.Blazor.Html;
 using Radix.Monoid;
-using static Radix.Option.Extensions;
 using Radix.Result;
+using static Radix.Option.Extensions;
 
 namespace Radix.Blazor
 {
     public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand> where TEvent : class, Event
+        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+        where TEvent : class, Event
+    where TViewModel : class, ViewModel
 
     {
         private bool _shouldRender;
 
-        [Inject]public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; }
+        // ReSharper disable once MemberCanBeProtected.Global
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        [Inject]public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; } = null!;
 
-        [Inject]public IJSRuntime JSRuntime { get; set; }
-        [Inject]public NavigationManager NavigationManager { get; set; }
+        // ReSharper disable once MemberCanBeProtected.Global
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        [Inject]public IJSRuntime JSRuntime { get; set; } = null!;
 
-        [Inject]public TViewModel ViewModel { get; set; }
+        // ReSharper disable once MemberCanBeProtected.Global
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        [Inject]public NavigationManager NavigationManager { get; set; } = null!;
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        [Inject]protected TViewModel ViewModel { get; set; } = default!;
+
+        protected abstract Update<TViewModel, TEvent> Update { get; }
 
 
-        public async Task<Option<Error[]>> Dispatch(Aggregate<TCommand, TEvent> target, Validated<TCommand> command)
+        protected async Task<Option<Error[]>> Dispatch(Aggregate<TCommand, TEvent> target, Validated<TCommand> command)
         {
             Result<TEvent[], Error[]> result = await target.Accept(command);
             switch (result)
@@ -36,24 +48,24 @@ namespace Radix.Blazor
                     StateHasChanged();
                     return None<Error[]>();
                 case Error<TEvent[], Error[]>(var errors):
-                    _shouldRender = false;
+                    _shouldRender = true;
+                    ViewModel.Errors = errors;
+                    StateHasChanged();
                     return Some(errors);
                 default:
+                    _shouldRender = false;
                     throw new ArgumentOutOfRangeException(nameof(result));
             }
         }
 
         protected override bool ShouldRender() => _shouldRender;
 
-        public abstract Update<TViewModel, TEvent> Update { get; }
-
         /// <summary>
         ///     This function is called whenever it is decided the state of the viewmodel has changed
         /// </summary>
-        /// <param name="context"></param>
         /// <param name="currentViewModel"></param>
         /// <returns></returns>
-        public abstract Node View(TViewModel currentViewModel);
+        protected abstract Node View(TViewModel currentViewModel);
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {

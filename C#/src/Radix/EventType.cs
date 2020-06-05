@@ -1,6 +1,6 @@
 namespace Radix
 {
-    public readonly struct EventType : Value<string>
+    public class EventType : Value<string>
     {
         public EventType(string value) => Value = value;
 

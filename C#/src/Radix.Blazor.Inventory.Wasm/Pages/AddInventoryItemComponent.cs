@@ -18,7 +18,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
     public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
 
-        public override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
+        protected override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
         {
             return events.Aggregate(
                 state,
@@ -27,7 +27,6 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                     switch (@event)
                     {
                         case InventoryItemCreated created:
-                            state.Messages.Add($"Created a new item: {created.Name}");
                             state.InventoryItemCount = created.Count;
                             state.InventoryItemName = created.Name;
                             break;
@@ -37,7 +36,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                 });
         };
 
-        public override Node View(AddInventoryItemViewModel currentViewModel) => concat(
+        protected override Node View(AddInventoryItemViewModel currentViewModel) => concat(
             h1(NoAttributes(), text("Add new item")),
             div(
                 new[] {@class("form-group")},

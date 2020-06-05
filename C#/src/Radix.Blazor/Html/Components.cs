@@ -12,12 +12,7 @@ namespace Radix.Blazor.Html
         public static component navLinkMatchPrefix => (attributes, children) => navLink(NavLinkMatch.Prefix)(attributes, children);
 
         public static component navLink(NavLinkMatch navLinkMatch) => (attributes, children) =>
-        {
-
-            attributes.Prepend(new ComponentAttribute("Match", navLinkMatch));
-
-            return component<NavLink>(attributes, children);
-        };
+            component<NavLink>(attributes.Prepend(new ComponentAttribute("Match", navLinkMatch)), children);
 
         public static Component component<T>(IEnumerable<IAttribute> attributes, params Node[] children)
             where T : IComponent => new Component(typeof(T), attributes, children);

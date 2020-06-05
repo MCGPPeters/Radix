@@ -6,7 +6,7 @@ namespace Radix
     /// </summary>
     public class AppendEventsError : CommandProcessingError
     {
-        internal AppendEventsError(string Message) : base(Message)
+        internal AppendEventsError(string message) : base(message)
         {
         }
     }

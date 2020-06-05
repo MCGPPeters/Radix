@@ -10,15 +10,13 @@ namespace Radix
     ///     purpose of optimistic concurrency
     /// </param>
     /// <param name="events">The events to append</param>
-    /// <typeparam name="TFormat">The fromat of events</typeparam>
-    /// <typeparam name="TError"></typeparam>
-    /// <typeparam name="TState"></typeparam>
+    /// <typeparam name="TFormat">The format of events</typeparam>
     /// <returns>
     ///     Either a next expected existingVersion of the event stream when the action succeeded or an error. The SaveEvents
     ///     error is
     ///     on if the following:
     ///     - OptimisticConcurrencyError
     /// </returns>
-    public delegate Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TFormat>(Address address, Version expectedVersion, string streamIdentifier,
+    public delegate Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TFormat>(Address address, Version expectedVersion, EventStreamDescriptor eventStreamDescriptor,
         TransientEventDescriptor<TFormat>[] transientEventDescriptors);
 }

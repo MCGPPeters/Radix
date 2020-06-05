@@ -1,6 +1,6 @@
 namespace Radix
 {
-    internal readonly struct NoneExistentVersion : Version
+    internal class NoneExistentVersion : Version
     {
     }
 }

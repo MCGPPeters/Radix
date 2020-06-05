@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
-using Radix;
 using Radix.Blazor.Html;
-using Radix.Monoid;
+using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Option;
-using Radix.Result;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Validated.Extensions;
@@ -18,7 +16,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
         private Aggregate<IncrementCommand, CounterIncremented>? _counter;
 
 
-        public override Update<CounterViewModel, CounterIncremented> Update { get; } = (state, @event) =>
+        protected override Update<CounterViewModel, CounterIncremented> Update { get; } = (state, @event) =>
         {
             state.Count++;
             return state;
@@ -31,7 +29,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
             _counter = BoundedContext.Create(Counter.Decide, Counter.Update);
         }
 
-        public override Node View(CounterViewModel currentViewModel) => concat(
+        protected override Node View(CounterViewModel currentViewModel) => concat(
             h1(Enumerable.Empty<IAttribute>(), text("Counter")),
             p(Enumerable.Empty<IAttribute>(), text(ViewModel.Count.ToString())),
             button(

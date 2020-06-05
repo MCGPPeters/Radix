@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Radix.Blazor.Inventory.Server.Pages;
 using Radix.Result;
 
 namespace Radix.Blazor.Inventory.Wasm.Pages

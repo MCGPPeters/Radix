@@ -103,17 +103,19 @@ namespace Radix
                 }
             };
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (_disposedValue)
             {
-                if (disposing)
-                {
-                    _timer.Dispose();
-                }
-
-                _disposedValue = true;
+                return;
             }
+
+            if (disposing)
+            {
+                _timer.Dispose();
+            }
+
+            _disposedValue = true;
         }
     }
 }

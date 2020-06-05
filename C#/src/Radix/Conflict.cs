@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Radix
 {
-    public struct Conflict<TCommand, TEvent>
+    public class Conflict<TCommand, TEvent>
     {
         public bool Equals(Conflict<TCommand, TEvent> other) => EqualityComparer<TCommand>.Default.Equals(Command, other.Command) &&
                                                                 EqualityComparer<TEvent>.Default.Equals(Event, other.Event) &&
@@ -32,8 +32,8 @@ namespace Radix
             Reason = reason;
         }
 
-        public TCommand Command { get; }
-        public TEvent Event { get; }
+        private TCommand Command { get; }
+        private TEvent Event { get; }
         public string Reason { get; }
     }
 }

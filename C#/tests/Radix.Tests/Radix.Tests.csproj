@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Maybe\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Radix.Tests.Models\Radix.Tests.Models.csproj" />
     <ProjectReference Include="..\..\src\Radix\Radix.csproj" />
   </ItemGroup>

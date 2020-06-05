@@ -1,10 +1,6 @@
 namespace Radix
 {
 
-    public delegate TFormat Serialize<in T, out TFormat>(T input);
-
-    public delegate T Parse<out T, in TFormat>(TFormat input);
-
     /// <summary>
     ///     A descriptor for an event that has not yet been persisted into an event stream. Combining the metadata with the
     ///     event itself

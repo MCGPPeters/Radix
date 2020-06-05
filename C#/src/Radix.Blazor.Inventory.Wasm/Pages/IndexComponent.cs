@@ -15,7 +15,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
     public class IndexComponent : Component<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
 
-        public override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
+        protected override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
 
             (state, events) =>
             {
@@ -49,7 +49,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                     });
             };
 
-        public override Node View(IndexViewModel currentViewModel)
+        protected override Node View(IndexViewModel currentViewModel)
         {
             Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
 

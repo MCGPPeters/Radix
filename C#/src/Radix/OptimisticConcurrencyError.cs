@@ -6,7 +6,7 @@ namespace Radix
     public class OptimisticConcurrencyError : AppendEventsError
     {
 
-        public OptimisticConcurrencyError(string Message) : base(Message)
+        public OptimisticConcurrencyError(string message) : base(message)
         {
         }
     }

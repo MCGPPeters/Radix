@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Radix.Blazor.Html
 {
-    public struct Attribute : IAttribute
+    public class Attribute : IAttribute
     {
         public Attribute(Name name, params string[] values)
         {

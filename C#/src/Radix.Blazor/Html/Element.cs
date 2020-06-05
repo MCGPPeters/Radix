@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Radix.Blazor.Html
 {
-    public struct Element : Node
+    public class Element : Node
     {
         public Element(Name name, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
         {
@@ -21,9 +21,9 @@ namespace Radix.Blazor.Html
         {
         }
 
-        public Name Name { get; set; }
-        public IEnumerable<IAttribute> Attributes { get; set; }
-        public IEnumerable<Node> Children { get; set; }
+        public Name Name { get; }
+        public IEnumerable<IAttribute> Attributes { get; }
+        public IEnumerable<Node> Children { get; }
 
     }
 }

@@ -74,21 +74,23 @@ namespace Radix.Blazor.Inventory.Server
 
 
             Serialize<CounterIncremented, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
-            BoundedContextSettings<IncrementCommand, CounterIncremented, Json> counterBoundedContextSettings = new BoundedContextSettings<IncrementCommand, CounterIncremented, Json>(
-                sqlStreamStore.AppendEvents,
-                sqlStreamStore.GetEventsSince,
-                (command, descriptor) => new None<Conflict<IncrementCommand, CounterIncremented>>(),
-                new GarbageCollectionSettings(),
-                (parse, data, descriptor) => new CounterIncremented(),
-                (id, @event, serialize, data, serializeMetaData) => new TransientEventDescriptor<Json>(
-                    new EventType(@event.GetType().Name),
-                    serializeCounterEvent(@event),
-                    serializeMetaData(data),
-                    id),
-                serializeCounterEvent,
-                serializeMetaData);
+            BoundedContextSettings<IncrementCommand, CounterIncremented, Json> counterBoundedContextSettings =
+                new BoundedContextSettings<IncrementCommand, CounterIncremented, Json>(
+                    sqlStreamStore.AppendEvents,
+                    sqlStreamStore.GetEventsSince,
+                    (command, descriptor) => new None<Conflict<IncrementCommand, CounterIncremented>>(),
+                    new GarbageCollectionSettings(),
+                    (parse, data, descriptor) => new CounterIncremented(),
+                    (id, @event, serialize, data, serializeEventMetaData) => new TransientEventDescriptor<Json>(
+                        new EventType(@event.GetType().Name),
+                        serializeCounterEvent(@event),
+                        serializeEventMetaData(data),
+                        id),
+                    serializeCounterEvent,
+                    serializeMetaData);
 
-            BoundedContext<IncrementCommand, CounterIncremented, Json> counterBoundedContext = new BoundedContext<IncrementCommand, CounterIncremented, Json>(counterBoundedContextSettings);
+            BoundedContext<IncrementCommand, CounterIncremented, Json> counterBoundedContext =
+                new BoundedContext<IncrementCommand, CounterIncremented, Json>(counterBoundedContextSettings);
 
             IndexViewModel indexViewModel = new IndexViewModel();
             AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();

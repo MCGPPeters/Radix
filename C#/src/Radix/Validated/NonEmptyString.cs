@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using static Radix.Validated.Extensions;
 
 namespace Radix.Validated
@@ -16,7 +17,7 @@ namespace Radix.Validated
         };
 
 
-        public int CompareTo([AllowNull]NonEmptyString other) => Value.CompareTo(other.Value);
+        public int CompareTo([AllowNull]NonEmptyString other) => string.Compare(Value, other.Value, StringComparison.Ordinal);
 
         public bool Equals([AllowNull]NonEmptyString other) => Value.Equals(other.Value);
 
