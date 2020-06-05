@@ -31,7 +31,7 @@ namespace Radix
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
                 int expectedVersion;
-
+                
                 switch (version)
                 {
                     case AnyVersion _:

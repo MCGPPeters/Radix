@@ -83,7 +83,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
                                     NavigationManager.NavigateTo("/");
                                     break;
                                 case Error<InventoryItemEvent[], Error[]>(var errors):
-                                    currentViewModel.Errors = errors.Select(error => error.Message).ToList();
+                                    currentViewModel.Errors = errors;
                                     if (JSRuntime is object)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
@@ -112,7 +112,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
-        private static Node FormatErrorMessages(IEnumerable<string> errors)
+        private static Node FormatErrorMessages(IEnumerable<Radix.Error> errors)
         {
             Node node = new Empty();
             if (errors is object)

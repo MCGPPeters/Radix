@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Radix.Monoid;
+using Radix.Option;
 using Radix.Result;
 using Radix.Tests.Models;
 using Xunit;
@@ -62,8 +64,21 @@ namespace Radix.Tests
         public async Task Property2()
         {
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => Some(
-                new Conflict<InventoryItemCommand, InventoryItemEvent>(command, _testSettings.Descriptor(null!, null!, descriptor), "Just another conflict"));
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) =>
+            {
+                Option<InventoryItemEvent> testSettingsDescriptor = _testSettings.Descriptor(null!, null!, descriptor);
+                switch (testSettingsDescriptor)
+                {
+                    case None<InventoryItemEvent> none:
+                        return None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+                    case Some<InventoryItemEvent> (var d):
+                        return Some(
+                            new Conflict<InventoryItemCommand, InventoryItemEvent>(command, d, "Just another conflict"));
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(testSettingsDescriptor));
+
+                }
+            };
 
             // for testing purposes make the aggregate block the current thread while processing
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
