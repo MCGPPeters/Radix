@@ -35,7 +35,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             case InventoryItemRenamed inventoryItemRenamed:
                                 state.InventoryItems = state.InventoryItems
                                     .Select(_ => (@event.Address, inventoryItemRenamed.Name))
-                                    .Where(tuple => tuple.Address != null && tuple.Address.Equals(@event.Address)).ToList();
+                                    .Where(tuple => tuple.Address.Equals(@event.Address)).ToList();
                                 break;
                             case ItemsCheckedInToInventory _:
                                 break;

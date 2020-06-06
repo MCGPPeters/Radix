@@ -10,8 +10,14 @@ using static Radix.Result.Extensions;
 
 namespace Radix
 {
-
-    internal class AggregateAgent<TState, TCommand, TEvent, TFormat> : Agent<TCommand, TEvent>
+    /// <summary>
+    /// Accepts command on behalf of an aggregate instance and maintains its state
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
+    /// <typeparam name="TCommand"></typeparam>
+    /// <typeparam name="TEvent"></typeparam>
+    /// <typeparam name="TFormat"></typeparam>
+    internal class AggregateActor<TState, TCommand, TEvent, TFormat> : Actor<TCommand, TEvent>
         where TState : new()
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
         where TEvent : Event
@@ -31,7 +37,7 @@ namespace Radix
         /// <param name="boundedContextSettings"></param>
         /// <param name="decide"></param>
         /// <param name="update"></param>
-        private AggregateAgent(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
+        private AggregateActor(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
@@ -154,9 +160,9 @@ namespace Radix
 
         public void Deactivate() => _actionBlock.Complete();
 
-        public static AggregateAgent<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
+        public static AggregateActor<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) =>
-            new AggregateAgent<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
+            new AggregateActor<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
     }
 
 

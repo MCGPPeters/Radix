@@ -30,7 +30,7 @@ namespace Radix
         where TEvent : class, Event
     {
         private readonly BoundedContextSettings<TCommand, TEvent, TFormat> _boundedContextSettings;
-        private readonly Dictionary<Address, Agent<TCommand, TEvent>> _registry = new Dictionary<Address, Agent<TCommand, TEvent>>();
+        private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new Dictionary<Address, Actor<TCommand, TEvent>>();
         private readonly Timer _timer;
 
         private bool _disposedValue; // To detect redundant calls
@@ -49,7 +49,7 @@ namespace Radix
         private void RunGarbageCollection(object sender, ElapsedEventArgs e)
         {
             List<Address> deactivatedAgents = new List<Address>();
-            foreach ((Address address, Agent<TCommand, TEvent> agent) in _registry)
+            foreach ((Address address, Actor<TCommand, TEvent> agent) in _registry)
             {
                 TimeSpan idleTime = DateTimeOffset.Now.Subtract(agent.LastActivity);
                 if (idleTime >= _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
@@ -72,15 +72,15 @@ namespace Radix
         public Aggregate<TCommand, TEvent> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
-            AggregateAgent<TState, TCommand, TEvent, TFormat> agent = AggregateAgent<TState, TCommand, TEvent, TFormat>
+            AggregateActor<TState, TCommand, TEvent, TFormat> actor = AggregateActor<TState, TCommand, TEvent, TFormat>
                 .Create(address, _boundedContextSettings, decide, update);
 
-            _registry.Add(address, agent);
+            _registry.Add(address, actor);
             return new Aggregate<TCommand, TEvent>(address, CreateSend<TState>()(address, decide, update));
         }
 
 
-        private Func<Address, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Send<TCommand, TEvent>> CreateSend<TState>()
+        private Func<Address, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Accept<TCommand, TEvent>> CreateSend<TState>()
             where TState : new() => (address, decide, update)
             => async validatedCommand =>
             {
@@ -88,12 +88,12 @@ namespace Radix
                 {
                     case Valid<TCommand>(var validCommand):
                         TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
-                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Agent<TCommand, TEvent> agent))
+                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Actor<TCommand, TEvent> agent))
                         {
                             return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                         }
 
-                        agent = AggregateAgent<TState, TCommand, TEvent, TFormat>.Create(address, _boundedContextSettings, decide, update);
+                        agent = AggregateActor<TState, TCommand, TEvent, TFormat>.Create(address, _boundedContextSettings, decide, update);
                         _registry.Add(transientCommandDescriptor.Recipient, agent);
 
                         return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);

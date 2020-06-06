@@ -78,11 +78,11 @@ namespace Radix.Blazor.Inventory.Server
                         case ItemsCheckedInToInventory _:
                             break;
                         case Some<ItemsRemovedFromInventory> (var inventoryItemsRemovedFromInventory):
-                            var item = indexViewModel.InventoryItems.Find(tuple => tuple.address == inventoryItemsRemovedFromInventory.Address);
+                            var item = indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemsRemovedFromInventory.Address));
                             indexViewModel.InventoryItems.Remove(item);
                             break;
                         case Some<InventoryItemRenamed> (var inventoryItemRenamed):
-                            var itemToRename = indexViewModel.InventoryItems.Find(tuple => tuple.address == inventoryItemRenamed.Address);
+                            var itemToRename = indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemRenamed.Address));
                             itemToRename.name = inventoryItemRenamed.Name;
                             break;
                         // ignore others like the metadatastream
