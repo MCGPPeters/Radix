@@ -5,7 +5,7 @@ namespace Radix.Tests.Models
         public int Amount { get; set; }
 
         public long Id { get; set; }
-        public Address? Address { get; set; }
+        public Address Address { get; set; }
 
         protected bool Equals(ItemsRemovedFromInventory other) => Amount == other.Amount;
 

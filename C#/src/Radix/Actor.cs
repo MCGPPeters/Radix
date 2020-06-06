@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Radix
 {
-    internal interface Agent<TCommand, TEvent> where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+    internal interface Actor<TCommand, TEvent> where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         DateTimeOffset LastActivity { get; set; }
 

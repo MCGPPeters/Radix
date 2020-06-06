@@ -2,6 +2,6 @@
 {
     public class CounterIncremented : Event
     {
-        public Address? Address { get; set; }
+        public Address Address { get; set; }
     }
 }
