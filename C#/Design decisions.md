@@ -4,7 +4,7 @@ An instance of a bounded context can on multiple nodes simultaneously. An aggreg
 
 # Command and event hierarchies
 
-Creating a hierarchy of events and commands helps determining the scope of those. At the top level of the command hierarchy is the overarching type of the bounded context. For instance withing the bounded context of inventory management it could be InventoryCommand. The same goes for events : InventoryEvent. The second level of the hierarchy will be at the aggregate root level. Think of InventoryItemCommand and InventoryItemEvent. The easiest way of implementing these hierarchies is using sum types (discriminating unions) or emulations of those (hierarchy of marker interfaces / abstract classes at the top 2 levels of the hierarchy).
+Creating a hierarchy of events and commands helps determining the scope of those. At the top level of the command hierarchy is the overarching type of the bounded context. For instance within the bounded context of inventory management it could be InventoryCommand. The same goes for events : InventoryEvent. The second level of the hierarchy will be at the aggregate root level. Think of InventoryItemCommand and InventoryItemEvent. The easiest way of implementing these hierarchies is using sum types (discriminating unions) or emulations of those (hierarchy of marker interfaces / abstract classes at the top 2 levels of the hierarchy).
 
 # Correlation and causation
 
@@ -32,15 +32,17 @@ When an aggregate received a command, it might have to communicate to the outsid
 
 When a true concurrency error occurs (i.e. a command was issued and conflicts were found that could not be resolved according to domain specific conflict resolution logic) a way to handle the conflicts must be provided. Conflict resolution logic relieves us from the need of enforcing in order message delivery, which is impossible to solve technically. It will be done on a best effort basis.
 
-When creating an aggregate, a record with settings can be provided. This will contain a method for handling concurrency conflicts as a minimum. When handling the command, the settings will be sent along with the command
-
 # Versioning of events
 
 The event store is responsible for assigning the version of an event when it is appended to the stream
 
+# Versioning of event types
+
+Versioning of event types is the responsibility of the user, however the library encourages / endorses to use a weak schema and use mapping and parsing in stead of deserializing. See Greg Young's https://leanpub.com/esversioning/read for details
+
 # One event stream per aggregate
 
-Each aggregate will have its own event stream
+Each aggregate will have its own event stream. The id of the stream contains the full name of the dotnet type and the address of the aggregate (textually represented by a GUID)
 
 # Traceability
 
@@ -48,7 +50,7 @@ An event will always contain a reference to the command that caused it to happen
 
 # Authentication / Authorization
 
-Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command.
+Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command. The user is however to check authorization as part of the validation logic of the command.
 
 # Distributed architecture
 
