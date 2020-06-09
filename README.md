@@ -17,4 +17,5 @@ However, as mentioned in the intro, the generalized library for building event s
 # JetBrains support
 
 I would like to thank the people at JetBrains for supporting this project with open source licenses of all their products.
-[](https://www.jetbrains.com/?from=Radix)
+
+[![Foo](https://raw.githubusercontent.com/MCGPPeters/Radix/develop/jetbrains.svg)](https://www.jetbrains.com/?from=Radix)
