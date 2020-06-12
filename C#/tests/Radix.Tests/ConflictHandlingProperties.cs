@@ -24,7 +24,7 @@ namespace Radix.Tests
         public async Task Property1()
         {
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
@@ -40,11 +40,11 @@ namespace Radix.Tests
             // for testing purposes make the aggregate block the current thread while processing
             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
 
-            Validated<InventoryItemCommand> checkin =
+            Validated<InventoryItemCommand> checkIn =
                 CheckInItemsToInventory
                     .Create(10);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkin);
+            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(checkIn);
 
 
             switch (result)
@@ -64,7 +64,7 @@ namespace Radix.Tests
         public async Task Property2()
         {
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, descriptor) => Some(new Conflict<InventoryItemCommand, InventoryItemEvent>(command, null, "Just another conflict"));
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => Some(new Conflict<InventoryItemCommand, InventoryItemEvent>(command, null, "Just another conflict"));
 
             // for testing purposes make the aggregate block the current thread while processing
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
@@ -114,7 +114,7 @@ namespace Radix.Tests
                 calledBefore = true;
                 return Task.FromResult(Error<ExistingVersion, AppendEventsError>(new OptimisticConcurrencyError("Some conflict")));
             };
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) =>
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
@@ -151,7 +151,7 @@ namespace Radix.Tests
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L));
 
             // event stream is at existingVersion 3
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) =>
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
@@ -185,7 +185,7 @@ namespace Radix.Tests
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
         public async Task Property5()
         {
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent, Json> checkForConflict = (command, eventDescriptors) =>
+            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, eventDescriptors) =>
                 None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(

@@ -14,7 +14,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
 
         public static Decide<Counter, CounterCommand, CounterEvent> Decide = (state, command) =>
         {
-            return Task.FromResult(Extensions.Ok<CounterEvent[], CommandDecisionError>(new[] {new CounterEvent()}));
+            return Task.FromResult(Result.Extensions.Ok<CounterEvent[], CommandDecisionError>(new[] {new CounterEvent()}));
         };
 
         public int Count { get; set; }

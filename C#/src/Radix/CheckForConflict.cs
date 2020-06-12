@@ -8,5 +8,5 @@ namespace Radix
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TFormat"></typeparam>
     /// <returns></returns>
-    public delegate Option<Conflict<TCommand, TEvent>> CheckForConflict<TCommand, TEvent, TFormat>(TCommand command, EventDescriptor<TFormat> eventDescriptor);
+    public delegate Option<Conflict<TCommand, TEvent>> CheckForConflict<TCommand, TEvent>(TCommand command, EventDescriptor<TEvent> eventDescriptor);
 }
