@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -44,8 +46,7 @@ namespace Radix
             LastActivity = DateTimeOffset.Now;
             _state = new TState();
             Version expectedVersion = new NoneExistentVersion();
-            EventType eventType = new EventType(typeof(TEvent).FullName);
-            EventStreamDescriptor eventStreamDescriptor = new EventStreamDescriptor(eventType, address);
+            EventStreamDescriptor eventStreamDescriptor = new EventStreamDescriptor(typeof(TState).FullName, address);
 
             _actionBlock = new ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
@@ -59,26 +60,16 @@ namespace Radix
 
                     LastActivity = DateTimeOffset.Now;
 
-                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TFormat>> eventsSince = _boundedContextSettings
+                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings
                         .GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
                         .OrderBy(descriptor => descriptor.ExistingVersion)
                         .ConfigureAwait(false);
 
-                    await foreach (EventDescriptor<TFormat> eventDescriptor in eventsSince)
+
+                    await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
                     {
-                        // todo apply events from history. Do not subscribe to server side changes. only apply when processing a command
-
-                        Option<Conflict<TCommand, TEvent>> optionalConflict = _boundedContextSettings.CheckForConflict(commandDescriptor.Command, eventDescriptor);
-
-                        switch (optionalConflict)
-                        {
-                            case None<Conflict<TCommand, TEvent>> _:
-                                expectedVersion = eventDescriptor.ExistingVersion;
-                                break;
-                            case Some<Conflict<TCommand, TEvent>>(var conflict):
-                                taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {conflict.Reason}));
-                                return;
-                        }
+                        _state = update(_state, eventDescriptor.Event);
+                        expectedVersion = eventDescriptor.ExistingVersion;
                     }
 
                     Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor.Command).ConfigureAwait(false);
@@ -86,7 +77,7 @@ namespace Radix
                     switch (result)
                     {
                         case Ok<TEvent[], CommandDecisionError>(var events):
-                            
+
                             TransientEventDescriptor<TFormat>[]
                                 eventDescriptors = events.Select(
                                     @event =>
@@ -133,13 +124,13 @@ namespace Radix
 
                                     break;
                                 default:
-                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {"Unexpected state"}));
+                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { "Unexpected state" }));
                                     break;
                             }
 
                             break;
-                        case Error<TEvent[], CommandDecisionError> (var error):
-                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {error.Message}));
+                        case Error<TEvent[], CommandDecisionError>(var error):
+                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { error.Message }));
 
                             break;
                     }

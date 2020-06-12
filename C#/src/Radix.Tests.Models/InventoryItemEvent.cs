@@ -1,7 +1,12 @@
 namespace Radix.Tests.Models
 {
-    public interface InventoryItemEvent : Event
+    public abstract class InventoryItemEvent : Event
     {
+        public InventoryItemEvent()
+        {
+            
+        }
+        public Address Address { get; set; }
     }
 
 }

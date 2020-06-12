@@ -9,15 +9,15 @@ namespace Radix
         {
             
         }
-        public EventStreamDescriptor(EventType eventType, Address address)
+        public EventStreamDescriptor(string? aggregateType, Address address)
         {
-            EventType = eventType;
+            AggregateType = aggregateType;
             Address = address;
         }
 
-        public string StreamIdentifier => $"{EventType}-{Address}";
+        public string StreamIdentifier => $"{AggregateType}-{Address}";
 
-        private EventType? EventType { get; set; }
+        private string? AggregateType { get; set; }
         private Address? Address { get; set; }
     }
 }

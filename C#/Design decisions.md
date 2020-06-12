@@ -1,6 +1,16 @@
-# Aggregate migration
+# Design Decisions
 
-An instance of a bounded context can on multiple nodes simultaneously. An aggregate however can only live in 1 node at a time. It can however migrate to another node when certain criteria are met. This can be done pretty easily. Since all events are stored centrally, the aggregate can be created on the other node and restore its state there. The binaries containing the logic for the context also contains the logic for the aggregates it contains.
+This document contains current ideas on the design directions. This can and will changed regularly. After they finalize they will be properly documented in the wiki.
+
+## Aggregate migration
+
+This can be done pretty easily. Since all events are stored centrally, the aggregate can be created on the other node and restore its state there. The binaries containing the logic for the context also contains the logic for the aggregates it contains.
+
+## Task based user interfaces
+
+Radix encourages a strict separation between command based user interface components, to let user execute tasks, and query based user interface components. These components can be combined in a composite user interface containing combinations of the two.
+
+Query based components receive notifications of events from the event store and update their state in (near) real time. Speaking in terms of event sourcing, query based components are read models / projection based. These components set an initial state when first loading up. This initial state can come from any external source, for instance a backend read model. While these components are loaded, they will only receive updates from the event store that can be applied to the local state.
 
 # Command and event hierarchies
 
@@ -9,22 +19,6 @@ Creating a hierarchy of events and commands helps determining the scope of those
 # Correlation and causation
 
 When events are generated the id of the command (UUID) will be added as the causality id of the events generated as a consequence. Events have their own UUIDs. The correlation id of the command will propagate as the correlation id of the event.
-
-# Checking for potential concurrency conflicts
-
-A command is atomic. If there is a true concurrency conflict, no event that could be generated as a result of the command will be added to the stream.
-
-The best approach for checking for and handling true concurrency conflicts (as opposed to technical optimistic concurrency exceptions) is to:
-
-- Check if the expected version is still the current version of the event stream
-  - If not, get all events since the expected version ( > the expected version) from the event stream. For each event check if there is a conflict according to business defined rules (conflict resolution). 
-    - If the are no conflicts, set the expected version to the latest version of the event stream and go to the next step. 
-    - Otherwise there is a true concurrency conflict. Discard the command (and signal the issuer of the command => todo). END
-- Evaluate the command and get the resulting transient events. Try to append these events to the event stream
-  - If successful, we are END
-  - If not, retry and go back to the first step
-
-Radix assumes the event store properly supports optimistic concurrency
 
 # Communicating to the outside world
 

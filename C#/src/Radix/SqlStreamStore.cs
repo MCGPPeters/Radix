@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Radix.Async;
+using Radix.Option;
+using Radix.Validated;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using Extensions = Radix.Result.Extensions;
@@ -31,58 +33,68 @@ namespace Radix
                 Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
                 int expectedVersion;
-                
+
                 switch (version)
                 {
                     case AnyVersion _:
                         appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, ExpectedVersion.Any, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        return Result.Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case NoneExistentVersion _:
                         await _streamStore.SetStreamMetadata(eventStreamDescriptor.StreamIdentifier, metadataJson: JsonSerializer.Serialize(eventStreamDescriptor));
                         expectedVersion = ExpectedVersion.NoStream;
                         appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        return Result.Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case ExistingVersion existentVersion:
                         expectedVersion = Convert.ToInt32(existentVersion.Value);
                         appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages);
                         result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        return Result.Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     default:
                         throw new NotSupportedException("Unknown type of existingVersion");
                 }
             };
 
-        public GetEventsSince<Json> GetEventsSince => EventsSince;
-
-        private async IAsyncEnumerable<EventDescriptor<Json>> EventsSince(Address address, Version version, string streamId)
+        public GetEventsSince<TEvent> CreateGetEventsSince<TEvent>(Func<Json, EventType, Option<TEvent>> parseEvent, Parse<EventMetaData, Json> parseMetaData)
         {
-            switch (version)
+
+            async IAsyncEnumerable<EventDescriptor<TEvent>> CreateGetEventsSince(Address address, Version version, string streamId)
             {
-                case ExistingVersion existentVersion:
-                    int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
-                    StreamMetadataResult streamMetadata = await _streamStore.GetStreamMetadata(streamId);
-                    EventStreamDescriptor streamDescriptor = JsonSerializer.Deserialize<EventStreamDescriptor>(streamMetadata.MetadataJson);
-                    ReadStreamPage readStreamPage = await _streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
+                switch (version)
+                {
+                    case ExistingVersion existentVersion:
+                        int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
+                        ReadStreamPage readStreamPage = await _streamStore.ReadStreamForwards(streamId, fromVersionInclusive, int.MaxValue, false);
 
-                    IEnumerable<Task<EventDescriptor<Json>>> eventDescriptors = readStreamPage.Messages.Select(
-                        async streamMessage => new EventDescriptor<Json>(
-                            new Json(await streamMessage.GetJsonData()),
-                            streamMessage.StreamVersion,
-                            new EventType(streamMessage.Type)));
+                        foreach (StreamMessage streamMessage in readStreamPage.Messages)
+                        {
+                                string jsonData = await streamMessage.GetJsonData();
+                                EventType eventType = new EventType(streamMessage.Type);
+                                Option<TEvent> optionalInventoryItemEvent = parseEvent(new Json(jsonData), eventType);
+                                switch (optionalInventoryItemEvent)
+                                {
+                                    case None<TEvent> none:
+                                        break;
+                                    case Some<TEvent>(var @event):
+                                        yield return new EventDescriptor<TEvent>(@event, existentVersion, eventType);
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException(nameof(optionalInventoryItemEvent));
+                                }
+                                yield break;
+                            
+                        }
 
-                    foreach (Task<EventDescriptor<Json>> eventDescriptor in eventDescriptors)
-                    {
-                        yield return await eventDescriptor;
-                    }
-
-                    break;
-                case NoneExistentVersion _:
-                    break;
-                default:
-                    throw new NotSupportedException("Unknown type of version");
+                        break;
+                    case NoneExistentVersion _:
+                        break;
+                    default:
+                        throw new NotSupportedException("Unknown type of version");
+                }
             }
+
+            return CreateGetEventsSince;
         }
     }
 }

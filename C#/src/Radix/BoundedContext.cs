@@ -48,20 +48,16 @@ namespace Radix
 
         private void RunGarbageCollection(object sender, ElapsedEventArgs e)
         {
-            List<Address> deactivatedAgents = new List<Address>();
             foreach ((Address address, Actor<TCommand, TEvent> agent) in _registry)
             {
                 TimeSpan idleTime = DateTimeOffset.Now.Subtract(agent.LastActivity);
-                if (idleTime >= _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
+                if (idleTime < _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
                 {
-                    agent.Deactivate();
-                    deactivatedAgents.Add(address);
+                    continue;
                 }
-            }
 
-            foreach (Address deactivatedAgent in deactivatedAgents)
-            {
-                _registry.Remove(deactivatedAgent);
+                agent.Deactivate();
+                _registry.Remove(address);
             }
         }
 
@@ -70,7 +66,7 @@ namespace Radix
             where TState : new() => Get(new Address(), decide, update);
 
         public Aggregate<TCommand, TEvent> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new()
+            where TState : new() 
         {
             AggregateActor<TState, TCommand, TEvent, TFormat> actor = AggregateActor<TState, TCommand, TEvent, TFormat>
                 .Create(address, _boundedContextSettings, decide, update);
