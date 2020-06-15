@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using FsCheck;
 using FsCheck.Xunit;
 using static Radix.Async.Extensions;
@@ -56,8 +57,9 @@ namespace Radix.Tests
                     .Where(exception => exception is ApplicationException)
                     .Retry(Enumerable.Repeat(TimeSpan.FromMilliseconds(1), numberOfCalls.Get).ToArray());
             }
-            catch
+            catch (AggregateException ex)
             {
+                ex.InnerExceptions.Should().Contain(exception => exception is ApplicationException);
                 Equal(numberOfCalls.Get + 1, numberOfTries);
             }
         }
