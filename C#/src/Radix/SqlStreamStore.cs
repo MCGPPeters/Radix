@@ -31,7 +31,6 @@ namespace Radix
                         eventDescriptor.Event.Value,
                         eventDescriptor.EventMetaData.Value)).ToArray();
 
-                Func<Task<AppendResult>> appendToStream;
                 AppendResult result;
                 int expectedVersion;
 
