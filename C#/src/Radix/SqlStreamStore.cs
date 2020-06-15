@@ -5,10 +5,11 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Radix.Async;
 using Radix.Option;
+using Radix.Result;
 using Radix.Validated;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
-using Extensions = Radix.Result.Extensions;
+using static Radix.Result.Extensions;
 
 namespace Radix
 {
@@ -37,20 +38,23 @@ namespace Radix
                 switch (version)
                 {
                     case AnyVersion _:
-                        appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, ExpectedVersion.Any, newStreamMessages);
-                        result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Result.Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        result = await _streamStore
+                            .AppendToStream(eventStreamDescriptor.StreamIdentifier, ExpectedVersion.Any, newStreamMessages)
+                            .Retry(Backoff.Exponentially());
+                        return Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case NoneExistentVersion _:
                         await _streamStore.SetStreamMetadata(eventStreamDescriptor.StreamIdentifier, metadataJson: JsonSerializer.Serialize(eventStreamDescriptor));
                         expectedVersion = ExpectedVersion.NoStream;
-                        appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages);
-                        result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Result.Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        result = await _streamStore
+                            .AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages)
+                            .Retry(Backoff.Exponentially());
+                        return Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     case ExistingVersion existentVersion:
                         expectedVersion = Convert.ToInt32(existentVersion.Value);
-                        appendToStream = () => _streamStore.AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages);
-                        result = await appendToStream.Retry(Backoff.Exponentially());
-                        return Result.Extensions.Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        result = await _streamStore
+                            .AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages)
+                            .Retry(Backoff.Exponentially());
+                        return Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
                     default:
                         throw new NotSupportedException("Unknown type of existingVersion");
                 }
