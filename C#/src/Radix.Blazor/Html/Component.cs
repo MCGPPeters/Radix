@@ -9,9 +9,6 @@ namespace Radix.Blazor.Html
 
     public class Component : Node
     {
-        public Type Type { get; }
-        public IEnumerable<IAttribute> Attributes { get; }
-        public IEnumerable<Node> Children { get; }
 
         public Component(Type type, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
 
@@ -21,6 +18,10 @@ namespace Radix.Blazor.Html
             Children = children;
 
         }
+
+        public Type Type { get; }
+        public IEnumerable<IAttribute> Attributes { get; }
+        public IEnumerable<Node> Children { get; }
     }
 
 }

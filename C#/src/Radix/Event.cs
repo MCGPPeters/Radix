@@ -6,5 +6,5 @@ namespace Radix
         Address Address { get; set; }
     }
 
-   
+
 }

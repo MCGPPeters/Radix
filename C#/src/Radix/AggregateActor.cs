@@ -1,19 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Radix.Monoid;
-using Radix.Option;
 using Radix.Result;
 using static Radix.Result.Extensions;
 
 namespace Radix
 {
     /// <summary>
-    /// Accepts command on behalf of an aggregate instance and maintains its state
+    ///     Accepts command on behalf of an aggregate instance and maintains its state
     /// </summary>
     /// <typeparam name="TState"></typeparam>
     /// <typeparam name="TCommand"></typeparam>
@@ -22,7 +19,7 @@ namespace Radix
     internal class AggregateActor<TState, TCommand, TEvent, TFormat> : Actor<TCommand, TEvent>
         where TState : new()
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
-        where TEvent : Event
+        where TEvent : class, Event
     {
 
         private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
@@ -91,7 +88,8 @@ namespace Radix
                                             _boundedContextSettings.SerializeMetaData);
                                     }).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
-                                _boundedContextSettings.AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
+                                _boundedContextSettings
+                                    .AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
                                     .ConfigureAwait(false);
 
                             switch (await appendResult)
@@ -124,13 +122,13 @@ namespace Radix
 
                                     break;
                                 default:
-                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { "Unexpected state" }));
+                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {"Unexpected state"}));
                                     break;
                             }
 
                             break;
                         case Error<TEvent[], CommandDecisionError>(var error):
-                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { error.Message }));
+                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {error.Message}));
 
                             break;
                     }

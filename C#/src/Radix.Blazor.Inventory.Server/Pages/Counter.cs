@@ -14,7 +14,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         public static readonly Decide<Counter, IncrementCommand, CounterIncremented> Decide = (state, command) =>
         {
-            return Task.FromResult(Result.Extensions.Ok<CounterIncremented[], CommandDecisionError>(new[] {new CounterIncremented()}));
+            return Task.FromResult(Extensions.Ok<CounterIncremented[], CommandDecisionError>(new[] {new CounterIncremented()}));
         };
 
         public int Count { get; set; }

@@ -19,11 +19,11 @@ namespace Radix.Result
 
         }
 
+        public T Value { get; }
+
         public static implicit operator Ok<T, TError>(T t) => new Ok<T, TError>(t);
 
         public static implicit operator T(Ok<T, TError> ok) => ok.Value;
-
-        public T Value { get; }
 
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
@@ -58,18 +58,15 @@ namespace Radix.Result
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
 
-            return Equals((Ok<T, TError>) obj);
+            return Equals((Ok<T, TError>)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return EqualityComparer<T>.Default.GetHashCode(Value);
-        }
+        public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(Value);
 
         public static bool operator ==(Ok<T, TError>? left, Ok<T, TError>? right) => Equals(left, right);
 

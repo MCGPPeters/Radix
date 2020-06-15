@@ -7,8 +7,9 @@ namespace Radix
     {
         public EventStreamDescriptor()
         {
-            
+
         }
+
         public EventStreamDescriptor(string? aggregateType, Address address)
         {
             AggregateType = aggregateType;

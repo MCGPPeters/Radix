@@ -4,11 +4,11 @@ namespace Radix.Validated
     {
         internal Invalid(params string[] reasons) => Reasons = reasons;
 
+        public string[] Reasons { get; }
+
         public static implicit operator Invalid<T>(string[] reasons) => new Invalid<T>(reasons);
 
         public static implicit operator string[](Invalid<T> invalid) => invalid.Reasons;
-
-        public string[] Reasons { get; }
 
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious

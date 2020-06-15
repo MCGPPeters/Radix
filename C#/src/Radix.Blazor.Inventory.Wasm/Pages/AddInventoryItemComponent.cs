@@ -112,7 +112,7 @@ namespace Radix.Blazor.Inventory.Wasm.Pages
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
-        private static Node FormatErrorMessages(IEnumerable<Radix.Error> errors)
+        private static Node FormatErrorMessages(IEnumerable<Error> errors)
         {
             Node node = new Empty();
             if (errors is object)

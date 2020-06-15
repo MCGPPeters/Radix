@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,66 +31,69 @@ namespace Radix.Blazor.Inventory.Server
             IStreamStore streamStore = new InMemoryStreamStore();
             SqlStreamStore sqlStreamStore = new SqlStreamStore(streamStore);
             FromEventDescriptor<InventoryItemEvent, Json> fromEventDescriptor = descriptor =>
-        {
-            if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemCreated).FullName, StringComparison.Ordinal))
             {
-                return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
-            }
+                if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemCreated).FullName, StringComparison.Ordinal))
+                {
+                    return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
+                }
 
-            if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemDeactivated).FullName, StringComparison.Ordinal))
-            {
-                return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value));
-            }
+                if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemDeactivated).FullName, StringComparison.Ordinal))
+                {
+                    return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value));
+                }
 
-            if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemRenamed).FullName, StringComparison.Ordinal))
-            {
-                return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
-            }
+                if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemRenamed).FullName, StringComparison.Ordinal))
+                {
+                    return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
+                }
 
-            if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemRenamed).FullName, StringComparison.Ordinal))
-            {
-                return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
-            }
+                if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemRenamed).FullName, StringComparison.Ordinal))
+                {
+                    return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
+                }
 
-            return None<InventoryItemEvent>();
-        };
+                return None<InventoryItemEvent>();
+            };
 
 
             IndexViewModel indexViewModel = new IndexViewModel();
-            streamStore.SubscribeToAll(0,
+            streamStore.SubscribeToAll(
+                0,
                 async (subscription, message, token) =>
                 {
                     string jsonData = await message.GetJsonData();
                     string streamMessageType = message.Type;
-                        EventType
-                            .Create(streamMessageType)
-                            .Map(eventType => new EventDescriptor<Json>(new Json(jsonData), message.StreamVersion, eventType))
-                            .Map(eventDescriptor => fromEventDescriptor(eventDescriptor))
-                            .Map(
-                                optionalInventoryItemEvent =>
+                    EventType
+                        .Create(streamMessageType)
+                        .Map(eventType => new EventDescriptor<Json>(new Json(jsonData), message.StreamVersion, eventType))
+                        .Map(eventDescriptor => fromEventDescriptor(eventDescriptor))
+                        .Map(
+                            optionalInventoryItemEvent =>
+                            {
+                                switch (optionalInventoryItemEvent)
                                 {
-                                    switch (optionalInventoryItemEvent)
-                                    {
-                                        case Some<InventoryItemCreated>(var inventoryItemCreated):
-                                            indexViewModel.InventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
-                                            break;
-                                        case InventoryItemDeactivated _:
-                                            break;
-                                        case ItemsCheckedInToInventory _:
-                                            break;
-                                        case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
-                                            var item = indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemsRemovedFromInventory.Address));
-                                            indexViewModel.InventoryItems.Remove(item);
-                                            break;
-                                        case Some<InventoryItemRenamed>(var inventoryItemRenamed):
-                                            var itemToRename = indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemRenamed.Address));
-                                            itemToRename.name = inventoryItemRenamed.Name;
-                                            break;
-                                        // ignore others like the metadatastream
-                                    }
+                                    case Some<InventoryItemCreated>(var inventoryItemCreated):
+                                        indexViewModel.InventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
+                                        break;
+                                    case InventoryItemDeactivated _:
+                                        break;
+                                    case ItemsCheckedInToInventory _:
+                                        break;
+                                    case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
+                                        (Address address, string name) item =
+                                            indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemsRemovedFromInventory.Address));
+                                        indexViewModel.InventoryItems.Remove(item);
+                                        break;
+                                    case Some<InventoryItemRenamed>(var inventoryItemRenamed):
+                                        (Address address, string name) itemToRename =
+                                            indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemRenamed.Address));
+                                        itemToRename.name = inventoryItemRenamed.Name;
+                                        break;
+                                    // ignore others like the metadatastream
+                                }
 
-                                    return Unit.Instance;
-                                });
+                                return Unit.Instance;
+                            });
                 });
 
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
@@ -100,7 +102,7 @@ namespace Radix.Blazor.Inventory.Server
                 new TransientEventDescriptor<Json>(new EventType(@event.GetType()), serialize(@event), serializeMetaData(eventMetaData), messageId);
             Serialize<InventoryItemEvent, Json> serializeEvent = input =>
             {
-                JsonSerializerOptions options = new JsonSerializerOptions { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryItemEvent>() } };
+                JsonSerializerOptions options = new JsonSerializerOptions {Converters = {new PolymorphicWriteOnlyJsonConverter<InventoryItemEvent>()}};
                 string jsonMessage = JsonSerializer.Serialize(input, options);
                 return new Json(jsonMessage);
             };
@@ -130,7 +132,8 @@ namespace Radix.Blazor.Inventory.Server
                     }
 
                     return None<InventoryItemEvent>();
-                }, input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
+                },
+                input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
             BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
                 new BoundedContextSettings<InventoryItemEvent, Json>(
                     sqlStreamStore.AppendEvents,
@@ -144,7 +147,7 @@ namespace Radix.Blazor.Inventory.Server
                 new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
 
 
-            GetEventsSince<CounterIncremented> getCounterIncrementsEventsSince = sqlStreamStore.CreateGetEventsSince<CounterIncremented>(
+            GetEventsSince<CounterIncremented> getCounterIncrementsEventsSince = sqlStreamStore.CreateGetEventsSince(
                 (json, type) =>
                 {
                     if (string.Equals(type.Value, nameof(CounterIncremented), StringComparison.Ordinal))
@@ -152,17 +155,17 @@ namespace Radix.Blazor.Inventory.Server
                         return Some(JsonSerializer.Deserialize<CounterIncremented>(json.Value));
                     }
 
-                    
 
                     return None<CounterIncremented>();
-                }, input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
+                },
+                input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
             Serialize<CounterIncremented, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
             BoundedContextSettings<CounterIncremented, Json> counterBoundedContextSettings =
                 new BoundedContextSettings<CounterIncremented, Json>(
                     sqlStreamStore.AppendEvents,
                     getCounterIncrementsEventsSince,
                     new GarbageCollectionSettings(),
-                    (descriptor) => Some(new CounterIncremented()),
+                    descriptor => Some(new CounterIncremented()),
                     (id, @event, serialize, data, serializeEventMetaData) => new TransientEventDescriptor<Json>(
                         new EventType(@event.GetType()),
                         serializeCounterEvent(@event),

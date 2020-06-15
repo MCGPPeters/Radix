@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using static Radix.Option.Extensions;
 using Radix.Tests.Models;
+using static Radix.Option.Extensions;
 
 namespace Radix.Tests
 {
@@ -17,7 +17,7 @@ namespace Radix.Tests
         public Serialize<InventoryItemEvent, Json> SerializeEvent { get; } = input => new Json(JsonSerializer.Serialize(input));
         public Serialize<EventMetaData, Json> SerializeMetaData { get; } = json => new Json(JsonSerializer.Serialize(json));
 
-        public FromEventDescriptor<InventoryItemEvent, Json> Descriptor { get; } = (descriptor) =>
+        public FromEventDescriptor<InventoryItemEvent, Json> Descriptor { get; } = descriptor =>
         {
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
             {
@@ -50,14 +50,17 @@ namespace Radix.Tests
 #pragma warning restore 1998
         {
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemCreated {Name = "Product 1", Activated = true, Count = 1}, 
-                1L, new EventType(typeof(InventoryItemCreated).FullName));
+                new InventoryItemCreated {Name = "Product 1", Activated = true, Count = 1},
+                1L,
+                new EventType(typeof(InventoryItemCreated).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
                 new ItemsCheckedInToInventory {Amount = 19},
-                2L, new EventType(typeof(ItemsCheckedInToInventory).FullName));
+                2L,
+                new EventType(typeof(ItemsCheckedInToInventory).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
                 new InventoryItemRenamed {Name = "Product 2"},
-                3L, new EventType(typeof(InventoryItemRenamed).FullName));
+                3L,
+                new EventType(typeof(InventoryItemRenamed).FullName));
         }
     }
 }

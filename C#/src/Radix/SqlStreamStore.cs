@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Radix.Async;
 using Radix.Option;
-using Radix.Result;
-using Radix.Validated;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using static Radix.Result.Extensions;
@@ -60,6 +57,7 @@ namespace Radix
             };
 
         public GetEventsSince<TEvent> CreateGetEventsSince<TEvent>(Func<Json, EventType, Option<TEvent>> parseEvent, Parse<EventMetaData, Json> parseMetaData)
+            where TEvent : notnull
         {
 
             async IAsyncEnumerable<EventDescriptor<TEvent>> CreateGetEventsSince(Address address, Version version, string streamId)
@@ -72,21 +70,22 @@ namespace Radix
 
                         foreach (StreamMessage streamMessage in readStreamPage.Messages)
                         {
-                                string jsonData = await streamMessage.GetJsonData();
-                                EventType eventType = new EventType(streamMessage.Type);
-                                Option<TEvent> optionalInventoryItemEvent = parseEvent(new Json(jsonData), eventType);
-                                switch (optionalInventoryItemEvent)
-                                {
-                                    case None<TEvent> none:
-                                        break;
-                                    case Some<TEvent>(var @event):
-                                        yield return new EventDescriptor<TEvent>(@event, existentVersion, eventType);
-                                        break;
-                                    default:
-                                        throw new ArgumentOutOfRangeException(nameof(optionalInventoryItemEvent));
-                                }
-                                yield break;
-                            
+                            string jsonData = await streamMessage.GetJsonData();
+                            EventType eventType = new EventType(streamMessage.Type);
+                            Option<TEvent> optionalInventoryItemEvent = parseEvent(new Json(jsonData), eventType);
+                            switch (optionalInventoryItemEvent)
+                            {
+                                case None<TEvent> _:
+                                    break;
+                                case Some<TEvent>(var @event):
+                                    yield return new EventDescriptor<TEvent>(@event, existentVersion, eventType);
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException(nameof(optionalInventoryItemEvent));
+                            }
+
+                            yield break;
+
                         }
 
                         break;

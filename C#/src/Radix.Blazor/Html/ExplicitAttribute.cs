@@ -11,7 +11,8 @@ namespace Radix.Blazor.Html
             Factory = factory;
         }
 
-        public Name Name { get; set; }
         public Func<RenderTreeBuilder, int, object, int> Factory { get; }
+
+        public Name Name { get; set; }
     }
 }

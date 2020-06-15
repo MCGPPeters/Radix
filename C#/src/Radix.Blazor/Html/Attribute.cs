@@ -12,8 +12,9 @@ namespace Radix.Blazor.Html
             Values = values ?? Array.Empty<string>();
         }
 
-        public Name Name { get; set; }
         public IEnumerable<string> Values { get; set; }
+
+        public Name Name { get; set; }
 
         public void Deconstruct(out Name name, out IEnumerable<string> values)
 

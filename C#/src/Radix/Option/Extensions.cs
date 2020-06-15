@@ -28,9 +28,6 @@ namespace Radix.Option
             _ => throw new NotSupportedException()
         };
 
-        public static Option<T> AsOption<T>(this T value)
-        {
-            return value is null ? None<T>() : Some(value);
-        }
+        public static Option<T> AsOption<T>(this T value) => value is null ? None<T>() : Some(value);
     }
 }
