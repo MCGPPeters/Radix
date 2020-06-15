@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SqlStreamStore.Imports.AsyncEx.Nito.AsyncEx.Tasks;
 
 namespace Radix.Async
 {
@@ -58,7 +57,10 @@ namespace Radix.Async
         {
             T t = await source;
             if (!predicate(t))
+            {
                 return await Task.FromCanceled<T>(CancellationToken.None);
+            }
+
             return t;
         }
 
@@ -78,15 +80,15 @@ namespace Radix.Async
                     switch (t.Status)
                     {
                         case TaskStatus.Faulted:
+                        {
+                            bool? x = t.Exception?.InnerExceptions.Any(exceptionFilter);
+                            if (x is object && x == true)
                             {
-                                bool? x = t.Exception?.InnerExceptions.Any(exceptionFilter);
-                                if (x is object && x == true)
-                                {
-                                    return Task.FromResult(t.Result);
-                                }
-
-                                break;
+                                return Task.FromResult(t.Result);
                             }
+
+                            break;
+                        }
                         case TaskStatus.Created:
                             break;
                         case TaskStatus.WaitingForActivation:
@@ -109,6 +111,17 @@ namespace Radix.Async
 
                 }).Unwrap();
 
+        /// <summary>
+        /// Convenience overload for <see cref="Where{T}(System.Threading.Tasks.Task{T},System.Func{T,bool})"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="exceptionFilter"></param>
+        /// <returns></returns>
+        public static async Task<T> Where<T>(this Task<T> t
+            , Func<Exception, bool> exceptionFilter) =>
+                await Where(() => t, exceptionFilter)();
+        
 
 
         /// <summary>
@@ -129,5 +142,17 @@ namespace Radix.Async
                     await Task.Delay(intervals.First().Milliseconds);
                     return await Retry(function, intervals.Skip(1).ToArray()).ConfigureAwait(false);
                 });
+
+        /// <summary>
+        /// Convenience overload for <see cref="Retry{T}(System.Func{System.Threading.Tasks.Task{T}},System.TimeSpan[])"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="intervals"></param>
+        /// <returns></returns>
+        public static Task<T> Retry<T>
+            (this Task<T> t, params TimeSpan[] intervals) =>
+                Retry(() => t);
+        
     }
 }
