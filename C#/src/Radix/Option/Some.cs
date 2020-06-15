@@ -1,7 +1,7 @@
 namespace Radix.Option
 {
 
-    public class Some<T> : Option<T> where T : notnull
+    public class Some<T> : Option<T>
     {
         internal T Value { get; }
 

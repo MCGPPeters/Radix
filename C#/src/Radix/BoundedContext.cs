@@ -29,13 +29,13 @@ namespace Radix
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
         where TEvent : class, Event
     {
-        private readonly BoundedContextSettings<TCommand, TEvent, TFormat> _boundedContextSettings;
+        private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
         private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new Dictionary<Address, Actor<TCommand, TEvent>>();
         private readonly Timer _timer;
 
         private bool _disposedValue; // To detect redundant calls
 
-        public BoundedContext(BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings)
+        public BoundedContext(BoundedContextSettings<TEvent, TFormat> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
             _timer = new Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};

@@ -131,11 +131,10 @@ namespace Radix.Blazor.Inventory.Server
 
                     return None<InventoryItemEvent>();
                 }, input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
-            BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json> boundedContextSettings =
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+            BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
+                new BoundedContextSettings<InventoryItemEvent, Json>(
                     sqlStreamStore.AppendEvents,
                     getEventsSince,
-                    checkForConflict,
                     new GarbageCollectionSettings(),
                     fromEventDescriptor,
                     toTransientEventDescriptor,
@@ -158,11 +157,10 @@ namespace Radix.Blazor.Inventory.Server
                     return None<CounterIncremented>();
                 }, input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
             Serialize<CounterIncremented, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
-            BoundedContextSettings<IncrementCommand, CounterIncremented, Json> counterBoundedContextSettings =
-                new BoundedContextSettings<IncrementCommand, CounterIncremented, Json>(
+            BoundedContextSettings<CounterIncremented, Json> counterBoundedContextSettings =
+                new BoundedContextSettings<CounterIncremented, Json>(
                     sqlStreamStore.AppendEvents,
                     getCounterIncrementsEventsSince,
-                    (command, descriptor) => new None<Conflict<IncrementCommand, CounterIncremented>>(),
                     new GarbageCollectionSettings(),
                     (descriptor) => Some(new CounterIncremented()),
                     (id, @event, serialize, data, serializeEventMetaData) => new TransientEventDescriptor<Json>(
