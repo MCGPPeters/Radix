@@ -28,10 +28,9 @@ namespace Radix.Tests
             GetEventsSince<InventoryItemEvent> getEventsSince = _testSettings.GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+                new BoundedContextSettings<InventoryItemEvent, Json>(
                     appendEvents,
                     getEventsSince,
-                    checkForConflict,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
                     _testSettings.ToTransientEventDescriptor,

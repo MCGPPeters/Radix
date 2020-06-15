@@ -18,12 +18,12 @@ namespace Radix.Blazor.Inventory.Wasm
             IStreamStore streamStore = new InMemoryStreamStore();
             SqlStreamStore sqlStreamStore = new SqlStreamStore(streamStore);
 
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             FromEventDescriptor<InventoryItemEvent, Json> fromEventDescriptor = descriptor =>
             {
                 if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
                 {
-                    return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
+                    InventoryItemCreated inventoryItemCreated = JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value);
+                    return inventoryItemCreated.AsOption();
                 }
 
                 if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemDeactivated), StringComparison.Ordinal))
@@ -71,10 +71,9 @@ namespace Radix.Blazor.Inventory.Wasm
 
             ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
                 new TransientEventDescriptor<Json>(new EventType(@event.GetType()), serialize(@event), serializeMetaData(eventMetaData), messageId);
-            BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json> boundedContextSettings =
-                new BoundedContextSettings<InventoryItemCommand, InventoryItemEvent, Json>(
+            BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
+                new BoundedContextSettings<InventoryItemEvent, Json>(
                     sqlStreamStore.AppendEvents,getEventsSince,
-                    checkForConflict,
                     new GarbageCollectionSettings(), fromEventDescriptor, toTransientEventDescriptor, input => new Json(JsonSerializer.Serialize(input)),
                     input => new Json(JsonSerializer.Serialize(input)));
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =

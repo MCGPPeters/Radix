@@ -5,10 +5,6 @@ namespace Radix
     /// </summary>
     public class EventDescriptor<TEvent>
     {
-        private TEvent _event;
-        private ExistingVersion _existentVersion;
-        private EventType _eventType;
-
         public EventDescriptor(TEvent @event, ExistingVersion existingVersion, EventType eventType)
         {
             Event = @event;

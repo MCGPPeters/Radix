@@ -24,7 +24,5 @@ namespace Radix.Tests.Models
         }
 
         public override int GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-
-        public Address Address { get; set; }
     }
 }

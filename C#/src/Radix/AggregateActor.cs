@@ -28,7 +28,7 @@ namespace Radix
         private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
-        private readonly BoundedContextSettings<TCommand, TEvent, TFormat> _boundedContextSettings;
+        private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
@@ -39,7 +39,7 @@ namespace Radix
         /// <param name="boundedContextSettings"></param>
         /// <param name="decide"></param>
         /// <param name="update"></param>
-        private AggregateActor(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
+        private AggregateActor(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
@@ -151,7 +151,7 @@ namespace Radix
 
         public void Deactivate() => _actionBlock.Complete();
 
-        public static AggregateActor<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TCommand, TEvent, TFormat> boundedContextSettings,
+        public static AggregateActor<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) =>
             new AggregateActor<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
     }
