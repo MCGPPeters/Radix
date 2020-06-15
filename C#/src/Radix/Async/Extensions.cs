@@ -45,6 +45,31 @@ namespace Radix.Async
                 ? fallback()
                 : Task.FromResult(t.Result)).Unwrap();
 
+        /// <summary>
+        ///     Filter tasks where the filter applies to its outcome.
+        ///     Tasks of which the outcomes do not pass the filter are canceled
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="predicate"></param>
+        /// <returns>The filtered task or the canceled task</returns>
+        public static async Task<T> Where<T>(this Task<T> source
+            , Func<T, bool> predicate)
+        {
+            T t = await source;
+            if (!predicate(t))
+                return await Task.FromCanceled<T>(CancellationToken.None);
+            return t;
+        }
+
+        /// <summary>
+        ///     Only pass through tasks when the filter applies to any exception in the aggregate exception
+        ///     Tasks of which the outcomes do not pass the filter are canceled
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="f"></param>
+        /// <param name="exceptionFilter"></param>
+        /// <returns></returns>
         public static Func<Task<T>> Where<T>(this Func<Task<T>> f
             , Func<Exception, bool> exceptionFilter) => () =>
             f().ContinueWith(
@@ -53,15 +78,15 @@ namespace Radix.Async
                     switch (t.Status)
                     {
                         case TaskStatus.Faulted:
-                        {
-                            bool? x = t.Exception?.InnerExceptions.Any(exceptionFilter);
-                            if (x is object && x == true)
                             {
-                                return Task.FromResult(t.Result);
-                            }
+                                bool? x = t.Exception?.InnerExceptions.Any(exceptionFilter);
+                                if (x is object && x == true)
+                                {
+                                    return Task.FromResult(t.Result);
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case TaskStatus.Created:
                             break;
                         case TaskStatus.WaitingForActivation:
@@ -80,10 +105,10 @@ namespace Radix.Async
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    return Task.FromCanceled<T>(new CancellationToken(true));
+                    return Task.FromCanceled<T>(CancellationToken.None);
 
                 }).Unwrap();
-        
+
 
 
         /// <summary>
