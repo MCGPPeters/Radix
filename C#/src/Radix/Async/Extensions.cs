@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using SqlStreamStore.Imports.AsyncEx.Nito.AsyncEx.Tasks;
 
 namespace Radix.Async
 {
@@ -42,6 +44,47 @@ namespace Radix.Async
             t => t.Status == TaskStatus.Faulted
                 ? fallback()
                 : Task.FromResult(t.Result)).Unwrap();
+
+        public static Func<Task<T>> Where<T>(this Func<Task<T>> f
+            , Func<Exception, bool> exceptionFilter) => () =>
+            f().ContinueWith(
+                t =>
+                {
+                    switch (t.Status)
+                    {
+                        case TaskStatus.Faulted:
+                        {
+                            bool? x = t.Exception?.InnerExceptions.Any(exceptionFilter);
+                            if (x is object && x == true)
+                            {
+                                return Task.FromResult(t.Result);
+                            }
+
+                            break;
+                        }
+                        case TaskStatus.Created:
+                            break;
+                        case TaskStatus.WaitingForActivation:
+                            break;
+                        case TaskStatus.WaitingToRun:
+                            break;
+                        case TaskStatus.Running:
+                            break;
+                        case TaskStatus.WaitingForChildrenToComplete:
+                            break;
+                        case TaskStatus.RanToCompletion:
+                            break;
+                        case TaskStatus.Canceled:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    return Task.FromCanceled<T>(new CancellationToken(true));
+
+                }).Unwrap();
+        
+
 
         /// <summary>
         ///     Retry with delays as long as the task is in a faulted state.
