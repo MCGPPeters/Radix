@@ -3,7 +3,7 @@ using System;
 namespace Radix
 {
     /// <summary>
-    /// Represent an aggregate root which can accept commands to process
+    ///     Represent an aggregate root which can accept commands to process
     /// </summary>
     /// <typeparam name="TCommand">The type of command the aggregate can accept</typeparam>
     /// <typeparam name="TEvent">The type of events the aggregate can produce</typeparam>
@@ -11,7 +11,6 @@ namespace Radix
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="address"></param>
         /// <param name="accept"></param>

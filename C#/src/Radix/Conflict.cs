@@ -4,6 +4,18 @@ namespace Radix
 {
     public class Conflict<TCommand, TEvent>
     {
+
+        public Conflict(TCommand command, TEvent @event, string reason)
+        {
+            Command = command;
+            Event = @event;
+            Reason = reason;
+        }
+
+        private TCommand Command { get; }
+        private TEvent Event { get; }
+        public string Reason { get; }
+
         public bool Equals(Conflict<TCommand, TEvent> other) => EqualityComparer<TCommand>.Default.Equals(Command, other.Command) &&
                                                                 EqualityComparer<TEvent>.Default.Equals(Event, other.Event) &&
                                                                 string.Equals(Reason, other.Reason);
@@ -24,16 +36,5 @@ namespace Radix
         public static bool operator ==(Conflict<TCommand, TEvent> left, Conflict<TCommand, TEvent> right) => left.Equals(right);
 
         public static bool operator !=(Conflict<TCommand, TEvent> left, Conflict<TCommand, TEvent> right) => !left.Equals(right);
-
-        public Conflict(TCommand command, TEvent @event, string reason)
-        {
-            Command = command;
-            Event = @event;
-            Reason = reason;
-        }
-
-        private TCommand Command { get; }
-        private TEvent Event { get; }
-        public string Reason { get; }
     }
 }

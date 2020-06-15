@@ -67,14 +67,19 @@ namespace Radix.Blazor.Inventory.Wasm
                     }
 
                     return None<InventoryItemEvent>();
-                }, input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
+                },
+                input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
 
             ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
                 new TransientEventDescriptor<Json>(new EventType(@event.GetType()), serialize(@event), serializeMetaData(eventMetaData), messageId);
             BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
                 new BoundedContextSettings<InventoryItemEvent, Json>(
-                    sqlStreamStore.AppendEvents,getEventsSince,
-                    new GarbageCollectionSettings(), fromEventDescriptor, toTransientEventDescriptor, input => new Json(JsonSerializer.Serialize(input)),
+                    sqlStreamStore.AppendEvents,
+                    getEventsSince,
+                    new GarbageCollectionSettings(),
+                    fromEventDescriptor,
+                    toTransientEventDescriptor,
+                    input => new Json(JsonSerializer.Serialize(input)),
                     input => new Json(JsonSerializer.Serialize(input)));
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =
                 new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);

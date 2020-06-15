@@ -1,15 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Radix.Monoid;
-using Radix.Option;
 using Radix.Result;
 using Radix.Tests.Models;
 using Xunit;
 using static Radix.Result.Extensions;
-using static Radix.Option.Extensions;
 
 namespace Radix.Tests
 {
@@ -22,11 +18,13 @@ namespace Radix.Tests
         public async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, Version version, string streamIdentifier)
         {
             yield return new EventDescriptor<InventoryItemEvent>(
-                new ItemsCheckedInToInventory { Amount = 19 },
-                2L, new EventType(typeof(ItemsCheckedInToInventory).FullName));
+                new ItemsCheckedInToInventory {Amount = 19},
+                2L,
+                new EventType(typeof(ItemsCheckedInToInventory).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemRenamed { Name = "Product 2" },
-                3L, new EventType(typeof(InventoryItemRenamed).FullName));
+                new InventoryItemRenamed {Name = "Product 2"},
+                3L,
+                new EventType(typeof(InventoryItemRenamed).FullName));
         }
 
         //[Fact(

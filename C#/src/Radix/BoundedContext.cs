@@ -66,7 +66,7 @@ namespace Radix
             where TState : new() => Get(new Address(), decide, update);
 
         public Aggregate<TCommand, TEvent> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new() 
+            where TState : new()
         {
             AggregateActor<TState, TCommand, TEvent, TFormat> actor = AggregateActor<TState, TCommand, TEvent, TFormat>
                 .Create(address, _boundedContextSettings, decide, update);

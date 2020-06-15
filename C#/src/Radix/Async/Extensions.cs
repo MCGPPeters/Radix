@@ -10,13 +10,6 @@ namespace Radix.Async
         public static async Task<TResult> Select<T, TResult>
             (this Task<T> task, Func<T, TResult> f) => f(await task);
 
-        public static Task<TResult> Map<T, TResult>
-            (this Task<T> task, Func<AggregateException, TResult> faulted, Func<T, TResult> completed) => task.ContinueWith(
-            t =>
-                t.Status == TaskStatus.Faulted
-                    ? faulted(t.Exception)
-                    : completed(t.Result));
-
         public static async Task<TResult> Bind<T, TResult>
             (this Task<T> task, Func<T, Task<TResult>> f) => await f(await task);
 
@@ -112,7 +105,7 @@ namespace Radix.Async
                 }).Unwrap();
 
         /// <summary>
-        /// Convenience overload for <see cref="Where{T}(System.Threading.Tasks.Task{T},System.Func{T,bool})"/>
+        ///     Convenience overload for <see cref="Where{T}(System.Threading.Tasks.Task{T},System.Func{T,bool})" />
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
@@ -120,12 +113,11 @@ namespace Radix.Async
         /// <returns></returns>
         public static async Task<T> Where<T>(this Task<T> t
             , Func<Exception, bool> exceptionFilter) =>
-                await Where(() => t, exceptionFilter)();
-        
+            await Where(() => t, exceptionFilter)();
 
 
         /// <summary>
-        ///     Retry with delays as long as the task is in a faulted state.
+        ///     Retry and operation that is likely to succeed with delays as long as the task is in a faulted state.
         ///     The number of intervals also indicate the number of retries
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -144,7 +136,7 @@ namespace Radix.Async
                 });
 
         /// <summary>
-        /// Convenience overload for <see cref="Retry{T}(System.Func{System.Threading.Tasks.Task{T}},System.TimeSpan[])"/>
+        ///     Convenience overload for <see cref="Retry{T}(System.Func{System.Threading.Tasks.Task{T}},System.TimeSpan[])" />
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
@@ -152,7 +144,6 @@ namespace Radix.Async
         /// <returns></returns>
         public static Task<T> Retry<T>
             (this Task<T> t, params TimeSpan[] intervals) =>
-                Retry(() => t);
-        
+            Retry(() => t);
     }
 }

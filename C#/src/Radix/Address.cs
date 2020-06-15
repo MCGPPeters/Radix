@@ -4,7 +4,9 @@ namespace Radix
 {
     public class Address : Value<Guid>
     {
-        public Address() : this (Guid.NewGuid()){}
+        public Address() : this(Guid.NewGuid())
+        {
+        }
 
         public Address(Guid guid) => Value = guid;
 

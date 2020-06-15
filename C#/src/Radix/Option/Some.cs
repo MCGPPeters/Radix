@@ -3,9 +3,10 @@ namespace Radix.Option
 
     public class Some<T> : Option<T>
     {
-        internal T Value { get; }
 
         internal Some(T value) => Value = value;
+
+        internal T Value { get; }
 
         /// <summary>
         ///     Type deconstructor, don't remove even though no references are obvious
