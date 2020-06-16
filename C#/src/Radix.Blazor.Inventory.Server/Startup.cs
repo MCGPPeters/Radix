@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Blazor.Inventory.Server.Pages;
+using Radix.Inventory.Domain;
 using Radix.Option;
-using Radix.Tests.Models;
 using Radix.Validated;
 using SqlStreamStore;
 using static Radix.Option.Extensions;
@@ -20,6 +21,8 @@ namespace Radix.Blazor.Inventory.Server
         public Startup(IConfiguration configuration) => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
+
+        public static List<(Address address, string Name)> InventoryItems { get; set; } = new List<(Address address, string Name)>();
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -56,7 +59,7 @@ namespace Radix.Blazor.Inventory.Server
             };
 
 
-            IndexViewModel indexViewModel = new IndexViewModel();
+            IndexViewModel indexViewModel = new IndexViewModel(InventoryItems);
             streamStore.SubscribeToAll(
                 0,
                 async (subscription, message, token) =>
@@ -95,8 +98,6 @@ namespace Radix.Blazor.Inventory.Server
                                 return Unit.Instance;
                             });
                 });
-
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (command, descriptor) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
 
             ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
                 new TransientEventDescriptor<Json>(new EventType(@event.GetType()), serialize(@event), serializeMetaData(eventMetaData), messageId);
@@ -180,12 +181,14 @@ namespace Radix.Blazor.Inventory.Server
 
             AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();
             CounterViewModel counterViewModel = new CounterViewModel();
+            DeactivateInventoryItemViewModel deactivateInventoryItemViewModel = new DeactivateInventoryItemViewModel(InventoryItems);
 
             services.AddSingleton(boundedContext);
             services.AddSingleton(counterBoundedContext);
             services.AddSingleton(indexViewModel);
             services.AddSingleton(addInventoryItemViewModel);
             services.AddSingleton(counterViewModel);
+            services.AddSingleton(deactivateInventoryItemViewModel);
 
         }
 

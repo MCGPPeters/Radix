@@ -1,13 +1,14 @@
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
-    public class ItemsRemovedFromInventory : InventoryItemEvent
+    public class ItemsCheckedInToInventory : InventoryItemEvent
     {
+
         public int Amount { get; set; }
 
         public long Id { get; set; }
         public Address Address { get; set; }
 
-        protected bool Equals(ItemsRemovedFromInventory other) => Amount == other.Amount;
+        protected bool Equals(ItemsCheckedInToInventory other) => Amount == other.Amount;
 
         public override bool Equals(object obj)
         {
@@ -21,7 +22,7 @@ namespace Radix.Tests.Models
                 return true;
             }
 
-            return obj.GetType() == GetType() && Equals((ItemsRemovedFromInventory)obj);
+            return obj.GetType() == GetType() && Equals((ItemsCheckedInToInventory)obj);
         }
 
         public override int GetHashCode() => Amount;

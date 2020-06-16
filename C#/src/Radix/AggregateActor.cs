@@ -11,6 +11,7 @@ namespace Radix
 {
     /// <summary>
     ///     Accepts command on behalf of an aggregate instance and maintains its state
+    ///     Ensures the state is not accessible form the outside world
     /// </summary>
     /// <typeparam name="TState"></typeparam>
     /// <typeparam name="TCommand"></typeparam>
@@ -30,12 +31,6 @@ namespace Radix
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="boundedContextSettings"></param>
-        /// <param name="decide"></param>
-        /// <param name="update"></param>
         private AggregateActor(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {

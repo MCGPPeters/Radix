@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor", "src\Radix.B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Tests", "tests\Radix.Blazor.Tests\Radix.Blazor.Tests.csproj", "{A0FBFB55-5518-4071-B8C3-651FA4E36632}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests.Models", "src\Radix.Tests.Models\Radix.Tests.Models.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Domain", "src\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Wasm", "src\Radix.Blazor.Inventory.Wasm\Radix.Blazor.Inventory.Wasm.csproj", "{282D3139-1308-4440-840D-B8DD716489B9}"
 EndProject

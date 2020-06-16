@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Radix.Monoid;
 using Radix.Result;
-using Radix.Tests.Models;
+using Radix.Inventory.Domain;
 using Xunit;
 using static Radix.Result.Extensions;
 

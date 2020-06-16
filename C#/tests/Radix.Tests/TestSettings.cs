@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using Radix.Tests.Models;
+using Radix.Inventory.Domain;
 using static Radix.Option.Extensions;
 
 namespace Radix.Tests

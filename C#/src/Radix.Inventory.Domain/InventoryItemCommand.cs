@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
     public interface InventoryItemCommand : IComparable, IComparable<InventoryItemCommand>, IEquatable<InventoryItemCommand>
     {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Option;
-using Radix.Tests.Models;
+using Radix.Inventory.Domain;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Blazor.Html.Components;

@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Tests.Models;
+using Radix.Inventory.Domain;
 using static Radix.Blazor.Html.Elements;
 using static Radix.Blazor.Html.Attributes;
 using static Radix.Blazor.Html.Components;
@@ -55,17 +55,23 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
             return concat(
                 navLinkMatchAll(new[] {@class("btn btn-primary"), href("Add")}, text("Add")),
-                h1(Enumerable.Empty<IAttribute>(), text("All items")),
-                ul(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
+                h1(NoAttributes(), text("All items")),
+                table(Enumerable.Empty<IAttribute>(), inventoryItemNodes)
             );
         }
 
+        private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
+
         private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
             inventoryItem =>
-                li(
+                tr(
                     Enumerable.Empty<IAttribute>(),
+                    td(NoAttributes(), 
                     navLinkMatchAll(
                         new[] {href($"/Details/{inventoryItem.address}")},
-                        text(inventoryItem.name)))).ToArray();
+                        text(inventoryItem.name))),
+                    td(NoAttributes(), navLinkMatchAll(
+                        new[] { href($"/Deactivate/{inventoryItem.address}") },
+                        text("Deactivate"))))).ToArray();
     }
 }
