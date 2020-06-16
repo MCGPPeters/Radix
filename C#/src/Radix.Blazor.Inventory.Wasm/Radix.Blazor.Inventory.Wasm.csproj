@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Radix.Blazor.Inventory.Interface.Logic\Radix.Blazor.Inventory.Interface.Logic.csproj" />
-    <ProjectReference Include="..\Radix.Blazor\Radix.Blazor.csproj" />
+    <ProjectReference Include="..\Radix.Components\Radix.Components.csproj" />
     <ProjectReference Include="..\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj" />
     <ProjectReference Include="..\Radix\Radix.csproj" />
   </ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Radix.Blazor
+namespace Radix.Components
 {
     public interface ViewModel
     {

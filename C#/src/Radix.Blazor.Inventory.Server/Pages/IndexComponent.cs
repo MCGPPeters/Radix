@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
-using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Interface.Logic;
+using Radix.Components;
+using Radix.Components.Html;
 using Radix.Inventory.Domain;
-using static Radix.Blazor.Html.Elements;
-using static Radix.Blazor.Html.Attributes;
-using static Radix.Blazor.Html.Components;
+using static Radix.Components.Html.Elements;
+using static Radix.Components.Html.Attributes;
+using static Radix.Components.Html.Components;
 
 namespace Radix.Blazor.Inventory.Server.Pages
 {
@@ -29,8 +30,6 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 state.InventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
                                 break;
                             case InventoryItemDeactivated _:
-                                (Address address, string Name) itemToDeactivate = state.InventoryItems.Find(item => item.address.Equals(@event.Address));
-                                state.InventoryItems.Remove(itemToDeactivate);
                                 break;
                             case InventoryItemRenamed inventoryItemRenamed:
                                 state.InventoryItems = state.InventoryItems

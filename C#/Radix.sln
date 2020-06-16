@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix", "src\Radix\Radix.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests", "tests\Radix.Tests\Radix.Tests.csproj", "{684F9300-593A-4008-9B37-221896608904}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor", "src\Radix.Blazor\Radix.Blazor.csproj", "{8DB81B4C-FE0E-48FD-9CD4-E98FDD8787CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Components", "src\Radix.Components\Radix.Components.csproj", "{8DB81B4C-FE0E-48FD-9CD4-E98FDD8787CF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Tests", "tests\Radix.Blazor.Tests\Radix.Blazor.Tests.csproj", "{A0FBFB55-5518-4071-B8C3-651FA4E36632}"
 EndProject

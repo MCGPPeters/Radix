@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public class Element : Node
     {

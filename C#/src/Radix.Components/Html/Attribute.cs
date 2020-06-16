@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public class Attribute : IAttribute
     {

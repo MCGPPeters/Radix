@@ -1,4 +1,4 @@
-﻿namespace Radix.Blazor
+﻿namespace Radix.Components
 {
     public readonly struct Name : Value<string>
     {

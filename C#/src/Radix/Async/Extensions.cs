@@ -51,7 +51,7 @@ namespace Radix.Async
             T t = await source;
             if (!predicate(t))
             {
-                return await Task.FromCanceled<T>(CancellationToken.None);
+                return await Task.FromCanceled<T>(new CancellationToken(true));
             }
 
             return t;
@@ -100,7 +100,7 @@ namespace Radix.Async
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    return Task.FromCanceled<T>(CancellationToken.None);
+                    return Task.FromCanceled<T>(new CancellationToken(true));
 
                 }).Unwrap();
 

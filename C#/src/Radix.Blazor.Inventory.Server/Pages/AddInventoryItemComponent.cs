@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
-using Radix.Blazor.Html;
 using Radix.Blazor.Inventory.Interface.Logic;
+using Radix.Components;
+using Radix.Components.Html;
 using Radix.Option;
 using Radix.Inventory.Domain;
-using static Radix.Blazor.Html.Elements;
-using static Radix.Blazor.Html.Attributes;
-using static Radix.Blazor.Html.Components;
+using static Radix.Components.Html.Elements;
+using static Radix.Components.Html.Attributes;
+using static Radix.Components.Html.Components;
 
 namespace Radix.Blazor.Inventory.Server.Pages
 {

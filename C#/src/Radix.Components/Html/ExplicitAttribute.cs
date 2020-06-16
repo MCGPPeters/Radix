@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Components.Rendering;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public class ExplicitAttribute : IAttribute
     {
