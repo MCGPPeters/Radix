@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
 
     public static class on

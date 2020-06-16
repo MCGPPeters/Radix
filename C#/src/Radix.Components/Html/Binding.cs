@@ -2,7 +2,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public static class bind
     {

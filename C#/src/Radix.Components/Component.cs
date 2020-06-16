@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
-using Radix.Blazor.Html;
+using Radix.Components.Html;
 using Radix.Monoid;
 using Radix.Result;
 using static Radix.Option.Extensions;
 
-namespace Radix.Blazor
+namespace Radix.Components
 {
     public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>

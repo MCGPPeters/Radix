@@ -1,4 +1,4 @@
-﻿namespace Radix.Blazor.Html
+﻿namespace Radix.Components.Html
 {
     public delegate IAttribute attribute(params string[] values);
 

@@ -1,6 +1,6 @@
-﻿using Radix.Blazor.Html;
+﻿using Radix.Components.Html;
 
-namespace Radix.Blazor
+namespace Radix.Components
 {
     public class Text : Node, Value<string>
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public class Concat : Node, IEnumerable<Node>
     {

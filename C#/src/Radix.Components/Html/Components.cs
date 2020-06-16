@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public static class Components
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Radix.Blazor.Html
+namespace Radix.Components.Html
 {
     public delegate Node element(IEnumerable<IAttribute> attributes, params Node[] children);
 

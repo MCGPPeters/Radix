@@ -2,9 +2,9 @@
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Radix.Blazor.Html;
+using Radix.Components.Html;
 
-namespace Radix.Blazor
+namespace Radix.Components
 {
     public static class Rendering
     {
