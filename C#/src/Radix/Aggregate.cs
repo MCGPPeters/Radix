@@ -11,17 +11,24 @@ namespace Radix
         where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         /// <summary>
+        /// An aggregate instance should only be created by the runtime
         /// </summary>
         /// <param name="address"></param>
         /// <param name="accept"></param>
-        public Aggregate(Address address, Accept<TCommand, TEvent> accept)
+        internal Aggregate(Address address, Accept<TCommand, TEvent> accept)
         {
             Address = address;
             Accept = accept;
-
         }
 
+        /// <summary>
+        /// The address of the aggregate
+        /// </summary>
         public Address Address { get; }
+
+        /// <summary>
+        /// Accepts commands and returns either the resulting events or the errors that occured
+        /// </summary>
         public Accept<TCommand, TEvent> Accept { get; }
     }
 }

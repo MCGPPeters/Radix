@@ -1,18 +1,18 @@
 using System;
 using static Radix.Validated.Extensions;
 
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
-    public class RemoveItemsFromInventory : InventoryItemCommand
+    public class CheckInItemsToInventory : InventoryItemCommand
     {
 
-        private RemoveItemsFromInventory(int amount) => Amount = amount;
+        public CheckInItemsToInventory(int amount) => Amount = amount;
 
         public int Amount { get; }
 
 
         private static Func<int, InventoryItemCommand> New => amount =>
-            new RemoveItemsFromInventory(amount);
+            new CheckInItemsToInventory(amount);
 
         public int CompareTo(object obj) => throw new NotImplementedException();
 
@@ -26,5 +26,4 @@ namespace Radix.Tests.Models
                     ? Valid(amount)
                     : Invalid<int>(""));
     }
-
 }

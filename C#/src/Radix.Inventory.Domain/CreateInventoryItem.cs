@@ -2,7 +2,7 @@ using System;
 using Radix.Validated;
 using static Radix.Validated.Extensions;
 
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
     public class CreateInventoryItem : InventoryItemCommand
     {

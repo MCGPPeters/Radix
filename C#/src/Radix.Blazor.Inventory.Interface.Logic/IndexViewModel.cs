@@ -7,20 +7,16 @@ namespace Radix.Blazor.Inventory.Interface.Logic
 
     public class IndexViewModel : IEquatable<IndexViewModel>, ViewModel
     {
+        public IndexViewModel(List<(Address address, string Name)> inventoryItems) => InventoryItems = inventoryItems;
+
         /// <summary>
         ///     This is just an example.. in real life this would be a database or something
         /// </summary>
-        private static readonly List<(Address address, string Name)> _inventoryItems = new List<(Address, string)>();
+        public List<(Address address, string Name)> InventoryItems { get; set; }
 
-
-        public List<(Address address, string name)> InventoryItems
-        {
-            get => _inventoryItems;
-            set => throw new NotImplementedException();
-        }
 
         public bool Equals(IndexViewModel other) => other != null && InventoryItems.SequenceEqual(other.InventoryItems);
 
-        public IEnumerable<Error> Errors { get; set; }
+        public IEnumerable<Error> Errors { get; set; } = new List<Error>();
     }
 }

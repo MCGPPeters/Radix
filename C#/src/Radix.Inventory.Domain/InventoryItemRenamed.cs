@@ -1,6 +1,6 @@
 using System;
 
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
     public class InventoryItemRenamed : InventoryItemEvent
     {

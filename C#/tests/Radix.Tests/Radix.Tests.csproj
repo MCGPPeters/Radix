@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Radix.Tests.Models\Radix.Tests.Models.csproj" />
+    <ProjectReference Include="..\..\src\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj" />
     <ProjectReference Include="..\..\src\Radix\Radix.csproj" />
   </ItemGroup>
 

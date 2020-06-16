@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Tests.Models;
+using Radix.Inventory.Domain;
 using SqlStreamStore;
 using static Radix.Option.Extensions;
 
@@ -12,6 +13,8 @@ namespace Radix.Blazor.Inventory.Wasm
 {
     public class Program
     {
+        public static List<(Address address, string Name)> InventoryItems { get; set; } = new List<(Address address, string Name)>();
+
         public static async Task Main(string[] args)
         {
             WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -84,7 +87,8 @@ namespace Radix.Blazor.Inventory.Wasm
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =
                 new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
 
-            IndexViewModel indexViewModel = new IndexViewModel();
+
+        IndexViewModel indexViewModel = new IndexViewModel(InventoryItems);
             AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();
 
 

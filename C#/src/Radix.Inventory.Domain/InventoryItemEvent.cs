@@ -1,4 +1,4 @@
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
     public abstract class InventoryItemEvent : Event
     {

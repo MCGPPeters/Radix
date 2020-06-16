@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Radix.Result.Extensions;
 
-namespace Radix.Tests.Models
+namespace Radix.Inventory.Domain
 {
     public class InventoryItem : IEquatable<InventoryItem>
     {
@@ -16,7 +16,7 @@ namespace Radix.Tests.Models
                     return @event switch
                     {
                         InventoryItemCreated inventoryItemCreated => new InventoryItem(inventoryItemCreated.Name, state.Activated, state.Count),
-                        InventoryItemDeactivated _ => new InventoryItem(state.Name, false, state.Count),
+                        InventoryItemDeactivated inventoryItemDeactivated => new InventoryItem(state.Name, false, state.Count){ReasonForDeactivation = inventoryItemDeactivated.Reason},
                         ItemsCheckedInToInventory itemsCheckedInToInventory => new InventoryItem(state.Name, state.Activated, state.Count + itemsCheckedInToInventory.Amount),
                         ItemsRemovedFromInventory itemsRemovedFromInventory => new InventoryItem(state.Name, state.Activated, state.Count - itemsRemovedFromInventory.Amount),
                         InventoryItemRenamed inventoryItemRenamed => new InventoryItem(inventoryItemRenamed.Name, state.Activated, state.Count),
@@ -25,12 +25,14 @@ namespace Radix.Tests.Models
                 });
         };
 
+        public string ReasonForDeactivation { get; set; }
+
         public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, command) =>
         {
             return command switch
             {
-                DeactivateInventoryItem _ => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated()})),
+                DeactivateInventoryItem deactivateInventoryItem => Task.FromResult(
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated{Reason = deactivateInventoryItem.Reason}})),
                 CreateInventoryItem createInventoryItem => Task.FromResult(
                     Ok<InventoryItemEvent[], CommandDecisionError>(
                         new InventoryItemEvent[]
