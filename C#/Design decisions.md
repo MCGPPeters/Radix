@@ -44,7 +44,7 @@ An event will always contain a reference to the command that caused it to happen
 
 # Authentication / Authorization
 
-Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command. The user is however to check authorization as part of the validation logic of the command.
+Is not in scope for Radix... When the runtime received a command, it assumed the issuer of the command is authorized to do so. For auditing purposes it does however require information about the identity of the issuer of a command. The intention however is to runtime as secure as possible by default. This means before a command can be accepted by the aggregate actor, it needs to be an authorized command even if that means that anyone is authorized.
 
 # Distributed architecture
 

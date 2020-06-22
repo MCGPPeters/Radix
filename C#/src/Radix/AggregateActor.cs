@@ -75,12 +75,11 @@ namespace Radix
                                     @event =>
                                     {
                                         @event.Address = address;
-                                        return _boundedContextSettings.ToTransientEventDescriptor(
-                                            new MessageId(Guid.NewGuid()),
-                                            @event,
-                                            _boundedContextSettings.Serialize,
-                                            new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId),
-                                            _boundedContextSettings.SerializeMetaData);
+                                        return new TransientEventDescriptor<TFormat>(
+                                            new EventType(@event.GetType()),
+                                            _boundedContextSettings.Serialize(@event),
+                                            _boundedContextSettings.SerializeMetaData(new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId)),
+                                            new MessageId(Guid.NewGuid()));
                                     }).ToArray();
                             ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
                                 _boundedContextSettings
