@@ -99,8 +99,6 @@ namespace Radix.Blazor.Inventory.Server
                             });
                 });
 
-            ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
-                new TransientEventDescriptor<Json>(new EventType(@event.GetType()), serialize(@event), serializeMetaData(eventMetaData), messageId);
             Serialize<InventoryItemEvent, Json> serializeEvent = input =>
             {
                 JsonSerializerOptions options = new JsonSerializerOptions {Converters = {new PolymorphicWriteOnlyJsonConverter<InventoryItemEvent>()}};
@@ -141,7 +139,6 @@ namespace Radix.Blazor.Inventory.Server
                     getEventsSince,
                     new GarbageCollectionSettings(),
                     fromEventDescriptor,
-                    toTransientEventDescriptor,
                     serializeEvent,
                     serializeMetaData);
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =
@@ -167,11 +164,6 @@ namespace Radix.Blazor.Inventory.Server
                     getCounterIncrementsEventsSince,
                     new GarbageCollectionSettings(),
                     descriptor => Some(new CounterIncremented()),
-                    (id, @event, serialize, data, serializeEventMetaData) => new TransientEventDescriptor<Json>(
-                        new EventType(@event.GetType()),
-                        serializeCounterEvent(@event),
-                        serializeEventMetaData(data),
-                        id),
                     serializeCounterEvent,
                     serializeMetaData);
 

@@ -73,22 +73,27 @@ namespace Radix.Blazor.Inventory.Wasm
                 },
                 input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
 
-            ToTransientEventDescriptor<InventoryItemEvent, Json> toTransientEventDescriptor = (messageId, @event, serialize, eventMetaData, serializeMetaData) =>
-                new TransientEventDescriptor<Json>(new EventType(@event.GetType()), serialize(@event), serializeMetaData(eventMetaData), messageId);
+            Serialize<InventoryItemEvent, Json> serializeEvent = input =>
+            {
+                JsonSerializerOptions options = new JsonSerializerOptions { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryItemEvent>() } };
+                string jsonMessage = JsonSerializer.Serialize(input, options);
+                return new Json(jsonMessage);
+            };
+            Serialize<EventMetaData, Json> serializeMetaData = json => new Json(JsonSerializer.Serialize(json));
+            
             BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
                 new BoundedContextSettings<InventoryItemEvent, Json>(
                     sqlStreamStore.AppendEvents,
                     getEventsSince,
                     new GarbageCollectionSettings(),
                     fromEventDescriptor,
-                    toTransientEventDescriptor,
-                    input => new Json(JsonSerializer.Serialize(input)),
-                    input => new Json(JsonSerializer.Serialize(input)));
+                    serializeEvent,
+                    serializeMetaData);
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =
                 new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
 
 
-        IndexViewModel indexViewModel = new IndexViewModel(InventoryItems);
+            IndexViewModel indexViewModel = new IndexViewModel(InventoryItems);
             AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();
 
 

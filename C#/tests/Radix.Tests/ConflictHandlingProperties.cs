@@ -86,7 +86,6 @@ namespace Radix.Tests
                     _testSettings.GetEventsSince,
                     _testSettings.CollectionSettings,
                     _testSettings.Descriptor,
-                    _testSettings.ToTransientEventDescriptor,
                     _testSettings.SerializeEvent,
                     _testSettings.SerializeMetaData
                 ));
