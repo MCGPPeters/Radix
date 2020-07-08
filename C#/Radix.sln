@@ -11,17 +11,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Components", "src\Rad
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Tests", "tests\Radix.Blazor.Tests\Radix.Blazor.Tests.csproj", "{A0FBFB55-5518-4071-B8C3-651FA4E36632}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Domain", "src\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Domain", "src\Samples\Inventory\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Server", "src\Radix.Blazor.Inventory.Server\Radix.Blazor.Inventory.Server.csproj", "{BD27E966-0A2F-4FA6-B0D1-46177B34087E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Server", "src\Samples\Inventory\Radix.Inventory.Server\Radix.Inventory.Server.csproj", "{BD27E966-0A2F-4FA6-B0D1-46177B34087E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Blazor.Inventory.Interface.Logic", "src\Radix.Blazor.Inventory.Interface.Logic\Radix.Blazor.Inventory.Interface.Logic.csproj", "{C30E2BB1-098F-4F4A-BDD4-B83145D2443F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Interface.Logic", "src\Samples\Inventory\Radix.Inventory.Interface.Logic\Radix.Inventory.Interface.Logic.csproj", "{C30E2BB1-098F-4F4A-BDD4-B83145D2443F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Chat.Server", "src\Radix.Chat.Server\Radix.Chat.Server.csproj", "{0205B4B2-87A7-4C12-AC12-C0343C07816F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Vestigo.Server", "src\Samples\Chat\Radix.Vestigo.Server\Radix.Vestigo.Server.csproj", "{0205B4B2-87A7-4C12-AC12-C0343C07816F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Chat.Client", "src\Radix.Chat.Client\Radix.Chat.Client.csproj", "{0CBBE72A-9FAB-41A0-862E-1DAFB64285C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Vestigo.Client", "src\Samples\Chat\Radix.Vestigo.Client\Radix.Vestigo.Client.csproj", "{0CBBE72A-9FAB-41A0-862E-1DAFB64285C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Chat.Shared", "src\Radix.Chat.Shared\Radix.Chat.Shared.csproj", "{74FD9891-6632-4BEA-A7BA-FC63040C27B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Vestigo.Shared", "src\Samples\Chat\Radix.Vestigo.Shared\Radix.Vestigo.Shared.csproj", "{74FD9891-6632-4BEA-A7BA-FC63040C27B3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{0785E614-5D3E-4C4E-82F7-9112B0BC662F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vestigo", "Vestigo", "{F3789ED4-0882-4895-B1A5-5B19EBF84408}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{8D7BEBDC-917D-45F9-95AE-6763EF63B3C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,5 +165,15 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6065D135-A7A4-4DCA-B7F1-3AA667613474}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F3789ED4-0882-4895-B1A5-5B19EBF84408} = {0785E614-5D3E-4C4E-82F7-9112B0BC662F}
+		{0CBBE72A-9FAB-41A0-862E-1DAFB64285C2} = {F3789ED4-0882-4895-B1A5-5B19EBF84408}
+		{0205B4B2-87A7-4C12-AC12-C0343C07816F} = {F3789ED4-0882-4895-B1A5-5B19EBF84408}
+		{74FD9891-6632-4BEA-A7BA-FC63040C27B3} = {F3789ED4-0882-4895-B1A5-5B19EBF84408}
+		{8D7BEBDC-917D-45F9-95AE-6763EF63B3C3} = {0785E614-5D3E-4C4E-82F7-9112B0BC662F}
+		{C30E2BB1-098F-4F4A-BDD4-B83145D2443F} = {8D7BEBDC-917D-45F9-95AE-6763EF63B3C3}
+		{BD27E966-0A2F-4FA6-B0D1-46177B34087E} = {8D7BEBDC-917D-45F9-95AE-6763EF63B3C3}
+		{CB833BC8-00F9-4A17-B905-7F56B29A8800} = {8D7BEBDC-917D-45F9-95AE-6763EF63B3C3}
 	EndGlobalSection
 EndGlobal
