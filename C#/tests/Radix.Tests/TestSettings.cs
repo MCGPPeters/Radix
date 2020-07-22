@@ -50,15 +50,15 @@ namespace Radix.Tests
 #pragma warning restore 1998
         {
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemCreated {Name = "Product 1", Activated = true, Count = 1},
+                new InventoryItemCreated(1, "Product 1", true, 1),
                 1L,
                 new EventType(typeof(InventoryItemCreated).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new ItemsCheckedInToInventory {Amount = 19},
+                new ItemsCheckedInToInventory(19, 1),
                 2L,
                 new EventType(typeof(ItemsCheckedInToInventory).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemRenamed {Name = "Product 2"},
+                new InventoryItemRenamed("Product 2"),
                 3L,
                 new EventType(typeof(InventoryItemRenamed).FullName));
         }

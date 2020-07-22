@@ -1,28 +1,24 @@
 namespace Radix.Inventory.Domain
 {
-    public class InventoryItemCreated : InventoryItemEvent
+    public record InventoryItemCreated : InventoryItemEvent
     {
-        public string Name { get; set; }
-        public bool Activated { get; set; }
-        public int Count { get; set; }
-
-        protected bool Equals(InventoryItemCreated other) => string.Equals(Name, other.Name);
-
-        public override bool Equals(object obj)
+        public InventoryItemCreated()
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((InventoryItemCreated)obj);
         }
 
-        public override int GetHashCode() => Name != null ? Name.GetHashCode() : 0;
+        public InventoryItemCreated(long Id, string Name, bool Activated, int Count)
+        {
+            this.Id = Id;
+            this.Name = Name;
+            this.Activated = Activated;
+            this.Count = Count;
+        }
+
+        public long Id { get; init; }
+        public string Name { get; init; }
+        public int Count { get; init; }
+        public bool Activated { get; init; }
+
     }
 }

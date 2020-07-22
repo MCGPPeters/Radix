@@ -17,12 +17,12 @@ namespace Radix.Blazor.Inventory.Server.Pages
     public class DeactivateInventoryItemComponent : Component<DeactivateInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         [Parameter]
-        public Guid Address { get; set; }
+        public long Id { get; set; }
 
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            ViewModel.InventoryItemName = ViewModel.InventoryItems.FirstOrDefault(tuple => tuple.address.Value == Address).Name;
+            ViewModel.InventoryItemName = ViewModel.InventoryItems.FirstOrDefault(tuple => tuple.id == Id).Name;
         }
 
         protected override Update<DeactivateInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) => state;
@@ -100,9 +100,9 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
     public class DeactivateInventoryItemViewModel : ViewModel
     {
-        public List<(Address address, string Name)> InventoryItems { get; }
+        public List<(long id, string Name)> InventoryItems { get; }
 
-        public DeactivateInventoryItemViewModel(List<(Address address, string Name)> inventoryItems) => InventoryItems = inventoryItems;
+        public DeactivateInventoryItemViewModel(List<(long id, string Name)> inventoryItems) => InventoryItems = inventoryItems;
 
         public IEnumerable<Radix.Error> Errors { get; set; } = new List<Radix.Error>();
         public string? InventoryItemName { get; set; }

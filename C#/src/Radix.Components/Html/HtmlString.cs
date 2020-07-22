@@ -1,7 +1,4 @@
 ﻿namespace Radix.Components.Html
 {
-    public struct HtmlString : Node, Value<string>
-    {
-        public string Value { get; set; }
-    }
+    public record HtmlString(string Value) :  Alias<string>(Value), Node;
 }

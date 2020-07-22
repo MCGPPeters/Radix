@@ -15,7 +15,7 @@ namespace Radix.Components
                 case Empty _:
                     return sequence;
                 case Text text:
-                    builder.AddContent(sequence, text.Value);
+                    builder.AddContent(sequence, text);
                     return sequence + 1;
                 case HtmlString html:
                     builder.AddMarkupContent(sequence, html.Value);

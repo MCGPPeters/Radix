@@ -1,7 +1,7 @@
 ﻿namespace Radix.Blazor.Inventory.Server.Pages
 {
-    public class CounterIncremented : Event
+    public record CounterIncremented : Event
     {
-        public Address Address { get; set; }
+        public Address? Address { get; init; }
     }
 }

@@ -1,15 +1,7 @@
 ﻿namespace Radix.Components
 {
-    public readonly struct Name : Value<string>
+    public record Name(string value) : Alias<string>(value)
     {
-        public Name(string v) : this() => Value = v;
-
-        public string Value { get; }
-
-        public static implicit operator string(Name name) => name.Value;
-
-        public static implicit operator Name(string name) => new Name(name);
+        public static implicit operator Name(string value) => new Name(value);
     }
-
-
 }
