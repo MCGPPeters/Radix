@@ -74,7 +74,6 @@ namespace Radix
                                 eventDescriptors = events.Select(
                                     @event =>
                                     {
-                                        @event.Address = address;
                                         return new TransientEventDescriptor<TFormat>(
                                             new EventType(@event.GetType()),
                                             _boundedContextSettings.Serialize(@event),
@@ -91,11 +90,6 @@ namespace Radix
                                 case Ok<ExistingVersion, AppendEventsError>(var version):
                                     // the events have been saved to the stream successfully. Update the state
                                     _state = update(_state, events);
-
-                                    foreach (TEvent @event in events)
-                                    {
-                                        @event.Address = address;
-                                    }
 
                                     expectedVersion = version;
 

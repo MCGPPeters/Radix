@@ -27,14 +27,14 @@ namespace Radix.Blazor.Inventory.Server.Pages
                         switch (@event)
                         {
                             case InventoryItemCreated inventoryItemCreated:
-                                state.InventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
+                                state.InventoryItems.Add((inventoryItemCreated.Id, inventoryItemCreated.Name));
                                 break;
                             case InventoryItemDeactivated _:
                                 break;
                             case InventoryItemRenamed inventoryItemRenamed:
                                 state.InventoryItems = state.InventoryItems
-                                    .Select(_ => (@event.Address, inventoryItemRenamed.Name))
-                                    .Where(tuple => tuple.Address.Equals(@event.Address)).ToList();
+                                    .Select(_ => (inventoryItemRenamed.Id, inventoryItemRenamed.Name))
+                                    .Where(tuple => tuple.Id.Equals(inventoryItemRenamed.Id)).ToList();
                                 break;
                             case ItemsCheckedInToInventory _:
                                 break;
@@ -61,16 +61,16 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
-        private static Node[] GetInventoryItemNodes(IEnumerable<(Address address, string name)> inventoryItems) => inventoryItems.Select(
+        private static Node[] GetInventoryItemNodes(IEnumerable<(long id, string name)> inventoryItems) => inventoryItems.Select(
             inventoryItem =>
                 tr(
                     Enumerable.Empty<IAttribute>(),
                     td(NoAttributes(), 
                     navLinkMatchAll(
-                        new[] {href($"/Details/{inventoryItem.address}")},
+                        new[] {href($"/Details/{inventoryItem.id}")},
                         text(inventoryItem.name))),
                     td(NoAttributes(), navLinkMatchAll(
-                        new[] { href($"/Deactivate/{inventoryItem.address}") },
+                        new[] { href($"/Deactivate/{inventoryItem.id}") },
                         text("Deactivate"))))).ToArray();
     }
 }

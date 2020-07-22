@@ -22,7 +22,7 @@ namespace Radix.Blazor.Inventory.Server
 
         public IConfiguration Configuration { get; }
 
-        public static List<(Address address, string Name)> InventoryItems { get; set; } = new List<(Address address, string Name)>();
+        public static List<(long id, string Name)> InventoryItems { get; set; } = new List<(long id, string Name)>();
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -76,20 +76,20 @@ namespace Radix.Blazor.Inventory.Server
                                 switch (optionalInventoryItemEvent)
                                 {
                                     case Some<InventoryItemCreated>(var inventoryItemCreated):
-                                        indexViewModel.InventoryItems.Add((inventoryItemCreated.Address, inventoryItemCreated.Name));
+                                        indexViewModel.InventoryItems.Add((inventoryItemCreated.Id, inventoryItemCreated.Name));
                                         break;
                                     case InventoryItemDeactivated _:
                                         break;
                                     case ItemsCheckedInToInventory _:
                                         break;
                                     case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
-                                        (Address address, string name) item =
-                                            indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemsRemovedFromInventory.Address));
+                                        (long id, string name) item =
+                                            indexViewModel.InventoryItems.Find(tuple => Equals(tuple.id, inventoryItemsRemovedFromInventory.Id));
                                         indexViewModel.InventoryItems.Remove(item);
                                         break;
                                     case Some<InventoryItemRenamed>(var inventoryItemRenamed):
-                                        (Address address, string name) itemToRename =
-                                            indexViewModel.InventoryItems.Find(tuple => Equals(tuple.address, inventoryItemRenamed.Address));
+                                        (long id, string name) itemToRename =
+                                            indexViewModel.InventoryItems.Find(tuple => Equals(tuple.id, inventoryItemRenamed.Id));
                                         itemToRename.name = inventoryItemRenamed.Name;
                                         break;
                                     // ignore others like the metadatastream

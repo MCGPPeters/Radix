@@ -1,5 +1,4 @@
 namespace Radix
 {
-    public delegate TState Update<TState, in TEvent>(TState state, params TEvent[] @event)
-        where TEvent : Event;
+    public delegate TState Update<TState, in TEvent>(TState state, params TEvent[] @event);
 }

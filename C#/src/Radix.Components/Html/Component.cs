@@ -7,21 +7,6 @@ namespace Radix.Components.Html
 
     public delegate Component component<in T>(params T[] attributes) where T : IAttribute;
 
-    public class Component : Node
-    {
-
-        public Component(Type type, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
-
-        {
-            Type = type;
-            Attributes = attributes;
-            Children = children;
-
-        }
-
-        public Type Type { get; }
-        public IEnumerable<IAttribute> Attributes { get; }
-        public IEnumerable<Node> Children { get; }
-    }
+    public record Component(Type Type, IEnumerable<IAttribute> Attributes, IEnumerable<Node> Children) : Node;
 
 }

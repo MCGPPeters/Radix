@@ -6,13 +6,19 @@ namespace Radix.Inventory.Domain
     public class CheckInItemsToInventory : InventoryItemCommand
     {
 
-        public CheckInItemsToInventory(int amount) => Amount = amount;
+        public CheckInItemsToInventory(long id,  int amount)
+        {
+            Id = id;
+            Amount = amount;
+        }
 
         public int Amount { get; }
 
 
-        private static Func<int, InventoryItemCommand> New => amount =>
-            new CheckInItemsToInventory(amount);
+        private static Func<long, int, InventoryItemCommand> New => (id, amount) =>
+            new CheckInItemsToInventory(id, amount);
+
+        public long Id { get; internal set; }
 
         public int CompareTo(object obj) => throw new NotImplementedException();
 
@@ -20,7 +26,11 @@ namespace Radix.Inventory.Domain
 
         public bool Equals(InventoryItemCommand other) => throw new NotImplementedException();
 
-        public static Validated<InventoryItemCommand> Create(int amount) => Valid(New)
+        public static Validated<InventoryItemCommand> Create(long id, int amount) => Valid(New)
+            .Apply(
+                id > 0
+                    ? Valid(id)
+                    : Invalid<long>(""))
             .Apply(
                 amount > 0
                     ? Valid(amount)

@@ -8,12 +8,12 @@ namespace Radix.Blazor.Inventory.Interface.Logic
 
     public class IndexViewModel : IEquatable<IndexViewModel>, ViewModel
     {
-        public IndexViewModel(List<(Address address, string Name)> inventoryItems) => InventoryItems = inventoryItems;
+        public IndexViewModel(List<(long id, string Name)> inventoryItems) => InventoryItems = inventoryItems;
 
         /// <summary>
         ///     This is just an example.. in real life this would be a database or something
         /// </summary>
-        public List<(Address address, string Name)> InventoryItems { get; set; }
+        public List<(long id, string Name)> InventoryItems { get; set; }
 
 
         public bool Equals(IndexViewModel other) => other != null && InventoryItems.SequenceEqual(other.InventoryItems);

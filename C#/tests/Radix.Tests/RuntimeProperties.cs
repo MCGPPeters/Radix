@@ -40,13 +40,13 @@ namespace Radix.Tests
             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1);
+            Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1, 1);
 
             Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(removeItems);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory {Amount = 1}});
+                    events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, 1)});
                     events.Select(evt => evt.Address).Should().AllBeEquivalentTo(
                         inventoryItem.Address,
                         "the address of the aggregate should be available when retrieved from an event store");
