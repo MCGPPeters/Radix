@@ -23,7 +23,7 @@ namespace Radix.Tests
                 "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored and process the command")]
         public async Task Test1()
         {
-            AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1));
+            AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
 
             GetEventsSince<InventoryItemEvent> getEventsSince = _testSettings.GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();

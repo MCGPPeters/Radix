@@ -1,7 +1,4 @@
 namespace Radix
 {
-    public class AnyVersion : Version, Value<long>
-    {
-        public long Value => -2;
-    }
+    public record AnyVersion(long _) : Version(-2);
 }

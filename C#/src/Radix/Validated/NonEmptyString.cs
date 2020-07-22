@@ -1,28 +1,16 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using static Radix.Validated.Extensions;
+﻿using static Radix.Validated.Extensions;
 
 namespace Radix.Validated
 {
-    public readonly struct NonEmptyString : Value<string>
+    public record NonEmptyString(string Value) : Alias<string>(Value)
     {
-        private NonEmptyString(string value) => Value = value;
+        public static Validated<NonEmptyString> Create(string value, string errorMessage)
+            => value.IsNotNullNorEmpty(errorMessage)
+            switch
+            {
+                Valid<string>(var s) => Valid(new NonEmptyString(s)),
+                _ => Invalid<NonEmptyString>(errorMessage)
+            };
 
-        public string Value { get; }
-
-        public static Validated<NonEmptyString> Create(string value, string errorMessage) => value.IsNotNullNorEmpty(errorMessage) switch
-        {
-            Valid<string>(var s) => Valid(new NonEmptyString(s)),
-            _ => Invalid<NonEmptyString>(errorMessage)
-        };
-
-
-        public int CompareTo([AllowNull]NonEmptyString other) => string.Compare(Value, other.Value, StringComparison.Ordinal);
-
-        public bool Equals([AllowNull]NonEmptyString other) => Value.Equals(other.Value);
-
-        public static implicit operator string(NonEmptyString nonEmptyString) => nonEmptyString.Value;
-
-        public void Deconstruct(out string value) => value = Value;
     }
 }
