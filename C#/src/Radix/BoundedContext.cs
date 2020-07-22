@@ -26,8 +26,6 @@ namespace Radix
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TFormat">The serialization format</typeparam>
     public class BoundedContext<TCommand, TEvent, TFormat> : IDisposable
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
-        where TEvent : class, Event
     {
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
         private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new Dictionary<Address, Actor<TCommand, TEvent>>();

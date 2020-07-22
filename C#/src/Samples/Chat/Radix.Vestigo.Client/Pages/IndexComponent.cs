@@ -84,7 +84,7 @@ namespace Radix.Chat.Client.Pages
     {
     }
 
-    public interface ChatEvent : Event
+    public interface ChatEvent
     {
     }
 }

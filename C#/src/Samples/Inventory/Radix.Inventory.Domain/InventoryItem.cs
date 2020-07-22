@@ -26,7 +26,7 @@ namespace Radix.Inventory.Domain
                 });
         };
 
-        public string ReasonForDeactivation { get; set; }
+        public string ReasonForDeactivation { get; init; }
 
         public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, command) =>
         {
@@ -41,9 +41,9 @@ namespace Radix.Inventory.Domain
                             new InventoryItemCreated(createInventoryItem.Id, createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count)
                         })),
                 RenameInventoryItem renameInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemRenamed (renameInventoryItem.Name)})),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] { new InventoryItemRenamed { Id = renameInventoryItem.Id, Name = renameInventoryItem.Name } })),
                 CheckInItemsToInventory checkInItemsToInventory => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new ItemsCheckedInToInventory (checkInItemsToInventory.Amount, checkInItemsToInventory.Id) })),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] { new ItemsCheckedInToInventory { Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id } })),
                 RemoveItemsFromInventory removeItemsFromInventory => Task.FromResult(
                     Ok<InventoryItemEvent[], CommandDecisionError>(
                         new InventoryItemEvent[] {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, removeItemsFromInventory.Id)})),

@@ -6,7 +6,7 @@ namespace Radix
     ///     A transient command is a command of which the resulting events have not been committed to an event stream
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
-    public class TransientCommandDescriptor<TCommand> where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
+    public class TransientCommandDescriptor<TCommand>
     {
         public TransientCommandDescriptor(Address recipient, TCommand command)
         {

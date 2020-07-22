@@ -54,11 +54,11 @@ namespace Radix.Tests
                 1L,
                 new EventType(typeof(InventoryItemCreated).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new ItemsCheckedInToInventory(19, 1),
+                new ItemsCheckedInToInventory() { Amount = 19, Id = 1 },
                 2L,
                 new EventType(typeof(ItemsCheckedInToInventory).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemRenamed("Product 2"),
+                new InventoryItemRenamed() { Name = "Product 2", Id = 1 },
                 3L,
                 new EventType(typeof(InventoryItemRenamed).FullName));
         }

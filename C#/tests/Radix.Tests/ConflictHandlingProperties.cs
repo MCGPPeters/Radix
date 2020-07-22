@@ -18,11 +18,11 @@ namespace Radix.Tests
         public async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, Version version, string streamIdentifier)
         {
             yield return new EventDescriptor<InventoryItemEvent>(
-                new ItemsCheckedInToInventory(19, 1),
+                new ItemsCheckedInToInventory() { Amount = 19, Id = 1 },
                 2L,
                 new EventType(typeof(ItemsCheckedInToInventory).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemRenamed("Product 2"),
+                new InventoryItemRenamed { Id = 19, Name = "Product 2" },
                 3L,
                 new EventType(typeof(InventoryItemRenamed).FullName));
         }
@@ -98,7 +98,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory(15, 1));
+                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory() { Amount = 15, Id = 1 });
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();

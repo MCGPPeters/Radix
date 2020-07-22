@@ -16,7 +16,7 @@ namespace Radix.Inventory.Domain
         }
 
         public long Id { get; init; }
-        public string Name { get; init; }
+        public string? Name { get; init; }
         public int Count { get; init; }
         public bool Activated { get; init; }
 
