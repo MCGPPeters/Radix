@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using Radix.Async;
 using Radix.Option;
+using Radix.Validated;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using static Radix.Result.Extensions;
@@ -31,26 +32,27 @@ namespace Radix
                 AppendResult result;
                 int expectedVersion;
 
-                switch (version)
+                // the object cast is a workarround for https://github.com/dotnet/csharplang/issues/1229
+                switch ((object)version)
                 {
                     case AnyVersion _:
                         result = await _streamStore
                             .AppendToStream(eventStreamDescriptor.StreamIdentifier, ExpectedVersion.Any, newStreamMessages)
                             .Retry(Backoff.Exponentially());
-                        return Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        return Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(result.CurrentVersion));
                     case NoneExistentVersion _:
                         await _streamStore.SetStreamMetadata(eventStreamDescriptor.StreamIdentifier, metadataJson: JsonSerializer.Serialize(eventStreamDescriptor));
                         expectedVersion = ExpectedVersion.NoStream;
                         result = await _streamStore
                             .AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages)
                             .Retry(Backoff.Exponentially());
-                        return Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        return Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(result.CurrentVersion));
                     case ExistingVersion existentVersion:
                         expectedVersion = Convert.ToInt32(existentVersion.Value);
                         result = await _streamStore
                             .AppendToStream(eventStreamDescriptor.StreamIdentifier, expectedVersion, newStreamMessages)
                             .Retry(Backoff.Exponentially());
-                        return Ok<ExistingVersion, AppendEventsError>(result.CurrentVersion);
+                        return Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(result.CurrentVersion));
                     default:
                         throw new NotSupportedException("Unknown type of existingVersion");
                 }
@@ -62,7 +64,8 @@ namespace Radix
 
             async IAsyncEnumerable<EventDescriptor<TEvent>> CreateGetEventsSince(Address address, Version version, string streamId)
             {
-                switch (version)
+                // the object cast is a workaround for https://github.com/dotnet/csharplang/issues/1229
+                switch ((object)version)
                 {
                     case ExistingVersion existentVersion:
                         int fromVersionInclusive = Convert.ToInt32(existentVersion.Value);
@@ -71,17 +74,24 @@ namespace Radix
                         foreach (StreamMessage streamMessage in readStreamPage.Messages)
                         {
                             string jsonData = await streamMessage.GetJsonData();
-                            EventType eventType = new EventType(streamMessage.Type);
-                            Option<TEvent> optionalInventoryItemEvent = parseEvent(new Json(jsonData), eventType);
-                            switch (optionalInventoryItemEvent)
+                            Validated<EventType> eventType = EventType.Create(streamMessage.Type);
+                            switch (eventType)
                             {
-                                case None<TEvent> _:
-                                    break;
-                                case Some<TEvent>(var @event):
-                                    yield return new EventDescriptor<TEvent>(@event, existentVersion, eventType);
+                                case Valid<EventType>(var et):
+                                    Option<TEvent> optionalInventoryItemEvent = parseEvent(new Json(jsonData), et);
+                                    switch (optionalInventoryItemEvent)
+                                    {
+                                        case None<TEvent> _:
+                                            break;
+                                        case Some<TEvent>(var @event):
+                                            yield return new EventDescriptor<TEvent>(@event, existentVersion, et);
+                                            break;
+                                        default:
+                                            throw new ArgumentOutOfRangeException(nameof(optionalInventoryItemEvent));
+                                    }
                                     break;
                                 default:
-                                    throw new ArgumentOutOfRangeException(nameof(optionalInventoryItemEvent));
+                                    break;
                             }
 
                             yield break;

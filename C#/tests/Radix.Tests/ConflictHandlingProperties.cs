@@ -80,7 +80,7 @@ namespace Radix.Tests
         [Fact(DisplayName = "Given there is no concurrency conflict, the expected event should be added to the stream")]
         public async Task Property5()
         {
-            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+            using BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
                 new BoundedContextSettings<InventoryItemEvent, Json>(
                     (address, version, identifier, descriptors) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(0L)),
                     _testSettings.GetEventsSince,
@@ -89,21 +89,22 @@ namespace Radix.Tests
                     _testSettings.SerializeEvent,
                     _testSettings.SerializeMetaData
                 ));
+            
+                Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
 
-            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
+                Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(1, 15);
 
-            Validated<InventoryItemCommand> create = CheckInItemsToInventory.Create(1, 15);
-
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(create);
-            switch (result)
-            {
-                case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().BeEquivalentTo(new ItemsCheckedInToInventory() { Amount = 15, Id = 1 });
-                    break;
-                case Error<InventoryItemEvent[], Error[]>(var errors):
-                    errors.Should().BeEmpty();
-                    break;
-            }
+                Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(create);
+                switch (result)
+                {
+                    case Ok<InventoryItemEvent[], Error[]>(var events):
+                        events.Should().BeEquivalentTo(new ItemsCheckedInToInventory() { Amount = 15, Id = 1 });
+                        break;
+                    case Error<InventoryItemEvent[], Error[]>(var errors):
+                        errors.Should().BeEmpty();
+                        break;
+                }
+            
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Radix.Components
 {
     public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
         where TViewModel : class, ViewModel
-
+        where TEvent: notnull
     {
         private bool _shouldRender;
 

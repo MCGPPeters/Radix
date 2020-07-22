@@ -1,12 +1,9 @@
 namespace Radix.Monoid
 {
-    public readonly struct MString : Monoid<MString>, Value<string>
+
+
+    public record MString(string Value) : Alias<string>(Value), Monoid<MString>
     {
-        public string Value { get; }
-
-        private MString(string value) => Value = value;
-
-
         public MString Empty() => string.Empty;
 
         public static implicit operator MString(string s) => new MString(s);

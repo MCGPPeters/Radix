@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     <RootNamespace>Radix.Chat.Client</RootNamespace>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -26,6 +26,7 @@ namespace Radix
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TFormat">The serialization format</typeparam>
     public class BoundedContext<TCommand, TEvent, TFormat> : IDisposable
+        where TEvent : notnull
     {
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
         private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new Dictionary<Address, Actor<TCommand, TEvent>>();
@@ -61,7 +62,7 @@ namespace Radix
 
 
         public Aggregate<TCommand, TEvent> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new() => Get(new Address(), decide, update);
+            where TState : new() => Get(new Address(Guid.NewGuid()), decide, update);
 
         public Aggregate<TCommand, TEvent> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()

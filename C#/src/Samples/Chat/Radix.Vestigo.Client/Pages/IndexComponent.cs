@@ -80,11 +80,11 @@ namespace Radix.Chat.Client.Pages
         public IEnumerable<Error> Errors { get; set; }
     }
 
-    public interface ChatCommand : IComparable, IComparable<ChatCommand>, IEquatable<ChatCommand>
+    public record ChatCommand
     {
     }
 
-    public interface ChatEvent
+    public record ChatEvent
     {
     }
 }
