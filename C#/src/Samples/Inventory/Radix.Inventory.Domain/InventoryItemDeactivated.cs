@@ -1,4 +1,17 @@
 namespace Radix.Inventory.Domain
 {
-    public record InventoryItemDeactivated(string Reason) : InventoryItemEvent;
+    public record InventoryItemDeactivated : InventoryItemEvent
+    {
+        public InventoryItemDeactivated()
+        {
+
+        }
+
+        public InventoryItemDeactivated(string Reason)
+        {
+            this.Reason = Reason;
+        }
+
+        public string? Reason { get; init; }
+    }
 }

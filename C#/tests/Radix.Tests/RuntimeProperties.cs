@@ -47,9 +47,6 @@ namespace Radix.Tests
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
                     events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, 1)});
-                    events.Select(evt => evt.Address).Should().AllBeEquivalentTo(
-                        inventoryItem.Address,
-                        "the address of the aggregate should be available when retrieved from an event store");
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();

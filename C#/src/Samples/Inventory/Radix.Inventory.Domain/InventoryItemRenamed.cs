@@ -2,8 +2,14 @@ using System;
 
 namespace Radix.Inventory.Domain
 {
-    public record InventoryItemRenamed(string Name) : InventoryItemEvent
+    public record InventoryItemRenamed : InventoryItemEvent
     {
-        public long Id { get; set; }
+        public InventoryItemRenamed()
+        {
+
+        }
+
+        public long Id { get; init; }
+        public string? Name { get; init; }
     }
 }

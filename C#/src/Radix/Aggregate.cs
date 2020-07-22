@@ -8,7 +8,6 @@ namespace Radix
     /// <typeparam name="TCommand">The type of command the aggregate can accept</typeparam>
     /// <typeparam name="TEvent">The type of events the aggregate can produce</typeparam>
     public class Aggregate<TCommand, TEvent>
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
     {
         /// <summary>
         /// An aggregate instance should only be created by the runtime

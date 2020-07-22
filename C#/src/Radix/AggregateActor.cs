@@ -19,8 +19,7 @@ namespace Radix
     /// <typeparam name="TFormat"></typeparam>
     internal class AggregateActor<TState, TCommand, TEvent, TFormat> : Actor<TCommand, TEvent>
         where TState : new()
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
-        where TEvent : class, Event
+        where TEvent : notnull
     {
 
         private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;

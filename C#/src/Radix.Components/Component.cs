@@ -12,8 +12,6 @@ using static Radix.Option.Extensions;
 namespace Radix.Components
 {
     public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
-        where TCommand : IComparable, IComparable<TCommand>, IEquatable<TCommand>
-        where TEvent : class, Event
         where TViewModel : class, ViewModel
 
     {

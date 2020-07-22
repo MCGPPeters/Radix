@@ -3,28 +3,12 @@ using static Radix.Validated.Extensions;
 
 namespace Radix.Inventory.Domain
 {
-    public class RemoveItemsFromInventory : InventoryItemCommand
+    public record RemoveItemsFromInventory(long Id, int Amount) : InventoryItemCommand
     {
-
-        private RemoveItemsFromInventory(long id, int amount)
-        {
-            Id = id;
-            Amount = amount;
-        }
-
-        public int Amount { get; }
-
 
         private static Func<long, int, InventoryItemCommand> New => (id, amount) =>
             new RemoveItemsFromInventory(id, amount);
 
-        public long Id { get; internal set; }
-
-        public int CompareTo(object obj) => throw new NotImplementedException();
-
-        public int CompareTo(InventoryItemCommand other) => throw new NotImplementedException();
-
-        public bool Equals(InventoryItemCommand other) => throw new NotImplementedException();
 
         public static Validated<InventoryItemCommand> Create(long id, int amount) => Valid(New)
             .Apply(id > 0 ? Valid(id)
@@ -34,5 +18,4 @@ namespace Radix.Inventory.Domain
                     ? Valid(amount)
                     : Invalid<int>(""));
     }
-
 }
