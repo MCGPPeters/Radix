@@ -98,7 +98,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
     }
 
-    public class DeactivateInventoryItemViewModel : ViewModel
+    public record DeactivateInventoryItemViewModel : ViewModel
     {
         public List<(long id, string Name)> InventoryItems { get; }
 

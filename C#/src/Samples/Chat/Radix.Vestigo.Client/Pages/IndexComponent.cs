@@ -75,7 +75,7 @@ namespace Radix.Chat.Client.Pages
 
 
 
-    public class IndexViewModel : ViewModel
+    public record IndexViewModel : ViewModel
     {
         public IEnumerable<Error> Errors { get; set; }
     }

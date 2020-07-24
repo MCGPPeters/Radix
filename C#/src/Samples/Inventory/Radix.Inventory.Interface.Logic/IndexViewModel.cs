@@ -6,7 +6,7 @@ using Radix.Components;
 namespace Radix.Blazor.Inventory.Interface.Logic
 {
 
-    public class IndexViewModel : IEquatable<IndexViewModel>, ViewModel
+    public record IndexViewModel : ViewModel, IEquatable<IndexViewModel>
     {
         public IndexViewModel(List<(long id, string Name)> inventoryItems) => InventoryItems = inventoryItems;
 
