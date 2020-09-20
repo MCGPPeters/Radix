@@ -12,7 +12,7 @@ namespace Radix
                 x =>
                 {
                     Random rnd = new Random();
-                    TimeSpan seconds = TimeSpan.FromSeconds(Math.Pow(2, x));
+                    TimeSpan seconds = TimeSpan.FromSeconds(System.Math.Pow(2, x));
                     // add random number of milliseconds to decrease the chance globally synchronized retries
                     TimeSpan milliseconds = TimeSpan.FromMilliseconds(rnd.Next());
 

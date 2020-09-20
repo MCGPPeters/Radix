@@ -15,9 +15,6 @@ namespace Radix.Blazor.Inventory.Interface.Logic
         /// </summary>
         public List<(long id, string Name)> InventoryItems { get; set; }
 
-
-        public bool Equals(IndexViewModel other) => other != null && InventoryItems.SequenceEqual(other.InventoryItems);
-
         public IEnumerable<Error> Errors { get; set; } = new List<Error>();
     }
 }
