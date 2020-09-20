@@ -8,9 +8,17 @@ namespace Radix.Math.Applied
 {
     public record Outcome<T>(T Value) : Alias<T>(Value);
 
-    public record Samples<T>(HashSet<T> Value) : Alias<HashSet<T>>(Value);
-    
-    public record Event<T>(Samples<T> sampleSpace, Func<Samples<T>, HashSet<T>> selector) : Alias<HashSet<T>>(selector(sampleSpace));
+    /// <summary>
+    /// Since the sample space is a set
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public record SampleSpace<T>(HashSet<T> Value) : Alias<HashSet<T>>(Value);
+
+    /// <summary>
+    /// An event is a subset of the sample space
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public record Event<T>(SampleSpace<T> sampleSpace, Func<SampleSpace<T>, HashSet<T>> selector) : Alias<HashSet<T>>(selector(sampleSpace));
 
     public delegate double Probability<T>(Event<T> @event);
 
@@ -19,9 +27,11 @@ namespace Radix.Math.Applied
     {
         public static class Extensions
         {
-            public static Probability<T> Probability<T>(this Samples<T> _) => _ => 1d;
+            public static Probability<T> FromSampleSpace<T>(this SampleSpace<T> _) => _ => 1d;
 
-            public static Event<T> AsEvent<T>(this Samples<T> samplesSpace) => new Event<T>(samplesSpace, s => { var outcomes = s; return outcomes; });
+            public static Event<T> AsEvent<T>(this SampleSpace<T> samplesSpace) => new Event<T>(samplesSpace, s => s);
+
+            
         }
     }
 }
