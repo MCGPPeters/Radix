@@ -2,9 +2,9 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - init: doetnet build
+  - init: dotnet build
     command: dotnet run
 
 vscode:
   extensions:
-    - ms-vscode.csharp@1.21.12:kw8SkO8+aVTSFug281WfQQ==
+     - ms-dotnettools.csharp@1.21.16:rAUvWwu0elvq6vudii4TtA==
