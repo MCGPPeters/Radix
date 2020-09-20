@@ -1,0 +1,3 @@
+tasks:
+  - init: doetnet build
+    command: dotnet run
