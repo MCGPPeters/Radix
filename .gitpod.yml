@@ -8,3 +8,4 @@ tasks:
 vscode:
   extensions:
      - ms-dotnettools.csharp@1.21.16:rAUvWwu0elvq6vudii4TtA==
+     - ms-dotnettools.csharp@1.23.2:MNAjZs117N951pEf5s/qVA==
