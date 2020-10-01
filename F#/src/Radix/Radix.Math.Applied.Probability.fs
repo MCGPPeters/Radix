@@ -5,15 +5,40 @@ open MassTransit
 open Radix.Collections
 open Radix.Collections.NonEmpty
 
-type Merit<'a when 'a : comparison> = Merit of 'a
+type Outcome<'a> = Outcome of 'a
 
-type Probability = float
+type Experiment<'a> = () -> Outcome<'a> set
 
-type Expectation<'e> = Expectation of 'e
+type SampleSpace<'a> = SampleSpace of Outcome<'a> set
 
-type Event<'a> = Event of 'a * Probability
-    // with
-    //     static member inline Zero = Event(LanguagePrimitives.GenericZero, 0.0)
+type EventSpace<'a> = EventSpace of Event<'a> set
+
+// An event is a collection of outcomes and a subset of a sample space
+type Event<'a> = SampleSpace<'a> -> Outcome<'a> set
+
+[<Measure>] type probability
+
+type Probability = private Probability of double<probability>
+
+module Probability =
+
+    open Radix.Math.Pure.Structure.Order
+
+    let create (p: double<probability>) =
+        Interval.RightClosed 0.0 1.0 p
+
+type Experiment<'a> = {
+    Samples: SampleSpace<'a>
+    Events: EventSpace<'a>
+    ProbabilityFunction: 
+}
+
+
+
+
+
+
+
 
 
 type Distribution<'a> = Distribution of NonEmpty<Event<'a>>
