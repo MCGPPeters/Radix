@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -21,7 +21,12 @@ namespace Radix.Math.Applied
     public record Event<T>(SampleSpace<T> sampleSpace, Func<SampleSpace<T>, HashSet<T>> selector) : Alias<HashSet<T>>(selector(sampleSpace));
 
     public delegate double Probability<T>(Event<T> @event);
+    public delegate double Random<T>(SampleSpace<T> sampleSpace);
 
+    namespace Discrete
+    {
+        
+    }
 
     namespace Samples
     {
