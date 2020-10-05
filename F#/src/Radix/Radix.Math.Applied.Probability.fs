@@ -1,152 +1,165 @@
 namespace Radix.Math.Applied.Probability
 
 // A figure of merit is a quantity used to characterize the performance
-open MassTransit
 open Radix.Collections
 open Radix.Collections.NonEmpty
 
+// The result of a single trial of an experiment
 type Outcome<'a> = Outcome of 'a
 
-type Experiment<'a> = () -> Outcome<'a> set
-
-type SampleSpace<'a> = SampleSpace of Outcome<'a> set
-
-type EventSpace<'a> = EventSpace of Event<'a> set
+// The sample space is the set of all possible outcomes of an experiment.
+// The entire sample space may be unknown until after the experiment has concluded
+type SampleSpace<'a when 'a: comparison> = SampleSpace of 'a Set
 
 // An event is a collection of outcomes and a subset of a sample space
-type Event<'a> = SampleSpace<'a> -> Outcome<'a> set
+type Event<'a> = Event of 'a
 
-[<Measure>] type probability
+type EventSpace<'a when 'a: comparison> = EventSpace of Event<'a> Set
 
-type Probability = private Probability of double<probability>
+type Probability = private Probability of float
+    with static member Zero = Probability 0.0
 
 module Probability =
 
-    open Radix.Math.Pure.Structure.Order
+    // the probability measure is a value in the interval [0.0..1.0]
+    let create (p: float) =
+        if p >= 0.0 && p <= 1.0 then Some (Probability p) else None
 
-    let create (p: double<probability>) =
-        Interval.RightClosed 0.0 1.0 p
 
-type Experiment<'a> = {
+type Experiment<'a when 'a : comparison> = {
     Samples: SampleSpace<'a>
     Events: EventSpace<'a>
-    ProbabilityFunction: 
+    ProbabilityFunction: Event<'a> -> Probability
 }
 
+// A random variable is a real valued function that assigns a numerical value to each possible outcome of an experiment
+type Random<'a> = Random of ('a -> float)
 
+// A distribution represents the outcome of a probabilistic
+// event as a collection of all possible values, tagged with their likelihood.
+type Distribution<'a> = private Distribution of (Event<'a> * Probability) list
+    with static member Zero = Distribution []
 
+module Distribution =
 
+    let return' x = Distribution [(x, Probability 1.0)]
 
+    let bind (prior: Distribution<'a>) (likelihood: 'a -> Distribution<'b>) : Distribution<'b> =
 
-
-
-
-type Distribution<'a> = Distribution of NonEmpty<Event<'a>>
-
-type Transition<'a> = 'a -> Distribution<'a>
-
-type Spread<'a> = 'a list -> Distribution<'a>
-
-// a sample space which is the set of all possible outcomes. I
-type Samples<'a> = Samples of 'a list
-
-type Experiment<'a> = 'a list -> Distribution<'a>
-
-// is a function that maps an event or values of one or more variables 
-// onto a real number intuitively representing some benefit gained associated with the event.
-type Benefit<'a, 'TMerit when 'TMerit: comparison> = Event<'a> -> Merit<'TMerit>
-
-type Sample< ^a when ^a: comparison > = 
-    Sample of Set<'a>
-
-module Event =
-    let inline combine(f: 'a -> 'a -> 'b) (Event (x, p)) (Event (y, q)) : Event<'b> =
-        Event (f x y, p * q)
-
-    let inline bind(Event (x, p)) (f: 'a -> Event<'b>) : Event<'b> =
-        let y = f x
-        let (Event( y', q)) = y
-        Event (y', q * p)
-
-module Distribution = 
-
-    let inline certainly a = Distribution (Singleton (Event (a, 1.0)))
-
-    let inline uniform list =
-        let length = NonEmpty.length list 
-        list |> NonEmpty.map (fun e -> Event (e , (1.0 / float length))) |> Distribution                  
-
-    let inline combine f (Distribution d) (Distribution d') : Distribution<'b> =
-        Distribution (NonEmpty.combine (Event.combine f) d d')                             
-
-    let pair x y = (x, y) 
-    
-    // https://queue.acm.org/detail.cfm?id=3055303
-    let inline bind (prior: Distribution<'a>) (likelihood: 'a -> Distribution<'b>) : Distribution<'b> =
-        
-        let x = nonEmpty {
+        Distribution [
             let (Distribution prior') =  prior
-            for Event (x, p) in prior' do
+            for  (Event x, Probability p) in prior' do
             let  (Distribution posterior) = likelihood x
-            for Event (y, q) in posterior do
-            return Event (y, q * p)
-        }
+            for (Event y, Probability q) in posterior do
+            yield (Event y, Probability (p * q))
+        ]
 
-        Distribution x                  
+    let (>>=) prior likelyhood =
+        bind prior likelyhood
 
-    ///mapD :: (a -> b) -> Dist a -> Dist b
-    let inline map(f: 'a -> 'b) (distribution: Distribution<'a>) : Distribution<'b> = 
-    
-        let events = nonEmpty {
+    let map(f: 'a -> 'b) (distribution: Distribution<'a>) : Distribution<'b> =
+
+        Distribution [
             let (Distribution distribution') =  distribution
-            for Event (x, p) in distribution' do
-            for y in Singleton (f x) do 
-            return Event (y, p)
-        }
+            for (Event x, Probability p) in distribution' do
+            for y in f x do
+            yield (Event y, Probability p)
+        ]
 
-        Distribution events                    
+    let sum (Distribution d)  =
+        d
+        |> List.map (fun (_, Probability p) -> p)
+        |> List.sum
+        |> Probability
 
-    let inline filter (Distribution distribution) predicate : Distribution<'a> =
-       distribution |> NonEmpty.filter predicate |> Distribution
+    let scale d =
+        let (Probability q) = sum d
+        let (Distribution d') = d
+        d'
+        |> List.map (fun (e, Probability p) -> (e, Probability (p / q)))
+        |> Distribution
 
-    let inline (?) (predicate: Event<'a> -> bool) (Distribution distribution) : Probability =
-       let matches = distribution 
-                    |> NonEmpty.filter predicate 
-                    |> NonEmpty.map (fun (Event(_,p)) -> p)
-       matches |> NonEmpty.sumBy id                                
+type Expectation<'x> = Expectation of Random<'x>
 
-    let inline argMax (Distribution distribution) =
-        distribution |> NonEmpty.maxBy (fun (Event(x,_)) -> x)
+    module Discrete =
+
+        let rec expectation (Random f) (Distribution d) : Expectation<'x> =
+            match d with
+            | [] -> Expectation (Random (fun _ -> 0.0))
+            | (Event a, (Probability p))::xs' ->
+                let (Expectation (Random g)) = expectation (Random f)(Distribution xs')
+                let e = (f a)*p
+                let e' = g a
+                Expectation (Random (fun _ -> (e + e')))
+
+        let rec variance (Random f) xs =
+            match xs with
+            | [] -> 0.0
+            | x::xs' ->
+                f x + variance (Random f) xs'
+
+        let stddv f xs = System.Math.Sqrt <| variance f xs
+
+
+
+module Generators =
+
+    type Spread<'a> = 'a list -> Distribution<'a>
+
+    let certainly a = Distribution.return' a
+
+    let impossible = Distribution []
+
+    open Radix.Collections.List
+
+    let rec shape f = function
+        | [] -> impossible
+        | xs ->
+            let xs'= List.map (fun x -> Event x) xs
+            let incr = 1.0 / float ((List.length xs - 1))
+            let probabilities = List.map f (iterate (fun x -> incr + x) 0.0)
+            Distribution.scale (List.zip xs' (probabilities |> List.map (fun x -> Probability x)) |> Distribution)
+
+    open Radix.Prelude
+
+    let uniform () = shape (const' 1.0)
+
+    let normalCurve mean stddev x  =
+        1.0 / sqrt (2.0 * System.Math.PI) * exp ((-1.0 / 2.0) * System.Math.Pow((x - mean) / stddev, 2.0))
+
+    let normal () = shape (normalCurve 0.5 0.5)
+
+    let filter (Distribution distribution) predicate : Distribution<'a> =
+       distribution |> List.filter predicate |> Distribution
+
 
     type DistributionMonadBuilder() =
         member inline __.Bind (m, f) = bind m f
         member inline __.Return x = certainly x
-
         member inline __.Map (f, m) = map f m
         member __.ReturnFrom m = m
 
 
-module Sampling = 
+module Sampling =
 
     type Randomized<'a> = Randomized of 'a
 
     let Guid = Randomized (MassTransit.NewId.Next())
 
-    let rec scan (probability: Probability) (Distribution distribution) =
-        match distribution with 
-        | Singleton (Event (x, _)) -> x 
-        | List (Event (x, probability'), y::ys) -> 
-                match (probability <= probability') || y::ys = List.empty with
-                | true -> x
-                | _ -> scan (probability - probability') (Distribution (List(y, ys)))
-        | List (Event (x, _), []) -> x
-                    
+    let rec scan (Probability probability ) (Distribution distribution) =
+        match distribution with
+        | [] -> None
+        | (a, Probability probability')::ys ->
+                match (probability <= probability') with
+                | true -> Some a
+                | _ -> scan (Probability (probability - probability')) (Distribution ys)
 
-    let inline select distribution probability = 
+
+    let select distribution probability =
         scan probability distribution
 
-    let inline pick distribution = 
-        let r = System.Random()
-        Randomized(select distribution (r.NextDouble()))
+    let pick distribution =
+        let r = System.Random () //DevSkim: ignore DS148264
+        Randomized(select distribution (Probability (r.NextDouble())))
 
-    let inline random t = t >> pick    
+    let random t = t >> pick
