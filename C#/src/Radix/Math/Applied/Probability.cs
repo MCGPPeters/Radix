@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using static Radix.Validated.Extensions;
 
-namespace Radix.Math.Applied
+namespace Radix.Math.Applied.Probability
 {
     public record Event<T>(T Value) : Alias<T>(Value);
 
@@ -28,13 +27,21 @@ namespace Radix.Math.Applied
             value =>
                 value switch
                 {
-                    >= 0.0F and <= 1.0F => Valid(new Probability(value)),
+                    >= 0.0 and <= 1.0 => Valid(new Probability(value)),
                     _ => Invalid<Probability>("The value of a probability should be in the interval [0.0, 1.0]")
                 };
 
     }
 
     public delegate double Random<T>(T outcome);
+
+    public record Expectation<T>(Random<T> Value) : Alias<Random<T>>(Value);
+
+    namespace Radix.Math.Applied.Probability.Discrete
+    {
+
+    }
+
     public delegate Distribution<T> Spread<T>(IEnumerable<T> ts);
 
     public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>>
@@ -109,7 +116,17 @@ namespace Radix.Math.Applied
 
         public static Spread<T> Uniform => Shape(_ => 1.0);
 
-        
+        /// <summary>
+        /// Normal curve / Gaussian
+        /// </summary>
+        /// <param name="mean"></param>
+        /// <param name="standardDeviation"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        private static double NormalCurve(double mean, double standardDeviation, double x)
+            => 1.0 / System.Math.Sqrt(2.0 * System.Math.PI) * System.Math.Exp((-1.0 / 2.0) * System.Math.Pow((x - mean) / standardDeviation, 2.0));
+
+        public static Spread<T> Normal => Shape(x => NormalCurve(0.5, 0.5, x));
     }
 
     public static class DistributionExtentions
@@ -163,16 +180,5 @@ namespace Radix.Math.Applied
 
         public static Distribution<T> Scale<T>(this Distribution<T> distribution)
             => Distribution<T>.Scale(distribution);
-
-
-
-
-
-
     }
-}
-
-
-
-}
 }
