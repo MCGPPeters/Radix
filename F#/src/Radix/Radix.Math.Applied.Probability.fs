@@ -2,7 +2,6 @@ namespace Radix.Math.Applied.Probability
 
 // A figure of merit is a quantity used to characterize the performance
 open Radix.Collections
-open Radix.Collections.NonEmpty
 
 // The result of a single trial of an experiment
 type Outcome<'a> = Outcome of 'a
@@ -13,6 +12,10 @@ type SampleSpace<'a when 'a: comparison> = SampleSpace of 'a Set
 
 // An event is a collection of outcomes and a subset of a sample space
 type Event<'a> = Event of 'a
+
+module Event =
+
+    let impossible = LanguagePrimitives.GenericZero
 
 type EventSpace<'a when 'a: comparison> = EventSpace of Event<'a> Set
 
@@ -38,24 +41,23 @@ type Random<'a> = Random of ('a -> float)
 // A distribution represents the outcome of a probabilistic
 // event as a collection of all possible values, tagged with their likelihood.
 type Distribution<'a> = private Distribution of (Event<'a> * Probability) list
-    with static member Zero = Distribution []
 
 module Distribution =
 
     let return' x = Distribution [(x, Probability 1.0)]
 
-    let bind (prior: Distribution<'a>) (likelihood: 'a -> Distribution<'b>) : Distribution<'b> =
+    let bind (prior: Distribution<'a>) (f: 'a -> Distribution<'b>) : Distribution<'b> =
 
         Distribution [
             let (Distribution prior') =  prior
             for  (Event x, Probability p) in prior' do
-            let  (Distribution posterior) = likelihood x
+            let  (Distribution posterior) = f x
             for (Event y, Probability q) in posterior do
             yield (Event y, Probability (p * q))
         ]
 
-    let (>>=) prior likelyhood =
-        bind prior likelyhood
+    let (>>=) prior f =
+        bind prior f
 
     let map(f: 'a -> 'b) (distribution: Distribution<'a>) : Distribution<'b> =
 
@@ -112,7 +114,7 @@ module Generators =
 
     open Radix.Collections.List
 
-    let rec shape f = function
+    let shape f = function
         | [] -> impossible
         | xs ->
             let xs'= List.map (fun x -> Event x) xs
@@ -122,21 +124,21 @@ module Generators =
 
     open Radix.Prelude
 
-    let uniform () = shape (const' 1.0)
+    let uniform a = a |> shape (const' 1.0)
 
     let normalCurve mean stddev x  =
         1.0 / sqrt (2.0 * System.Math.PI) * exp ((-1.0 / 2.0) * System.Math.Pow((x - mean) / stddev, 2.0))
 
-    let normal () = shape (normalCurve 0.5 0.5)
+    let normal a = a |> shape (normalCurve 0.5 0.5)
 
     let filter (Distribution distribution) predicate : Distribution<'a> =
        distribution |> List.filter predicate |> Distribution
 
 
     type DistributionMonadBuilder() =
-        member inline __.Bind (m, f) = bind m f
+        member inline __.Bind (m, f) = Distribution.bind m f
         member inline __.Return x = certainly x
-        member inline __.Map (f, m) = map f m
+        member inline __.Map (f, m) = Distribution.map f m
         member __.ReturnFrom m = m
 
 
@@ -148,18 +150,23 @@ module Sampling =
 
     let rec scan (Probability probability ) (Distribution distribution) =
         match distribution with
-        | [] -> None
+        | [] -> []
         | (a, Probability probability')::ys ->
                 match (probability <= probability') with
-                | true -> Some a
+                | true ->
+                    let (Event e) = a
+                    [e]
                 | _ -> scan (Probability (probability - probability')) (Distribution ys)
 
 
     let select distribution probability =
         scan probability distribution
 
-    let pick distribution =
+    let choose distribution =
         let r = System.Random () //DevSkim: ignore DS148264
-        Randomized(select distribution (Probability (r.NextDouble())))
+        select distribution (Probability (r.NextDouble()))
+            |> List.map (fun x ->  Randomized x)
+            |> List.head
 
-    let random t = t >> pick
+
+    let random t = t >> choose
