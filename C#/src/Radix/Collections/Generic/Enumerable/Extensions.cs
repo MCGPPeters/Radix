@@ -1,19 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radix.Collections.Generic.Enumerable
 {
     public static class Extensions
     {
-        public static T MaxBy<T, U>(this IEnumerable<T> enumerable, Func<T, U> projection)
-            => enumerable.
-                Aggregate((current, next) =>
-                    projection(current) > projection(next)
-                        ? current
-                        : next)
-                .First();
-    }
+        /// <summary>
+        /// Generates a sequence of evenly spaced points in the closed interval [start,stop].
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static IEnumerable<double> Sequence(double start, double stop, int length = 100)
+        {
+            double step = (start - stop) / (length - 1);
 
-    ///    let inline maxBy (projection) (list: NonEmpty<_>) =
-        ///list |> fold (fun x y -> if projection x > projection y then x else y) (list |> head)
+            var data = new double[length];
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = start + i * step;
+            }
+            data[data.Length - 1] = stop;
+            return data;
+        }
+    }
 }
