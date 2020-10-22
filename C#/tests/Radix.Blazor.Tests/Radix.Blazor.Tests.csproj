@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Radix.Components\Radix.Components.csproj" />
-    <ProjectReference Include="..\..\src\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj" />
   </ItemGroup>
 
 </Project>

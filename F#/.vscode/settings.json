@@ -1,0 +1,4 @@
+{
+    "FSharp.fsacRuntime": "net",
+    "powershell.codeFormatting.addWhitespaceAroundPipe": true
+}

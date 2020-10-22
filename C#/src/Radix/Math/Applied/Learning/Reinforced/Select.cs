@@ -13,7 +13,7 @@ namespace Radix.Math.Applied.Learning.Reinforced
 {
     public static class Select
     {
-        public static A Greedy<A>(Q<A> q, IEnumerable<A> actions) => actions.Max(a => (a, q.Value(a))).a;
+        public static A Greedy<A>(Q<A> q, IEnumerable<A> actions) => actions.Ar(a => (a, q.Value(a))).a;
 
 
         public static A εGreedy<A>(Q<A> q, double ε,  IEnumerable<A> actions)

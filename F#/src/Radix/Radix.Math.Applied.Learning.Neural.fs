@@ -10,7 +10,7 @@ type InterNeuron = {
     Id: NodeId
 }
 
-// transmit signals from the central nervous system to the effector cells 
+// transmit signals from the central nervous system to the effector cells
 // and are also called motor neurons.
 type EfferentNeuron = {
     Id: NodeId
@@ -18,7 +18,7 @@ type EfferentNeuron = {
 
 type MotorNeuron = EfferentNeuron
 
-// convey information from tissues and organs into the central nervous system 
+// convey information from tissues and organs into the central nervous system
 // and are also called sensory neurons.
 type AfferentNeuron = {
     Id : NodeId
@@ -26,7 +26,7 @@ type AfferentNeuron = {
 
 type SensoryNeuron = AfferentNeuron
 
-type Node = 
+type Node =
 | EfferentNeuron of EfferentNeuron
 | InterNeuron of InterNeuron
 | AfferentNeuron of AfferentNeuron
@@ -42,23 +42,25 @@ type Connection = {
     Weight: float
 }
 
-module Connection = 
+module Connection =
 
-    let create id input output weightDistrubution = 
+    open Radix.Math.Applied.Probability
+
+    let create id input output weightDistrubution =
         match weightDistrubution |> pick with
-        | (Randomized (Some weight)) -> 
+        | (Randomized (Some (Event weight))) ->
             Ok {
                 Id = (ConnectionId id)
                 Input = input
                 Output = output
                 Weight = weight
             }
-        | Randomized None -> Error "The distribution of weights was empty"        
+        | Randomized None -> Error "The distribution of weights was empty"
 
 type NetworkId = NetworkId of int
 
 type Network = {
-    Id: NetworkId    
+    Id: NetworkId
     Nodes : Node list
     Connections : Connection list
 }

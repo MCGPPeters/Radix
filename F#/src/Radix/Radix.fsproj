@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
@@ -8,14 +8,16 @@
     <Compile Include="Radix.Math.Pure.Algebra.Structure.fs" />
     <Compile Include="Radix.Math.Pure.Numbers.fs" />
     <Compile Include="Root.fs" />
+    <Compile Include="Radix.Control.Monad.State.fs" />
     <Compile Include="Radix.Collections.List.fs" />
     <Compile Include="Radix.Collections.NonEmpty.fs" />
     <Compile Include="Radix.Math.Applied.Optimization.fs" />
     <Compile Include="Radix.Math.Applied.Learning.fs" />
     <Compile Include="Radix.Math.Applied.Probability.fs" />
-    <Compile Include="Radix.Math.Applied.Learning.Evolutionary.fs" />
+    <Compile Include="Radix.Control.Monad.Distribution.fs" />
     <Compile Include="Radix.Math.Applied.Learning.Reinforced.fs" />
     <Compile Include="Radix.Math.Applied.Learning.Reinforced.Testing.fs" />
+    <Compile Include="Radix.Math.Applied.Learning.Evolutionary.fs" />
     <Compile Include="Radix.Math.Applied.Learning.Neural.fs" />
     <Compile Include="Radix.Math.Applied.Learning.Evolutionary.Neural.fs" />
     <Compile Include="FrozenLake.fs" />
@@ -27,5 +29,6 @@
     <PackageReference Include="FSharp.Json" Version="0.4.0" />
     <PackageReference Include="MassTransit" Version="5.5.6" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
+    <PackageReference Include="XPlot.Plotly" Version="3.0.1" />
   </ItemGroup>
 </Project>
