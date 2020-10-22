@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Radix.Math.Applied.Probability
+namespace Radix.Math.Applied.Probability.Event
 {
-    public static class EventExtensions
+    public static class Extensions
     {
         public static Event<U> Map<T, U>(this Event<T> e, Func<T, U> project)
          => new Event<U>(project(e.Value));

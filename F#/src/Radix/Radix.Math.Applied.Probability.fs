@@ -13,10 +13,6 @@ type SampleSpace<'a when 'a: comparison> = SampleSpace of 'a Set
 // An event is a collection of outcomes and a subset of a sample space
 type Event<'a> = Event of 'a
 
-module Event =
-
-    let impossible = LanguagePrimitives.GenericZero
-
 type EventSpace<'a when 'a: comparison> = EventSpace of Event<'a> Set
 
 type Probability = private Probability of float
@@ -28,6 +24,9 @@ module Probability =
     let create (p: float) =
         if p >= 0.0 && p <= 1.0 then Some (Probability p) else None
 
+    let cata p f =
+        let (Probability p') = p
+        f p'
 
 type Experiment<'a when 'a : comparison> = {
     Samples: SampleSpace<'a>
@@ -133,14 +132,6 @@ module Generators =
 
     let filter (Distribution distribution) predicate : Distribution<'a> =
        distribution |> List.filter predicate |> Distribution
-
-
-    type DistributionMonadBuilder() =
-        member inline __.Bind (m, f) = Distribution.bind m f
-        member inline __.Return x = certainly x
-        member inline __.Map (f, m) = Distribution.map f m
-        member __.ReturnFrom m = m
-
 
 module Sampling =
 

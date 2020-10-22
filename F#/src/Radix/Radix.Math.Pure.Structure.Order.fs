@@ -1,19 +1,19 @@
 namespace Radix.Math.Pure.Structure.Order
-open System   
+open System
 
 module Interval =
 
-    let inline (|Open|_|) (lower: 'a) (upper: 'a) x =
+    let inline open' (lower: 'a) (upper: 'a) x =
         if x > lower && x < upper then Some x else None
 
-    let inline (|RightClosed|_|) (lower: 'a) (upper: 'a) x =
+    let inline rightClosed (lower: 'a) (upper: 'a) x =
         if x > lower && x <= upper then Some x else None
 
-    let inline (|RightOpen|_|) (lower: 'a) x =
+    let inline rightOpen (lower: 'a) x =
         if x > lower then Some x else None
 
-    let inline (|LeftOpen|_|) (upper: 'a) x =
-        if x < upper then Some x else None       
+    let inline leftOpen (upper: 'a) x =
+        if x < upper then Some x else None
 
-    let inline (|Closed|_|) (lower: 'a) (upper: 'a) x =
+    let inline closed (lower: 'a) (upper: 'a) x =
         if x >= lower && x <= upper then Some x else None
