@@ -1,17 +1,21 @@
-﻿using System;
+﻿using System ;
 using System.Collections.Generic;
 using System.Linq;
+using Radix.Math.Applied.Learning.Reinforced;
+using Radix.Math.Applied.Probability.Event;
 using static Radix.Validated.Extensions;
 
 namespace Radix.Math.Applied.Probability
 {
+
+
     public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>>
     {
         private Distribution(IEnumerable<(Event<T> @event, Probability probability)> distribution) : base(distribution)
         { }
 
-        public static Distribution<T> Certainly(Event<T> @event)
-            => new Distribution<T>(Enumerable.Repeat((@event, new Probability(1.0F)), 1));
+        internal static Distribution<T> Return(Event<T> @event) =>
+            new Distribution<T>(Enumerable.Repeat((@event, new Probability(1.0)), 1));
 
         public static Distribution<T> Impossible
             => new Distribution<T>(Enumerable.Empty<(Event<T>, Probability)>());

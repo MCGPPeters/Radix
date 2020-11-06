@@ -46,8 +46,8 @@ module Connection =
 
     open Radix.Math.Applied.Probability
 
-    let create id input output weightDistrubution =
-        match weightDistrubution |> pick with
+    let create id input output weightDistribution =
+        match weightDistribution |> choose with
         | (Randomized (Some (Event weight))) ->
             Ok {
                 Id = (ConnectionId id)

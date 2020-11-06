@@ -5,13 +5,8 @@ using static Radix.Validated.Extensions;
 namespace Radix.Math.Applied.Probability
 {
 
-    public record Probability : Alias<double>
+    public record Probability(double Value) : Alias<double>(Value)
     {
-        internal Probability(double value) : base(value)
-        {
-
-        }
-
         public static Func<double, Validated<Probability>> Create =>
             value =>
                 value switch
@@ -24,7 +19,7 @@ namespace Radix.Math.Applied.Probability
 
     public delegate double Random<T>(T outcome);
 
-    public record Expectation<T>(Random<T> Value) : Alias<Random<T>>(Value);
+    public record Expectation<T>(Random<T> Value);
 
     public delegate Distribution<T> Spread<T>(IEnumerable<T> ts);
 }

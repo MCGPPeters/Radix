@@ -14,4 +14,8 @@
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="5.0.0-rc.2.20475.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Math\Pure\" />
+  </ItemGroup>
+
 </Project>
