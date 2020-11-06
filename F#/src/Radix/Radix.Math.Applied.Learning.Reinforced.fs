@@ -11,7 +11,9 @@ open Radix.Collections
 type Value<'x> = Value of Expectation<'x>
 
 // State or utility value
-type U<'s> = U of Expectation<'s>
+type V<'s> = U of Expectation<'s>
+
+
 
 // Action value
 type Q<'a> = Q of Expectation<'a>
@@ -47,32 +49,39 @@ type reward
 
 type TransitionProbabilities<'s> = TransitionProbabilities of Distribution<'s * float<reward>>
 
+// The dynamics of the environment
 type Dynamics<'s, 'a> = Dynamics of ('s -> 'a -> TransitionProbabilities<'s>)
 
-type Environment<'s, 'a> = Environment of ('s * Dynamics<'s, 'a> * (TransitionProbabilities<'s> -> Randomized<('s * float<reward>)>))
-
-module Environment =
-
-    let reset initialState = Environment initialState
-
-    let nextS action (Environment environment)  =
-        let (state, (Dynamics dynamics), choose) = environment
-        let transitionProbabilities = dynamics state action
-        let (Randomized(nextState, reward)) = transitionProbabilities |> choose
-        reward, Environment (nextState, Dynamics dynamics, choose)
-
-    open Radix.Control.Monad.State.Statefull
-
-    let next action = state {
-        let! environment = getState
-        let reward, environment = nextS action environment
-        do! putState environment
-        return reward
-    }
-
+type MDP<'s, 'a> = {
+    State: 's
+    Actions: 'a list
+    Dynamics: Dynamics<'s, 'a>
+    Transition: TransitionProbabilities<'s> -> Randomized<('s * float<reward>)>
+    DiscountFactor: float
+}
 
 // A policy is a mapping from states to the probabilities of selecting each possible action
 type Policy<'s, 'a> = Policy of ('s -> Distribution<'a>)
+
+module MDP =
+
+    let next mdp action   =
+        let {State = state; Actions = _; Dynamics = (Dynamics dynamics); Transition = transition; DiscountFactor = _} = mdp
+        let transitionProbabilities = dynamics state action
+        let (Randomized(nextState, reward)) = transitionProbabilities |> transition
+        {mdp with State = nextState}, reward
+
+        //let rec utility (Policy policy) (mdp: MDP<'s, 'a>) stateValues =
+        //    mdp.Actions
+        //    |> List.map (
+        //        fun action ->
+                    
+        //            let x = distribution {
+        //                let! (TransitionProbabilities transitionProbabilities) = mdp.Dynamics state action
+        //                transitionProbabilities
+
+        //                    }
+
 
 module Prediction =
 
@@ -80,109 +89,54 @@ module Prediction =
     open Radix.Control.Monad.State.Statefull
 
     // Iterate policy evaluation
-    let rec evaluate policy θ discountFactor stateValues =
-        let rec iterate Δ stateValues' =
-            match Δ with
-            | Δ when Δ < θ -> stateValues'
-            | _ ->
-                match stateValues' with
-                | [] -> stateValues'
-                | (environment, value)::svs ->
-                        let actionProbabilities = distribution {
-                            return! policy environment
-                        }
-                        let newValue =
-                            actionProbabilities
-                            |> List.map (fun ap ->
-                                    let (Event action , p) = ap
-                                    let probability = Probability.cata p id
-                                    let statefull = state {
-                                        let! reward = Environment.next action
-                                        return probability * (float reward) + (discountFactor * value)
-                                    }
-                                    run statefull environment |> fst
-                                    )
-                            |> List.sum
-                        let Δ' = [Δ; abs(value - newValue)] |> List.max
-                        iterate Δ' svs
+    let rec evaluate (Policy policy) θ discountFactor stateValues environment =
 
-        iterate 0.0 stateValues
+        let stateValues'=
+            stateValues
+            |> List.map (fun (state, value) -> 
+                            let actionProbabilities =
+                                distribution {
+                                    return! policy state
+                                } |> toList
+
+                            let newValue = actionProbabilities
+                                           |> List.map (fun (Event action, p) ->
+                        
+                                                let probability = Probability.cata p id
+                                                let _', reward = MDP.next action environment
+                                                probability * (float reward) + (discountFactor * value))                          
+                                           |> List.sum
+                            state, newValue)
+
+        let exit = stateValues
+                    |> List.map snd
+                    |> List.zip (stateValues' |> List.map snd)
+                    |> List.map (fun (oldValue, newValue) -> [θ; abs(oldValue - newValue)] |> List.max)
+                    |> List.exists (fun x -> x < θ)
+
+        if not exit
+        then evaluate (Policy policy) θ discountFactor stateValues' environment
+        else stateValues'
+
+                                     
+
+                        
+
+        
+
+                
+               
+             
 
 
 
 // γ = discount rate
 
-module e41 =
-
-    type Action =
-    | Start
-    | Up
-    | Down
-    | Left
-    | Right
-
-
-    open Generators
-
-    let gridDynamics : Dynamics<int, Action> =
-        Dynamics (fun state -> fun action ->
-            match action with
-            | Start -> TransitionProbabilities (certainly (Event (state, -1.0<reward>)))
-            | Up ->
-                match state with
-                | state' when [1..3] |> List.contains state'
-                    -> TransitionProbabilities impossible
-                | state' when [5..14] |> List.contains state'
-                    -> TransitionProbabilities (certainly (Event (state' - 4, -1.0<reward>)))
-                | state' when state' = 4
-                    -> TransitionProbabilities (certainly (Event (0, -1.0<reward>)))
-                | _ -> TransitionProbabilities impossible
-            | Down ->
-                match state with
-                | state' when [12..14] |> List.contains state'
-                    -> TransitionProbabilities impossible
-                | state' when [1..10] |> List.contains state'
-                    -> TransitionProbabilities (certainly (Event (state' - 4, -1.0<reward>)))
-                | state' when state' = 11
-                    -> TransitionProbabilities (certainly (Event (0, - 1.0<reward>)))
-                | _ -> TransitionProbabilities impossible
-            | Left ->
-                match state with
-                | state' when [4; 8; 12] |> List.contains state'
-                    -> TransitionProbabilities impossible
-                | state' when [2; 3; 5; 6; 7; 9; 10; 11; 13; 14] |> List.contains state'
-                    -> TransitionProbabilities (certainly (Event (state' - 1, -1.0<reward>)))
-                | state' when state' = 1
-                    -> TransitionProbabilities (certainly (Event (0, - 1.0<reward>)))
-                | _ -> TransitionProbabilities impossible
-            | Right ->
-                match state with
-                | state' when [4; 8; 12] |> List.contains state'
-                    -> TransitionProbabilities impossible
-                | state' when [1; 2; 4; 5; 6; 8; 9; 10; 12; 13] |> List.contains state'
-                    -> TransitionProbabilities (certainly (Event (state' + 1, -1.0<reward>)))
-                | state' when state' = 14
-                    -> TransitionProbabilities (certainly (Event (0, - 1.0<reward>)))
-                | _ -> TransitionProbabilities impossible)
-
-    open Radix.Control.Monad.State.Statefull
-
-    let reset = state {
-        return Environment.reset (1, gridDynamics, fun (TransitionProbabilities x) -> x |> choose)
-    }
-
-    let agent s =
-        let (Policy uniformPolicy) = Policy (fun _ -> uniform [Up; Down; Left; Right])
-        let (Randomized action) = (uniformPolicy s) |> choose
-        action
-
-    let rolout = state {
 
 
 
-        let! environment = reset
 
-    }
+
     // let stateValue π s =
 
         // |> U

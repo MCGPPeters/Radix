@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radix
 {
@@ -43,5 +44,16 @@ namespace Radix
     public static class _<T>
     {
         public static Func<T, T> Id => t => t;
+
+        public static Func<A, B> Memoize<A, B>(Func<A, B> f) where A : notnull
+        {
+            var cache = new Dictionary<A, B>();
+            return x =>
+            {
+                if (cache.TryGetValue(x, out B? v)) return v;
+                cache[x] = f(x);
+                return cache[x];
+            };
+        }
     }
 }

@@ -3,13 +3,19 @@ using Radix.Validated;
 
 namespace Radix
 {
-    public record EventType : Alias<string>
+    public record EventType
     {
-        public EventType(Type value) : this(value.FullName)
+        public EventType (Type value) : this(value.FullName)
         {
+
         }
 
-        public EventType(string value) : base(value) { }
+        public EventType(string value)
+        {
+            Value = value;
+        }
+
+        public string Value { get; }
 
         public static Validated<EventType> Create(string fullName) =>
             NonEmptyString

@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Probability.fsx" />
+    <None Include="p41.fsx" />
     <Compile Include="Radix.fs" />
     <Compile Include="Radix.Math.Pure.Structure.Order.fs" />
     <Compile Include="Radix.Math.Pure.Algebra.Structure.fs" />

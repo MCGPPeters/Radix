@@ -80,6 +80,10 @@ module Distribution =
         |> List.map (fun (e, Probability p) -> (e, Probability (p / q)))
         |> Distribution
 
+    let toList d =
+        let (Distribution eventProbabilities) = d
+        eventProbabilities
+
 type Expectation<'x> = Expectation of Random<'x>
 
     module Discrete =
@@ -117,9 +121,10 @@ module Generators =
         | [] -> impossible
         | xs ->
             let xs'= List.map (fun x -> Event x) xs
-            let incr = 1.0 / float ((List.length xs - 1))
-            let probabilities = List.map f (iterate (fun x -> incr + x) 0.0)
-            Distribution.scale (List.zip xs' (probabilities |> List.map (fun x -> Probability x)) |> Distribution)
+            let length = List.length xs
+            let incr = 1.0 / float ((length - 1))
+            let probabilities = Seq.map f (iterate (fun x -> incr + x) 0.0)
+            Distribution.scale (Seq.zip xs' (probabilities |> Seq.map (fun x -> Probability x) |> Seq.take length) |> Seq.toList |> Distribution)
 
     open Radix.Prelude
 
@@ -137,7 +142,7 @@ module Sampling =
 
     type Randomized<'a> = Randomized of 'a
 
-    let Guid = Randomized (MassTransit.NewId.Next())
+    let Guid = Randomized (System.Guid.NewGuid())
 
     let rec scan (Probability probability ) (Distribution distribution) =
         match distribution with

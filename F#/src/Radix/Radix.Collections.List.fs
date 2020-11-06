@@ -2,7 +2,7 @@ namespace Radix.Collections
 
     module List =
 
-        let rec iterate f value = [ yield value; yield! iterate f (f value) ]
+        let rec iterate f value = seq { yield value; yield! iterate f (f value) }
 
         let rec findFirst predicate list =
             match list with

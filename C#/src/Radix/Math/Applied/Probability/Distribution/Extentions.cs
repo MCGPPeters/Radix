@@ -53,5 +53,6 @@ namespace Radix.Math.Applied.Probability.Distribution
 
         public static Distribution<T> Scale<T>(this Distribution<T> distribution)
             => Distribution<T>.Scale(distribution);
+
     }
 }
