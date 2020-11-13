@@ -10,7 +10,7 @@ Al is build on top of a generic functional style core.
 
 There is a C# version and a version in F#. Most effort at the time is in the C# version, though a goal is feature parity in C# and F#. For the F# equivalent of the Elm architecture I would recommend using [Bolero](https://github.com/fsbolero/bolero) .
 
-Please consult the wiki for the docs, test and sample applications for guidance on how to use it.
+Please consult the [wiki](https://github.com/MCGPPeters/Radix/wiki) for the docs, test and sample applications for guidance on how to use it.
 
 # Motivation
 
