@@ -44,3 +44,5 @@ jobs:
         create_annotated_tag: # optional, default is false
         # Do not perform tagging, just calculate next version and changelog, then exit
         dry_run: # optional, default is false
+    - name: Get tag name
+      uses: olegtarasov/get-tag@v2
