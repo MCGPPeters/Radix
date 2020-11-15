@@ -16,7 +16,7 @@ Please consult the [wiki](https://github.com/MCGPPeters/Radix/wiki) for the docs
 
 # Motivation
 
-The original end goal I had in mind is to build a library to build explainable AI systems. Using event sourcing concepts a 'audit trail' on how the system behaves and why should help analyze and understanding this behavior. Current idea is to mostly focus on reinforcement learning combined with neuro evolutional concepts, but the concept is not limited to only this application.
+The original end goal I had in mind is to build a library for building explainable AI systems. Using event sourcing concepts a 'audit trail' on how the system behaves and why should help analyze and understanding this behavior. Current idea is to mostly focus on reinforcement learning combined with neuro evolutional concepts, but the concept is not limited to only this application.
 
 However, as mentioned in the intro, the generalized library for building event sourced components and task based user interfaces has most of the focus right now. 
 
