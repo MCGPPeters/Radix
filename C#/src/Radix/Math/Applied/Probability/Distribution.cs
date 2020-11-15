@@ -8,7 +8,6 @@ using static Radix.Validated.Extensions;
 namespace Radix.Math.Applied.Probability
 {
 
-
     public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>>
     {
         private Distribution(IEnumerable<(Event<T> @event, Probability probability)> distribution) : base(distribution)

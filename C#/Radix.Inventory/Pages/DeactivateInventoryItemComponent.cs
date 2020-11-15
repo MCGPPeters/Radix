@@ -27,7 +27,8 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         protected override Update<DeactivateInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) => state;
 
-        protected override Node View(DeactivateInventoryItemViewModel currentViewModel) => concat(
+        protected override Node View(DeactivateInventoryItemViewModel currentViewModel) =>
+            concat(
             h1(NoAttributes(), text($"Deactivate item : {ViewModel.InventoryItemName}")),
             div(
                 new[] { @class("form-group") },
@@ -38,7 +39,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     @class("form-control"),
                     id("reasonInput"),
                     bind.input(currentViewModel.Reason, reason => currentViewModel.Reason = reason)),
-                
+
             button(
                 new[]
                 {
@@ -82,9 +83,8 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     )))));
 
         private static IEnumerable<IAttribute> NoAttributes()
-        {
-            return Enumerable.Empty<IAttribute>();
-        }
+            => Enumerable.Empty<IAttribute>();
+
         private static Node FormatErrorMessages(IEnumerable<Radix.Error> errors)
         {
             Node node = new Empty();

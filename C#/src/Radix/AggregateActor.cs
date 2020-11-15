@@ -80,12 +80,12 @@ namespace Radix
                                             _boundedContextSettings.SerializeMetaData(new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId)),
                                             new MessageId(Guid.NewGuid()));
                                     }).ToArray();
-                            ConfiguredTaskAwaitable<Result<ExistingVersion, AppendEventsError>> appendResult =
+                            Result<ExistingVersion, AppendEventsError> appendResult = await
                                 _boundedContextSettings
                                     .AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
                                     .ConfigureAwait(false);
 
-                            switch (await appendResult)
+                            switch (appendResult)
                             {
                                 case Ok<ExistingVersion, AppendEventsError>(var version):
                                     // the events have been saved to the stream successfully. Update the state

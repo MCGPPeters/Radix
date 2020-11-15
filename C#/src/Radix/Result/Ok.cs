@@ -8,7 +8,7 @@ namespace Radix.Result
     {
         internal Ok(T t)
         {
-            if (t is object)
+            if (t is not null)
             {
                 Value = t;
             }

@@ -75,7 +75,7 @@ namespace Radix.Async
                         case TaskStatus.Faulted:
                         {
                             bool? x = t.Exception?.InnerExceptions.Any(exceptionFilter);
-                            if (x is object && x == true)
+                            if (x is not null && x == true)
                             {
                                 return Task.FromResult(t.Result);
                             }
