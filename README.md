@@ -1,5 +1,6 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/MCGPPeters/Radix)
 ![.NET Core](https://github.com/MCGPPeters/Radix/workflows/.NET%20Core/badge.svg)
+![CodeQL](https://github.com/MCGPPeters/Radix/workflows/CodeQL/badge.svg)
 
 # Radix
 
