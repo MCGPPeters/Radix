@@ -39,7 +39,6 @@ namespace Radix.Chat.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseWebAssemblyDebugging();
             }
             else
             {
@@ -76,7 +75,6 @@ namespace Radix.Chat.Server
 
                 });
             app.UseHttpsRedirection();
-            app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseRouting();

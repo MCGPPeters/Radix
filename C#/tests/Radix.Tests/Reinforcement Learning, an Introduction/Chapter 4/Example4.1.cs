@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic.CompilerServices;
 using Radix.Math.Applied.Optimization.Control;
+using Radix.Math.Applied.Optimization.Control.Deterministic;
 using Radix.Math.Applied.Probability;
 using Xunit;
 using static Radix.Math.Applied.Probability.Distribution.Generators;
@@ -62,15 +63,15 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
 
             var mdp = new MDP<(int x, int y), Action>(State(), Actions(), GridDynamics, 1.0);
             var randomAction = Distribution<Action>.Uniform(mdp.Actions);
-            Policy<(int x, int y), Action> equiprobableRandomPolicy = _ => randomAction;
+            Radix.Math.Applied.Optimization.Control.Deterministic.Policy<(int x, int y), Action> equiprobableRandomPolicy =
+                new Radix.Math.Applied.Optimization.Control.Deterministic.Policy<(int x, int y), Action>();
             var stateValues = new Dictionary<(int x, int y), double>(
                 State()
                     .Select(s => new KeyValuePair<(int x, int y), double>(s, 0.0)));
 
-            var vπ = Policy.Evaluate(equiprobableRandomPolicy, mdp, stateValues, 0.0001);
+            var vπ = PolicyExtensions.Evaluate(equiprobableRandomPolicy, mdp, stateValues, 0.0001);
 
             var values = new List<double>(State().Select(s => System.Math.Round(vπ.Value(s), 2)));
-
             Xunit.Assert.Equal(new List<double> { 0.0, -14, -20, -22, -14, -18, -20, -20, -20, -20, -18, -14, -22, -20, -14, 0.0 }, values);
         }
     }
