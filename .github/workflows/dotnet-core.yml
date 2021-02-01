@@ -23,3 +23,26 @@ jobs:
       run: dotnet build ./C# --configuration Release --no-restore
     - name: Test
       run: dotnet test ./C# --no-restore --verbosity normal
+    - name: GitHub Tag
+      uses: mathieudutour/github-tag-action@v5
+      with:
+        # Required for permission to tag the repo.
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        # Which type of bump to use when none explicitly provided (default: `patch`).
+        default_bump: patch
+        # A prefix to the tag name (default: `v`).
+        tag_prefix: ''
+        # A suffix to a pre-release tag name (default: `<branch>`).
+        append_to_pre_release_tag: <branch>
+        # Custom tag name. If specified, it overrides bump settings.
+        custom_tag: # optional
+        # Comma separated list of branches (bash reg exp accepted) that will generate the release tags. Other branches and pull-requests generate versions postfixed with the commit hash and do not generate any tag. Examples: `master` or `.*` or `release.*,hotfix.*,master`...
+        release_branches: main
+        # Comma separated list of branches (bash reg exp accepted) that will generate pre-release tags.
+        pre_release_branches: # optional
+        # Boolean to create an annotated tag rather than lightweight
+        create_annotated_tag: # optional, default is false
+        # Do not perform tagging, just calculate next version and changelog, then exit
+        dry_run: # optional, default is false
+    - name: Get tag name
+      uses: olegtarasov/get-tag@v2
