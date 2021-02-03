@@ -7,10 +7,7 @@ namespace Radix.Inventory.Domain
 
         }
 
-        public InventoryItemDeactivated(string Reason)
-        {
-            this.Reason = Reason;
-        }
+        public InventoryItemDeactivated(string Reason) => this.Reason = Reason;
 
         public string? Reason { get; init; }
     }

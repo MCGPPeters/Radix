@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Radix.Math.Applied.Probability;
 using Radix.Data;
 using Radix.Result;
 using static Radix.Result.Extensions;
@@ -38,17 +37,12 @@ namespace Radix
             LastActivity = DateTimeOffset.Now;
             _state = new TState();
             Version expectedVersion = new NoneExistentVersion();
-            EventStreamDescriptor eventStreamDescriptor = new EventStreamDescriptor(typeof(TState).FullName, address);
+            EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, address);
 
             _actionBlock = new ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
                 async input =>
                 {
                     (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource) = input;
-
-                    if (commandDescriptor is null)
-                    {
-                        return;
-                    }
 
                     LastActivity = DateTimeOffset.Now;
 
@@ -127,7 +121,7 @@ namespace Radix
 
         public async Task<Result<TEvent[], Error[]>> Post(TransientCommandDescriptor<TCommand> transientCommandDescriptor)
         {
-            TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource = new TaskCompletionSource<Result<TEvent[], Error[]>>();
+            TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource = new();
             await _actionBlock.SendAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
             return await taskCompletionSource.Task.ConfigureAwait(false);
         }
@@ -139,7 +133,7 @@ namespace Radix
 
         public static AggregateActor<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) =>
-            new AggregateActor<TState, TCommand, TEvent, TFormat>(address, boundedContextSettings, decide, update);
+            new(address, boundedContextSettings, decide, update);
     }
 
 

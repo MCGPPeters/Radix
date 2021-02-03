@@ -15,7 +15,7 @@ namespace Radix.Components.Html
             component<NavLink>(attributes.Prepend(new ComponentAttribute("Match", navLinkMatch)), children);
 
         public static Component component<T>(IEnumerable<IAttribute> attributes, params Node[] children)
-            where T : IComponent => new Component(typeof(T), attributes, children);
+            where T : IComponent => new(typeof(T), attributes, children);
     }
 
 }

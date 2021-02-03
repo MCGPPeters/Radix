@@ -5,15 +5,12 @@ namespace Radix
 {
     public record EventType
     {
-        public EventType (Type value) : this(value.FullName)
+        public EventType(Type value) : this(value.FullName)
         {
 
         }
 
-        public EventType(string value)
-        {
-            Value = value;
-        }
+        public EventType(string value) => Value = value;
 
         public string Value { get; }
 

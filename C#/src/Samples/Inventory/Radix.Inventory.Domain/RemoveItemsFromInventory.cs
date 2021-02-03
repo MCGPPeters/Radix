@@ -11,7 +11,9 @@ namespace Radix.Inventory.Domain
 
 
         public static Validated<InventoryItemCommand> Create(long id, int amount) => Valid(New)
-            .Apply(id > 0 ? Valid(id)
+            .Apply(
+                id > 0
+                    ? Valid(id)
                     : Invalid<long>(""))
             .Apply(
                 amount > 0

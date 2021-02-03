@@ -5,7 +5,8 @@ namespace Radix
     {
 
         public BoundedContextSettings(AppendEvents<TFormat> appendEvents, GetEventsSince<TEvent> getEventsSince,
-            GarbageCollectionSettings garbageCollectionSettings, FromEventDescriptor<TEvent, TFormat> fromEventDescriptor, Serialize<TEvent, TFormat> serialize, Serialize<EventMetaData, TFormat> serializeMetaData)
+            GarbageCollectionSettings garbageCollectionSettings, FromEventDescriptor<TEvent, TFormat> fromEventDescriptor, Serialize<TEvent, TFormat> serialize,
+            Serialize<EventMetaData, TFormat> serializeMetaData)
         {
             AppendEvents = appendEvents;
             GetEventsSince = getEventsSince;
@@ -19,7 +20,7 @@ namespace Radix
         public GetEventsSince<TEvent> GetEventsSince { get; }
         public GarbageCollectionSettings GarbageCollectionSettings { get; }
         public FromEventDescriptor<TEvent, TFormat> FromEventDescriptor { get; }
-        
+
         public Serialize<TEvent, TFormat> Serialize { get; }
 
         public Serialize<EventMetaData, TFormat> SerializeMetaData { get; }

@@ -65,12 +65,15 @@ namespace Radix.Blazor.Inventory.Server.Pages
             inventoryItem =>
                 tr(
                     Enumerable.Empty<IAttribute>(),
-                    td(NoAttributes(), 
-                    navLinkMatchAll(
-                        new[] {href($"/Details/{inventoryItem.id}")},
-                        text(inventoryItem.name))),
-                    td(NoAttributes(), navLinkMatchAll(
-                        new[] { href($"/Deactivate/{inventoryItem.id}") },
-                        text("Deactivate"))))).ToArray();
+                    td(
+                        NoAttributes(),
+                        navLinkMatchAll(
+                            new[] {href($"/Details/{inventoryItem.id}")},
+                            text(inventoryItem.name))),
+                    td(
+                        NoAttributes(),
+                        navLinkMatchAll(
+                            new[] {href($"/Deactivate/{inventoryItem.id}")},
+                            text("Deactivate"))))).ToArray();
     }
 }

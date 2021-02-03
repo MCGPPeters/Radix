@@ -89,8 +89,7 @@ namespace Radix
                                         default:
                                             throw new ArgumentOutOfRangeException(nameof(optionalInventoryItemEvent));
                                     }
-                                    break;
-                                default:
+
                                     break;
                             }
 

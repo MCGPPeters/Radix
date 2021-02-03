@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using static Radix.Result.Extensions;
 
@@ -16,17 +15,15 @@ namespace Radix.Inventory.Domain
                 {
                     return @event switch
                     {
-                        InventoryItemCreated inventoryItemCreated => state with { Name = inventoryItemCreated.Name },
-                        InventoryItemDeactivated inventoryItemDeactivated => state with { Activated = true,   ReasonForDeactivation = inventoryItemDeactivated.Reason},
-                        ItemsCheckedInToInventory itemsCheckedInToInventory => state with { Count = state.Count + itemsCheckedInToInventory.Amount },
-                        ItemsRemovedFromInventory itemsRemovedFromInventory => state with { Count = state.Count - itemsRemovedFromInventory.Amount },
-                        InventoryItemRenamed inventoryItemRenamed => state with { Name = inventoryItemRenamed.Name },
+                        InventoryItemCreated inventoryItemCreated => state with {Name = inventoryItemCreated.Name},
+                        InventoryItemDeactivated inventoryItemDeactivated => state with {Activated = true, ReasonForDeactivation = inventoryItemDeactivated.Reason},
+                        ItemsCheckedInToInventory itemsCheckedInToInventory => state with {Count = state.Count + itemsCheckedInToInventory.Amount},
+                        ItemsRemovedFromInventory itemsRemovedFromInventory => state with {Count = state.Count - itemsRemovedFromInventory.Amount},
+                        InventoryItemRenamed inventoryItemRenamed => state with {Name = inventoryItemRenamed.Name},
                         _ => throw new NotSupportedException("Unknown event")
                     };
                 });
         };
-
-        public string ReasonForDeactivation { get; init; }
 
         public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, command) =>
         {
@@ -41,9 +38,11 @@ namespace Radix.Inventory.Domain
                             new InventoryItemCreated(createInventoryItem.Id, createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count)
                         })),
                 RenameInventoryItem renameInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] { new InventoryItemRenamed { Id = renameInventoryItem.Id, Name = renameInventoryItem.Name } })),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(
+                        new InventoryItemEvent[] {new InventoryItemRenamed {Id = renameInventoryItem.Id, Name = renameInventoryItem.Name}})),
                 CheckInItemsToInventory checkInItemsToInventory => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] { new ItemsCheckedInToInventory { Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id } })),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(
+                        new InventoryItemEvent[] {new ItemsCheckedInToInventory {Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id}})),
                 RemoveItemsFromInventory removeItemsFromInventory => Task.FromResult(
                     Ok<InventoryItemEvent[], CommandDecisionError>(
                         new InventoryItemEvent[] {new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, removeItemsFromInventory.Id)})),
@@ -66,6 +65,8 @@ namespace Radix.Inventory.Domain
             Count = count;
             ReasonForDeactivation = "";
         }
+
+        public string ReasonForDeactivation { get; init; }
 
         public string Name { get; init; }
         public bool Activated { get; init; }

@@ -29,7 +29,7 @@ namespace Radix
         where TEvent : notnull
     {
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
-        private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new Dictionary<Address, Actor<TCommand, TEvent>>();
+        private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new();
         private readonly Timer _timer;
 
         private bool _disposedValue; // To detect redundant calls
@@ -82,7 +82,7 @@ namespace Radix
                 switch (validatedCommand)
                 {
                     case Valid<TCommand>(var validCommand):
-                        TransientCommandDescriptor<TCommand> transientCommandDescriptor = new TransientCommandDescriptor<TCommand>(address, validCommand);
+                        TransientCommandDescriptor<TCommand> transientCommandDescriptor = new(address, validCommand);
                         if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Actor<TCommand, TEvent> agent))
                         {
                             return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);

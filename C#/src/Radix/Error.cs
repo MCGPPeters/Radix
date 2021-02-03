@@ -9,6 +9,6 @@ namespace Radix
 
         public override string ToString() => Message;
 
-        public static implicit operator Error(string m) => new Error(m);
+        public static implicit operator Error(string m) => new(m);
     }
 }

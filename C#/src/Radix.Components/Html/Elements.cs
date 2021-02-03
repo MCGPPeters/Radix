@@ -395,16 +395,16 @@ namespace Radix.Components.Html
             => element(nameof(wbr), attributes, children);
 
         public static Empty empty
-            => new Empty();
+            => new();
 
         public static Node text(string text) => new Text(text);
 
-        public static Concat concat(params Node[] nodes) => new Concat(nodes);
+        public static Concat concat(params Node[] nodes) => new(nodes);
 
-        public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children) => new Element(name, attributes, children);
+        public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children) => new(name, attributes, children);
 
-        public static Element element(Name name, params IAttribute[] attributes) => new Element(name, attributes);
+        public static Element element(Name name, params IAttribute[] attributes) => new(name, attributes);
 
-        public static Element element(Name name, params Node[] nodes) => new Element(name, nodes);
+        public static Element element(Name name, params Node[] nodes) => new(name, nodes);
     }
 }

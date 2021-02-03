@@ -3,17 +3,18 @@ using static Radix.Result.Extensions;
 
 namespace Radix.Math.Pure.Algebra.Linear
 {
-    public class VectorSpace<T>
+    public class VectorSpace<T, D>
+        where T : Field<T>
+        where D : Dimension
     {
-        public VectorSpace()
-        {
+        public D Dimensionality { get; }
 
+        public VectorSpace(D dimensionality)
+        {
+            Dimensionality = dimensionality;
         }
 
-        public Result<Vector, Error> Create(Field<T>[] elements)
-        {
-            return Error<Vector, Error>("");
-        }
+        public Result<Vector, Error> Create() => Error<Vector, Error>("");
     }
 
     public interface Vector

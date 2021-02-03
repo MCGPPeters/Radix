@@ -11,7 +11,7 @@ namespace Radix
             .Select(
                 x =>
                 {
-                    Random rnd = new Random();
+                    Random rnd = new();
                     TimeSpan seconds = TimeSpan.FromSeconds(System.Math.Pow(2, x));
                     // add random number of milliseconds to decrease the chance globally synchronized retries
                     TimeSpan milliseconds = TimeSpan.FromMilliseconds(rnd.Next());

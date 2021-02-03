@@ -4,7 +4,7 @@ namespace Radix
 {
     public readonly struct Unit : IComparable<Unit>, IEquatable<Unit>
     {
-        public static readonly Unit Instance = new Unit();
+        public static readonly Unit Instance = new();
 
         public int CompareTo(Unit other) => 0;
 

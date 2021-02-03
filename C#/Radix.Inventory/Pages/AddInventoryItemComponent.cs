@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
 using Radix.Components.Html;
-using Radix.Option;
 using Radix.Inventory.Domain;
+using Radix.Option;
 using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
 using static Radix.Components.Html.Components;
@@ -75,17 +75,17 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 currentViewModel.InventoryItemCount);
 
                             Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
-                            Option<Radix.Error[]> result = await Dispatch(inventoryItem, validCommand);
+                            Option<Error[]> result = await Dispatch(inventoryItem, validCommand);
                             switch (result)
                             {
-                                case Some<Radix.Error[]>(_):
+                                case Some<Error[]>(_):
                                     if (JSRuntime is not null)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                     }
 
                                     break;
-                                case None<Radix.Error[]> _:
+                                case None<Error[]> _:
                                     NavigationManager.NavigateTo("/");
                                     break;
                             }
@@ -110,7 +110,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
-        private static Node FormatErrorMessages(IEnumerable<Radix.Error> errors)
+        private static Node FormatErrorMessages(IEnumerable<Error> errors)
         {
             Node node = new Empty();
             if (errors is not null)
