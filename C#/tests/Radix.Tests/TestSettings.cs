@@ -9,10 +9,7 @@ namespace Radix.Tests
     public class TestSettings
     {
 
-        public GarbageCollectionSettings CollectionSettings { get; } = new GarbageCollectionSettings
-        {
-            ScanInterval = TimeSpan.FromMilliseconds(500), IdleTimeout = TimeSpan.FromMilliseconds(500)
-        };
+        public GarbageCollectionSettings CollectionSettings { get; } = new() {ScanInterval = TimeSpan.FromMilliseconds(500), IdleTimeout = TimeSpan.FromMilliseconds(500)};
 
         public Serialize<InventoryItemEvent, Json> SerializeEvent { get; } = input => new Json(JsonSerializer.Serialize(input));
         public Serialize<EventMetaData, Json> SerializeMetaData { get; } = json => new Json(JsonSerializer.Serialize(json));
@@ -54,11 +51,11 @@ namespace Radix.Tests
                 1L,
                 new EventType(typeof(InventoryItemCreated).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new ItemsCheckedInToInventory() { Amount = 19, Id = 1 },
+                new ItemsCheckedInToInventory {Amount = 19, Id = 1},
                 2L,
                 new EventType(typeof(ItemsCheckedInToInventory).FullName));
             yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemRenamed() { Name = "Product 2", Id = 1 },
+                new InventoryItemRenamed {Name = "Product 2", Id = 1},
                 3L,
                 new EventType(typeof(InventoryItemRenamed).FullName));
         }

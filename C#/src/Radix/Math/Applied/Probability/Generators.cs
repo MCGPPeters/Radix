@@ -1,9 +1,6 @@
-﻿using System;
-
-namespace Radix.Math.Applied.Probability
+﻿namespace Radix.Math.Applied.Probability
 {
     public static class Generators
     {
-
     }
 }

@@ -1,22 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Blazor.Inventory.Server.Pages;
-using Radix.Inventory.Data;
 using Radix.Inventory.Domain;
 using Radix.Option;
 using Radix.Validated;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using static Radix.Option.Extensions;
 
 namespace Radix.Inventory
@@ -29,7 +24,7 @@ namespace Radix.Inventory
         public IConfiguration Configuration { get; }
 
         public static List<(long id, string Name)> InventoryItems { get; set; }
-            = new List<(long id, string Name)>();
+            = new();
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -39,7 +34,7 @@ namespace Radix.Inventory
             services.AddServerSideBlazor();
 
             IStreamStore streamStore = new InMemoryStreamStore();
-            SqlStreamStore sqlStreamStore = new SqlStreamStore(streamStore);
+            SqlStreamStore sqlStreamStore = new(streamStore);
             FromEventDescriptor<InventoryItemEvent, Json> fromEventDescriptor = descriptor =>
             {
                 if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemCreated).FullName, StringComparison.Ordinal))
@@ -66,7 +61,7 @@ namespace Radix.Inventory
             };
 
 
-            IndexViewModel indexViewModel = new IndexViewModel(InventoryItems);
+            IndexViewModel indexViewModel = new(InventoryItems);
             streamStore.SubscribeToAll(
                 0,
                 async (subscription, message, token) =>
@@ -99,7 +94,7 @@ namespace Radix.Inventory
                                             indexViewModel.InventoryItems.Find(tuple => Equals(tuple.id, inventoryItemRenamed.Id));
                                         itemToRename.name = inventoryItemRenamed.Name;
                                         break;
-                                        // ignore others like the metadatastream
+                                    // ignore others like the metadatastream
                                 }
 
                                 return Unit.Instance;
@@ -108,7 +103,7 @@ namespace Radix.Inventory
 
             Serialize<InventoryItemEvent, Json> serializeEvent = input =>
             {
-                JsonSerializerOptions options = new JsonSerializerOptions { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryItemEvent>() } };
+                JsonSerializerOptions options = new() {Converters = {new PolymorphicWriteOnlyJsonConverter<InventoryItemEvent>()}};
                 string jsonMessage = JsonSerializer.Serialize(input, options);
                 return new Json(jsonMessage);
             };
@@ -141,7 +136,7 @@ namespace Radix.Inventory
                 },
                 input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
             BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
-                new BoundedContextSettings<InventoryItemEvent, Json>(
+                new(
                     sqlStreamStore.AppendEvents,
                     getEventsSince,
                     new GarbageCollectionSettings(),
@@ -149,7 +144,7 @@ namespace Radix.Inventory
                     serializeEvent,
                     serializeMetaData);
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> boundedContext =
-                new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(boundedContextSettings);
+                new(boundedContextSettings);
 
 
             GetEventsSince<CounterIncremented> getCounterIncrementsEventsSince = sqlStreamStore.CreateGetEventsSince(
@@ -166,7 +161,7 @@ namespace Radix.Inventory
                 input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
             Serialize<CounterIncremented, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
             BoundedContextSettings<CounterIncremented, Json> counterBoundedContextSettings =
-                new BoundedContextSettings<CounterIncremented, Json>(
+                new(
                     sqlStreamStore.AppendEvents,
                     getCounterIncrementsEventsSince,
                     new GarbageCollectionSettings(),
@@ -175,12 +170,12 @@ namespace Radix.Inventory
                     serializeMetaData);
 
             BoundedContext<IncrementCommand, CounterIncremented, Json> counterBoundedContext =
-                new BoundedContext<IncrementCommand, CounterIncremented, Json>(counterBoundedContextSettings);
+                new(counterBoundedContextSettings);
 
 
-            AddInventoryItemViewModel addInventoryItemViewModel = new AddInventoryItemViewModel();
-            CounterViewModel counterViewModel = new CounterViewModel();
-            DeactivateInventoryItemViewModel deactivateInventoryItemViewModel = new DeactivateInventoryItemViewModel(InventoryItems);
+            AddInventoryItemViewModel addInventoryItemViewModel = new();
+            CounterViewModel counterViewModel = new();
+            DeactivateInventoryItemViewModel deactivateInventoryItemViewModel = new(InventoryItems);
 
             services.AddSingleton(boundedContext);
             services.AddSingleton(counterBoundedContext);

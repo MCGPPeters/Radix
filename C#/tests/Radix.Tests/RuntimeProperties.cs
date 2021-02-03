@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Radix.Data;
-using Radix.Result;
 using Radix.Inventory.Domain;
+using Radix.Result;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Option.Extensions;
@@ -16,7 +15,7 @@ namespace Radix.Tests
     public class RuntimeProperties
     {
 
-        private readonly TestSettings _testSettings = new TestSettings();
+        private readonly TestSettings _testSettings = new();
 
         [Fact(
             DisplayName =
@@ -27,7 +26,7 @@ namespace Radix.Tests
 
             GetEventsSince<InventoryItemEvent> getEventsSince = _testSettings.GetEventsSince;
             CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
-            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>(
+            BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new(
                 new BoundedContextSettings<InventoryItemEvent, Json>(
                     appendEvents,
                     getEventsSince,

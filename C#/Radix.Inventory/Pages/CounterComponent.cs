@@ -45,17 +45,17 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 return;
                             }
 
-                            Option<Radix.Error[]> result = await Dispatch(_counter, validCommand);
+                            Option<Error[]> result = await Dispatch(_counter, validCommand);
                             switch (result)
                             {
-                                case Some<Radix.Error[]>(_):
+                                case Some<Error[]>(_):
                                     if (JSRuntime is not null)
                                     {
                                         await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
                                     }
 
                                     break;
-                                case None<Radix.Error[]> _:
+                                case None<Error[]> _:
 
                                     break;
 

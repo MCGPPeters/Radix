@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Radix.Components;
 
 namespace Radix.Blazor.Inventory.Interface.Logic

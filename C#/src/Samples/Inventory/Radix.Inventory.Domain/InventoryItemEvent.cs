@@ -1,9 +1,6 @@
 namespace Radix.Inventory.Domain
 {
-    public abstract record InventoryItemEvent {
-        public InventoryItemEvent()
-        {
-
-        }
+    public abstract record InventoryItemEvent
+    {
     }
 }

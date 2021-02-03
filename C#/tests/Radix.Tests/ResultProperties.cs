@@ -1,13 +1,14 @@
 using System;
 using FsCheck;
 using FsCheck.Xunit;
-using Radix.Math.Pure.Numbers;
 using Radix.Data;
+using Radix.Math.Pure.Numbers;
 using Radix.Result;
 using Xunit;
 using static Radix.Result.Extensions;
 using static Radix.Tests.Assert;
 using static Xunit.Assert;
+using String = Radix.Data.String;
 
 namespace Radix.Tests
 {
@@ -18,14 +19,14 @@ namespace Radix.Tests
                 "As a developer I want to be able to use the language support for pattern matching, so that the code is easy to understand")]
         public void Test1(NonEmptyString s)
         {
-            Result<MString, MString> result = Ok<MString, MString>(s.Get);
+            Result<String, String> result = Ok<String, String>(s.Get);
 
             switch (result)
             {
-                case Ok<MString, MString> _:
+                case Ok<String, String> _:
                     Pass();
                     break;
-                case Error<MString, MString> _:
+                case Error<String, String> _:
                     Fail();
                     break;
             }
@@ -55,10 +56,10 @@ namespace Radix.Tests
         [Property(DisplayName = "Associativity law")]
         public void Test4(int i)
         {
-            Result<int, MString> result = Ok<int, MString>(i);
+            Result<int, String> result = Ok<int, String>(i);
 
-            Func<int, Result<string, MString>> f = x => Ok<string, MString>(x.ToString());
-            Func<string, Result<int, MString>> g = x => Ok<int, MString>(int.Parse(x));
+            Func<int, Result<string, String>> f = x => Ok<string, String>(x.ToString());
+            Func<string, Result<int, String>> g = x => Ok<int, String>(int.Parse(x));
 
             Equal(result.Bind(f).Bind(g), result.Bind(x => f(x).Bind(g)));
         }
@@ -79,7 +80,7 @@ namespace Radix.Tests
         {
             Func<string, int> f = x => int.Parse(x);
             Func<int, string> g = x => x.ToString();
-            Result<int, MString> result = Ok<int, MString>(i);
+            Result<int, String> result = Ok<int, String>(i);
 
             Equal(result.Map(g).Map(f), result.Map(x => f(g(x))));
         }

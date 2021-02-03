@@ -14,7 +14,6 @@ namespace Radix.Math.Applied.Probability
                     >= 0.0 and <= 1.0 => Valid(new Probability(value)),
                     _ => Invalid<Probability>("The value of a probability should be in the interval [0.0, 1.0]")
                 };
-
     }
 
     public delegate double Random<T>(T outcome);

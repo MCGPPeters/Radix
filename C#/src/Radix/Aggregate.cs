@@ -1,5 +1,3 @@
-using System;
-
 namespace Radix
 {
     /// <summary>
@@ -10,7 +8,7 @@ namespace Radix
     public class Aggregate<TCommand, TEvent>
     {
         /// <summary>
-        /// An aggregate instance should only be created by the runtime
+        ///     An aggregate instance should only be created by the runtime
         /// </summary>
         /// <param name="address"></param>
         /// <param name="accept"></param>
@@ -21,12 +19,12 @@ namespace Radix
         }
 
         /// <summary>
-        /// The address of the aggregate
+        ///     The address of the aggregate
         /// </summary>
         public Address Address { get; }
 
         /// <summary>
-        /// Accepts commands and returns either the resulting events or the errors that occured
+        ///     Accepts commands and returns either the resulting events or the errors that occured
         /// </summary>
         public Accept<TCommand, TEvent> Accept { get; }
     }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Radix.Math.Pure.Geometry.Topology
+﻿namespace Radix.Math.Pure.Geometry.Topology
 {
     public delegate double Similarity<in T, TArguments>(T x) where T : SimilarityArguments<TArguments>;
 
@@ -21,7 +19,7 @@ namespace Radix.Math.Pure.Geometry.Topology
                 }
 
                 double denominator = System.Math.Sqrt(p) * System.Math.Sqrt(q);
-                return (sum == 0)
+                return sum == 0
                     ? 0
                     : sum / denominator;
             };

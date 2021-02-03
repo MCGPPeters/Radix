@@ -21,7 +21,7 @@ namespace Radix.Result
 
         public T Value { get; }
 
-        public static implicit operator Ok<T, TError>(T t) => new Ok<T, TError>(t);
+        public static implicit operator Ok<T, TError>(T t) => new(t);
 
         public static implicit operator T(Ok<T, TError> ok) => ok.Value;
 

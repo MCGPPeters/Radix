@@ -1,14 +1,14 @@
 ﻿using Radix.Math.Pure.Algebra.Operations;
 using Radix.Math.Pure.Algebra.Structure;
+using Radix.Result;
 using static Radix.Math.Pure.Numbers.ℤ.Extensions;
 
 namespace Radix.Math.Pure.Numbers
 {
-    using static Result.Extensions;
+    using static Extensions;
+
     public record Rational : Field<Rational>
     {
-        public Integer Numerator { get; }
-        public Integer Denominator { get; }
 
         private Rational(Integer numerator, Integer denominator)
         {
@@ -16,8 +16,21 @@ namespace Radix.Math.Pure.Numbers
             Denominator = denominator;
         }
 
+        public Integer Numerator { get; }
+        public Integer Denominator { get; }
+
+        Multiplication<Rational> Semigroup<Rational, Multiplication<Rational>>.Combine => new((x, y) => x * y);
+
+        Rational Monoid<Rational, Addition<Rational>>.Identity => new(0, 1);
+
+        Addition<Rational> Semigroup<Rational, Addition<Rational>>.Combine => new((x, y) => x + y);
+
+        Rational Group<Rational, Addition<Rational>>.Invert() => -this;
+
+        Rational Monoid<Rational, Multiplication<Rational>>.Identity => new(1, 1);
+
         public static Rational operator *(Rational x, Rational y) =>
-            new (x.Numerator * y.Numerator, x.Denominator * y.Denominator);
+            new(x.Numerator * y.Numerator, x.Denominator * y.Denominator);
 
         public static Rational operator -(Rational x, Rational y)
         {
@@ -27,18 +40,20 @@ namespace Radix.Math.Pure.Numbers
                     return new Rational(x.Numerator + y.Numerator, x.Denominator);
                 case false:
                 {
-                    var lcm = Lcm(x.Denominator, y.Denominator);
-                    var xNumerator = ((lcm / x.Denominator) * x.Numerator);
-                    var yNumerator = ((lcm / y.Denominator) * y.Numerator);
+                    Integer? lcm = Lcm(x.Denominator, y.Denominator);
+                    Integer? xNumerator = lcm / x.Denominator * x.Numerator;
+                    Integer? yNumerator = lcm / y.Denominator * y.Numerator;
 
                     return new Rational(xNumerator - yNumerator, x.Denominator);
                 }
-            };
+            }
+
+            ;
         }
 
         public static Rational operator /(Rational x, Rational y)
         {
-            var switched = new Rational(y.Denominator, y.Numerator);
+            Rational? switched = new Rational(y.Denominator, y.Numerator);
             return x * switched;
         }
 
@@ -50,13 +65,13 @@ namespace Radix.Math.Pure.Numbers
                     return new Rational(x.Numerator + y.Numerator, x.Denominator);
                 case false:
                 {
-                    var lcm = Lcm(x.Denominator, y.Denominator);
-                    var xNumerator = ((lcm / x.Denominator) * x.Numerator);
-                    var yNumerator = ((lcm / y.Denominator) * y.Numerator);
+                    Integer? lcm = Lcm(x.Denominator, y.Denominator);
+                    Integer? xNumerator = lcm / x.Denominator * x.Numerator;
+                    Integer? yNumerator = lcm / y.Denominator * y.Numerator;
 
                     return new Rational(xNumerator + yNumerator, x.Denominator);
                 }
-            };
+            }
         }
 
         public static Rational operator -(Rational x) =>
@@ -68,27 +83,5 @@ namespace Radix.Math.Pure.Numbers
                 > 0 => Ok<Rational, Error>(new Rational(numerator, denominator)),
                 _ => Error<Rational, Error>("The denominator must be greater then 0")
             };
-
-        Multiplication<Rational> Semigroup<Rational, Multiplication<Rational>>.Combine
-        {
-            get => new((x, y) => x * y);
-        }
-
-        Rational Monoid<Rational, Addition<Rational>>.Identity
-        {
-            get => new(0, 1);
-        }
-
-        Addition<Rational> Semigroup<Rational, Addition<Rational>>.Combine
-        {
-            get => new((x, y) => x + y);
-        }
-
-        Rational Group<Rational, Addition<Rational>>.Invert() => -this;
-
-        Rational Monoid<Rational, Multiplication<Rational>>.Identity
-        {
-            get => new(1, 1);
-        }
     }
 }

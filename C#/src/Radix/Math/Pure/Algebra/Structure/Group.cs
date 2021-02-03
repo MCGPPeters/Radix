@@ -1,5 +1,4 @@
-﻿using System;
-using Radix.Math.Pure.Algebra.Operations;
+﻿using Radix.Math.Pure.Algebra.Operations;
 
 namespace Radix.Math.Pure.Algebra.Structure
 {

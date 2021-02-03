@@ -2,6 +2,6 @@
 {
     public record Reward(double Value) : Alias<double>(Value)
     {
-        public static implicit operator Reward(double value) => new Reward(value);
+        public static implicit operator Reward(double value) => new(value);
     }
 }

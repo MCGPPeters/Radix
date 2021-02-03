@@ -12,7 +12,8 @@ namespace Radix
     /// </param>
     /// <typeparam name="TFormat">The format of events</typeparam>
     /// <returns>
-    ///     Either a next expected existing version of the event stream when the action succeeded or an error. The AppendEventsError is one if the following:
+    ///     Either a next expected existing version of the event stream when the action succeeded or an error. The
+    ///     AppendEventsError is one if the following:
     ///     - OptimisticConcurrencyError
     /// </returns>
     public delegate Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TFormat>(Address address, Version expectedVersion, EventStreamDescriptor eventStreamDescriptor,
