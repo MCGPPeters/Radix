@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Radix.Monoid;
+using Radix.Data;
 using Radix.Result;
 using static Radix.Result.Extensions;
 

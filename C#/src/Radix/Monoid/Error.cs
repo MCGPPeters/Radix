@@ -1,4 +1,4 @@
-namespace Radix.Monoid
+namespace Radix.Data
 {
     public class Error<T, TError> : Result<T, TError>
     {

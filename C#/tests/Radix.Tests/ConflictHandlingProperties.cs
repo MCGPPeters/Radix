@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Radix.Monoid;
+using Radix.Data;
 using Radix.Result;
 using Radix.Inventory.Domain;
 using Xunit;

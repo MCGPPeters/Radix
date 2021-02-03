@@ -1,5 +1,5 @@
 using System;
-using Radix.Monoid;
+using Radix.Data;
 
 namespace Radix.Result
 {
