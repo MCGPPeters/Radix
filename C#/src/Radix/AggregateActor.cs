@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Radix.Math.Applied.Probability;
-using Radix.Monoid;
+using Radix.Data;
 using Radix.Result;
 using static Radix.Result.Extensions;
 
