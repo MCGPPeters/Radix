@@ -5,7 +5,6 @@ namespace Radix.Math.Pure.Numbers
 {
     public record Integer(int Value) : Ring<Integer>
     {
-
         Multiplication<Integer> Semigroup<Integer, Multiplication<Integer>>.Combine =>
             new((x, y) => x * y);
 
