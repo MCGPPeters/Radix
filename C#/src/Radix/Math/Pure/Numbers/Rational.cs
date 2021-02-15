@@ -16,7 +16,15 @@ namespace Radix.Math.Pure.Numbers
             Denominator = denominator;
         }
 
+        public static Result<Rational, Error> Create(Integer numerator, Integer denominator)
+            => denominator.Value switch
+            {
+                > 0 => Ok<Rational, Error>(new Rational(numerator, denominator)),
+                _ => Error<Rational, Error>($"The {nameof(denominator)} must be greater then zero")
+            };
+
         public Integer Numerator { get; }
+
         public Integer Denominator { get; }
 
         Multiplication<Rational> Semigroup<Rational, Multiplication<Rational>>.Combine => new((x, y) => x * y);
@@ -40,9 +48,9 @@ namespace Radix.Math.Pure.Numbers
                     return new Rational(x.Numerator + y.Numerator, x.Denominator);
                 case false:
                 {
-                    Integer? lcm = Lcm(x.Denominator, y.Denominator);
-                    Integer? xNumerator = lcm / x.Denominator * x.Numerator;
-                    Integer? yNumerator = lcm / y.Denominator * y.Numerator;
+                    Integer lcm = Lcm(x.Denominator, y.Denominator);
+                    Integer xNumerator = lcm / x.Denominator * x.Numerator;
+                    Integer yNumerator = lcm / y.Denominator * y.Numerator;
 
                     return new Rational(xNumerator - yNumerator, x.Denominator);
                 }
@@ -53,7 +61,7 @@ namespace Radix.Math.Pure.Numbers
 
         public static Rational operator /(Rational x, Rational y)
         {
-            Rational? switched = new Rational(y.Denominator, y.Numerator);
+            Rational switched = new(y.Denominator, y.Numerator);
             return x * switched;
         }
 
@@ -65,9 +73,9 @@ namespace Radix.Math.Pure.Numbers
                     return new Rational(x.Numerator + y.Numerator, x.Denominator);
                 case false:
                 {
-                    Integer? lcm = Lcm(x.Denominator, y.Denominator);
-                    Integer? xNumerator = lcm / x.Denominator * x.Numerator;
-                    Integer? yNumerator = lcm / y.Denominator * y.Numerator;
+                    Integer lcm = Lcm(x.Denominator, y.Denominator);
+                    Integer xNumerator = lcm / x.Denominator * x.Numerator;
+                    Integer yNumerator = lcm / y.Denominator * y.Numerator;
 
                     return new Rational(xNumerator + yNumerator, x.Denominator);
                 }
@@ -76,12 +84,5 @@ namespace Radix.Math.Pure.Numbers
 
         public static Rational operator -(Rational x) =>
             new Rational(0, 1) - x;
-
-        public static Result<Rational, Error> Create(Integer numerator, Integer denominator)
-            => denominator.Value switch
-            {
-                > 0 => Ok<Rational, Error>(new Rational(numerator, denominator)),
-                _ => Error<Rational, Error>("The denominator must be greater then 0")
-            };
     }
 }

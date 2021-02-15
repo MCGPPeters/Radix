@@ -1,27 +1,12 @@
-﻿using Radix.Math.Pure.Algebra.Structure;
+﻿using Radix.Math.Pure.Algebra.Operations;
+using Radix.Math.Pure.Numbers;
 using static Radix.Result.Extensions;
 
 namespace Radix.Math.Pure.Algebra.Linear
 {
-    public class VectorSpace<T, D>
-        where T : Field<T>
-        where D : Dimension
+
+    public interface Vector<out T>
     {
-        public D Dimensionality { get; }
-
-        public VectorSpace(D dimensionality)
-        {
-            Dimensionality = dimensionality;
-        }
-
-        public Result<Vector, Error> Create() => Error<Vector, Error>("");
-    }
-
-    public interface Vector
-    {
-    }
-
-    public interface Dimension
-    {
+        T[] Elements { get; }
     }
 }

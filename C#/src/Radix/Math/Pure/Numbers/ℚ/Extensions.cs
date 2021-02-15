@@ -1,5 +1,6 @@
 ﻿using System;
-
+using Radix.Result;
+using static Radix.Result.Extensions;
 using static Radix.Math.Pure.Numbers.ℤ.Extensions;
 
 namespace Radix.Math.Pure.Numbers.ℚ
