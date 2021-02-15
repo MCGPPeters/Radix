@@ -20,7 +20,7 @@ namespace Radix
                                                                 EqualityComparer<TEvent>.Default.Equals(Event, other.Event) &&
                                                                 string.Equals(Reason, other.Reason);
 
-        public override bool Equals(object obj) => obj is Conflict<TCommand, TEvent> other && Equals(other);
+        public override bool Equals(object? obj) => obj is Conflict<TCommand, TEvent> other && Equals(other);
 
         public override int GetHashCode()
         {

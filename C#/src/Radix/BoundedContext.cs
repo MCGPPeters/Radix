@@ -83,7 +83,7 @@ namespace Radix
                 {
                     case Valid<TCommand>(var validCommand):
                         TransientCommandDescriptor<TCommand> transientCommandDescriptor = new(address, validCommand);
-                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Actor<TCommand, TEvent> agent))
+                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Actor<TCommand, TEvent>? agent))
                         {
                             return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                         }

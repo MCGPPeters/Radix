@@ -3,8 +3,15 @@ using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers
 {
-    public record Real(double Value) : Field<Real>
+    public struct Real : Field<Real>
     {
+        private double Value { get; }
+
+        public Real(double value)
+        {
+            Value = value;
+        }
+
         public static implicit operator Real(double i) => new(i);
 
         public static implicit operator double(Real i) => i.Value;

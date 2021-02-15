@@ -66,14 +66,11 @@ namespace Radix
 
                             TransientEventDescriptor<TFormat>[]
                                 eventDescriptors = events.Select(
-                                    @event =>
-                                    {
-                                        return new TransientEventDescriptor<TFormat>(
-                                            new EventType(@event.GetType()),
-                                            _boundedContextSettings.Serialize(@event),
-                                            _boundedContextSettings.SerializeMetaData(new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId)),
-                                            new MessageId(Guid.NewGuid()));
-                                    }).ToArray();
+                                    @event => new TransientEventDescriptor<TFormat>(
+                                        new EventType(@event.GetType()),
+                                        _boundedContextSettings.Serialize(@event),
+                                        _boundedContextSettings.SerializeMetaData(new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId)),
+                                        new MessageId(Guid.NewGuid()))).ToArray();
                             Result<ExistingVersion, AppendEventsError> appendResult = await
                                 _boundedContextSettings
                                     .AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
