@@ -1,0 +1,25 @@
+{
+  "name": "@mcgppeters/radix",
+  "version": "1.0.3",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "bin": "",
+  "scripts": {
+    "build": "tsc --b",
+    "build:production": "npm run prestart && npm prune --production",
+    "watch": "tsc --w",
+    "test": "echo \"No tests yet...\""
+  },
+  "author": "Maurice CGP Peters",
+  "license": "Apache-2.0 License",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/MCGPPeters/Radix.git"
+  }
+}

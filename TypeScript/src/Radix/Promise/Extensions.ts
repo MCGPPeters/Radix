@@ -1,6 +1,7 @@
 
 import { Duration } from "@js-joda/core"
 
+
 export function retry<T>(f: () => Promise<T>, ... intervals : Duration[]) : Promise<T> {
     return intervals.length === 0
         ? f()
