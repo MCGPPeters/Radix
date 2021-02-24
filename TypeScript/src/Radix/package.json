@@ -1,13 +1,15 @@
 {
   "name": "@mcgppeters/radix",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@js-joda/core": "^3.2.0"
+  },
   "devDependencies": {},
   "bin": "",
   "scripts": {
@@ -19,7 +21,7 @@
   "author": "Maurice CGP Peters",
   "license": "Apache-2.0 License",
   "repository": {
-      "type": "git",
-      "url": "https://github.com/MCGPPeters/Radix.git"
+    "type": "git",
+    "url": "https://github.com/MCGPPeters/Radix.git"
   }
 }
