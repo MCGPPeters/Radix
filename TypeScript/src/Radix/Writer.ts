@@ -1,5 +1,3 @@
-export default Writer
-
 export type Writer<A, W> = () => [value: A, Output: Array<W>]
 
 export function unit<A, W>(a: A): Writer<A, W> {
@@ -23,3 +21,5 @@ export function map<A, W, B>(writer: Writer<A, W>, f: (a: A) => B): Writer<B, W>
         return [resultB, resultA[1]];
     }
 }
+
+export default Writer
