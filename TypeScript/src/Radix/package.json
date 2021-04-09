@@ -1,6 +1,6 @@
 {
   "name": "@mcgppeters/radix",
-  "version": "1.0.13",
+  "version": "1.0.23",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

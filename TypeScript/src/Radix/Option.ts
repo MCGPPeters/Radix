@@ -1,5 +1,3 @@
-export default Option
-
 export type None = {
     tag: "none"
 };
@@ -28,3 +26,5 @@ export function map<T, U>(option: Option<T>, f: (t: T) => U): Option<U>{
         case "none" : return None
     }
 }
+
+export default Option
