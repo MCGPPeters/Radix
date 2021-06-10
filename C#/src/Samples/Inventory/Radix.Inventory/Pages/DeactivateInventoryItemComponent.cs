@@ -129,7 +129,6 @@ namespace Radix.Blazor.Inventory.Server.Pages
 
         public List<(long id, string name, bool activated)> InventoryItems { get; set; }
 
-        public IEnumerable<Error> Errors { get; set; } = new List<Error>();
         public string? InventoryItemName { get; set; }
         public string Reason { get; set; }
     }
