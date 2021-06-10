@@ -16,7 +16,7 @@ namespace Radix.Inventory.Domain
                     return @event switch
                     {
                         InventoryItemCreated inventoryItemCreated => state with {Name = inventoryItemCreated.Name},
-                        InventoryItemDeactivated inventoryItemDeactivated => state with {Activated = true, ReasonForDeactivation = inventoryItemDeactivated.Reason},
+                        InventoryItemDeactivated inventoryItemDeactivated => state with {Activated = false, ReasonForDeactivation = inventoryItemDeactivated.Reason},
                         ItemsCheckedInToInventory itemsCheckedInToInventory => state with {Count = state.Count + itemsCheckedInToInventory.Amount},
                         ItemsRemovedFromInventory itemsRemovedFromInventory => state with {Count = state.Count - itemsRemovedFromInventory.Amount},
                         InventoryItemRenamed inventoryItemRenamed => state with {Name = inventoryItemRenamed.Name},
@@ -30,7 +30,7 @@ namespace Radix.Inventory.Domain
             return command switch
             {
                 DeactivateInventoryItem deactivateInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(deactivateInventoryItem.Reason)})),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(deactivateInventoryItem.Id, deactivateInventoryItem.Reason)})),
                 CreateInventoryItem createInventoryItem => Task.FromResult(
                     Ok<InventoryItemEvent[], CommandDecisionError>(
                         new InventoryItemEvent[]

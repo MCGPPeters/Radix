@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{0785
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{8D7BEBDC-917D-45F9-95AE-6763EF63B3C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory", "Radix.Inventory\Radix.Inventory.csproj", "{37B6F475-78CD-4AC2-8A8B-FAC1124701E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory", "src\Samples\Inventory\Radix.Inventory\Radix.Inventory.csproj", "{37B6F475-78CD-4AC2-8A8B-FAC1124701E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
