@@ -16,7 +16,7 @@ namespace Radix
             Address = address;
         }
 
-        public string StreamIdentifier => $"{AggregateType}-{Address}";
+        public string StreamIdentifier => $"{AggregateType}-{Address.Value}";
 
         private string? AggregateType { get; set; }
         private Address? Address { get; set; }

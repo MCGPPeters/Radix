@@ -9,8 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Samples\Inventory\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj" />
-    <ProjectReference Include="..\src\Samples\Inventory\Radix.Inventory.Interface.Logic\Radix.Inventory.Interface.Logic.csproj" />
+    <ProjectReference Include="..\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\Radix.Inventory.Interface.Logic\Radix.Inventory.Interface.Logic.csproj" />
   </ItemGroup>
 
 </Project>
