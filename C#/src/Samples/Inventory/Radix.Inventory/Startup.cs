@@ -187,7 +187,7 @@ namespace Radix.Inventory
             services.AddSingleton(indexViewModel);
             services.AddTransient(_ => new AddInventoryItemViewModel());
             services.AddSingleton(counterViewModel);
-            services.AddSingleton(deactivateInventoryItemViewModel);
+            services.AddTransient(_ => new DeactivateInventoryItemViewModel(InventoryItems));
 
         }
 
