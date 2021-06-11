@@ -14,7 +14,7 @@ using static Radix.Components.Html.Components;
 namespace Radix.Blazor.Inventory.Server.Pages
 {
     [Route("/Deactivate/{id:long}")]
-    public class DeactivateInventoryItemComponent : Component<DeactivateInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
+    public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
         [Parameter]public long Id { get; set; }
 
@@ -55,7 +55,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
         
         protected override Node View(DeactivateInventoryItemViewModel currentViewModel) =>
             concat(
-                h1(NoAttributes(), text($"Deactivate item : {ViewModel.InventoryItemName}")),
+                h1(None, text($"Deactivate item : {ViewModel.InventoryItemName}")),
                 div(
                     new[] {@class("form-group")},
                     Elements.label(
@@ -94,20 +94,20 @@ namespace Radix.Blazor.Inventory.Server.Pages
                     ),
                     navLinkMatchAll(new[] {@class("btn btn-primary"), href("/")}, text("Cancel")),
                     div(
-                        NoAttributes(),
+                        None,
                         div(
                             new[] {@class("toast"), attribute("data-autohide", "false")},
                             div(
                                 new[] {@class("toast-header")},
                                 strong(new[] {@class("mr-auto")}, text("Invalid input")),
-                                small(NoAttributes(), text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
-                                button(new[] {type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast")}, Elements.span(NoAttributes(), text("🗙")))),
+                                small(None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
+                                button(new[] {type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast")}, Elements.span(None, text("🗙")))),
                             div(
                                 new[] {@class("toast-body")},
                                 FormatErrorMessages(currentViewModel.Errors)
                             )))));
 
-        private static IEnumerable<IAttribute> NoAttributes()
+        private static IEnumerable<IAttribute> None
             => Enumerable.Empty<IAttribute>();
 
         private static Node FormatErrorMessages(IEnumerable<Error> errors)

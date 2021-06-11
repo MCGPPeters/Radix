@@ -12,7 +12,7 @@ using static Radix.Validated.Extensions;
 namespace Radix.Blazor.Inventory.Server.Pages
 {
     [Route("/counter")]
-    public class CounterComponent : Component<CounterViewModel, IncrementCommand, CounterIncremented, Json>
+    public class CounterComponent : TaskBasedComponent<CounterViewModel, IncrementCommand, CounterIncremented, Json>
     {
         private Aggregate<IncrementCommand, CounterIncremented>? _counter;
 
