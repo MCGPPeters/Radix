@@ -25,7 +25,6 @@ namespace Radix.Tests
             AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
 
             GetEventsSince<InventoryItemEvent> getEventsSince = _testSettings.GetEventsSince;
-            CheckForConflict<InventoryItemCommand, InventoryItemEvent> checkForConflict = (_, __) => None<Conflict<InventoryItemCommand, InventoryItemEvent>>();
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new(
                 new BoundedContextSettings<InventoryItemEvent, Json>(
                     appendEvents,
@@ -45,7 +44,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().Equal(new List<InventoryItemEvent> {new ItemsRemovedFromInventory(1, 1)});
+                    events.Should().Equal(new List<InventoryItemEvent> { new ItemsRemovedFromInventory(1, 1) });
                     break;
                 case Error<InventoryItemEvent[], Error[]>(var errors):
                     errors.Should().BeEmpty();
