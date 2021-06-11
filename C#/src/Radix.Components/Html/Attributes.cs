@@ -1,9 +1,13 @@
-﻿namespace Radix.Components.Html
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Radix.Components.Html
 {
     public delegate IAttribute attribute(params string[] values);
 
     public static class Attributes
     {
+        public static IEnumerable<IAttribute> None { get => Enumerable.Empty<IAttribute>(); }
 
         public static attribute accept = values
             => attribute(nameof(accept), values);

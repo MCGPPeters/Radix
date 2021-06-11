@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+using System.Threading.Channels;
 using Radix.Data;
 using Radix.Result;
 using static Radix.Result.Extensions;
@@ -22,7 +22,7 @@ namespace Radix
         where TEvent : notnull
     {
 
-        private readonly ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _actionBlock;
+        private readonly Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _channel;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
@@ -38,9 +38,10 @@ namespace Radix
             _state = new TState();
             Version expectedVersion = new NoneExistentVersion();
             EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, address);
-
-            _actionBlock = new ActionBlock<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(
-                async input =>
+            _channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
+            Task.Run(async () =>
+            {
+                await foreach(var input in _channel.Reader.ReadAllAsync())
                 {
                     (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource) = input;
 
@@ -91,7 +92,7 @@ namespace Radix
                                     {
                                         case OptimisticConcurrencyError _:
                                             // re issue the transientCommand to try again
-                                            await _actionBlock.SendAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+                                            await _channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
 
                                             break;
                                         default:
@@ -101,32 +102,31 @@ namespace Radix
 
                                     break;
                                 default:
-                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {"Unexpected state"}));
+                                    taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { "Unexpected state" }));
                                     break;
                             }
 
                             break;
                         case Error<TEvent[], CommandDecisionError>(var error):
-                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] {error.Message}));
+                            taskCompletionSource.SetResult(Error<TEvent[], Error[]>(new Error[] { error.Message }));
 
                             break;
                     }
                 }
-            );
-
+            });
         }
 
         public async Task<Result<TEvent[], Error[]>> Post(TransientCommandDescriptor<TCommand> transientCommandDescriptor)
         {
             TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource = new();
-            await _actionBlock.SendAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+            await _channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
             return await taskCompletionSource.Task.ConfigureAwait(false);
         }
 
 
         public DateTimeOffset LastActivity { get; set; }
 
-        public void Deactivate() => _actionBlock.Complete();
+        public void Deactivate() => _channel.Writer.Complete();
 
         public static AggregateActor<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) =>

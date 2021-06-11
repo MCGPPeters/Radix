@@ -11,7 +11,7 @@ using static Radix.Option.Extensions;
 
 namespace Radix.Components
 {
-    public abstract class Component<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
+    public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
         where TViewModel : ViewModel
         where TEvent : notnull
     {
@@ -32,9 +32,20 @@ namespace Radix.Components
         // ReSharper disable once MemberCanBePrivate.Global
         [Inject]protected TViewModel ViewModel { get; set; } = default!;
 
-        protected abstract Update<TViewModel, TEvent> Update { get; }
 
+        protected virtual Update<TViewModel, TEvent> Update { get; } = (state, events) => state;
 
+        /// <summary>
+        /// Execute a validated command by sending the message to an aggregate. If the command is valid, the command will be processed
+        /// by the aggragate. When the command has been handled successfuly, and events are returned as a result, the events
+        /// are aggragated to create the next state of the viewmodel, by calling the user defined Update function.
+        /// Then a notification is sent to signal the state of the viewmodel has changed. This will trigger the component
+        /// to rerender, so that it can show the correct state in the user interface. This rerendering triggers the user defined View
+        /// function, which signifies how the view should be rendered
+        /// </summary>
+        /// <param name="target">The aggrgate that will handle the command</param>
+        /// <param name="command">The validate command that the aggregate will handle, if it is valid. </param>
+        /// <returns>When the command is not valid, it will return Some errors, None otherwise</returns>
         protected async Task<Option<Error[]>> Dispatch(Aggregate<TCommand, TEvent> target, Validated<TCommand> command)
         {
             Result<TEvent[], Error[]> result = await target.Accept(command);
@@ -42,8 +53,10 @@ namespace Radix.Components
             {
                 case Ok<TEvent[], Error[]>(var events):
                     _shouldRender = events.Any();
+                    var oldState = ViewModel;
                     ViewModel = events.Aggregate(ViewModel, (current, @event) => Update(current, @event));
-                    StateHasChanged();
+                    if(ViewModel != oldState)
+                        StateHasChanged();
                     return None<Error[]>();
                 case Error<TEvent[], Error[]>(var errors):
                     _shouldRender = true;

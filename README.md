@@ -6,7 +6,7 @@
 
 Radix is a set of libraries centered around building event sourced components and a runtime hosting those components. It treats event sourcing as a domain in itself. 
 
-On top of that it provides libraries that make use of these components. A core example of this is a [library](https://github.com/MCGPPeters/Radix/wiki/Task-based-ASP-,NET-Components) that helps you build task oriented user interfaces based on ASP .NET Core (Blazor) components. It provides an alternate way of building ASP .NET Core (Blazor) components in functional style without using Razor components. It is heavily inspired by Elm. It uses the 'model view update' pattern for building interactivity. It is heavily optimized to use the event sourcing library mentioned.
+On top of that it provides libraries that make use of these components. A core example of this is a [library](https://github.com/MCGPPeters/Radix/wiki/Task-based-ASP-,NET-Components) that helps you build task oriented user interfaces based on ASP .NET Core (Blazor) components. It provides an alternate way of building ASP .NET Core (Blazor) components in functional style without using Razor components. It is heavily inspired by Elm and [Bolero](https://github.com/fsbolero/bolero) . It uses the 'model view update' pattern for building interactivity. It is heavily optimized to use the event sourcing library mentioned.
 
 Al is build on top of a generic functional style core.
 

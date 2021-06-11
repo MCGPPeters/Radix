@@ -15,13 +15,10 @@ using static Radix.Components.Html.Components;
 namespace Radix.Blazor.Inventory.Server.Pages
 {
     [Route("/Add")]
-    public class AddInventoryItemComponent : Component<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
+    public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
-
-        protected override Update<AddInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) => state;
-
         protected override Node View(AddInventoryItemViewModel currentViewModel) => concat(
-            h1(NoAttributes(), text("Add new item")),
+            h1(None, text("Add new item")),
             div(
                 new[] { @class("form-group") },
                 Elements.label(
@@ -79,20 +76,18 @@ namespace Radix.Blazor.Inventory.Server.Pages
             ),
             navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
             div(
-                NoAttributes(),
+                None,
                 div(
                     new[] { @class("toast"), attribute("data-autohide", "false") },
                     div(
                         new[] { @class("toast-header") },
                         strong(new[] { @class("mr-auto") }, text("Invalid input")),
-                        small(NoAttributes(), text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
-                        button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(NoAttributes(), text("🗙")))),
+                        small(None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
+                        button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(None, text("🗙")))),
                     div(
                         new[] { @class("toast-body") },
                         FormatErrorMessages(currentViewModel.Errors)
                     ))));
-
-        private static IEnumerable<IAttribute> NoAttributes() => Enumerable.Empty<IAttribute>();
 
         private static Node FormatErrorMessages(IEnumerable<Error> errors)
         {
