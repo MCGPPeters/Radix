@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using System.Threading.Channels;
 using Radix.Data;
 using Radix.Result;
+using Radix.Async;
 using static Radix.Result.Extensions;
+using System.Threading;
 
 namespace Radix
 {
@@ -17,20 +19,23 @@ namespace Radix
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TFormat"></typeparam>
-    internal class AggregateActor<TState, TCommand, TEvent, TFormat> : Actor<TCommand, TEvent>
+    internal class AggregateActor<TState, TCommand, TEvent, TFormat> : Actor<TCommand, TEvent>, IDisposable
         where TState : new()
         where TEvent : notnull
     {
 
         private readonly Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)> _channel;
+        private readonly CancellationTokenSource _tokenSource;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable => prevent implicit closure
         private TState _state;
+        private bool _disposedValue;
+        private readonly Task _agent;
 
-        private AggregateActor(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
+        internal AggregateActor(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
             Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
         {
             _boundedContextSettings = boundedContextSettings;
@@ -39,10 +44,19 @@ namespace Radix
             Version expectedVersion = new NoneExistentVersion();
             EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, address);
             _channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<TEvent[], Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
-            Task.Run(async () =>
+            _tokenSource = new CancellationTokenSource();
+            CancellationToken cancelationToken = _tokenSource.Token;
+            _agent = Task.Run(async () =>
             {
-                await foreach(var input in _channel.Reader.ReadAllAsync())
+                cancelationToken.ThrowIfCancellationRequested();
+
+                await foreach (var input in _channel.Reader.ReadAllAsync())
                 {
+                    if (cancelationToken.IsCancellationRequested)
+                    {
+                        cancelationToken.ThrowIfCancellationRequested();
+                    }
+
                     (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<TEvent[], Error[]>> taskCompletionSource) = input;
 
                     LastActivity = DateTimeOffset.Now;
@@ -113,7 +127,8 @@ namespace Radix
                             break;
                     }
                 }
-            });
+            }, cancelationToken);
+
         }
 
         public async Task<Result<TEvent[], Error[]>> Post(TransientCommandDescriptor<TCommand> transientCommandDescriptor)
@@ -126,11 +141,47 @@ namespace Radix
 
         public DateTimeOffset LastActivity { get; set; }
 
-        public void Deactivate() => _channel.Writer.Complete();
+        public Task Start()
+        {
+            return _agent;
+        }
 
-        public static AggregateActor<TState, TCommand, TEvent, TFormat> Create(Address address, BoundedContextSettings<TEvent, TFormat> boundedContextSettings,
-            Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) =>
-            new(address, boundedContextSettings, decide, update);
+        public void Stop()
+        {
+            // set the channel to complete, so that it will accept no more messages
+            _channel.Writer.Complete();
+            // stop the background task
+            _tokenSource.Cancel();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _tokenSource.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                _disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~AggregateActor()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 
 

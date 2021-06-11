@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Radix.Data;
 using Radix.Validated;
@@ -55,27 +56,24 @@ namespace Radix
                     continue;
                 }
 
-                agent.Deactivate();
+                agent.Stop();
                 _registry.Remove(address);
             }
         }
 
 
         public Aggregate<TCommand, TEvent> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new() => Get(new Address(Guid.NewGuid()), decide, update);
-
-        public Aggregate<TCommand, TEvent> Get<TState>(Address address, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
-            AggregateActor<TState, TCommand, TEvent, TFormat> actor = AggregateActor<TState, TCommand, TEvent, TFormat>
-                .Create(address, _boundedContextSettings, decide, update);
+            Address address = new(Guid.NewGuid());
+            AggregateActor<TState, TCommand, TEvent, TFormat> actor = new(address, _boundedContextSettings, decide, update);
 
             _registry.Add(address, actor);
-            return new Aggregate<TCommand, TEvent>(address, CreateSend<TState>()(address, decide, update));
+            return new Aggregate<TCommand, TEvent>(address, CreateAccept<TState>()(address, decide, update));
         }
 
 
-        private Func<Address, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Accept<TCommand, TEvent>> CreateSend<TState>()
+        private Func<Address, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Accept<TCommand, TEvent>> CreateAccept<TState>()
             where TState : new() => (address, decide, update)
             => async validatedCommand =>
             {
@@ -88,8 +86,17 @@ namespace Radix
                             return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                         }
 
-                        agent = AggregateActor<TState, TCommand, TEvent, TFormat>.Create(address, _boundedContextSettings, decide, update);
+                        agent = new AggregateActor<TState, TCommand, TEvent, TFormat>(address, _boundedContextSettings, decide, update);
                         _registry.Add(transientCommandDescriptor.Recipient, agent);
+
+                        try
+                        {
+                            await agent.Start();
+                        }
+                        catch(TaskCanceledException taskCanceledException)
+                        {
+                            // has been garbage collected
+                        }
 
                         return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                     case Invalid<TCommand>(var messages):

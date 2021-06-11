@@ -3,13 +3,15 @@ using System.Threading.Tasks;
 
 namespace Radix
 {
-    internal interface Actor<TCommand, TEvent>
+    internal interface Actor<TCommand, TEvent> : IDisposable
     {
         DateTimeOffset LastActivity { get; set; }
 
         Task<Result<TEvent[], Error[]>> Post(TransientCommandDescriptor<TCommand> transientCommand);
 
-        void Deactivate();
+        void Stop();
+
+        Task Start();
     }
 
 }
