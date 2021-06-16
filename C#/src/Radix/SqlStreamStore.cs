@@ -20,7 +20,7 @@ namespace Radix
         public SqlStreamStore(IStreamStore streamStore) => _streamStore = streamStore;
 
         public AppendEvents<Json> AppendEvents =>
-            async (address, version, eventStreamDescriptor, events) =>
+            async (id, version, eventStreamDescriptor, events) =>
             {
                 NewStreamMessage[] newStreamMessages = events.Select(
                     eventDescriptor => new NewStreamMessage(
@@ -62,7 +62,7 @@ namespace Radix
             where TEvent : notnull
         {
 
-            async IAsyncEnumerable<EventDescriptor<TEvent>> CreateGetEventsSince(Address address, Version version, string streamId)
+            async IAsyncEnumerable<EventDescriptor<TEvent>> CreateGetEventsSince(Id id, Version version, string streamId)
             {
                 // the object cast is a workaround for https://github.com/dotnet/csharplang/issues/1229
                 switch ((object)version)

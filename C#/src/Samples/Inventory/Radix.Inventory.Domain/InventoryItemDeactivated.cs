@@ -7,9 +7,8 @@ namespace Radix.Inventory.Domain
 
         }
 
-        public InventoryItemDeactivated(long id, string reason)
+        public InventoryItemDeactivated(string reason)
         {
-            Id = id;
             Reason = reason;
         }
 

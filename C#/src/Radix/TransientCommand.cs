@@ -8,7 +8,7 @@ namespace Radix
     /// <typeparam name="TCommand"></typeparam>
     public class TransientCommandDescriptor<TCommand>
     {
-        public TransientCommandDescriptor(Address recipient, TCommand command)
+        public TransientCommandDescriptor(Id recipient, TCommand command)
         {
             Recipient = recipient;
             Command = command;
@@ -16,7 +16,7 @@ namespace Radix
             MessageId = new MessageId(Guid.NewGuid());
         }
 
-        public Address Recipient { get; }
+        public Id Recipient { get; }
 
         public TCommand Command { get; }
 

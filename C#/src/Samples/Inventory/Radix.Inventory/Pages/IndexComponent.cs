@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
@@ -33,7 +32,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
         }
 
 
-        private static Node[] GetInventoryItemNodes(IEnumerable<(long id, string name, bool activated)> inventoryItems) =>
+        private static Node[] GetInventoryItemNodes(IEnumerable<InventoryItemModel> inventoryItems) =>
             inventoryItems.Select(
                 inventoryItem =>
                     tr(

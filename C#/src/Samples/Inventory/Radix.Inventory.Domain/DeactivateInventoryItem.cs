@@ -3,14 +3,13 @@ using static Radix.Validated.Extensions;
 
 namespace Radix.Inventory.Domain
 {
-    public record DeactivateInventoryItem(long Id, string Reason) : InventoryItemCommand
+    public record DeactivateInventoryItem(string Reason) : InventoryItemCommand
     {
 
-        private static Func<long, string, InventoryItemCommand> New => (id, reason) =>
-            new DeactivateInventoryItem(id, reason);
+        private static Func<string, InventoryItemCommand> New => (reason) =>
+            new DeactivateInventoryItem(reason);
 
-        public static Validated<InventoryItemCommand> Create(long id, string reason) => Valid(New)
-            .Apply(Valid(id))
+        public static Validated<InventoryItemCommand> Create(string reason) => Valid(New)
             .Apply(!string.IsNullOrEmpty(reason) ? Valid(reason) : Invalid<string>("A reason for deactivation must be provided"));
     }
 }

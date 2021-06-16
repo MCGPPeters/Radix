@@ -1,17 +1,17 @@
 using System;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Radix
 {
-    internal interface Actor<TCommand, TEvent> : IDisposable
+    public record Actor<TCommand, TEvent>
     {
-        DateTimeOffset LastActivity { get; set; }
-
-        Task<Result<TEvent[], Error[]>> Post(TransientCommandDescriptor<TCommand> transientCommand);
-
-        void Stop();
-
-        Task Start();
+        public DateTimeOffset LastActivity { get; set; }
+        public Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>)> Channel { get; init; }
+        public CancellationTokenSource TokenSource { get; init; }
+        public Task Agent { get; internal set; }
+        public Accept<TCommand, TEvent> Accept { get; init; }
     }
 
 }

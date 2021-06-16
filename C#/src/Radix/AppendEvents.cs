@@ -5,7 +5,7 @@ namespace Radix
     /// <summary>
     ///     A delegate that represent side effecting functions that add events to an event stream
     /// </summary>
-    /// <param name="address">The address of the aggregate</param>
+    /// <param name="id">The id of the aggregate</param>
     /// <param name="expectedVersion">
     ///     The existingVersion the event stream is expected to be at when adding the new events. For the
     ///     purpose of optimistic concurrency
@@ -16,6 +16,6 @@ namespace Radix
     ///     AppendEventsError is one if the following:
     ///     - OptimisticConcurrencyError
     /// </returns>
-    public delegate Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TFormat>(Address address, Version expectedVersion, EventStreamDescriptor eventStreamDescriptor,
+    public delegate Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TFormat>(Id id, Version expectedVersion, EventStreamDescriptor eventStreamDescriptor,
         params TransientEventDescriptor<TFormat>[] transientEventDescriptors);
 }

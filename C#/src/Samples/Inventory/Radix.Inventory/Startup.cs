@@ -25,7 +25,7 @@ namespace Radix.Inventory
 
         public IConfiguration Configuration { get; }
 
-        public static List<(long id, string name, bool activated)> InventoryItems { get; set; }
+        public static List<InventoryItemModel> InventoryItems { get; set; }
             = new();
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -68,6 +68,7 @@ namespace Radix.Inventory
                 0,
                 async (subscription, message, token) =>
                 {
+                    var aggregateId = EventStreamDescriptor.FromString(message.StreamId).AggregateId;
                     string jsonData = await message.GetJsonData();
                     string streamMessageType = message.Type;
                     EventType
@@ -80,24 +81,36 @@ namespace Radix.Inventory
                                 switch (optionalInventoryItemEvent)
                                 {
                                     case Some<InventoryItemCreated>(var inventoryItemCreated):
-                                        indexViewModel.InventoryItems.Add((inventoryItemCreated.Id, inventoryItemCreated.Name, inventoryItemCreated.Activated));
+                                        
+                                        indexViewModel.InventoryItems.Add(new InventoryItemModel(aggregateId, inventoryItemCreated.Name, inventoryItemCreated.Activated));
                                         break;
                                     case Some<InventoryItemDeactivated>(var inventoryItemDeactivated):
                                         indexViewModel.InventoryItems =
                                             indexViewModel.InventoryItems
-                                                .Select(item => inventoryItemDeactivated.Id == item.id ? (item.id, item.name, false) : item).ToList();
+                                                .Select(item =>
+                                                {
+                                                    if (aggregateId == item.id)
+                                                        item.activated = false;
+                                                    return item;
+                                                }
+                                                ).ToList();
                                         break;
                                     case Some<ItemsCheckedInToInventory> _:
                                         break;
                                     case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
-                                        (long id, string name, bool activated) item =
+                                        InventoryItemModel item =
                                             indexViewModel.InventoryItems.Find(tuple => Equals(tuple.id, inventoryItemsRemovedFromInventory.Id));
                                         indexViewModel.InventoryItems.Remove(item);
                                         break;
                                     case Some<InventoryItemRenamed>(var inventoryItemRenamed):
                                         indexViewModel.InventoryItems =
                                             indexViewModel.InventoryItems
-                                                .Select(item => inventoryItemRenamed.Id == item.id ? (item.id, inventoryItemRenamed.Name, item.activated) : item).ToList();
+                                                .Select(item =>
+                                                {
+                                                    if (aggregateId == item.id)
+                                                        item.name = inventoryItemRenamed.Name;
+                                                    return item;
+                                                }).ToList();
                                         break;
                                         // ignore others like the metadatastream
                                 }
