@@ -66,8 +66,8 @@ namespace Radix
                     continue;
                 }
 
-                agent.Channel.Writer.Complete();
-                agent.TokenSource.Cancel();
+                agent.Channel?.Writer.Complete();
+                agent.TokenSource?.Cancel();
                 _registry.Remove(id);
             }
         }
@@ -90,7 +90,7 @@ namespace Radix
         /// <param name="id"></param>
         /// <param name="decide"></param>
         /// <param name="update"></param>
-        /// <param name="expectedVersion"></param>
+        /// <param name="expectedVersion">The version of the aggregate to which the state should be restored. One can restore the state to every version the aggregate was ever at</param>
         /// <returns></returns>
         private Aggregate<TCommand, TEvent> Create<TState>(Id id, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update, Version expectedVersion)
             where TState : new()
@@ -104,35 +104,34 @@ namespace Radix
             var lastActivity = DateTimeOffset.Now;
             var state = new TState();
             EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, id);
-            var channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
+            Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>? channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
             var tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
             var agent = Task.Run(async () =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await foreach (var input in channel.Reader.ReadAllAsync())
+                await foreach (var input in channel.Reader.ReadAllAsync(cancellationToken))
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                     }
 
-                    (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>> taskCompletionSource) = input;
+                    (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>> taskCompletionSource) = input;
 
                     lastActivity = DateTimeOffset.Now;
 
-                    // If the instance of the aggregate is newly created, its state will always completely restored
                     ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings
                         .GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
-                        .OrderBy(descriptor => descriptor.ExistingVersion)
+                        .OrderBy(descriptor => descriptor.CurrentVersion)
                         .ConfigureAwait(false);
 
 
                     await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
                     {
                         state = update(state, eventDescriptor.Event);
-                        expectedVersion = eventDescriptor.ExistingVersion;
+                        expectedVersion = eventDescriptor.CurrentVersion;
                     }
 
                     Result<TEvent[], CommandDecisionError> result = await decide(state, commandDescriptor.Command).ConfigureAwait(false);
@@ -161,7 +160,7 @@ namespace Radix
 
                                     expectedVersion = version;
 
-                                    taskCompletionSource.SetResult(Ok<(Id, TEvent[]), Error[]>((commandDescriptor.Recipient, events)));
+                                    taskCompletionSource.SetResult(Ok<CommandResult<TEvent>, Error[]>(new CommandResult<TEvent>{Id = commandDescriptor.Recipient, Events = events, ExpectedVersion = expectedVersion}));
                                     break;
                                 case Error<ExistingVersion, AppendEventsError>(var error):
                                     switch (error)
@@ -171,7 +170,7 @@ namespace Radix
                                             // todo => see if is a concurrency error according to business rules (custom rules)
 
                                             // re issue the transientCommand to try again
-                                            await channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+                                            await channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource), cancellationToken).ConfigureAwait(false);
 
                                             break;
                                         default:
@@ -181,13 +180,13 @@ namespace Radix
 
                                     break;
                                 default:
-                                    taskCompletionSource.SetResult(Error<(Id, TEvent[]), Error[]>(new Error[] { "Unexpected state" }));
+                                    taskCompletionSource.SetResult(Error<CommandResult<TEvent>, Error[]>(new Error[] { "Unexpected state" }));
                                     break;
                             }
 
                             break;
                         case Error<TEvent[], CommandDecisionError>(var error):
-                            taskCompletionSource.SetResult(Error<(Id, TEvent[]), Error[]>(new Error[] { error.Message }));
+                            taskCompletionSource.SetResult(Error<CommandResult<TEvent>, Error[]>(new Error[] { error.Message }));
 
                             break;
                     }
@@ -220,14 +219,14 @@ namespace Radix
                         return await aggregate.Accept(validatedCommand);
 
                     case Invalid<TCommand>(var messages):
-                        return Error<(Id, TEvent[]), Error[]>(messages.Select(s => new Error(s)).ToArray());
+                        return Error<CommandResult<TEvent>, Error[]>(messages.Select(s => new Error(s)).ToArray());
                     default: throw new InvalidOperationException();
                 }
             };
 
-        private static async Task<Result<(Id, TEvent[]), Error[]>> Send(TransientCommandDescriptor<TCommand> transientCommandDescriptor, Actor<TCommand, TEvent> actor)
+        private static async Task<Result<CommandResult<TEvent>, Error[]>> Send(TransientCommandDescriptor<TCommand> transientCommandDescriptor, Actor<TCommand, TEvent> actor)
         {
-            var taskCompletionSource = new TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>();
+            var taskCompletionSource = new TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>();
             await actor.Channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
             return await taskCompletionSource.Task;
         }

@@ -24,7 +24,7 @@ namespace Radix
         public Id Id { get; }
 
         /// <summary>
-        ///     Accepts commands and returns either the resulting events or the errors that occured
+        ///     Accepts commands and returns either the resulting events or the errors that occurred
         /// </summary>
         public Accept<TCommand, TEvent> Accept { get; }
     }

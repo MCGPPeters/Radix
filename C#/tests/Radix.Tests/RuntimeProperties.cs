@@ -23,7 +23,8 @@ namespace Radix.Tests
                 "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
         public async Task Test1()
         {
-            AppendEvents<Json> appendEvents = (_, _, _, _) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
+            long existingVersion = 3L; // this is the initial number of events in the fake event store
+            AppendEvents<Json> appendEvents = (_, _, _, _) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(++existingVersion));
 
             GetEventsSince<InventoryItemEvent> getEventsSince = _testSettings.GetEventsSince;
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new(
@@ -40,7 +41,7 @@ namespace Radix.Tests
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1, 1);
-            
+
             // "turn off garbage collection for testing
             context.UpdateGarbageCollectionSettings(new GarbageCollectionSettings
             {
@@ -48,14 +49,14 @@ namespace Radix.Tests
                 ScanInterval = TimeSpan.FromHours(1),
             });
 
-            Result<(Id, InventoryItemEvent[]), Error[]> result = await inventoryItem.Accept(removeItems);
+            Result<CommandResult<InventoryItemEvent>, Error[]> result = await inventoryItem.Accept(removeItems);
             switch (result)
             {
-                case Ok<(Id, InventoryItemEvent[]), Error[]>(var events):
-                    events.Item2.Should().BeEquivalentTo(new ItemsRemovedFromInventory(1, 1));
-
+                case Ok<CommandResult<InventoryItemEvent>, Error[]>(var commandResult):
+                    commandResult.Events.Should().BeEquivalentTo(new ItemsRemovedFromInventory(1, 1));
+                    commandResult.ExpectedVersion.Should().Be(new ExistingVersion(4L));
                     break;
-                case Error<(Id, InventoryItemEvent[]), Error[]>(var errors):
+                case Error<CommandResult<InventoryItemEvent>, Error[]>(var errors):
                     errors.Should().BeEmpty();
                     break;
             }

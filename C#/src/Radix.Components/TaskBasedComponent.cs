@@ -48,17 +48,17 @@ namespace Radix.Components
         /// <returns>When the command is not valid, it will return Some errors, None otherwise</returns>
         protected async Task<Option<Error[]>> Dispatch(Aggregate<TCommand, TEvent> target, Validated<TCommand> command)
         {
-            Result<(Id, TEvent[]), Error[]> result = await target.Accept(command);
+            Result<CommandResult<TEvent>, Error[]> result = await target.Accept(command);
             switch (result)
             {
-                case Ok<(Id, TEvent[]), Error[]>(var events):
-                    _shouldRender = events.Item2.Any();
+                case Ok<CommandResult<TEvent>, Error[]>(var commandResult):
+                    _shouldRender = commandResult.Events.Any();
                     var oldState = ViewModel;
-                    ViewModel = events.Item2.Aggregate(ViewModel, (current, @event) => Update(current, @event));
+                    ViewModel = commandResult.Events.Aggregate(ViewModel, (current, @event) => Update(current, @event));
                     if(ViewModel != oldState)
                         StateHasChanged();
                     return None<Error[]>();
-                case Error<(Id, TEvent[]), Error[]>(var errors):
+                case Error<CommandResult<TEvent>, Error[]>(var errors):
                     _shouldRender = true;
                     ViewModel.Errors = errors;
                     StateHasChanged();
