@@ -8,10 +8,10 @@ namespace Radix
     public record Actor<TCommand, TEvent>
     {
         public DateTimeOffset LastActivity { get; set; }
-        public Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>)> Channel { get; init; }
-        public CancellationTokenSource TokenSource { get; init; }
-        public Task Agent { get; internal set; }
-        public Accept<TCommand, TEvent> Accept { get; init; }
+        public Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>? Channel { get; init; }
+        public CancellationTokenSource? TokenSource { get; init; }
+        public Task? Agent { get; internal set; }
+        public Accept<TCommand, TEvent>? Accept { get; init; }
     }
 
 }
