@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Radix
 {
-    public class Conflict<TCommand, TEvent>
+    public class Conflict<TCommand, TEvent> where TCommand : notnull where  TEvent : notnull
     {
 
         public Conflict(TCommand command, TEvent @event, string reason)

@@ -6,7 +6,7 @@ using Radix.Math.Applied.Probability.Event;
 namespace Radix.Math.Applied.Probability
 {
 
-    public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>>
+    public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>> where T : notnull
     {
         private Distribution(IEnumerable<(Event<T> @event, Probability probability)> distribution) : base(distribution)
         {
@@ -22,7 +22,7 @@ namespace Radix.Math.Applied.Probability
         internal static Distribution<T> Return(Event<T> @event) =>
             new(Enumerable.Repeat((@event, new Probability(1.0)), 1));
 
-        internal static Distribution<U> Bind<U>(Distribution<T> prior, Func<T, Distribution<U>> f)
+        internal static Distribution<U> Bind<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
         {
             IEnumerable<(Event<U> y, Probability)>? result = from Prior in prior.Value
                 let x = Prior.@event
@@ -35,7 +35,7 @@ namespace Radix.Math.Applied.Probability
             return new Distribution<U>(result);
         }
 
-        internal static Distribution<U> Map<U>(Distribution<T> distribution, Func<T, U> project)
+        internal static Distribution<U> Map<U>(Distribution<T> distribution, Func<T, U> project) where U : notnull
         {
             IEnumerable<(Event<U>, Probability P)>? result = from d in distribution.Value
                 let x = d.@event

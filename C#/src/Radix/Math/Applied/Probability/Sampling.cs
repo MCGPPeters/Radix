@@ -4,11 +4,10 @@ using System.Linq;
 
 namespace Radix.Math.Applied.Probability
 {
-    public record Randomized<T>(T Value) : Alias<T>(Value);
 
     public static class Sampling
     {
-        public static IEnumerable<T> Scan<T>(this Distribution<T> distribution, Probability target)
+        public static IEnumerable<T> Scan<T>(this Distribution<T> distribution, Probability target) where T : notnull
         {
             foreach ((Event<T> @event, Probability probability) in distribution.Value)
             {
@@ -23,9 +22,9 @@ namespace Radix.Math.Applied.Probability
             return Enumerable.Empty<T>();
         }
 
-        public static Randomized<T> Choose<T>(this Distribution<T> distribution)
+        public static Randomized<T> Choose<T>(this Distribution<T> distribution) where T : notnull
         {
-            Random? random = new Random();
+            Random? random = new ();
             return
                 Scan(distribution, new Probability(random.NextDouble()))
                     .Select(x => new Randomized<T>(x))

@@ -20,5 +20,5 @@ namespace Radix.Math.Applied.Probability
 
     public record Expectation<T>(Random<T> Value);
 
-    public delegate Distribution<T> Spread<T>(IEnumerable<T> ts);
+    public delegate Distribution<T> Spread<T>(IEnumerable<T> ts) where T : notnull;
 }

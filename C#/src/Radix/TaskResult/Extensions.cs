@@ -9,7 +9,7 @@ namespace Radix.TaskResult
     public static class Extensions
     {
         public static async Task<Result<TResult, TError>> Select<T, TResult, TError>
-            (this Task<Result<T, TError>> taskResult, Func<T, TResult> f) => await taskResult switch
+            (this Task<Result<T, TError>> taskResult, Func<T, TResult> f) where TResult : notnull where T : notnull => await taskResult switch
         {
             Ok<T, TError>(var value) => Ok<TResult, TError>(f(value)),
             Error<T, TError>(var error) => Error<TResult, TError>(error),
@@ -17,7 +17,7 @@ namespace Radix.TaskResult
         };
 
         public static async Task<Result<TResult, TError>> Bind<T, TResult, TError>
-            (this Task<Result<T, TError>> taskResult, Func<T, Task<Result<TResult, TError>>> f)
+            (this Task<Result<T, TError>> taskResult, Func<T, Task<Result<TResult, TError>>> f) where T : notnull
         {
             Result<T, TError> result = await taskResult;
             return result switch
@@ -29,7 +29,7 @@ namespace Radix.TaskResult
         }
 
         public static async Task<Result<TProjected, TError>> SelectMany<T, TResult, TProjected, TError>(this Task<Result<T, TError>> taskResult,
-            Func<T, Task<Result<TResult, TError>>> f, Func<T, TResult, TProjected> project)
+            Func<T, Task<Result<TResult, TError>>> f, Func<T, TResult, TProjected> project) where TResult : notnull where T : notnull where TProjected : notnull
 
         {
             Result<T, TError> result = await taskResult;

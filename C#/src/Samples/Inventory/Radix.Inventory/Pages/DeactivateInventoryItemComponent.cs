@@ -10,7 +10,6 @@ using Radix.Option;
 using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
 using static Radix.Components.Html.Components;
-using Radix.Blazor.Inventory.Interface.Logic;
 
 namespace Radix.Blazor.Inventory.Server.Pages
 {
@@ -87,14 +86,4 @@ namespace Radix.Blazor.Inventory.Server.Pages
         }
     }
 
-    public record DeactivateInventoryItemViewModel : ViewModel
-    {
-
-        public DeactivateInventoryItemViewModel(List<InventoryItemModel> inventoryItems) => InventoryItems = inventoryItems;
-
-        public List<InventoryItemModel> InventoryItems { get; set; }
-
-        public string? InventoryItemName { get; set; }
-        public string Reason { get; set; }
-    }
 }

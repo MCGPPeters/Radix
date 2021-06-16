@@ -18,22 +18,22 @@ namespace Radix.Tests
         {
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
             {
-                return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
+                InventoryItemCreated? inventoryItemCreated = JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value);
+                return inventoryItemCreated is not null ? Some(inventoryItemCreated) : None<InventoryItemEvent>();
+
             }
 
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemDeactivated), StringComparison.Ordinal))
             {
-                return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value));
+                InventoryItemDeactivated? inventoryItemDeactivated = JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value);
+                return inventoryItemDeactivated is not null ?  Some(inventoryItemDeactivated) : None<InventoryItemEvent>();
             }
 
+            
             if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
             {
-                return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
-            }
-
-            if (string.Equals(descriptor.EventType.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
-            {
-                return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
+                InventoryItemRenamed? inventoryItemRenamed = JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                return inventoryItemRenamed is not null ? Some(inventoryItemRenamed) : None<InventoryItemEvent>();
             }
 
             return None<InventoryItemEvent>();
@@ -49,15 +49,15 @@ namespace Radix.Tests
             yield return new EventDescriptor<InventoryItemEvent>(
                 new InventoryItemCreated(1, "Product 1", true, 1),
                 1L,
-                new EventType(typeof(InventoryItemCreated).FullName));
+                new EventType(typeof(InventoryItemCreated).FullName ?? throw new InvalidOperationException()));
             yield return new EventDescriptor<InventoryItemEvent>(
                 new ItemsCheckedInToInventory {Amount = 19, Id = 1},
                 2L,
-                new EventType(typeof(ItemsCheckedInToInventory).FullName));
+                new EventType(typeof(ItemsCheckedInToInventory).FullName ?? throw new InvalidOperationException()));
             yield return new EventDescriptor<InventoryItemEvent>(
                 new InventoryItemRenamed {Name = "Product 2", Id = 1},
                 3L,
-                new EventType(typeof(InventoryItemRenamed).FullName));
+                new EventType(typeof(InventoryItemRenamed).FullName ?? throw new InvalidOperationException()));
         }
     }
 }

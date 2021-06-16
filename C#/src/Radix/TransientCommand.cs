@@ -12,8 +12,8 @@ namespace Radix
         {
             Recipient = recipient;
             Command = command;
-            CorrelationId = MessageId;
             MessageId = new MessageId(Guid.NewGuid());
+            CorrelationId = MessageId;
         }
 
         public Id Recipient { get; }

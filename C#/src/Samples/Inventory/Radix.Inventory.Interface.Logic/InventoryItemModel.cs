@@ -5,11 +5,11 @@ namespace Radix.Blazor.Inventory.Interface.Logic
 {
     public struct InventoryItemModel
     {
-        public Id id;
-        public string name;
+        public Id? id;
+        public string? name;
         public bool activated;
 
-        public InventoryItemModel(Id id, string name, bool activated)
+        public InventoryItemModel(Id? id, string? name, bool activated)
         {
             this.id = id;
             this.name = name;
@@ -29,14 +29,14 @@ namespace Radix.Blazor.Inventory.Interface.Logic
             return HashCode.Combine(id, name, activated);
         }
 
-        public void Deconstruct(out Id id, out string name, out bool activated)
+        public void Deconstruct(out Id? id, out string? name, out bool activated)
         {
             id = this.id;
             name = this.name;
             activated = this.activated;
         }
 
-        public static implicit operator (Id id, string name, bool activated)(InventoryItemModel value)
+        public static implicit operator (Id? id, string? name, bool activated)(InventoryItemModel value)
         {
             return (value.id, value.name, value.activated);
         }

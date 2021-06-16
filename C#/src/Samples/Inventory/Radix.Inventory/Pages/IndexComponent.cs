@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
@@ -32,8 +33,8 @@ namespace Radix.Blazor.Inventory.Server.Pages
         }
 
 
-        private static Node[] GetInventoryItemNodes(IEnumerable<InventoryItemModel> inventoryItems) =>
-            inventoryItems.Select(
+        private static Node[] GetInventoryItemNodes(IEnumerable<InventoryItemModel>? inventoryItems) =>
+            inventoryItems?.Select(
                 inventoryItem =>
                     tr(
                         None,
@@ -41,18 +42,18 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             None,
                             navLinkMatchAll(
                                 new[] { href($"/Details/{inventoryItem.id}") },
-                                text(inventoryItem.name))),
+                                text(inventoryItem.name ?? string.Empty))),
                         // conditional formating
                         inventoryItem.activated
-                        ? td(
-                            None,
-                            navLinkMatchAll(
-                                new[] { href($"/Deactivate/{inventoryItem.id}") },
-                                text("Deactivate")))
-                        : td(
-                            None,
-                            navLinkMatchAll(
-                                new[] { href($"/Activate/{inventoryItem.id}") },
-                                text("Activate"))))).ToArray();
+                            ? td(
+                                None,
+                                navLinkMatchAll(
+                                    new[] { href($"/Deactivate/{inventoryItem.id}") },
+                                    text("Deactivate")))
+                            : td(
+                                None,
+                                navLinkMatchAll(
+                                    new[] { href($"/Activate/{inventoryItem.id}") },
+                                    text("Activate"))))).ToArray() ?? Array.Empty<Node>();
     }
 }

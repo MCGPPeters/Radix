@@ -98,13 +98,14 @@ namespace Radix
 
             if (_registry.TryGetValue(id, out var actor))
             {
-                return new Aggregate<TCommand, TEvent>(id, actor.Accept);
+                // the possible null on the actor can be ignored. This point will not be reached
+                return new Aggregate<TCommand, TEvent>(id, actor.Accept!);
             }
 
             var lastActivity = DateTimeOffset.Now;
             var state = new TState();
             EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, id);
-            Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>? channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
+            Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
             var tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
             var agent = Task.Run(async () =>
@@ -227,7 +228,11 @@ namespace Radix
         private static async Task<Result<CommandResult<TEvent>, Error[]>> Send(TransientCommandDescriptor<TCommand> transientCommandDescriptor, Actor<TCommand, TEvent> actor)
         {
             var taskCompletionSource = new TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>();
-            await actor.Channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+            if (actor.Channel is not null)
+            {
+                await actor.Channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+            }
+
             return await taskCompletionSource.Task;
         }
 
