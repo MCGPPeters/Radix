@@ -43,7 +43,7 @@ namespace Radix.Tests
             new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData), messageId);
 
 #pragma warning disable 1998
-        public async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Address address, Version version, string streamIdentifier)
+        public async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Id id, Version version, string streamIdentifier)
 #pragma warning restore 1998
         {
             yield return new EventDescriptor<InventoryItemEvent>(

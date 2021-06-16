@@ -10,18 +10,18 @@ namespace Radix
         /// <summary>
         ///     An aggregate instance should only be created by the runtime
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="id"></param>
         /// <param name="accept"></param>
-        internal Aggregate(Address address, Accept<TCommand, TEvent> accept)
+        internal Aggregate(Id id, Accept<TCommand, TEvent> accept)
         {
-            Address = address;
+            Id = id;
             Accept = accept;
         }
 
         /// <summary>
         ///     The address of the aggregate
         /// </summary>
-        public Address Address { get; }
+        public Id Id { get; }
 
         /// <summary>
         ///     Accepts commands and returns either the resulting events or the errors that occured

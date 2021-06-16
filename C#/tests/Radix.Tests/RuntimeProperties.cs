@@ -35,12 +35,12 @@ namespace Radix.Tests
                     _testSettings.SerializeMetaData
                 ));
             // for testing purposes make the aggregate block the current thread while processing
-            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
+            var inventoryItem = context.Create(InventoryItem.Decide, InventoryItem.Update);
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1, 1);
 
-            Result<InventoryItemEvent[], Error[]> result = await inventoryItem.Accept(removeItems);
+            Result<(Id, InventoryItemEvent[]), Error[]> result = await inventoryItem(removeItems);
             switch (result)
             {
                 case Ok<InventoryItemEvent[], Error[]>(var events):

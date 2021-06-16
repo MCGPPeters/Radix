@@ -30,7 +30,7 @@ namespace Radix.Inventory.Domain
             return command switch
             {
                 DeactivateInventoryItem deactivateInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(deactivateInventoryItem.Id, deactivateInventoryItem.Reason)})),
+                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] {new InventoryItemDeactivated(deactivateInventoryItem.Reason)})),
                 CreateInventoryItem createInventoryItem => Task.FromResult(
                     Ok<InventoryItemEvent[], CommandDecisionError>(
                         new InventoryItemEvent[]

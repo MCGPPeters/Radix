@@ -7,12 +7,12 @@ namespace Radix.Blazor.Inventory.Interface.Logic
 
     public record IndexViewModel : ViewModel, IEquatable<IndexViewModel>
     {
-        public IndexViewModel(List<(long id, string name, bool activated)> inventoryItems) => InventoryItems = inventoryItems;
+        public IndexViewModel(List<InventoryItemModel> inventoryItems) => InventoryItems = inventoryItems;
 
         /// <summary>
         ///     This is just an example.. in real life this would be a database or something
         /// </summary>
-        public List<(long id, string name, bool activated)>? InventoryItems { get; set; }
+        public List<InventoryItemModel>? InventoryItems { get; set; }
 
         public IEnumerable<Error> Errors { get; set; } = new List<Error>();
     }

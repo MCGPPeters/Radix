@@ -10,48 +10,14 @@ using Radix.Option;
 using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
 using static Radix.Components.Html.Components;
+using Radix.Blazor.Inventory.Interface.Logic;
 
 namespace Radix.Blazor.Inventory.Server.Pages
 {
-    [Route("/Deactivate/{id:long}")]
+    [Route("/Deactivate/{id:guid}")]
     public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
     {
-        [Parameter]public long Id { get; set; }
-
-        protected override Update<DeactivateInventoryItemViewModel, InventoryItemEvent> Update { get; } = (state, events) =>
-        {
-            return events.Aggregate(
-                state,
-                (model, @event) =>
-                {
-                    switch (@event)
-                    {
-                        case InventoryItemCreated inventoryItemCreated_:
-                            break;
-                        case InventoryItemDeactivated inventoryItemDeactivated:
-                            state.InventoryItems = state.InventoryItems
-                                .Select(item => (item.id, item.name, false))
-                                .Where(tuple => tuple.id.Equals(inventoryItemDeactivated.Id)).ToList();
-                            break;
-                        case InventoryItemRenamed _:
-                            break;
-                        case ItemsCheckedInToInventory _:
-                            break;
-                        case ItemsRemovedFromInventory _:
-                            break;
-                        default:
-                            throw new NotSupportedException("Unknown event");
-                    }
-
-                    return state;
-                });
-        };
-
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            ViewModel.InventoryItemName = ViewModel.InventoryItems.FirstOrDefault(tuple => tuple.id == Id).name;
-        }
+        [Parameter]public Guid Id { get; set; }
         
         protected override Node View(DeactivateInventoryItemViewModel currentViewModel) =>
             concat(
@@ -71,9 +37,8 @@ namespace Radix.Blazor.Inventory.Server.Pages
                             @class("btn btn-primary"), on.click(
                                 async args =>
                                 {
-                                    Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(Id, currentViewModel.Reason);
-
-                                    Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
+                                    Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(currentViewModel.Reason);
+                                    var inventoryItem = BoundedContext.Create(Id, InventoryItem.Decide, InventoryItem.Update);
                                     Option<Error[]> result = await Dispatch(inventoryItem, validCommand);
                                     switch (result)
                                     {
@@ -125,9 +90,9 @@ namespace Radix.Blazor.Inventory.Server.Pages
     public record DeactivateInventoryItemViewModel : ViewModel
     {
 
-        public DeactivateInventoryItemViewModel(List<(long id, string name, bool activated)> inventoryItems) => InventoryItems = inventoryItems;
+        public DeactivateInventoryItemViewModel(List<InventoryItemModel> inventoryItems) => InventoryItems = inventoryItems;
 
-        public List<(long id, string name, bool activated)> InventoryItems { get; set; }
+        public List<InventoryItemModel> InventoryItems { get; set; }
 
         public string? InventoryItemName { get; set; }
         public string Reason { get; set; }

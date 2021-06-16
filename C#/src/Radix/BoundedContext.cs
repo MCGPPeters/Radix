@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Timers;
 using Radix.Data;
+using Radix.Result;
 using Radix.Validated;
+using static Radix.Result.Extensions;
 
 namespace Radix
 {
@@ -12,7 +17,7 @@ namespace Radix
     /// <summary>
     ///     The bounded context is responsible for managing the runtime.
     ///     - Once an aggregate is created, it is never destroyed
-    ///     - An aggregate can only acquire an address of an other aggregate when it is explicitly send to it or it has created
+    ///     - An aggregate can only acquire an id of an other aggregate when it is explicitly send to it or it has created
     ///     it
     ///     - The runtime is responsible to restoring the state of the aggregate when it is not alive within
     ///     the context or any other remote instance of the context within a cluster
@@ -21,7 +26,6 @@ namespace Radix
     ///     - All commands that are scoped to an aggregate MUST be subtypes of the command type scoped at the bounded context
     ///     level
     ///     - There is only one command type scoped and the level of the bounded context.
-    ///     All commands scoped to an aggregate MUST be subtypes of that command type
     /// </summary>
     /// <typeparam name="TCommand"></typeparam>
     /// <typeparam name="TEvent"></typeparam>
@@ -30,15 +34,15 @@ namespace Radix
         where TEvent : notnull
     {
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
-        private readonly Dictionary<Address, Actor<TCommand, TEvent>> _registry = new();
-        private readonly Timer _timer;
+        private readonly Dictionary<Id, Actor<TCommand, TEvent>> _registry = new();
+        private readonly System.Timers.Timer _timer;
 
         private bool _disposedValue; // To detect redundant calls
 
         public BoundedContext(BoundedContextSettings<TEvent, TFormat> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
-            _timer = new Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};
+            _timer = new System.Timers.Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};
             _timer.Elapsed += RunGarbageCollection;
             _timer.Enabled = true;
         }
@@ -48,7 +52,7 @@ namespace Radix
 
         private void RunGarbageCollection(object sender, ElapsedEventArgs e)
         {
-            foreach ((Address address, Actor<TCommand, TEvent> agent) in _registry)
+            foreach ((Id id, Actor<TCommand, TEvent> agent) in _registry)
             {
                 TimeSpan idleTime = DateTimeOffset.Now.Subtract(agent.LastActivity);
                 if (idleTime < _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
@@ -56,54 +60,170 @@ namespace Radix
                     continue;
                 }
 
-                agent.Stop();
-                _registry.Remove(address);
+                agent.Channel.Writer.Complete();
+                agent.TokenSource.Cancel();
+                _registry.Remove(id);
             }
         }
 
-
+        /// <summary>
+        /// Create an instance for new (non-existant) aggregate
+        /// </summary>
+        /// <typeparam name="TState"></typeparam>
+        /// <param name="decide"></param>
+        /// <param name="update"></param>
+        /// <returns></returns>
         public Aggregate<TCommand, TEvent> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+            where TState : new() => Create(new(Guid.NewGuid()), decide, update);
+
+        /// <summary>
+        /// Create an instance of an existing aggregate
+        /// </summary>
+        /// <typeparam name="TState"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="decide"></param>
+        /// <param name="update"></param>
+        /// <returns></returns>
+        public Aggregate<TCommand, TEvent> Create<TState>(Id id, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
             where TState : new()
         {
-            Address address = new(Guid.NewGuid());
-            AggregateActor<TState, TCommand, TEvent, TFormat> actor = new(address, _boundedContextSettings, decide, update);
 
-            _registry.Add(address, actor);
-            return new Aggregate<TCommand, TEvent>(address, CreateAccept<TState>()(address, decide, update));
+            if (_registry.TryGetValue(id, out var actor))
+            {
+                return new Aggregate<TCommand, TEvent>(id, actor.Accept);
+            }
+            
+            var LastActivity = DateTimeOffset.Now;
+            var _state = new TState();
+            Version expectedVersion = new NoneExistentVersion();
+            EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, id);
+            var _channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
+            var _tokenSource = new CancellationTokenSource();
+            var cancelationToken = _tokenSource.Token;
+            var _agent = Task.Run(async () =>
+            {
+                cancelationToken.ThrowIfCancellationRequested();
+
+                await foreach (var input in _channel.Reader.ReadAllAsync())
+                {
+                    if (cancelationToken.IsCancellationRequested)
+                    {
+                        cancelationToken.ThrowIfCancellationRequested();
+                    }
+
+                    (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>> taskCompletionSource) = input;
+
+                    LastActivity = DateTimeOffset.Now;
+
+                    // If the instance of the aggregate is newly created, its state will always completely restored
+                    ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings
+                        .GetEventsSince(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor.StreamIdentifier)
+                        .OrderBy(descriptor => descriptor.ExistingVersion)
+                        .ConfigureAwait(false);
+
+
+                    await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
+                    {
+                        _state = update(_state, eventDescriptor.Event);
+                        expectedVersion = eventDescriptor.ExistingVersion;
+                    }
+
+                    Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor.Command).ConfigureAwait(false);
+
+                    switch (result)
+                    {
+                        case Ok<TEvent[], CommandDecisionError>(var events):
+
+                            TransientEventDescriptor<TFormat>[]
+                                eventDescriptors = events.Select(
+                                    @event => new TransientEventDescriptor<TFormat>(
+                                        new EventType(@event.GetType()),
+                                        _boundedContextSettings.Serialize(@event),
+                                        _boundedContextSettings.SerializeMetaData(new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId)),
+                                        new MessageId(Guid.NewGuid()))).ToArray();
+                            Result<ExistingVersion, AppendEventsError> appendResult = await
+                                _boundedContextSettings
+                                    .AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
+                                    .ConfigureAwait(false);
+
+                            switch (appendResult)
+                            {
+                                case Ok<ExistingVersion, AppendEventsError>(var version):
+                                    // the events have been saved to the stream successfully. Update the state
+                                    _state = update(_state, events);
+
+                                    expectedVersion = version;
+
+                                    taskCompletionSource.SetResult(Ok<(Id, TEvent[]), Error[]>((commandDescriptor.Recipient, events)));
+                                    break;
+                                case Error<ExistingVersion, AppendEventsError>(var error):
+                                    switch (error)
+                                    {
+                                        case OptimisticConcurrencyError _:
+
+                                            // todo => see if is a concurrency error according to business rules (custom rules)
+
+                                            // re issue the transientCommand to try again
+                                            await _channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+
+                                            break;
+                                        default:
+
+                                            throw new NotSupportedException();
+                                    }
+
+                                    break;
+                                default:
+                                    taskCompletionSource.SetResult(Error<(Id, TEvent[]), Error[]>(new Error[] { "Unexpected state" }));
+                                    break;
+                            }
+
+                            break;
+                        case Error<TEvent[], CommandDecisionError>(var error):
+                            taskCompletionSource.SetResult(Error<(Id, TEvent[]), Error[]>(new Error[] { error.Message }));
+
+                            break;
+                    }
+                }
+            }, cancelationToken);
+
+            Accept<TCommand, TEvent> accept = CreateAccept<TState>()(id, decide, update);
+            _registry.Add(id, new Actor<TCommand, TEvent> { Channel = _channel, TokenSource = _tokenSource, LastActivity = LastActivity, Agent = _agent, Accept = accept });
+
+            
+            return new Aggregate<TCommand, TEvent>(id, accept);
         }
 
 
-        private Func<Address, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Accept<TCommand, TEvent>> CreateAccept<TState>()
-            where TState : new() => (address, decide, update)
+        private Func<Id, Decide<TState, TCommand, TEvent>, Update<TState, TEvent>, Accept<TCommand, TEvent>> CreateAccept<TState>()
+            where TState : new() => (id, decide, update)
             => async validatedCommand =>
             {
                 switch (validatedCommand)
                 {
                     case Valid<TCommand>(var validCommand):
-                        TransientCommandDescriptor<TCommand> transientCommandDescriptor = new(address, validCommand);
-                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out Actor<TCommand, TEvent>? agent))
+                        TransientCommandDescriptor<TCommand> transientCommandDescriptor = new(id, validCommand);
+                        if (_registry.TryGetValue(transientCommandDescriptor.Recipient, out var actor))
                         {
-                            return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
+                            return await Send(transientCommandDescriptor, actor).ConfigureAwait(false);
                         }
 
-                        agent = new AggregateActor<TState, TCommand, TEvent, TFormat>(address, _boundedContextSettings, decide, update);
-                        _registry.Add(transientCommandDescriptor.Recipient, agent);
+                        // schedule a dormant actor
+                        var aggregate = Create(transientCommandDescriptor.Recipient, decide, update);
+                        return await aggregate.Accept(validatedCommand);
 
-                        try
-                        {
-                            await agent.Start();
-                        }
-                        catch(TaskCanceledException taskCanceledException)
-                        {
-                            // has been garbage collected
-                        }
-
-                        return await agent.Post(transientCommandDescriptor).ConfigureAwait(false);
                     case Invalid<TCommand>(var messages):
-                        return new Error<TEvent[], Error[]>(messages.Select(s => new Error(s)).ToArray());
+                        return Error<(Id, TEvent[]), Error[]>(messages.Select(s => new Error(s)).ToArray());
                     default: throw new InvalidOperationException();
                 }
             };
+
+        private static async Task<Result<(Id, TEvent[]), Error[]>> Send(TransientCommandDescriptor<TCommand> transientCommandDescriptor, Actor<TCommand, TEvent> actor)
+        {
+            var taskCompletionSource = new TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>();
+            await actor.Channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+            return await taskCompletionSource.Task;
+        }
 
         private void Dispose(bool disposing)
         {
