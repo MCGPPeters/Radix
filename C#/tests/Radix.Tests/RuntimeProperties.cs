@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -19,10 +20,10 @@ namespace Radix.Tests
 
         [Fact(
             DisplayName =
-                "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored and process the command")]
+                "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
         public async Task Test1()
         {
-            AppendEvents<Json> appendEvents = (_, __, ___, events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
+            AppendEvents<Json> appendEvents = (_, _, _, _) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(1L));
 
             GetEventsSince<InventoryItemEvent> getEventsSince = _testSettings.GetEventsSince;
             BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> context = new(
@@ -39,14 +40,22 @@ namespace Radix.Tests
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             Validated<InventoryItemCommand> removeItems = RemoveItemsFromInventory.Create(1, 1);
+            
+            // "turn off garbage collection for testing
+            context.UpdateGarbageCollectionSettings(new GarbageCollectionSettings
+            {
+                IdleTimeout = TimeSpan.FromHours(1),
+                ScanInterval = TimeSpan.FromHours(1),
+            });
 
-            Result<(Id, InventoryItemEvent[]), Error[]> result = await inventoryItem(removeItems);
+            Result<(Id, InventoryItemEvent[]), Error[]> result = await inventoryItem.Accept(removeItems);
             switch (result)
             {
-                case Ok<InventoryItemEvent[], Error[]>(var events):
-                    events.Should().Equal(new List<InventoryItemEvent> { new ItemsRemovedFromInventory(1, 1) });
+                case Ok<(Id, InventoryItemEvent[]), Error[]>(var events):
+                    events.Item2.Should().BeEquivalentTo(new ItemsRemovedFromInventory(1, 1));
+
                     break;
-                case Error<InventoryItemEvent[], Error[]>(var errors):
+                case Error<(Id, InventoryItemEvent[]), Error[]>(var errors):
                     errors.Should().BeEmpty();
                     break;
             }

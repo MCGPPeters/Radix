@@ -38,7 +38,7 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                 async args =>
                                 {
                                     Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(currentViewModel.Reason);
-                                    var inventoryItem = BoundedContext.Create(Id, InventoryItem.Decide, InventoryItem.Update);
+                                    var inventoryItem = BoundedContext.Get(Id, InventoryItem.Decide, InventoryItem.Update);
                                     Option<Error[]> result = await Dispatch(inventoryItem, validCommand);
                                     switch (result)
                                     {

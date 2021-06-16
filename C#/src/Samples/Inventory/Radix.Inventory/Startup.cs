@@ -153,11 +153,16 @@ namespace Radix.Inventory
                     return None<InventoryItemEvent>();
                 },
                 input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
+            GarbageCollectionSettings garbageCollectionSettings = new()
+            {
+                IdleTimeout = TimeSpan.FromSeconds(5),
+                ScanInterval = TimeSpan.FromSeconds(1)
+            };
             BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
                 new(
                     sqlStreamStore.AppendEvents,
                     getEventsSince,
-                    new GarbageCollectionSettings(),
+                    garbageCollectionSettings,
                     fromEventDescriptor,
                     serializeEvent,
                     serializeMetaData);
@@ -182,7 +187,7 @@ namespace Radix.Inventory
                 new(
                     sqlStreamStore.AppendEvents,
                     getCounterIncrementsEventsSince,
-                    new GarbageCollectionSettings(),
+                    garbageCollectionSettings,
                     descriptor => Some(new CounterIncremented()),
                     serializeCounterEvent,
                     serializeMetaData);
