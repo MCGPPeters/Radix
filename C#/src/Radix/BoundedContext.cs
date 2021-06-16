@@ -42,9 +42,15 @@ namespace Radix
         public BoundedContext(BoundedContextSettings<TEvent, TFormat> boundedContextSettings)
         {
             _boundedContextSettings = boundedContextSettings;
-            _timer = new System.Timers.Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) {AutoReset = true};
+            _timer = new System.Timers.Timer(boundedContextSettings.GarbageCollectionSettings.ScanInterval.TotalMilliseconds) { AutoReset = true };
             _timer.Elapsed += RunGarbageCollection;
             _timer.Enabled = true;
+        }
+
+        public void UpdateGarbageCollectionSettings(GarbageCollectionSettings garbageCollectionSettings)
+        {
+            _timer.Interval = garbageCollectionSettings.ScanInterval.TotalMilliseconds;
+            _boundedContextSettings.GarbageCollectionSettings = garbageCollectionSettings;
         }
 
         // This code added to correctly implement the disposable pattern.
@@ -74,7 +80,8 @@ namespace Radix
         /// <param name="update"></param>
         /// <returns></returns>
         public Aggregate<TCommand, TEvent> Create<TState>(Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
-            where TState : new() => Create(new(Guid.NewGuid()), decide, update);
+            where TState : new() => Create(new Id(Guid.NewGuid()), decide, update, new NoneExistentVersion());
+
 
         /// <summary>
         /// Create an instance of an existing aggregate
@@ -83,8 +90,9 @@ namespace Radix
         /// <param name="id"></param>
         /// <param name="decide"></param>
         /// <param name="update"></param>
+        /// <param name="expectedVersion"></param>
         /// <returns></returns>
-        public Aggregate<TCommand, TEvent> Create<TState>(Id id, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update)
+        private Aggregate<TCommand, TEvent> Create<TState>(Id id, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update, Version expectedVersion)
             where TState : new()
         {
 
@@ -92,28 +100,27 @@ namespace Radix
             {
                 return new Aggregate<TCommand, TEvent>(id, actor.Accept);
             }
-            
-            var LastActivity = DateTimeOffset.Now;
-            var _state = new TState();
-            Version expectedVersion = new NoneExistentVersion();
-            EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, id);
-            var _channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
-            var _tokenSource = new CancellationTokenSource();
-            var cancelationToken = _tokenSource.Token;
-            var _agent = Task.Run(async () =>
-            {
-                cancelationToken.ThrowIfCancellationRequested();
 
-                await foreach (var input in _channel.Reader.ReadAllAsync())
+            var lastActivity = DateTimeOffset.Now;
+            var state = new TState();
+            EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, id);
+            var channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
+            var tokenSource = new CancellationTokenSource();
+            var cancellationToken = tokenSource.Token;
+            var agent = Task.Run(async () =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await foreach (var input in channel.Reader.ReadAllAsync())
                 {
-                    if (cancelationToken.IsCancellationRequested)
+                    if (cancellationToken.IsCancellationRequested)
                     {
-                        cancelationToken.ThrowIfCancellationRequested();
+                        cancellationToken.ThrowIfCancellationRequested();
                     }
 
                     (TransientCommandDescriptor<TCommand> commandDescriptor, TaskCompletionSource<Result<(Id, TEvent[]), Error[]>> taskCompletionSource) = input;
 
-                    LastActivity = DateTimeOffset.Now;
+                    lastActivity = DateTimeOffset.Now;
 
                     // If the instance of the aggregate is newly created, its state will always completely restored
                     ConfiguredCancelableAsyncEnumerable<EventDescriptor<TEvent>> eventsSince = _boundedContextSettings
@@ -124,11 +131,11 @@ namespace Radix
 
                     await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
                     {
-                        _state = update(_state, eventDescriptor.Event);
+                        state = update(state, eventDescriptor.Event);
                         expectedVersion = eventDescriptor.ExistingVersion;
                     }
 
-                    Result<TEvent[], CommandDecisionError> result = await decide(_state, commandDescriptor.Command).ConfigureAwait(false);
+                    Result<TEvent[], CommandDecisionError> result = await decide(state, commandDescriptor.Command).ConfigureAwait(false);
 
                     switch (result)
                     {
@@ -150,7 +157,7 @@ namespace Radix
                             {
                                 case Ok<ExistingVersion, AppendEventsError>(var version):
                                     // the events have been saved to the stream successfully. Update the state
-                                    _state = update(_state, events);
+                                    state = update(state, events);
 
                                     expectedVersion = version;
 
@@ -164,7 +171,7 @@ namespace Radix
                                             // todo => see if is a concurrency error according to business rules (custom rules)
 
                                             // re issue the transientCommand to try again
-                                            await _channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
+                                            await channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource)).ConfigureAwait(false);
 
                                             break;
                                         default:
@@ -185,12 +192,12 @@ namespace Radix
                             break;
                     }
                 }
-            }, cancelationToken);
+            }, cancellationToken);
 
             Accept<TCommand, TEvent> accept = CreateAccept<TState>()(id, decide, update);
-            _registry.Add(id, new Actor<TCommand, TEvent> { Channel = _channel, TokenSource = _tokenSource, LastActivity = LastActivity, Agent = _agent, Accept = accept });
+            _registry.Add(id, new Actor<TCommand, TEvent> { Channel = channel, TokenSource = tokenSource, LastActivity = lastActivity, Agent = agent, Accept = accept });
 
-            
+
             return new Aggregate<TCommand, TEvent>(id, accept);
         }
 
@@ -208,8 +215,8 @@ namespace Radix
                             return await Send(transientCommandDescriptor, actor).ConfigureAwait(false);
                         }
 
-                        // schedule a dormant actor
-                        var aggregate = Create(transientCommandDescriptor.Recipient, decide, update);
+                        // schedule a dormant actor and recreate the state
+                        var aggregate = Get(transientCommandDescriptor.Recipient, decide, update);
                         return await aggregate.Accept(validatedCommand);
 
                     case Invalid<TCommand>(var messages):
@@ -238,6 +245,11 @@ namespace Radix
             }
 
             _disposedValue = true;
+        }
+
+        public Aggregate<TCommand, TEvent> Get<TState>(Id id, Decide<TState, TCommand, TEvent> decide, Update<TState, TEvent> update) where TState : new()
+        {
+            return Create(id, decide, update, new ExistingVersion(0));
         }
     }
 }

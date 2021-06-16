@@ -18,7 +18,7 @@ namespace Radix
 
         public AppendEvents<TFormat> AppendEvents { get; }
         public GetEventsSince<TEvent> GetEventsSince { get; }
-        public GarbageCollectionSettings GarbageCollectionSettings { get; }
+        public GarbageCollectionSettings GarbageCollectionSettings { get; set; }
         public FromEventDescriptor<TEvent, TFormat> FromEventDescriptor { get; }
 
         public Serialize<TEvent, TFormat> Serialize { get; }

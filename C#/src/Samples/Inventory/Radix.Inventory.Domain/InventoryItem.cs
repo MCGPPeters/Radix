@@ -25,7 +25,7 @@ namespace Radix.Inventory.Domain
                 });
         };
 
-        public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (state, command) =>
+        public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide = (_, command) =>
         {
             return command switch
             {
