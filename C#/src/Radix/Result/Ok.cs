@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Radix.Result
 {
 
-    public class Ok<T, TError> : Result<T, TError>
+    public class Ok<T, TError> : Result<T, TError> where T : notnull
     {
         internal Ok(T t)
         {

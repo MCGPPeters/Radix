@@ -10,7 +10,7 @@ namespace Radix.Math.Applied.Learning.Reinforced
         public static A Greedy<A>(Q<A> q, IEnumerable<A> actions) => actions.Max(a => (a, q.Value(a))).a;
 
 
-        public static A εGreedy<A>(Q<A> q, double ε, IEnumerable<A> actions)
+        public static A εGreedy<A>(Q<A> q, double ε, IEnumerable<A> actions) where A : notnull
         {
             Randomized<double>? σ = Distribution<double>.Uniform(Sequence(0.0, 1.0)).Choose();
             return σ > ε

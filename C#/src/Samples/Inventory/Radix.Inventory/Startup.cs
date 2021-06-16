@@ -41,22 +41,20 @@ namespace Radix.Inventory
             {
                 if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemCreated).FullName, StringComparison.Ordinal))
                 {
-                    return Some(JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value));
+                    InventoryItemCreated? inventoryItemCreated = JsonSerializer.Deserialize<InventoryItemCreated>(descriptor.Event.Value);
+                    return inventoryItemCreated.AsOption();
                 }
 
                 if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemDeactivated).FullName, StringComparison.Ordinal))
                 {
-                    return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value));
+                    InventoryItemDeactivated? inventoryItemDeactivated = JsonSerializer.Deserialize<InventoryItemDeactivated>(descriptor.Event.Value);
+                    return inventoryItemDeactivated.AsOption();
                 }
 
                 if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemRenamed).FullName, StringComparison.Ordinal))
                 {
-                    return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
-                }
-
-                if (string.Equals(descriptor.EventType.Value, typeof(InventoryItemRenamed).FullName, StringComparison.Ordinal))
-                {
-                    return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value));
+                    InventoryItemRenamed? inventoryItemRenamed = JsonSerializer.Deserialize<InventoryItemRenamed>(descriptor.Event.Value);
+                    return inventoryItemRenamed.AsOption();
                 }
 
                 return None<InventoryItemEvent>();
@@ -81,17 +79,17 @@ namespace Radix.Inventory
                                 switch (optionalInventoryItemEvent)
                                 {
                                     case Some<InventoryItemCreated>(var inventoryItemCreated):
-                                        
+
                                         indexViewModel.InventoryItems.Add(new InventoryItemModel(aggregateId, inventoryItemCreated.Name, inventoryItemCreated.Activated));
                                         break;
-                                    case Some<InventoryItemDeactivated>(var inventoryItemDeactivated):
+                                    case Some<InventoryItemDeactivated>(_):
                                         indexViewModel.InventoryItems =
                                             indexViewModel.InventoryItems
-                                                .Select(item =>
+                                                .Select(x =>
                                                 {
-                                                    if (aggregateId == item.id)
-                                                        item.activated = false;
-                                                    return item;
+                                                    if (aggregateId == x.id)
+                                                        x.activated = false;
+                                                    return x;
                                                 }
                                                 ).ToList();
                                         break;
@@ -132,27 +130,30 @@ namespace Radix.Inventory
                 {
                     if (string.Equals(type.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))
                     {
-                        return Some(JsonSerializer.Deserialize<InventoryItemCreated>(json.Value));
+                        InventoryItemCreated? inventoryItemCreated = JsonSerializer.Deserialize<InventoryItemCreated>(json.Value);
+                        return inventoryItemCreated.AsOption();
                     }
 
                     if (string.Equals(type.Value, nameof(InventoryItemDeactivated), StringComparison.Ordinal))
                     {
-                        return Some(JsonSerializer.Deserialize<InventoryItemDeactivated>(json.Value));
+                        InventoryItemDeactivated? inventoryItemDeactivated = JsonSerializer.Deserialize<InventoryItemDeactivated>(json.Value);
+                        return inventoryItemDeactivated.AsOption();
                     }
+
 
                     if (string.Equals(type.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
                     {
-                        return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(json.Value));
-                    }
-
-                    if (string.Equals(type.Value, nameof(InventoryItemRenamed), StringComparison.Ordinal))
-                    {
-                        return Some(JsonSerializer.Deserialize<InventoryItemRenamed>(json.Value));
+                        InventoryItemRenamed? inventoryItemRenamed = JsonSerializer.Deserialize<InventoryItemRenamed>(json.Value);
+                        return inventoryItemRenamed.AsOption();
                     }
 
                     return None<InventoryItemEvent>();
                 },
-                input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
+                input =>
+                {
+                    EventMetaData? eventMetaData = JsonSerializer.Deserialize<EventMetaData>(input.Value);
+                    return eventMetaData.AsOption();
+                });
             GarbageCollectionSettings garbageCollectionSettings = new()
             {
                 IdleTimeout = TimeSpan.FromSeconds(5),
@@ -175,13 +176,18 @@ namespace Radix.Inventory
                 {
                     if (string.Equals(type.Value, nameof(CounterIncremented), StringComparison.Ordinal))
                     {
-                        return Some(JsonSerializer.Deserialize<CounterIncremented>(json.Value));
+                        CounterIncremented? counterIncremented = JsonSerializer.Deserialize<CounterIncremented>(json.Value);
+                        return counterIncremented.AsOption();
                     }
 
 
                     return None<CounterIncremented>();
                 },
-                input => Some(JsonSerializer.Deserialize<EventMetaData>(input.Value)));
+                input =>
+                {
+                    EventMetaData? eventMetaData = JsonSerializer.Deserialize<EventMetaData>(input.Value);
+                    return eventMetaData.AsOption();
+                });
             Serialize<CounterIncremented, Json> serializeCounterEvent = input => new Json(JsonSerializer.Serialize(input));
             BoundedContextSettings<CounterIncremented, Json> counterBoundedContextSettings =
                 new(
@@ -198,14 +204,14 @@ namespace Radix.Inventory
 
             AddInventoryItemViewModel addInventoryItemViewModel = new();
             CounterViewModel counterViewModel = new();
-            DeactivateInventoryItemViewModel deactivateInventoryItemViewModel = new(InventoryItems);
+            DeactivateInventoryItemViewModel deactivateInventoryItemViewModel = new();
 
             services.AddSingleton(boundedContext);
             services.AddSingleton(counterBoundedContext);
             services.AddSingleton(indexViewModel);
             services.AddTransient(_ => new AddInventoryItemViewModel());
             services.AddSingleton(counterViewModel);
-            services.AddTransient(_ => new DeactivateInventoryItemViewModel(InventoryItems));
+            services.AddTransient(_ => new DeactivateInventoryItemViewModel());
 
         }
 

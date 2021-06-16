@@ -2,10 +2,10 @@
 {
     public static class Generators
     {
-        public static Distribution<T> Certainly<T>(Event<T> @event)
+        public static Distribution<T> Certainly<T>(Event<T> @event) where T : notnull
             => Distribution<T>.Return(@event);
 
-        public static Distribution<T> Impossible<T>()
+        public static Distribution<T> Impossible<T>() where T : notnull
             => Distribution<T>.Impossible;
     }
 }
