@@ -154,11 +154,7 @@ namespace Radix.Inventory
                     EventMetaData? eventMetaData = JsonSerializer.Deserialize<EventMetaData>(input.Value);
                     return eventMetaData.AsOption();
                 });
-            GarbageCollectionSettings garbageCollectionSettings = new()
-            {
-                IdleTimeout = TimeSpan.FromSeconds(5),
-                ScanInterval = TimeSpan.FromSeconds(1)
-            };
+            GarbageCollectionSettings garbageCollectionSettings = new();
             BoundedContextSettings<InventoryItemEvent, Json> boundedContextSettings =
                 new(
                     sqlStreamStore.AppendEvents,
