@@ -37,8 +37,8 @@ namespace Radix.Components
 
         /// <summary>
         /// Execute a validated command by sending the message to an aggregate. If the command is valid, the command will be processed
-        /// by the aggragate. When the command has been handled successfuly, and events are returned as a result, the events
-        /// are aggragated to create the next state of the viewmodel, by calling the user defined Update function.
+        /// by the aggregate. When the command has been handled successfully, and events are returned as a result, the events
+        /// are aggregated to create the next state of the viewmodel, by calling the user defined Update function.
         /// Then a notification is sent to signal the state of the viewmodel has changed. This will trigger the component
         /// to rerender, so that it can show the correct state in the user interface. This rerendering triggers the user defined View
         /// function, which signifies how the view should be rendered
@@ -55,8 +55,8 @@ namespace Radix.Components
                     _shouldRender = commandResult.Events.Any();
                     var oldState = ViewModel;
                     ViewModel = commandResult.Events.Aggregate(ViewModel, (current, @event) => Update(current, @event));
-                    if(ViewModel != oldState)
-                        StateHasChanged();
+                    //if(ViewModel != oldState)
+                    StateHasChanged();
                     return None<Error[]>();
                 case Error<CommandResult<TEvent>, Error[]>(var errors):
                     _shouldRender = true;
