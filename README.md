@@ -1,6 +1,6 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/MCGPPeters/Radix)
-[![CI](https://github.com/MCGPPeters/Radix/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/MCGPPeters/Radix/actions/workflows/dotnet-core.yml)
-![CodeQL](https://github.com/MCGPPeters/Radix/workflows/CodeQL/badge.svg)
+[![CI](https://github.com/MCGPPeters/Radix/actions/workflows/dotnet-core.yml/badge.svg?branch=main)](https://github.com/MCGPPeters/Radix/actions/workflows/dotnet-core.yml)
+[![CodeQL](https://github.com/MCGPPeters/Radix/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/MCGPPeters/Radix/actions/workflows/codeql-analysis.yml)
 
 # Radix
 
