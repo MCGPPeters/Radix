@@ -53,9 +53,7 @@ namespace Radix.Components
             {
                 case Ok<CommandResult<TEvent>, Error[]>(var commandResult):
                     _shouldRender = commandResult.Events.Any();
-                    var oldState = ViewModel;
                     ViewModel = commandResult.Events.Aggregate(ViewModel, (current, @event) => Update(current, @event));
-                    //if(ViewModel != oldState)
                     StateHasChanged();
                     return None<Error[]>();
                 case Error<CommandResult<TEvent>, Error[]>(var errors):
