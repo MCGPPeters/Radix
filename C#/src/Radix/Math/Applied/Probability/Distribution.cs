@@ -55,8 +55,8 @@ namespace Radix.Math.Applied.Probability
         internal static Distribution<T> Scale(Distribution<T> distribution)
         {
             Probability? q = Sum(distribution);
-            IEnumerable<(Event<T> @event, Probability probability)>? d = distribution.Value;
-            return new Distribution<T>(d.Select(x => (x.@event, new Probability(x.probability / q))));
+            IEnumerable<(Event<T> @event, Probability probability)> d = distribution.Value;
+            return new Distribution<T>(d.Select(x => (x.@event, new Probability(x.probability / q.Value))));
         }
 
         public static Spread<T> Shape(Func<double, double> f)

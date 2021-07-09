@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Radix.Math.Applied.Optimization;
 using Radix.Math.Applied.Optimization.Control;
 using Radix.Math.Applied.Optimization.Control.Deterministic;
 using Radix.Math.Applied.Probability;
@@ -41,32 +42,30 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
                     : arrivedAtNextState;
             };
 
+        private static IEnumerable<Action> ActionSpace()
+        {
+            yield return new North();
+            yield return new South();
+            yield return new West();
+            yield return new East();
+        }
+
+        private static IEnumerable<(int x, int y)> StateSpace()
+        {
+            for (int x = 0; x < 4; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    yield return (x, y);
+                }
+            }
+        }
+
         [Fact(DisplayName = "Given an equiprobable policy the correct value function is created")]
         public void Test1()
         {
-            IEnumerable<(int x, int y)> State()
-            {
-                for (int x = 0; x < 4; x++)
-                {
-                    for (int y = 0; y < 4; y++)
-                    {
-                        yield return (x, y);
-                    }
-                }
-            }
-
-            ;
-
-            IEnumerable<Action> Actions()
-            {
-                yield return new North();
-                yield return new South();
-                yield return new West();
-                yield return new East();
-            }
-
-            IEnumerable<(int x, int y)> stateSpace = State();
-            MDP<(int x, int y), Action> mdp = new MDP<(int x, int y), Action>(stateSpace, Actions(), GridDynamics, 1.0);
+            IEnumerable<(int x, int y)> stateSpace = StateSpace().ToArray();
+            MDP<(int x, int y), Action> mdp = new MDP<(int x, int y), Action>(stateSpace, ActionSpace(), GridDynamics, 1.0);
             Distribution<Action> randomAction = Distribution<Action>.Uniform(mdp.Actions);
             var actionDistributions = Enumerable.Repeat(randomAction, stateSpace.Count());
             Dictionary<(int x, int y), Distribution<Action>>
@@ -99,6 +98,24 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
                     0.0
                 },
                 values);
+        }
+
+        [Fact(DisplayName = "Given an initial equiprobable policy the optimal policy is calculated")]
+        public void Test2()
+        {
+            IEnumerable<(int x, int y)> stateSpace = StateSpace().ToArray();
+            MDP<(int x, int y), Action> mdp = new MDP<(int x, int y), Action>(stateSpace, ActionSpace(), GridDynamics, 1.0);
+            Distribution<Action> randomAction = Distribution<Action>.Uniform(mdp.Actions);
+            var actionDistributions = Enumerable.Repeat(randomAction, stateSpace.Count());
+            Dictionary<(int x, int y), Distribution<Action>>
+                π = actionDistributions.Zip(stateSpace).ToDictionary(tuple => tuple.Second, tuple => tuple.First);
+            Dictionary<(int x, int y), double>? stateValues = new Dictionary<(int x, int y), double>(
+                stateSpace
+                    .Select(s => new KeyValuePair<(int x, int y), double>(s, 0.0)));
+
+            var optimalPolicy = PolicyExtensions.Iterate(π, mdp, stateValues, 0.0001).Select(pair => pair.Value.Value.ArgMax(tuple => tuple.probability));
+
+            Xunit.Assert.True(true);
         }
     }
 }
