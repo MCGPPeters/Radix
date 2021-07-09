@@ -19,8 +19,8 @@ namespace Radix.Math.Applied.Probability
 
         public static Spread<T> Normal => Shape(x => NormalCurve(0.5, 0.5, x));
 
-        internal static Distribution<T> Return(Event<T> @event) =>
-            new(Enumerable.Repeat((@event, new Probability(1.0)), 1));
+        internal static Distribution<T> Return(params Event<T>[] events) =>
+            new(events.Select(@event => (@event, new Probability(1.0 / events.Length))));
 
         internal static Distribution<U> Bind<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
         {
