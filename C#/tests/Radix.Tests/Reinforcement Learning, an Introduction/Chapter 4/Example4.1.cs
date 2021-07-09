@@ -6,6 +6,7 @@ using Radix.Math.Applied.Probability;
 using Xunit;
 using static Radix.Option.Extensions;
 
+
 namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
 {
     public abstract record Action(int X, int Y);
@@ -25,15 +26,15 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
             {
                 if (state == (0, 0) || state == (3, 3))
                 {
-                    return (new Transition<(int x, int y)>(state, state), 0.0, Some(new Probability(0.25)));
+                    return (new Transition<(int x, int y)>(state, state), 0.0, Some(new Probability(1)));
                 }
 
                 (int x, int y) = action;
                 (int x, int y) nextState = (x: state.x + x, y: state.y + y);
 
-                (Transition<(int x, int y)>, double, Option<Probability>) stayedInCurrentState = (new Transition<(int x, int y)>(state, state), -1.0, Some(new Probability(0.25)));
+                (Transition<(int x, int y)>, double, Option<Probability>) stayedInCurrentState = (new Transition<(int x, int y)>(state, state), -1.0, Some(new Probability(1)));
                 (Transition<(int x, int y)>, double, Option<Probability>)
-                    arrivedAtNextState = (new Transition<(int x, int y)>(state, nextState), -1.0, Some(new Probability(0.25)));
+                    arrivedAtNextState = (new Transition<(int x, int y)>(state, nextState), -1.0, Some(new Probability(1)));
 
                 return nextState.x < 0 || nextState.x >= 4 || nextState.y < 0 || nextState.y >= 4
                     ? stayedInCurrentState
@@ -64,17 +65,19 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
                 yield return new East();
             }
 
-            MDP<(int x, int y), Action>? mdp = new MDP<(int x, int y), Action>(State(), Actions(), GridDynamics, 1.0);
-            Distribution<Action>? randomAction = Distribution<Action>.Uniform(mdp.Actions);
-            Policy<(int x, int y), Action> equiprobableRandomPolicy =
-                new();
+            IEnumerable<(int x, int y)> stateSpace = State();
+            MDP<(int x, int y), Action> mdp = new MDP<(int x, int y), Action>(stateSpace, Actions(), GridDynamics, 1.0);
+            Distribution<Action> randomAction = Distribution<Action>.Uniform(mdp.Actions);
+            var actionDistributions = Enumerable.Repeat(randomAction, stateSpace.Count());
+            Dictionary<(int x, int y), Distribution<Action>>
+                π = actionDistributions.Zip(stateSpace).ToDictionary(tuple => tuple.Second, tuple => tuple.First);
             Dictionary<(int x, int y), double>? stateValues = new Dictionary<(int x, int y), double>(
-                State()
+                stateSpace
                     .Select(s => new KeyValuePair<(int x, int y), double>(s, 0.0)));
 
-            Expectation<(int x, int y)>? vπ = equiprobableRandomPolicy.Evaluate(mdp, stateValues, 0.0001);
+            var vπ = PolicyExtensions.Evaluate(π, mdp, stateValues, 0.0001);
 
-            List<double>? values = new List<double>(State().Select(s => System.Math.Round(vπ.Value(s), 2)));
+            List<double>? values = vπ.Values.Select(d => System.Math.Round(d, 2)).ToList();
             Xunit.Assert.Equal(
                 new List<double>
                 {
