@@ -8,21 +8,37 @@ namespace Radix.Math.Applied.Probability
 
     public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>> where T : notnull
     {
+        public Probability Max { get; init; }
+
         private Distribution(IEnumerable<(Event<T> @event, Probability probability)> distribution) : base(distribution)
         {
         }
 
+        public static Validated<Distribution<T>> Create(IEnumerable<(Event<T> @event, Probability probability)> distribution)
+            =>
+                distribution.Sum(x => x.probability) == 1.0
+                ? Valid(new Distribution<T>(distribution) { Max = distribution.Max(x => x.probability) })
+                : Invalid<Distribution<T>>("The sum of probabilities in a distribution must add up to 1.0");
+
+
         public static Distribution<T> Impossible
-            => new(Enumerable.Empty<(Event<T>, Probability)>());
+            => Return(Array.Empty<T>());
 
         public static Spread<T> Uniform => Shape(_ => 1.0);
 
         public static Spread<T> Normal => Shape(x => NormalCurve(0.5, 0.5, x));
 
-        internal static Distribution<T> Return(params Event<T>[] events) =>
-            new(events.Select(@event => (@event, new Probability(1.0 / events.Length))));
+        public static Spread<T> Linear(double c) => Shape(x => x * c);
 
-        internal static Distribution<U> Bind<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
+        public static Distribution<T> Bernoulli (T head, T tail) => Uniform(new[] { head, tail });
+
+        public static Distribution<T> Return(params Event<T>[] events) =>
+           Uniform(events.Select(x => x.Value));
+
+        public static Distribution<T> Return(params T[] events) =>
+           Uniform(events);
+
+        public static Distribution<U> Bind<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
         {
             IEnumerable<(Event<U> y, Probability)>? result = from Prior in prior.Value
                 let x = Prior.@event
@@ -35,7 +51,10 @@ namespace Radix.Math.Applied.Probability
             return new Distribution<U>(result);
         }
 
-        internal static Distribution<U> Map<U>(Distribution<T> distribution, Func<T, U> project) where U : notnull
+        public static Distribution<U> SelectMany<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
+            => Bind(prior, f);
+
+        public static Distribution<U> Map<U>(Distribution<T> distribution, Func<T, U> project) where U : notnull
         {
             IEnumerable<(Event<U>, Probability P)>? result = from d in distribution.Value
                 let x = d.@event
@@ -45,14 +64,17 @@ namespace Radix.Math.Applied.Probability
             return new Distribution<U>(result);
         }
 
-        internal static Probability Sum(Distribution<T> distribution)
+        public static Distribution<U> Select<U>(Distribution<T> distribution, Func<T, U> project) where U : notnull
+            => Map(distribution, project);
+
+        public static Probability Sum(Distribution<T> distribution)
         {
             double result = (from d in distribution.Value
-                select d.probability.Value).Sum();
+                select d.probability).Aggregate((a, b) => a + b);
             return new Probability(result);
         }
 
-        internal static Distribution<T> Scale(Distribution<T> distribution)
+        public static Distribution<T> Scale(Distribution<T> distribution)
         {
             Probability? q = Sum(distribution);
             IEnumerable<(Event<T> @event, Probability probability)> d = distribution.Value;

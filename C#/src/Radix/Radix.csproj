@@ -3,7 +3,14 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Math\Applied\Optimization\Control\Stochastic\**" />
+    <EmbeddedResource Remove="Math\Applied\Optimization\Control\Stochastic\**" />
+    <None Remove="Math\Applied\Optimization\Control\Stochastic\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SqlStreamStore" Version="1.2.1-alpha.3" />
@@ -14,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Math\Applied\Optimization\Control\Stochastic\" />
     <Folder Include="Math\Pure\" />
   </ItemGroup>
 
