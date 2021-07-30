@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using Radix.Math.Applied.Optimization.Control.MDP;
 using Radix.Math.Applied.Probability;
 using Radix.Math.Applied.Probability.Distribution;
 using Radix.Option;
@@ -26,7 +27,7 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
         /// <param name="stateValues"></param>
         /// <param name="θ"></param>
         /// <returns></returns>
-        public static Dictionary<S, double> Evaluate<S, A>(Dictionary<S, Distribution<A>> π, MDP<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
+        public static Dictionary<S, double> Evaluate<S, A>(Dictionary<S, Distribution<A>> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
         {
             double Δ = 0.0;
             do
@@ -39,13 +40,9 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
 
                     foreach (A action in mdp.Actions)
                     {
-                        (Transition<S> transition, Reward reward, Option<Probability.Probability> optionalProbability) = mdp.Dynamics(state, action);
+                        (Transition<S> transition, Probability.Probability transitionProbability) = mdp.Dynamics(state, action);
                         Probability.Probability actionProbability = π[state].Value.FirstOrDefault(eventProbability => eventProbability.@event.Value.Equals(action)).probability;
-                        value += optionalProbability switch
-                        {
-                            Some<Probability.Probability> transitionProbability => actionProbability * transitionProbability.Value * (reward + mdp.DiscountFactor * stateValues[transition.Destination]),
-                            _ => 1.0 * (reward + mdp.DiscountFactor * stateValues[transition.Destination])
-                        };
+                        value += actionProbability * transitionProbability * (mdp.Reward(transition.Origin) + mdp.γ * stateValues[transition.Destination]);
                     }
 
                     stateValues[state] = value;
@@ -66,7 +63,7 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
         /// <param name="stateValues"></param>
         /// <param name="θ"></param>
         /// <returns></returns>
-        public static Dictionary<S, Distribution<A>> Improve<S, A>(Dictionary<S, Distribution<A>> π, MDP<S, A> mdp, Dictionary<S, double> stateValues) where S : notnull where A : notnull
+        public static Dictionary<S, Distribution<A>> Improve<S, A>(Dictionary<S, Distribution<A>> π, Environment<S, A> mdp, Dictionary<S, double> stateValues) where S : notnull where A : notnull
         {
             Dictionary<S, Distribution<A>> π_ = new(π);
 
@@ -76,13 +73,8 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
                 var bestActions = mdp.Actions.ArgMax(
                     action =>
                     {
-                        (Transition<S> transition, Reward reward, Option<Probability.Probability> optionalProbability) = mdp.Dynamics(state, action);
-                        return optionalProbability switch
-                        {
-                            Some<Probability.Probability> transitionProbability =>
-                                transitionProbability.Value * (reward + mdp.DiscountFactor * stateValues[transition.Destination]),
-                            _ => 1.0 * (reward + mdp.DiscountFactor * stateValues[transition.Destination])
-                        };
+                        (Transition<S> transition, Probability.Probability transitionProbability) = mdp.Dynamics(state, action);
+                        return transitionProbability * (mdp.Reward(transition.Origin) + mdp.γ * stateValues[transition.Destination]);
                     });
                 π_[state] = Distribution<A>.Uniform(bestActions);
             }
@@ -91,7 +83,7 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
             return π_;
         }
 
-        public static Dictionary<S, Distribution<A>> Iterate<S, A>(Dictionary<S, Distribution<A>> π, MDP<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
+        public static Dictionary<S, Distribution<A>> Iterate<S, A>(Dictionary<S, Distribution<A>> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
         {
             var isPolicyStable = false;
             var currentPolicy = π;
@@ -112,13 +104,6 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
 
 
             return currentPolicy;
-        }
-
-        public static string PrintGrid<S, A>(Dictionary<S, Distribution<A>> d)
-        {
-            return d.Values.Select(
-                distribution => distribution.Value.Select((tuple, valueTuple) => tuple.@event)
-                    .Select((s, s1) => s.Value.GetType().Name).Aggregate((s, s1) => s + Environment.NewLine + s1)).Aggregate((s, s1) => s + Environment.NewLine + s1);
         }
     }
 }

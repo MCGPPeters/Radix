@@ -16,6 +16,25 @@ namespace Radix.Result
             _ => throw new NotSupportedException("Unlikely")
         };
 
+        public static Result<TResult, TError> SelectMany<T, TResult, TError>(this Result<T, TError> result, Func<T, Result<TResult, TError>> function) where TResult : notnull where T : notnull
+            => Bind(result, function);
+
+        public static Result<TResult, TError> SelectMany<T, TIntermediate, TResult, TError>(
+            this Result<T, TError> result,
+            Func<T, Result<TIntermediate, TError>> bind, Func<T, TIntermediate, TResult> project) where TResult : notnull where T : notnull where TIntermediate : notnull
+            => result switch
+            {
+                Ok<T, TError>(var t) =>
+                    bind(t) switch
+                    {
+                        Ok<TIntermediate, TError> x => Ok<TResult, TError>(project(t, x)),
+                        Error<TIntermediate, TError>(var error) => Error<TResult, TError>(error),
+                        _ => throw new NotSupportedException("Unlikely")
+                    },
+                Error<T, TError>(var error) => Error<TResult, TError>(error),
+                _ => throw new NotSupportedException("Unlikely")
+            };
+
         public static Result<TResult, TError> Map<T, TResult, TError>(this Result<T, TError> result, Func<T, TResult> function) where TResult : notnull where T : notnull => result switch
         {
             Ok<T, TError>(var value) => Ok<TResult, TError>(function(value)),

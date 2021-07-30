@@ -34,7 +34,7 @@ namespace Radix
         where TEvent : notnull
     {
         private readonly BoundedContextSettings<TEvent, TFormat> _boundedContextSettings;
-        private readonly Dictionary<Id, Actor<TCommand, TEvent>> _registry = new();
+        private readonly Dictionary<Id, Agent<TCommand, TEvent>> _registry = new();
         private readonly System.Timers.Timer _timer;
 
         private bool _disposedValue; // To detect redundant calls
@@ -58,7 +58,7 @@ namespace Radix
 
         private void RunGarbageCollection(object sender, ElapsedEventArgs e)
         {
-            foreach ((Id id, Actor<TCommand, TEvent> agent) in _registry)
+            foreach ((Id id, Agent<TCommand, TEvent> agent) in _registry)
             {
                 TimeSpan idleTime = DateTimeOffset.Now.Subtract(agent.LastActivity);
                 if (idleTime < _boundedContextSettings.GarbageCollectionSettings.IdleTimeout)
@@ -195,7 +195,7 @@ namespace Radix
             }, cancellationToken);
 
             Accept<TCommand, TEvent> accept = CreateAccept<TState>()(id, decide, update);
-            _registry.Add(id, new Actor<TCommand, TEvent> { Channel = channel, TokenSource = tokenSource, LastActivity = lastActivity, Agent = agent, Accept = accept });
+            _registry.Add(id, new Agent<TCommand, TEvent> { Channel = channel, TokenSource = tokenSource, LastActivity = lastActivity, Task = agent, Accept = accept });
 
 
             return new Aggregate<TCommand, TEvent>(id, accept);
@@ -225,7 +225,7 @@ namespace Radix
                 }
             };
 
-        private static async Task<Result<CommandResult<TEvent>, Error[]>> Send(TransientCommandDescriptor<TCommand> transientCommandDescriptor, Actor<TCommand, TEvent> actor)
+        private static async Task<Result<CommandResult<TEvent>, Error[]>> Send(TransientCommandDescriptor<TCommand> transientCommandDescriptor, Agent<TCommand, TEvent> actor)
         {
             var taskCompletionSource = new TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>();
             if (actor.Channel is not null)

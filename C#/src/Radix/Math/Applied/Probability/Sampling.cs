@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 namespace Radix.Math.Applied.Probability
 {
 
@@ -9,25 +8,29 @@ namespace Radix.Math.Applied.Probability
     {
         public static IEnumerable<T> Scan<T>(this Distribution<T> distribution, Probability target) where T : notnull
         {
-            foreach ((Event<T> @event, Probability probability) in distribution.Value)
-            {
+            var eventProbabilities = distribution.Value.ToList();
+            Random? random = new();
+            int maxValue = eventProbabilities.Count - 1;
+            while (true)
+            {                
+                var row = random.Next(0, maxValue);
+                (Event<T> @event, Probability probability) = eventProbabilities[row];
                 if (target <= probability)
                 {
-                    return Enumerable.Repeat(@event.Value, 1);
+                    yield return @event.Value;
                 }
-
-                target = new Probability(target.Value - probability.Value);
             }
-
-            return Enumerable.Empty<T>();
         }
 
-        public static Randomized<T> Choose<T>(this Distribution<T> distribution) where T : notnull
+        public static Random<T> Choose<T>(this Distribution<T> distribution) where T : notnull
         {
             Random? random = new ();
+            Probability probability = new(random.NextDouble());
+            // don't scan for a target larger than the maximum probability in the distribution
+            Probability target = probability <= distribution.Max ? probability : distribution.Max;
             return
-                Scan(distribution, new Probability(random.NextDouble()))
-                    .Select(x => new Randomized<T>(x))
+                Scan(distribution, target)
+                    .Select(x => new Random<T>(x))
                     .First();
         }
     }
