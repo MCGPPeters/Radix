@@ -4,7 +4,7 @@ using static System.Math;
 
 namespace Radix.Math.Applied.Probability
 {
-    public readonly record struct Probability
+    public readonly record struct Probability : IComparable<Probability>
     {
         private readonly double _p;
 
@@ -12,6 +12,9 @@ namespace Radix.Math.Applied.Probability
         {
             _p = p;
         }
+
+        public override string ToString() => _p.ToString();
+        public int CompareTo(Probability other) => Comparer<double>.Default.Compare(_p, other._p);
 
         public static Func<double, Validated<Probability>> Create =>
             value =>

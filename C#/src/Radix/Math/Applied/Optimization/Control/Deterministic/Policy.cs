@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using Radix.Math.Applied.Learning.Reinforced;
 using Radix.Math.Applied.Optimization.Control.MDP;
 using Radix.Math.Applied.Probability;
 using Radix.Math.Applied.Probability.Distribution;
@@ -11,7 +12,7 @@ using static Radix.Math.Applied.Probability.Distribution.Generators;
 
 namespace Radix.Math.Applied.Optimization.Control.Deterministic
 {
-    public static class PolicyExtensions
+    public static class Policy
     {
         /// <summary>
         /// Test how good a policy is. Do this by, for each state in the state space, calculating the value of being in that space when following policy π
@@ -27,7 +28,7 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
         /// <param name="stateValues"></param>
         /// <param name="θ"></param>
         /// <returns></returns>
-        public static Dictionary<S, double> Evaluate<S, A>(Dictionary<S, Distribution<A>> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
+        public static Dictionary<S, double> Evaluate<S, A>(this Policy<S, A> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
         {
             double Δ = 0.0;
             do
@@ -41,7 +42,7 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
                     foreach (A action in mdp.Actions)
                     {
                         (Transition<S> transition, Probability.Probability transitionProbability) = mdp.Dynamics(state, action);
-                        Probability.Probability actionProbability = π[state].Value.FirstOrDefault(eventProbability => eventProbability.@event.Value.Equals(action)).probability;
+                        Probability.Probability actionProbability = π(state).Value.FirstOrDefault(eventProbability => eventProbability.@event.Value.Equals(action)).probability;
                         value += actionProbability * transitionProbability * (mdp.Reward(transition.Origin) + mdp.γ * stateValues[transition.Destination]);
                     }
 
@@ -63,9 +64,9 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
         /// <param name="stateValues"></param>
         /// <param name="θ"></param>
         /// <returns></returns>
-        public static Dictionary<S, Distribution<A>> Improve<S, A>(Dictionary<S, Distribution<A>> π, Environment<S, A> mdp, Dictionary<S, double> stateValues) where S : notnull where A : notnull
+        public static Policy<S, A> Improve<S, A>(Environment<S, A> mdp, Dictionary<S, double> stateValues) where S : notnull where A : notnull
         {
-            Dictionary<S, Distribution<A>> π_ = new(π);
+            Dictionary<S, Distribution<A>> π_ = new Dictionary<S, Distribution<A>>();
 
             foreach (var state in mdp.States)
             {
@@ -79,11 +80,11 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
                 π_[state] = Distribution<A>.Uniform(bestActions);
             }
 
-            
-            return π_;
+
+            return s => π_[s];
         }
 
-        public static Dictionary<S, Distribution<A>> Iterate<S, A>(Dictionary<S, Distribution<A>> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
+        public static Policy<S, A> Iterate<S, A>(Policy<S, A> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
         {
             var isPolicyStable = false;
             var currentPolicy = π;
@@ -93,10 +94,10 @@ namespace Radix.Math.Applied.Optimization.Control.Deterministic
             {
                 Evaluate(currentPolicy, mdp, stateValues, 0.001);
 
-                var newPolicy = Improve(currentPolicy, mdp, stateValues);
+                var newPolicy = Improve(mdp, stateValues);
 
-                IEnumerable<A> newPolicyActions = newPolicy.Values.SelectMany(distribution => distribution.Value.Select(tuple => tuple.@event.Value)).ToArray();
-                IEnumerable<A> currentPolicyActions = currentPolicy.Values.SelectMany(distribution => distribution.Value.Select(tuple => tuple.@event.Value)).ToArray();
+                IEnumerable<A> newPolicyActions = stateValues.Keys.SelectMany(s => newPolicy(s).Value.Select(tuple => tuple.@event.Value));
+                IEnumerable<A> currentPolicyActions = stateValues.Keys.SelectMany(s => currentPolicy(s).Value.Select(tuple => tuple.@event.Value));
                 isPolicyStable = newPolicyActions.SequenceEqual(currentPolicyActions);
 
                 currentPolicy = newPolicy;
