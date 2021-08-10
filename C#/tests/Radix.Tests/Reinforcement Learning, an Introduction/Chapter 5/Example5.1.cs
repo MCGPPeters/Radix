@@ -9,8 +9,6 @@ using System;
 using static Radix.Math.Applied.Probability.Distribution.Generators;
 using static Radix.Math.Applied.Learning.Reinforced.MonteCarlo.Prediction.FirstVisit;
 using XPlot.Plotly;
-using System.Diagnostics.CodeAnalysis;
-using Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4;
 
 namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
 {
@@ -28,26 +26,32 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
         Alias<Distribution<int>>(Distribution<int>.
             Uniform(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 }));
 
-    public record Card(Deck deck) : Alias<Random<int>>(deck.Value.Choose());
-    public record Hand(Deck deck) : Alias<List<Card>>(new List<Card> { new Card(deck), new Card(deck) });
+    public record Card(Random<int> x) : Alias<Random<int>>(x);
+    public record Hand(List<Card> Cards);
 
     public class State : IEquatable<State?>
     {
+        public Card DealerShowing { get; set; }
+        public int PlayerSum { get; set; }
         public Hand PlayerHand { get; internal set; }
         public Hand DealerHand { get; internal set; }
         public bool GameOver { get; internal set; }
         public bool DealerPlayed { get; internal set; }
         public override bool Equals(object? obj) => Equals((State)obj);
-        public bool Equals(State? other) => EqualityComparer<Hand>.Default.Equals(PlayerHand, other.PlayerHand) && EqualityComparer<Card>.Default.Equals(DealerHand.Value[0], other.DealerHand.Value[0]);
-        public override int GetHashCode() => HashCode.Combine(PlayerHand, DealerHand.Value[0]);
-}
+        public bool Equals(State? other) => EqualityComparer<int>.Default.Equals(PlayerSum, other.PlayerSum) && EqualityComparer<Card>.Default.Equals(DealerShowing, other.DealerShowing);
+        public override int GetHashCode() => HashCode.Combine(PlayerSum, DealerShowing);
+
+        public override string ToString() => $"DealerShowing : {DealerShowing}, PlayerSum : {PlayerSum}";
+    }
 
     public record Observation()
     {
+        public Card DealerShowing { get; set; }
         public Hand PlayerHand { get; internal set; }
+        public int PlayerSum { get; set; }
         public bool GameOver { get; internal set; }
-        public Hand DealerHand { get; internal set; }
         public bool DealerPlayed { get; internal set; }
+        public Hand DealerHand { get; internal set; }
     }
 
     public record BlackJack
@@ -58,10 +62,14 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                 from γ in DiscountFactor.Create(1.0)
                 select new Environment<State, Action, Observation>(Dynamics(new Deck()), Reward, γ);
             Deck deck = new Deck();
-            Hand dealerHand = new Hand(deck);
-            Hand playerHand = new Hand(deck);
+            Hand dealerHand = new Hand(new List<Card> { new Card(deck.Value.Choose()), new Card(deck.Value.Choose()) });
+            Hand playerHand = new Hand(new List<Card> { new Card(deck.Value.Choose()), new Card(deck.Value.Choose()) });
+            var playerSum = playerHand.Cards.Sum(x => x.Value);
+
             State initialState = new State
             {
+                DealerShowing = dealerHand.Cards[0],
+                PlayerSum = playerSum,
                 DealerHand = dealerHand,
                 PlayerHand = playerHand,
                 DealerPlayed = false,
@@ -70,8 +78,10 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
 
             Observation initialObservation = new Observation
             {
+                DealerShowing = dealerHand.Cards[0],
                 DealerHand = dealerHand,
                 PlayerHand = playerHand,
+                PlayerSum = playerSum,
                 DealerPlayed = false,
                 GameOver = false
             };
@@ -89,29 +99,31 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
             return new Observation
             {
                 GameOver = transition.Destination.GameOver,
-                DealerHand = transition.Destination.DealerHand,
+                PlayerSum = transition.Destination.PlayerSum,
+                DealerShowing = transition.Destination.DealerShowing,
+                DealerPlayed = transition.Destination.DealerPlayed,
                 PlayerHand = transition.Destination.PlayerHand,
-                DealerPlayed = transition.Destination.DealerPlayed
+                DealerHand = transition.Destination.DealerHand
             };
         };
 
 
-        private static Func<Hand, bool> IsBust => hand => hand.Value.Sum(x => x.Value) > 21;
+        private static Func<Hand, bool> IsBust => hand => hand.Cards.Sum(x => x.Value) > 21;
 
         private static Func<Deck, Hand, Hand> Draw => (deck, hand) =>
         {
-            hand.Value.Add(new Card(deck));
+            hand.Cards.Add(new Card(deck.Value.Choose()));
             return hand;
         };
 
         private static Func<Hand, double> Score =>
-            hand => IsBust(hand) ? 0 : hand.Value.Sum(x => x.Value);
+            hand => IsBust(hand) ? 0 : hand.Cards.Sum(x => x.Value);
 
         public static Func<Hand, bool> IsNatural =>
             hand =>
-            hand.Value.Count() == 2
-            && hand.Value.Count(x => x.Value == 1) == 1
-            && hand.Value.Count(x => x.Value == 11) == 1;
+            hand.Cards.Count() == 2
+            && hand.Cards.Count(x => x.Value == 1) == 1
+            && hand.Cards.Count(x => x.Value == 11) == 1;
 
         private static Reward<Observation> Reward => observation =>
         {
@@ -151,12 +163,16 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                             DealerPlayed = state.DealerPlayed,
                             DealerHand = state.DealerHand,
                             PlayerHand = newPlayerHand,
-                            GameOver = true
+                            DealerShowing = state.DealerShowing,
+                            PlayerSum = state.PlayerSum,
+                            GameOver = true,
                         }
                         : new State
                         {
                             DealerPlayed = state.DealerPlayed,
                             DealerHand = state.DealerHand,
+                            DealerShowing = state.DealerShowing,
+                            PlayerSum = state.PlayerSum,
                             PlayerHand = newPlayerHand,
                             GameOver = false
                         };
@@ -164,13 +180,15 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
 
                 case Stick:
                     Hand newDealerHand;
-                    while (state.DealerHand.Value.Sum(x => x.Value) < 17)
+                    while (state.DealerHand.Cards.Sum(x => x.Value) < 17)
                         newDealerHand = Draw(deck, state.DealerHand);
 
                     nextState = new State
                     {
                         DealerHand = state.DealerHand,
                         PlayerHand = state.PlayerHand,
+                        DealerShowing = state.DealerShowing,
+                        PlayerSum = state.PlayerSum,
                         GameOver = true,
                         DealerPlayed = true
                     };
@@ -183,83 +201,80 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
         };
     }
 
+
+
     public class Example_5
     {
+        private static Func<Policy<Observation, Action>, List<(Transition<State>, Reward)>> RunEpisode =
+          policy =>
+          {
+              var (environment, initialState, initialObservation) = BlackJack.Create();
+              var rewards = new List<(Transition<State>, Reward)>();
+              var s = initialState;
+              var o = initialObservation;
+              var gameOver = false;
+              while (!gameOver)
+              {
+                  Action action = policy(o).Choose().Value;
+                  (var transition, var probability) = environment.Dynamics(s, action);
+                  s = transition.Destination;
+                  gameOver = s.GameOver;
+                  o = o with
+                  {
+                      DealerHand = s.DealerHand,
+                      PlayerHand = s.PlayerHand,
+                      GameOver = s.GameOver,
+                      DealerPlayed = s.DealerPlayed,
+                      PlayerSum = s.PlayerSum,
+                      DealerShowing = s.DealerShowing
+                  };
+                  rewards.Add((transition, environment.Reward(o)));
+              }
+              return rewards;
+          };
+
         [Fact(DisplayName = "First visit monte carlo prediction")]
         public void Test1()
         {
             var blackjack = BlackJack.Create();
             Policy<Observation, Action> π =
-                s => s.PlayerHand.Value.Sum(x => x.Value) == 21 || s.PlayerHand.Value.Sum(x => x.Value) == 20
+                s => s.PlayerHand.Cards.Sum(x => x.Value) == 21 || s.PlayerHand.Cards.Sum(x => x.Value) == 20
                 ? Certainly(Action.Stick())
                 : Certainly(Action.Hit());
 
             var stateValues = π.Evaluate(blackjack.environment, RunEpisode, 10000);
-
-            var a = (from stateValue in stateValues
-                     group stateValue by new { dealerCardValue = stateValue.Key.DealerHand.Value.First().Value.Value, PlayerSum = stateValue.Key.PlayerHand.Value.Sum(c => c.Value) } into grouping
-                     select grouping
-                     );
-
-            double[,] z = new double[11,30];
-
-            foreach (var grouping in a)
-            {
-                z[grouping.Key.dealerCardValue, grouping.Key.PlayerSum] =  grouping.Average(x => x.Value) ;             
-            }
-
-            var surface = new Surface
-            {
-                z = z
-            };
-
-            Chart.Plot(surface).Show();
+            PlotValueFunction(stateValues);
 
             var stateValues_ = π.Evaluate(blackjack.environment, RunEpisode, 500000);
+            PlotValueFunction(stateValues_);
+        }
 
-            var a_ = (from stateValue in stateValues_
-                      group stateValue by new { dealerCardValue = stateValue.Key.DealerHand.Value.First().Value.Value, PlayerSum = stateValue.Key.PlayerHand.Value.Sum(c => c.Value) } into grouping
-                      select grouping
-                     );
+        private static void PlotValueFunction(Expectation<State> stateValues)
+        {
+            var z = new double[12, 22];
 
-            var z_ = new double[11, 30];
-
-            foreach (var grouping in a_)
+            for (int i = 1; i < 12; i++)
             {
-                z_[grouping.Key.dealerCardValue, grouping.Key.PlayerSum] = grouping.Average(x => x.Value);
+                for (int j = 12; j < 22; j++)
+                {
+                    State state =
+                        new State
+                        {
+                            DealerShowing = new Card(new Random<int>(i)),
+                            PlayerSum = j
+                        };
+                    z[i, j] = stateValues(new Random<State>(state));                        
+                }
             }
 
             var surface_ = new Surface
             {
-                z = z_
+                z = z
             };
 
             Chart.Plot(surface_).Show();
         }
 
-        private static Func<Policy<Observation, Action>, List<(Transition<State>, Reward)>> RunEpisode = policy =>
-        {
-            var blackjack = BlackJack.Create();
-            var rewards = new List<(Transition<State>, Reward)>();
-            var s = blackjack.initialState;
-            var o = blackjack.initialObservation;
-            var gameOver = false;
-            while (!gameOver)
-            {
-                Action action = policy(o).Choose().Value;
-                (var transition, var probability) = blackjack.environment.Dynamics(s, action);
-                s = transition.Destination;
-                gameOver = s.GameOver;
-                o = o with
-                {
-                    DealerHand = s.DealerHand,
-                    PlayerHand = s.PlayerHand,
-                    GameOver = s.GameOver,
-                    DealerPlayed = s.DealerPlayed
-                };
-                rewards.Add((transition, blackjack.environment.Reward(o)));
-            }
-            return rewards;
-        };
+
     }
 }
