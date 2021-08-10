@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Radix.Math.Applied.Optimization.Control.POMDP;
 using Radix.Math.Applied.Optimization.Control;
 using Radix.Math.Applied.Probability;
-using static System.Math;
 
 namespace Radix.Math.Applied.Learning.Reinforced.MonteCarlo.Prediction
 {
     public static class FirstVisit
     {
-        public static Dictionary<S, double> Evaluate<S, A, O>(this Policy<O, A> π, Environment<S, A, O> environment, Func<Policy<O, A>, List<(Transition<S>, Reward)>> runEpisode, int numberOfEpisodes) where S : notnull where A : notnull where O : notnull
+        public static Expectation<S> Evaluate<S, A, O>(this Policy<O, A> π, Environment<S, A, O> environment, Func<Policy<O, A>, List<(Transition<S>, Reward)>> runEpisode, int numberOfEpisodes) where S : notnull where A : notnull where O : notnull
         {
             var stateValues = new Dictionary<S, double>();
             var returns = new Dictionary<S, List<Return>>();
@@ -43,7 +40,17 @@ namespace Radix.Math.Applied.Learning.Reinforced.MonteCarlo.Prediction
                 }
                 n++;
             }
-            return stateValues;
+            return rs =>
+            {
+                if (stateValues.TryGetValue(rs.Value, out var @return))
+                {
+                    return @return;
+                }
+                else
+                {
+                    return 0.0;
+                }
+            };
         }
     }
 }
