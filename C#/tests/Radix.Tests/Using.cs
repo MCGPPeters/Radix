@@ -2,3 +2,4 @@
 global using static Radix.Option.Extensions;
 global using static Radix.Result.Extensions;
 global using static Radix.Tests.Assert;
+global using static Radix._;

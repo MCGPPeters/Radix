@@ -6,7 +6,6 @@ using Radix.Math.Applied.Optimization.Control.MDP;
 using Radix.Math.Applied.Optimization.Control.Deterministic;
 using Radix.Math.Applied.Probability;
 using Xunit;
-using static Radix.Option.Extensions;
 using Radix.Validated;
 
 namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
@@ -67,18 +66,14 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
         [Fact(DisplayName = "Given an equiprobable policy the correct value function is created")]
         public void Test1()
         {
-
-
             IEnumerable<State> stateSpace = StateSpace().ToArray();
 
             var validatedValues =
                 from γ in DiscountFactor.Create(1.0)
                 let environment = new Environment<State, Action>(stateSpace, ActionSpace(), GridDynamics, Reward, γ)
-                let randomAction = Distribution<Action>.Uniform(environment.Actions)
-                let actionDistributions = Enumerable.Repeat(randomAction, stateSpace.Count())
-                let π = actionDistributions.Zip(stateSpace).ToDictionary(tuple => tuple.Second, tuple => tuple.First)
+                let π = new Policy<State, Action>(s => Distribution<Action>.Uniform(environment.Actions))
                 let stateValues = new Dictionary<State, double>(stateSpace.Select(s => new KeyValuePair<State, double>(s, 0.0)))
-                let vπ = PolicyExtensions.Evaluate(π, environment, stateValues, 0.0001)
+                let vπ = π.Evaluate(environment, stateValues, 0.0001)
                 let values = vπ.Values.Select(d => System.Math.Round(d, 2)).ToList()
                 select values;
             switch (validatedValues)
@@ -106,7 +101,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
                         },
                         values);
                     break;
-
+                    
                 default:
                     Assert.Fail();
                     break;
@@ -119,11 +114,20 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4
             var optimalPolicy =
                 from γ in DiscountFactor.Create(1.0)
                 let environment = new Environment<State, Action>(stateSpace, ActionSpace(), GridDynamics, Reward, γ)
-                let randomAction = Distribution<Action>.Uniform(environment.Actions)
-                let actionDistributions = Enumerable.Repeat(randomAction, stateSpace.Count())
-                let π = actionDistributions.Zip(stateSpace).ToDictionary(tuple => tuple.Second, tuple => tuple.First)
+                let π = new Policy<State, Action>(s => Distribution<Action>.Uniform(environment.Actions))
                 let stateValues = new Dictionary<State, double>(stateSpace.Select(s => new KeyValuePair<State, double>(s, 0.0)))
-                select PolicyExtensions.Iterate(π, environment, stateValues, 0.0001).Select(pair => pair.Value.Value.ArgMax(tuple => tuple.probability));
+                select Policy.Iterate(π, environment, stateValues, 0.0001);
+
+            switch (optimalPolicy)
+            {
+                case Valid<Policy<State, Action>>(var p):
+                    var result = stateSpace.Select(s => p(s).Value.ArgMax(x => x.probability));
+                    break;
+                default:
+                    break;
+            }
+
+            
 
             Assert.Pass();
         }
