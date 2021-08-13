@@ -1,7 +1,3 @@
-using System;
+namespace Radix;
 
-namespace Radix
-{
-    public record MessageId(Guid Value) : Alias<Guid>(Value);
-
-}
+public record MessageId(Guid Value) : Alias<Guid>(Value);

@@ -1,22 +1,21 @@
-﻿namespace Radix.Components.Html
+﻿namespace Radix.Components.Html;
+
+public class ComponentAttribute : IAttribute
 {
-    public class ComponentAttribute : IAttribute
+    public ComponentAttribute(string name, object value)
     {
-        public ComponentAttribute(string name, object value)
-        {
-            Name = name;
-            Value = value;
-        }
+        Name = name;
+        Value = value;
+    }
 
-        public object Value { get; }
+    public object Value { get; }
 
-        public Name Name { get; set; }
+    public Name Name { get; set; }
 
-        public void Deconstruct(out Name name, out object value)
+    public void Deconstruct(out Name name, out object value)
 
-        {
-            name = Name;
-            value = Value;
-        }
+    {
+        name = Name;
+        value = Value;
     }
 }

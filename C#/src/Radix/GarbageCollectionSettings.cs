@@ -1,12 +1,9 @@
-using System;
+namespace Radix;
 
-namespace Radix
+public class GarbageCollectionSettings
 {
-    public class GarbageCollectionSettings
-    {
 
-        public TimeSpan ScanInterval { get; set; } = TimeSpan.FromMinutes(1);
+    public TimeSpan ScanInterval { get; set; } = TimeSpan.FromMinutes(1);
 
-        public TimeSpan IdleTimeout { get; set; } = TimeSpan.FromMinutes(2);
-    }
+    public TimeSpan IdleTimeout { get; set; } = TimeSpan.FromMinutes(2);
 }

@@ -1,13 +1,10 @@
-using System.Collections.Generic;
+namespace Radix;
 
-namespace Radix
+public struct CommandResult<TEvent>
 {
-    public struct CommandResult<TEvent>
-    {
-        public Id Id { get; init; }
+    public Id Id { get; init; }
 
-        public Version ExpectedVersion { get; init; }
-            
-        public IEnumerable<TEvent> Events { get; init; }
-    }
+    public Version ExpectedVersion { get; init; }
+
+    public IEnumerable<TEvent> Events { get; init; }
 }

@@ -1,5 +1,3 @@
-using System;
-
 namespace Radix.Inventory.Data
 {
     public class WeatherForecast

@@ -29,22 +29,35 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
     public record Card(Random<int> x) : Alias<Random<int>>(x);
     public record Hand(List<Card> Cards);
 
-    public class State : IEquatable<State?>
+    public class State : IEquatable<State>
     {
         public Card DealerShowing { get; set; }
         public int PlayerSum { get; set; }
         public Hand PlayerHand { get; internal set; }
         public Hand DealerHand { get; internal set; }
+
+        public bool PlayerHasUsableAce { get; set; }
         public bool GameOver { get; internal set; }
         public bool DealerPlayed { get; internal set; }
-        public override bool Equals(object? obj) => Equals((State)obj);
-        public bool Equals(State? other) => EqualityComparer<int>.Default.Equals(PlayerSum, other.PlayerSum) && EqualityComparer<Card>.Default.Equals(DealerShowing, other.DealerShowing);
-        public override int GetHashCode() => HashCode.Combine(PlayerSum, DealerShowing);
 
-        public override string ToString() => $"DealerShowing : {DealerShowing}, PlayerSum : {PlayerSum}";
+        public override bool Equals(object? obj) => Equals((State)obj);
+        public bool Equals(State? other)
+        {
+            bool v = EqualityComparer<int>.Default.Equals(PlayerSum, other.PlayerSum)
+                        && EqualityComparer<int>.Default.Equals(DealerShowing.Value, other.DealerShowing.Value)
+                        && PlayerHasUsableAce == other.PlayerHasUsableAce;
+            return v;
+        }
+        public override int GetHashCode()
+        {
+            int v = HashCode.Combine(PlayerSum, DealerShowing.Value, PlayerHasUsableAce);
+            return v;
+        }
+
+        public override string ToString() => $"DealerShowing : {DealerShowing.Value}, PlayerSum : {PlayerSum}, PlayerHasUsableAce: {PlayerHasUsableAce}";
     }
 
-    public record Observation()
+    public record Observation
     {
         public Card DealerShowing { get; set; }
         public Hand PlayerHand { get; internal set; }
@@ -73,7 +86,8 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                 DealerHand = dealerHand,
                 PlayerHand = playerHand,
                 DealerPlayed = false,
-                GameOver = false
+                GameOver = false,
+                PlayerHasUsableAce = ContainsUsableAce(playerHand)
             };
 
             Observation initialObservation = new Observation
@@ -107,14 +121,22 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
             };
         };
 
+        private static Func<Hand, bool> ContainsUsableAce =>
+            hand => hand.Cards.Contains(new Card(new Random<int>(1))) && hand.Cards.Sum(x => x.Value) + 10 <= 21;
 
-        private static Func<Hand, bool> IsBust => hand => hand.Cards.Sum(x => x.Value) > 21;
+        private static Func<Hand, bool> IsBust => hand => Sum(hand) > 21;
 
         private static Func<Deck, Hand, Hand> Draw => (deck, hand) =>
         {
             hand.Cards.Add(new Card(deck.Value.Choose()));
             return hand;
         };
+
+        private static Func<Hand, int> Sum
+            => hand
+                => ContainsUsableAce(hand)
+                    ? hand.Cards.Sum(x => x.Value) + 10
+                    : hand.Cards.Sum(x => x.Value);
 
         private static Func<Hand, double> Score =>
             hand => IsBust(hand) ? 0 : hand.Cards.Sum(x => x.Value);
@@ -150,55 +172,60 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
             }
         };
 
-        private static Func<Deck, Math.Applied.Optimization.Control.MDP.Dynamics<State, Action>> Dynamics = (deck) => (state, action) =>
-        {
-            State nextState;
-            switch (action)
-            {
-                case Hit:
-                    Hand newPlayerHand = Draw(deck, state.PlayerHand);
-                    nextState = IsBust(newPlayerHand)
-                        ? new State
-                        {
-                            DealerPlayed = state.DealerPlayed,
-                            DealerHand = state.DealerHand,
-                            PlayerHand = newPlayerHand,
-                            DealerShowing = state.DealerShowing,
-                            PlayerSum = state.PlayerSum,
-                            GameOver = true,
-                        }
-                        : new State
-                        {
-                            DealerPlayed = state.DealerPlayed,
-                            DealerHand = state.DealerHand,
-                            DealerShowing = state.DealerShowing,
-                            PlayerSum = state.PlayerSum,
-                            PlayerHand = newPlayerHand,
-                            GameOver = false
-                        };
-                    return (new Transition<State>(state, nextState), new Probability(1.0));
-
-                case Stick:
-                    Hand newDealerHand;
-                    while (state.DealerHand.Cards.Sum(x => x.Value) < 17)
-                        newDealerHand = Draw(deck, state.DealerHand);
-
-                    nextState = new State
+        private static Func<Deck, Math.Applied.Optimization.Control.MDP.Dynamics<State, Action>> Dynamics =
+            (deck) =>
+                (state, action) =>
+                {
+                    State nextState;
+                    switch (action)
                     {
-                        DealerHand = state.DealerHand,
-                        PlayerHand = state.PlayerHand,
-                        DealerShowing = state.DealerShowing,
-                        PlayerSum = state.PlayerSum,
-                        GameOver = true,
-                        DealerPlayed = true
-                    };
+                        case Hit:
+                            Hand newPlayerHand = Draw(deck, state.PlayerHand);
+                            nextState = IsBust(newPlayerHand)
+                                ? new State
+                                {
+                                    DealerPlayed = state.DealerPlayed,
+                                    DealerHand = state.DealerHand,
+                                    PlayerHand = newPlayerHand,
+                                    DealerShowing = state.DealerShowing,
+                                    PlayerSum = state.PlayerSum,
+                                    GameOver = true,
+                                    PlayerHasUsableAce = ContainsUsableAce(newPlayerHand)
+                                }
+                                : new State
+                                {
+                                    DealerPlayed = state.DealerPlayed,
+                                    DealerHand = state.DealerHand,
+                                    DealerShowing = state.DealerShowing,
+                                    PlayerSum = state.PlayerSum,
+                                    PlayerHand = newPlayerHand,
+                                    GameOver = false,
+                                    PlayerHasUsableAce = ContainsUsableAce(newPlayerHand)
+                                };
+                            return (new Transition<State>(state, nextState), new Probability(1.0));
 
-                    return (new Transition<State>(state, nextState), new Probability(1.0));
-                default:
-                    throw new InvalidOperationException("Illegal move");
-            }
+                        case Stick:
+                            Hand newDealerHand;
+                            while (state.DealerHand.Cards.Sum(x => x.Value) < 17)
+                                newDealerHand = Draw(deck, state.DealerHand);
 
-        };
+                            nextState = new State
+                            {
+                                DealerHand = state.DealerHand,
+                                PlayerHand = state.PlayerHand,
+                                DealerShowing = state.DealerShowing,
+                                PlayerSum = state.PlayerSum,
+                                GameOver = true,
+                                DealerPlayed = true,
+                                PlayerHasUsableAce = ContainsUsableAce(state.PlayerHand)
+                            };
+
+                            return (new Transition<State>(state, nextState), new Probability(1.0));
+                        default:
+                            throw new InvalidOperationException("Illegal move");
+                    }
+
+                };
     }
 
 
@@ -249,30 +276,50 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
             PlotValueFunction(stateValues_);
         }
 
-        private static void PlotValueFunction(Expectation<State> stateValues)
+        private static void PlotValueFunction(Expectation<State> stateValue)
         {
-            var z = new double[12, 22];
+            var zWithUsableAce = new double[12, 22];
+            var zWithoutUsableAce = new double[12, 22];
 
             for (int i = 1; i < 12; i++)
             {
                 for (int j = 12; j < 22; j++)
                 {
-                    State state =
+                    State stateWithUsableAce =
                         new State
                         {
                             DealerShowing = new Card(new Random<int>(i)),
-                            PlayerSum = j
+                            PlayerSum = j,
+                            PlayerHasUsableAce = true
                         };
-                    z[i, j] = stateValues(new Random<State>(state));                        
+                    zWithUsableAce[i, j] = stateValue(new Random<State>(stateWithUsableAce));
+
+                    State stateWithoutUsableAce =
+                        new State
+                        {
+                            DealerShowing = new Card(new Random<int>(i)),
+                            PlayerSum = j,
+                            PlayerHasUsableAce = false
+                        };
+                    zWithoutUsableAce[i, j] = stateValue(new Random<State>(stateWithoutUsableAce));
                 }
             }
 
-            var surface_ = new Surface
+            var surfaceWithUsableAce = new Surface
             {
-                z = z
+                z = zWithUsableAce,
+                name = "With usable ace"
             };
 
-            Chart.Plot(surface_).Show();
+            Chart.Plot(surfaceWithUsableAce).Show();
+
+            var surfaceWithoutUsableAce = new Surface
+            {
+                z = zWithoutUsableAce,
+                name = "Without usable ace"
+            };
+
+            Chart.Plot(surfaceWithoutUsableAce).Show();
         }
 
 

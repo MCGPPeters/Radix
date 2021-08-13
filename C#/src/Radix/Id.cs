@@ -1,14 +1,11 @@
-using System;
+namespace Radix;
 
-namespace Radix
+/// <summary>
+///     A reference to and identifier of an aggregate
+/// </summary>
+public record Id(Guid id)
 {
-    /// <summary>
-    ///     A reference to and identifier of an aggregate
-    /// </summary>
-    public record Id(Guid id)
-    {
-        public static implicit operator Id(Guid guid) => new(guid);
+    public static implicit operator Id(Guid guid) => new(guid);
 
-        public override string ToString() => id.ToString();
-    }
+    public override string ToString() => id.ToString();
 }

@@ -1,6 +1,5 @@
-﻿namespace Radix.Components.Html
+﻿namespace Radix.Components.Html;
+
+public class Empty : Node
 {
-    public class Empty : Node
-    {
-    }
 }

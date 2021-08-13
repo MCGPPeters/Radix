@@ -1,6 +1,5 @@
-namespace Radix.Inventory.Domain
+namespace Radix.Inventory.Domain;
+
+public abstract record InventoryItemCommand
 {
-    public abstract record InventoryItemCommand
-    {
-    }
 }

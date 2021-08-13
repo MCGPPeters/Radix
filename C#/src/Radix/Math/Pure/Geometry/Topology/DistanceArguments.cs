@@ -1,8 +1,7 @@
-﻿namespace Radix.Math.Pure.Geometry.Topology
+﻿namespace Radix.Math.Pure.Geometry.Topology;
+
+public interface DistanceArguments<out T>
 {
-    public interface DistanceArguments<out T>
-    {
-        T First { get; }
-        T Second { get; }
-    }
+    T First { get; }
+    T Second { get; }
 }

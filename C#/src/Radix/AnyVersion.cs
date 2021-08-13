@@ -1,4 +1,3 @@
-namespace Radix
-{
-    public record AnyVersion(long _) : Version(-2);
-}
+namespace Radix;
+
+public record AnyVersion(long _) : Version(-2);

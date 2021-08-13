@@ -1,14 +1,13 @@
-namespace Radix
+namespace Radix;
+
+public class Error
 {
-    public class Error
-    {
 
-        internal Error(string message) => Message = message;
+    internal Error(string message) => Message = message;
 
-        public string Message { get; }
+    public string Message { get; }
 
-        public override string ToString() => Message;
+    public override string ToString() => Message;
 
-        public static implicit operator Error(string m) => new(m);
-    }
+    public static implicit operator Error(string m) => new(m);
 }

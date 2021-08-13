@@ -1,9 +1,8 @@
-namespace Radix.Inventory.Domain
-{
-    public record InventoryItemRenamed : InventoryItemEvent
-    {
+namespace Radix.Inventory.Domain;
 
-        public long Id { get; init; }
-        public string? Name { get; init; }
-    }
+public record InventoryItemRenamed : InventoryItemEvent
+{
+
+    public long Id { get; init; }
+    public string? Name { get; init; }
 }

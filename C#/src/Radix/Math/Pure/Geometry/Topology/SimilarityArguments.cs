@@ -1,8 +1,7 @@
-﻿namespace Radix.Math.Pure.Geometry.Topology
+﻿namespace Radix.Math.Pure.Geometry.Topology;
+
+public interface SimilarityArguments<out T>
 {
-    public interface SimilarityArguments<out T>
-    {
-        T First { get; }
-        T Second { get; }
-    }
+    T First { get; }
+    T Second { get; }
 }

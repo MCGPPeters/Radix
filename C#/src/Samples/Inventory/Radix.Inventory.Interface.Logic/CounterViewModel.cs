@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using Radix.Components;
+﻿using Radix.Components;
 
-namespace Radix.Blazor.Inventory.Interface.Logic
+namespace Radix.Blazor.Inventory.Interface.Logic;
+
+public record CounterViewModel : ViewModel
 {
-    public record CounterViewModel : ViewModel
-    {
-        public int Count { get; set; }
-    }
+    public int Count { get; set; }
 }

@@ -53,7 +53,7 @@ namespace Radix.Tests
             switch (result)
             {
                 case Ok<CommandResult<InventoryItemEvent>, Error[]>(var commandResult):
-                    commandResult.Events.Should().BeEquivalentTo(new ItemsRemovedFromInventory(1, 1));
+                    commandResult.Events.Should().BeEquivalentTo(new[] { new ItemsRemovedFromInventory(1, 1) });
                     commandResult.ExpectedVersion.Should().Be(new ExistingVersion(4L));
                     break;
                 case Error<CommandResult<InventoryItemEvent>, Error[]>(var errors):

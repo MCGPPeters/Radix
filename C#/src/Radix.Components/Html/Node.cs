@@ -1,7 +1,5 @@
-﻿namespace Radix.Components.Html
-{
-    public interface Node
-    {
-    }
+﻿namespace Radix.Components.Html;
 
+public interface Node
+{
 }

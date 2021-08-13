@@ -1,11 +1,8 @@
-namespace Radix
+namespace Radix;
+
+public abstract class CommandDecisionError : CommandProcessingError
 {
-    public abstract class CommandDecisionError : CommandProcessingError
+    internal CommandDecisionError(string message) : base(message)
     {
-        internal CommandDecisionError(string message) : base(message)
-        {
-        }
     }
-
-
 }

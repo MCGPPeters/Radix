@@ -1,7 +1,6 @@
-﻿namespace Radix.Components.Html
+﻿namespace Radix.Components.Html;
+
+public interface IAttribute
 {
-    public interface IAttribute
-    {
-        Name Name { get; set; }
-    }
+    Name Name { get; set; }
 }

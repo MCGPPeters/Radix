@@ -1,15 +1,13 @@
-using System;
 using static Radix.Validated.Extensions;
 
-namespace Radix.Inventory.Domain
+namespace Radix.Inventory.Domain;
+
+public record DeactivateInventoryItem(string Reason) : InventoryItemCommand
 {
-    public record DeactivateInventoryItem(string Reason) : InventoryItemCommand
-    {
 
-        private static Func<string, InventoryItemCommand> New => (reason) =>
-            new DeactivateInventoryItem(reason);
+    private static Func<string, InventoryItemCommand> New => (reason) =>
+        new DeactivateInventoryItem(reason);
 
-        public static Validated<InventoryItemCommand> Create(string? reason) => Valid(New)
-            .Apply(!string.IsNullOrEmpty(reason) ? Valid(reason) : Invalid<string>("A reason for deactivation must be provided"));
-    }
+    public static Validated<InventoryItemCommand> Create(string? reason) => Valid(New)
+        .Apply(!string.IsNullOrEmpty(reason) ? Valid(reason) : Invalid<string>("A reason for deactivation must be provided"));
 }
