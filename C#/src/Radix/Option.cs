@@ -1,10 +1,6 @@
-using Radix.Option;
-using static Radix.Option.Extensions;
+namespace Radix;
 
-namespace Radix
+public interface Option<out T>
 {
-    public interface Option<out T>
-    {
-        
-    }
+
 }

@@ -1,7 +1,6 @@
-namespace Radix.Option
+namespace Radix.Option;
+
+public class None<T> : Option<T>
 {
-    public class None<T> : Option<T>
-    {
-        internal static readonly None<T> Default = new();
-    }
+    internal static readonly None<T> Default = new();
 }

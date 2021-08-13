@@ -1,15 +1,14 @@
-﻿using static Radix.Validated.Extensions;
+﻿namespace Radix.Validated;
 
-namespace Radix.Validated
+public record NonEmptyString : Alias<string>
 {
-    public record NonEmptyString(string Value) : Alias<string>(Value)
-    {
-        public static Validated<NonEmptyString> Create(string value, string errorMessage)
-            => value.IsNotNullNorEmpty(errorMessage)
-                switch
-                {
-                    Valid<string>(var s) => Valid(new NonEmptyString(s)),
-                    _ => Invalid<NonEmptyString>(errorMessage)
-                };
-    }
+    private NonEmptyString(string value) : base(value) { }
+
+    public static Validated<NonEmptyString> Create(string value, string errorMessage)
+        => value.IsNotNullNorEmpty(errorMessage)
+            switch
+        {
+            Valid<string>(var s) => Valid(new NonEmptyString(s)),
+            _ => Invalid<NonEmptyString>(errorMessage)
+        };
 }

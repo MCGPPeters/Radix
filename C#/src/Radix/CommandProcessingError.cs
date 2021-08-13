@@ -1,9 +1,8 @@
-namespace Radix
+namespace Radix;
+
+public class CommandProcessingError : Error
 {
-    public class CommandProcessingError : Error
+    internal CommandProcessingError(string message) : base(message)
     {
-        internal CommandProcessingError(string message) : base(message)
-        {
-        }
     }
 }

@@ -1,10 +1,6 @@
-﻿using System;
+﻿namespace Radix.Math.Pure.Algebra.Operations;
 
-namespace Radix.Math.Pure.Algebra.Operations
+public interface Binary<T>
 {
-    public interface Binary<T>
-    {
-        Func<T, T, T> Apply { get; }
-    }
-
+    Func<T, T, T> Apply { get; }
 }

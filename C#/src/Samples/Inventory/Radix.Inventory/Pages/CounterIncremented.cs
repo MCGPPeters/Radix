@@ -1,4 +1,3 @@
-﻿namespace Radix.Blazor.Inventory.Server.Pages
-{
-    public record CounterIncremented(string Value = "+1");
-}
+﻿namespace Radix.Blazor.Inventory.Server.Pages;
+
+public record CounterIncremented(string Value = "+1");

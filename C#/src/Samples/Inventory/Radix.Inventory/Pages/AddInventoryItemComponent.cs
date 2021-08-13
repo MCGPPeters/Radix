@@ -1,51 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
 using Radix.Components.Html;
 using Radix.Inventory.Domain;
 using Radix.Option;
-using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
 using static Radix.Components.Html.Components;
+using static Radix.Components.Html.Elements;
 
-namespace Radix.Blazor.Inventory.Server.Pages
+namespace Radix.Blazor.Inventory.Server.Pages;
+
+[Route("/Add")]
+public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
 {
-    [Route("/Add")]
-    public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
-    {
-        protected override Node View(AddInventoryItemViewModel currentViewModel) => concat(
-            h1(None, text("Add new item")),
-            div(
-                new[] { @class("form-group") },
-                Elements.label(
-                    new[] { @for("idInput") },
-                    text("Id")),
-                input(
-                    @class("form-control"),
-                    id("idInput"),
-                    bind.input(currentViewModel.InventoryItemId, id => currentViewModel.InventoryItemId = id)),
-                Elements.label(
-                    new[] { @for("nameInput") },
-                    text("Name")),
-                input(
-                    @class("form-control"),
-                    id("nameInput"),
-                    bind.input(currentViewModel.InventoryItemName, name => currentViewModel.InventoryItemName = name)),
-                Elements.label(
-                    new[] { @for("countInput") },
-                    text("Count")),
-                input(
-                    @class("form-control"),
-                    id("countInput"),
-                    bind.input(currentViewModel.InventoryItemCount, count => currentViewModel.InventoryItemCount = count)
-                )),
-            button(
-                new[]
-                {
+    protected override Node View(AddInventoryItemViewModel currentViewModel) => concat(
+        h1(None, text("Add new item")),
+        div(
+            new[] { @class("form-group") },
+            Elements.label(
+                new[] { @for("idInput") },
+                text("Id")),
+            input(
+                @class("form-control"),
+                id("idInput"),
+                bind.input(currentViewModel.InventoryItemId, id => currentViewModel.InventoryItemId = id)),
+            Elements.label(
+                new[] { @for("nameInput") },
+                text("Name")),
+            input(
+                @class("form-control"),
+                id("nameInput"),
+                bind.input(currentViewModel.InventoryItemName, name => currentViewModel.InventoryItemName = name)),
+            Elements.label(
+                new[] { @for("countInput") },
+                text("Count")),
+            input(
+                @class("form-control"),
+                id("countInput"),
+                bind.input(currentViewModel.InventoryItemCount, count => currentViewModel.InventoryItemCount = count)
+            )),
+        button(
+            new[]
+            {
                     @class("btn btn-primary"), on.click(
                         async args =>
                         {
@@ -71,33 +68,32 @@ namespace Radix.Blazor.Inventory.Server.Pages
                                     break;
                             }
                         })
-                },
-                text("Ok")
-            ),
-            navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
+            },
+            text("Ok")
+        ),
+        navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
+        div(
+            None,
             div(
-                None,
+                new[] { @class("toast"), attribute("data-autohide", "false") },
                 div(
-                    new[] { @class("toast"), attribute("data-autohide", "false") },
-                    div(
-                        new[] { @class("toast-header") },
-                        strong(new[] { @class("mr-auto") }, text("Invalid input")),
-                        small(None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
-                        button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(None, text("🗙")))),
-                    div(
-                        new[] { @class("toast-body") },
-                        FormatErrorMessages(currentViewModel.Errors)
-                    ))));
+                    new[] { @class("toast-header") },
+                    strong(new[] { @class("mr-auto") }, text("Invalid input")),
+                    small(None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
+                    button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(None, text("🗙")))),
+                div(
+                    new[] { @class("toast-body") },
+                    FormatErrorMessages(currentViewModel.Errors)
+                ))));
 
-        private static Node FormatErrorMessages(IEnumerable<Error> errors)
+    private static Node FormatErrorMessages(IEnumerable<Error> errors)
+    {
+        Node node = new Empty();
+        if (errors is not null)
         {
-            Node node = new Empty();
-            if (errors is not null)
-            {
-                node = ul(Array.Empty<IAttribute>(), errors.Select(error => li(Array.Empty<IAttribute>(), text(error.ToString()))).ToArray());
-            }
-
-            return node;
+            node = ul(Array.Empty<IAttribute>(), errors.Select(error => li(Array.Empty<IAttribute>(), text(error.ToString()))).ToArray());
         }
+
+        return node;
     }
 }

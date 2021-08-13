@@ -1,4 +1,3 @@
-namespace Radix
-{
-    public record Json(string Value);
-}
+namespace Radix;
+
+public record Json(string Value);

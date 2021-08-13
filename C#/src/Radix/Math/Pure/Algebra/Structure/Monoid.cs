@@ -1,9 +1,8 @@
 ﻿using Radix.Math.Pure.Algebra.Operations;
 
-namespace Radix.Math.Pure.Algebra.Structure
+namespace Radix.Math.Pure.Algebra.Structure;
+
+public interface Monoid<A, out B> : Semigroup<A, B> where B : Binary<A>
 {
-    public interface Monoid<A, out B> : Semigroup<A, B> where B : Binary<A>
-    {
-        A Identity { get; }
-    }
+    A Identity { get; }
 }
