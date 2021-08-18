@@ -1,4 +1,4 @@
-namespace Radix.Data;
+namespace Radix.Result;
 
 public class Error<T, TError> : Result<T, TError>
 {

@@ -1,44 +1,30 @@
-﻿using Radix.Math.Pure.Algebra.Operations;
-using Radix.Math.Pure.Algebra.Structure;
-using Radix.Result;
+﻿using Radix.Math.Pure.Numbers.ℚ;
 using static Radix.Math.Pure.Numbers.ℤ.Extensions;
 
 namespace Radix.Math.Pure.Numbers;
 
-using static Extensions;
-
-public record Rational : Field<Rational>
+public record Rational
 {
 
-    private Rational(Integer numerator, Integer denominator)
+    internal Rational(int numerator, int denominator)
     {
         Numerator = numerator;
         Denominator = denominator;
     }
 
-    public static Result<Rational, Error> Create(Integer numerator, Integer denominator)
-        => denominator.Value switch
+    public static Result<Rational, Error> Create(int numerator, int denominator)
+        => denominator switch
         {
             > 0 => Ok<Rational, Error>(new Rational(numerator, denominator)),
             _ => Error<Rational, Error>($"The {nameof(denominator)} must be greater then zero")
         };
 
-    public Integer Numerator { get; }
+    public int Numerator { get; }
 
-    public Integer Denominator { get; }
-
-    Multiplication<Rational> Semigroup<Rational, Multiplication<Rational>>.Combine => new((x, y) => x * y);
-
-    Rational Monoid<Rational, Addition<Rational>>.Identity => new(0, 1);
-
-    Addition<Rational> Semigroup<Rational, Addition<Rational>>.Combine => new((x, y) => x + y);
-
-    Rational Group<Rational, Addition<Rational>>.Invert() => -this;
-
-    Rational Monoid<Rational, Multiplication<Rational>>.Identity => new(1, 1);
+    public int Denominator { get; }
 
     public static Rational operator *(Rational x, Rational y) =>
-        new(x.Numerator * y.Numerator, x.Denominator * y.Denominator);
+        Multiplication.Combine(x, y);
 
     public static Rational operator -(Rational x, Rational y)
     {
@@ -48,40 +34,29 @@ public record Rational : Field<Rational>
                 return new Rational(x.Numerator + y.Numerator, x.Denominator);
             case false:
                 {
-                    Integer lcm = Lcm(x.Denominator, y.Denominator);
-                    Integer xNumerator = lcm / x.Denominator * x.Numerator;
-                    Integer yNumerator = lcm / y.Denominator * y.Numerator;
+                    int lcm = Lcm(x.Denominator, y.Denominator);
+                    int xNumerator = lcm / x.Denominator * x.Numerator;
+                    int yNumerator = lcm / y.Denominator * y.Numerator;
 
                     return new Rational(xNumerator - yNumerator, x.Denominator);
                 }
-        }
-
-        ;
+        };
     }
 
     public static Rational operator /(Rational x, Rational y)
     {
-        Rational switched = new(y.Denominator, y.Numerator);
-        return x * switched;
+        Rational inverse = Multiplication.Invert(y);
+        return Multiplication.Combine(x, inverse);
     }
 
-    public static Rational operator +(Rational x, Rational y)
-    {
-        switch (x.Denominator == y.Denominator)
-        {
-            case true:
-                return new Rational(x.Numerator + y.Numerator, x.Denominator);
-            case false:
-                {
-                    Integer lcm = Lcm(x.Denominator, y.Denominator);
-                    Integer xNumerator = lcm / x.Denominator * x.Numerator;
-                    Integer yNumerator = lcm / y.Denominator * y.Numerator;
+    public static Rational operator +(Rational x, Rational y) =>
+        Addition.Combine(x, y);
 
-                    return new Rational(xNumerator + yNumerator, x.Denominator);
-                }
-        }
-    }
-
+    /// <summary>
+    /// Additive inverse
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
     public static Rational operator -(Rational x) =>
-        new Rational(0, 1) - x;
+        Addition.Invert(x);
 }

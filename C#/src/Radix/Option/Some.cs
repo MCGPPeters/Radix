@@ -1,6 +1,6 @@
 namespace Radix.Option;
 
-public class Some<T> : Option<T>
+public sealed class Some<T> : Option<T>
 {
 
     internal Some(T value) => Value = value;

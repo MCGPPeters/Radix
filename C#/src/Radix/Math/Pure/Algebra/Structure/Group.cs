@@ -2,8 +2,7 @@
 
 namespace Radix.Math.Pure.Algebra.Structure;
 
-public interface Group<A, out B> :
-    Monoid<A, B> where B : Binary<A>
+public interface Group<A> : Monoid<A>
 {
-    A Invert();
+    static abstract Func<A, A> Invert { get; }
 }

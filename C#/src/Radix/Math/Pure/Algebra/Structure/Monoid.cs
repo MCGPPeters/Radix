@@ -2,7 +2,7 @@
 
 namespace Radix.Math.Pure.Algebra.Structure;
 
-public interface Monoid<A, out B> : Semigroup<A, B> where B : Binary<A>
+public interface Monoid<A> : Semigroup<A>
 {
-    A Identity { get; }
+    static abstract A Identity { get; }
 }

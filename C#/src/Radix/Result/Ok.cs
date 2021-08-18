@@ -1,6 +1,6 @@
 namespace Radix.Result;
 
-public class Ok<T, TError> : Result<T, TError> where T : notnull
+public sealed class Ok<T, TError> : Result<T, TError> where T : notnull
 {
     internal Ok(T t)
     {

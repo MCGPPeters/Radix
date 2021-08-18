@@ -1,5 +1,3 @@
-using Radix.Data;
-
 namespace Radix.Result;
 
 public static class Extensions

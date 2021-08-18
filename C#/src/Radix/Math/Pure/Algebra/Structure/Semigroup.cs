@@ -2,7 +2,7 @@
 
 namespace Radix.Math.Pure.Algebra.Structure;
 
-public interface Semigroup<A, out B> where B : Binary<A>
+public interface Semigroup<A>
 {
-    public B Combine { get; }
+    static abstract Func<A, A, A> Combine { get; }
 }
