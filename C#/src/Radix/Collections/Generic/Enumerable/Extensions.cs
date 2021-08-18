@@ -1,3 +1,5 @@
+using Radix.Math.Pure.Algebra.Structure;
+
 namespace Radix.Collections.Generic.Enumerable;
 
 public static class Extensions
@@ -20,5 +22,15 @@ public static class Extensions
 
         data[data.Length - 1] = stop;
         return data;
+    }
+
+    public static T Aggregate<T>(this IEnumerable<T> xs) where T : Monoid<T> => xs.Aggregate(T.Identity, T.Combine);
+
+    public static T Fold<T>(this IEnumerable<T> xs) where T : Monoid<T> => xs.Aggregate();
+
+    public interface Eq<T> where T : Eq<T>
+    {
+        public static abstract bool operator ==(T left, T Right);
+        public static abstract bool operator !=(T left, T Right);
     }
 }

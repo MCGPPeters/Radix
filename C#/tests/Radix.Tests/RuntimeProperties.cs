@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Radix.Data;
 using Radix.Inventory.Domain;
 using Radix.Result;
 using Xunit;

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
 using Radix.Components.Html;
-using Radix.Data;
 using Radix.Result;
 using static Radix.Option.Extensions;
 
