@@ -28,19 +28,8 @@ public record Rational
 
     public static Rational operator -(Rational x, Rational y)
     {
-        switch (x.Denominator == y.Denominator)
-        {
-            case true:
-                return new Rational(x.Numerator + y.Numerator, x.Denominator);
-            case false:
-                {
-                    int lcm = Lcm(x.Denominator, y.Denominator);
-                    int xNumerator = lcm / x.Denominator * x.Numerator;
-                    int yNumerator = lcm / y.Denominator * y.Numerator;
-
-                    return new Rational(xNumerator - yNumerator, x.Denominator);
-                }
-        };
+        Rational inverse = Addition.Invert(y);
+        return Addition.Combine(x, inverse);
     }
 
     public static Rational operator /(Rational x, Rational y)
