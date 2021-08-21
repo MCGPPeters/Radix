@@ -24,9 +24,9 @@ public static class Extensions
         return data;
     }
 
-    public static T Aggregate<T>(this IEnumerable<T> xs) where T : Monoid<T> => xs.Aggregate(T.Identity, T.Combine);
+    public static T Aggregate<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate(M.Identity, M.Combine);    
 
-    public static T Fold<T>(this IEnumerable<T> xs) where T : Monoid<T> => xs.Aggregate();
+    public static T Fold<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate<T, M>();
 
     public interface Eq<T> where T : Eq<T>
     {
