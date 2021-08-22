@@ -1,16 +1,13 @@
 using Radix.Result;
+using static Radix.Async.Extensions;
 
 namespace Radix.TaskResult;
 
 public static class Extensions
 {
-    public static async Task<Result<TResult, TError>> Select<T, TResult, TError>
-        (this Task<Result<T, TError>> taskResult, Func<T, TResult> f) where TResult : notnull where T : notnull => await taskResult switch
-        {
-            Ok<T, TError>(var value) => Ok<TResult, TError>(f(value)),
-            Error<T, TError>(var error) => Error<TResult, TError>(error),
-            _ => throw new NotSupportedException("Unlikely")
-        };
+    public static Task<Result<TResult, TError>> Select<T, TResult, TError>
+        (this Task<Result<T, TError>> taskResult, Func<T, TResult> f) where TResult : notnull where T : notnull =>
+            taskResult.Select(result => result.Select(f));        
 
     public static async Task<Result<TResult, TError>> Bind<T, TResult, TError>
         (this Task<Result<T, TError>> taskResult, Func<T, Task<Result<TResult, TError>>> f) where T : notnull

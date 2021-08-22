@@ -5,7 +5,6 @@ using Radix.Inventory.Domain;
 using Radix.Option;
 using Radix.Validated;
 using SqlStreamStore;
-using static Radix.Option.Extensions;
 
 namespace Radix.Inventory;
 

@@ -6,8 +6,6 @@ public static class Extensions
 
     public static None<T> None<T>() => Option.None<T>.Default;
 
-    public static Option<T> AsOption<T>(this T? t) => t is not null ? new Some<T>(t) : None<T>();
-
     public static Option<TResult> Bind<T, TResult>
         (this Option<T> option, Func<T, Option<TResult>> f)
         where T : notnull
