@@ -1,8 +1,9 @@
-﻿using Radix.Math.Pure.Algebra.Structure;
+﻿using Radix.Math.Pure.Algebra.Operations;
+using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers.ℝ;
 
-public class Addition : Field<double>
+public class Addition : Field<double>, Algebra.Operations.Addition
 {
     public static double Identity => 0.0;
 

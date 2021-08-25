@@ -1,3 +1,4 @@
+using Radix.Math.Pure.Algebra.Operations;
 using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Collections.Generic.Enumerable;
@@ -28,9 +29,33 @@ public static class Extensions
 
     public static T Fold<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate<T, M>();
 
-    public interface Eq<T> where T : Eq<T>
+    public static T Sum<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Addition => Aggregate<T, M>(values);
+
+    public static T Average<T, GAdd, GMul>(this IEnumerable<T> values)
+        where GAdd : Group<T>, Addition
+        where GMul : Group<T>, Multiplication
+        where T : IFloatingPoint<T>
+        => GMul.Combine(Sum<T, GAdd>(values), GMul.Invert(T.Create(values.Count())));
+
+    public static T StandardDeviation<T, GAdd, GMul>(IEnumerable<T> values)
+        where GAdd : Group<T>, Addition
+        where GMul : Group<T>, Multiplication
+        where T : IFloatingPoint<T>
     {
-        public static abstract bool operator ==(T left, T Right);
-        public static abstract bool operator !=(T left, T Right);
+        T standardDeviation = GAdd.Identity;
+
+        if (values.Any())
+        {
+            T average = Average<T, GAdd, GMul>(values);
+            T variance = Average<T, GAdd, GMul>(values.Select((value) =>
+            {
+                T deviation = GAdd.Combine(value, GAdd.Invert(average));
+                return GMul.Combine(deviation, deviation);
+            }));
+            standardDeviation = T.Sqrt(variance);
+        }
+
+        return standardDeviation;
     }
+
 }

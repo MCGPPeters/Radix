@@ -15,7 +15,7 @@ namespace Radix.Blazor.Inventory.Server.Pages;
 public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
 {
     protected override Node View(AddInventoryItemViewModel currentViewModel) => concat(
-        h1(None, text("Add new item")),
+        h1(Attributes.None, text("Add new item")),
         div(
             new[] { @class("form-group") },
             Elements.label(
@@ -73,14 +73,14 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
         ),
         navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
         div(
-            None,
+            Attributes.None,
             div(
                 new[] { @class("toast"), attribute("data-autohide", "false") },
                 div(
                     new[] { @class("toast-header") },
                     strong(new[] { @class("mr-auto") }, text("Invalid input")),
-                    small(None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
-                    button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(None, text("🗙")))),
+                    small(Attributes.None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
+                    button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(Attributes.None, text("🗙")))),
                 div(
                     new[] { @class("toast-body") },
                     FormatErrorMessages(currentViewModel.Errors)
