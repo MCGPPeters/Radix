@@ -23,8 +23,8 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
 
         return concat(
             navLinkMatchAll(new[] { @class("btn btn-primary"), href("Add") }, text("Add")),
-            h1(None, text("All items")),
-            table(None, inventoryItemNodes)
+            h1(Attributes.None, text("All items")),
+            table(Attributes.None, inventoryItemNodes)
         );
     }
 
@@ -33,21 +33,21 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
         inventoryItems?.Select(
             inventoryItem =>
                 tr(
-                    None,
+                    Attributes.None,
                     td(
-                        None,
+                        Attributes.None,
                         navLinkMatchAll(
                             new[] { href($"/Details/{inventoryItem.id}") },
                             text(inventoryItem.name ?? string.Empty))),
                     // conditional formating
                     inventoryItem.activated
                         ? td(
-                            None,
+                            Attributes.None,
                             navLinkMatchAll(
                                 new[] { href($"/Deactivate/{inventoryItem.id}") },
                                 text("Deactivate")))
                         : td(
-                            None,
+                            Attributes.None,
                             navLinkMatchAll(
                                 new[] { href($"/Activate/{inventoryItem.id}") },
                                 text("Activate"))))).ToArray() ?? Array.Empty<Node>();

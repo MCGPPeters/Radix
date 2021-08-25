@@ -3,7 +3,7 @@ using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers.ℤ;
 
-public class Addition : Group<int>
+public class Addition : Group<int>, Algebra.Operations.Addition
 {
     public static int Identity => 0;
 

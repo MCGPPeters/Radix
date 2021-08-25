@@ -10,10 +10,6 @@ namespace Radix.Nullable
                 ? f(nullable)
                 : default;
 
-        public static TResult? Select<T, TResult>
-            (this T? nullable, Func<T, TResult> f) =>
-                Map(nullable, f);
-
         public static Option<T> AsOption<T>(this T? nullable) =>
             nullable is not null
             ? new Some<T>(nullable)

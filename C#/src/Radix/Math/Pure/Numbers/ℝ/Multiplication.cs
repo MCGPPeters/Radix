@@ -1,8 +1,9 @@
-﻿using Radix.Math.Pure.Algebra.Structure;
+﻿using Radix.Math.Pure.Algebra.Operations;
+using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers.ℝ;
 
-public class Multiplication : Field<double>
+public class Multiplication : Field<double>, Algebra.Operations.Multiplication
 {
     public static double Identity => 1.0;
 
