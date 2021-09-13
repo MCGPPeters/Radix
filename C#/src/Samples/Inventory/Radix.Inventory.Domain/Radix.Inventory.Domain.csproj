@@ -2,12 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.Experimental" Version="6.0.0-preview.7.21377.19" />
   </ItemGroup>
 
 </Project>

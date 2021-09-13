@@ -5,7 +5,9 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <RootNamespace>Radix.Blazor.Inventory.Interface.Logic</RootNamespace>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Radix.Components\Radix.Components.csproj" />
@@ -13,4 +15,8 @@
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.Experimental" Version="6.0.0-preview.7.21377.19" />
+  </ItemGroup>
+  
 </Project>
