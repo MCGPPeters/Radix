@@ -43,21 +43,6 @@ namespace Radix.Tests
             new TransientEventDescriptor<Json>(new EventType(@event.GetType().Name), serialize(@event), serializeMetaData(eventMetaData), messageId);
 
 #pragma warning disable 1998
-        public async IAsyncEnumerable<EventDescriptor<InventoryItemEvent>> GetEventsSince(Id id, Version version, string streamIdentifier)
-#pragma warning restore 1998
-        {
-            yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemCreated(1, "Product 1", true, 1),
-                1L,
-                new EventType(typeof(InventoryItemCreated).FullName ?? throw new InvalidOperationException()));
-            yield return new EventDescriptor<InventoryItemEvent>(
-                new ItemsCheckedInToInventory {Amount = 19, Id = 1},
-                2L,
-                new EventType(typeof(ItemsCheckedInToInventory).FullName ?? throw new InvalidOperationException()));
-            yield return new EventDescriptor<InventoryItemEvent>(
-                new InventoryItemRenamed {Name = "Product 2", Id = 1},
-                3L,
-                new EventType(typeof(InventoryItemRenamed).FullName ?? throw new InvalidOperationException()));
-        }
+
     }
 }
