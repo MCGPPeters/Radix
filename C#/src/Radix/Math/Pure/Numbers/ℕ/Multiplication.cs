@@ -3,7 +3,7 @@ using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers.ℕ;
 
-public class Multiplication : Monoid<Natural>
+public class Multiplication : Monoid<Natural>, Algebra.Operations.Multiplication
 {
     public static Natural Identity => new Zero();
 

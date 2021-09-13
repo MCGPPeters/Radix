@@ -1,8 +1,8 @@
 namespace Radix.Option;
-
 public static class Extensions
 {
-    public static Option<T> Some<T>(T value) where T : notnull => new Some<T>(value); // wrap the given value into a Some
+    public static Option<T> Some<T>(T value) where T : notnull =>
+        new Some<T>(value);
 
     public static None<T> None<T>() => Option.None<T>.Default;
 

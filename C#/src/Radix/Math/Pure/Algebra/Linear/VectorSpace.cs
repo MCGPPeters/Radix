@@ -1,28 +1,39 @@
-﻿using Radix.Data;
+﻿using System.Collections.ObjectModel;
+using System.Numerics;
+using Radix.Data;
+using Radix.Math.Pure.Algebra.Operations;
 using Radix.Math.Pure.Algebra.Structure;
 using Radix.Result;
 
 namespace Radix.Math.Pure.Algebra.Linear;
 
-public class VectorSpace<T>
-    where T : Field<T>
+
+public interface VectorSpace<T, FAdd, FMul>
+    where FAdd : Field<T>, Addition
+    where FMul : Field<T>, Multiplication
 {
-    public VectorSpace(uint dimensionality) => Dimensionality = dimensionality;
 
-    private uint Dimensionality { get; }
+}
 
-    public Result<Vector<T>, Error> Create(params T[] elements) =>
-        (Dimensionality == elements.Length) switch
-        {
-            true => new Ok<Vector<T>, Error>(new Vector(elements)),
-            _ => new Error<Vector<T>, Error>($"The number of elements does not match the dimensionality {Dimensionality} of the vector space")
-        };
 
-    private record Vector : Vector<T>
+public class Basis<T, FAdd, FMul>
+    where FAdd : Field<T>, Addition
+    where FMul : Field<T>, Multiplication
+{
+    public Basis(params T[] scalars) => Scalars = new ReadOnlyCollection<T>(scalars);
+
+    private ReadOnlyCollection<T> Scalars { get; }
+
+    public Vector<T, FAdd, FMul> Create() =>
+        new Vector(new T[Scalars.Count]);
+
+    private struct Vector : Vector<T, FAdd, FMul>
     {
-        public T[] Elements { get; }
+        public ReadOnlyCollection<T> Elements { get; }
 
-        public Vector(params T[] elements) => Elements = elements;
+        public Vector(T[] elements) => Elements = new ReadOnlyCollection<T>(elements);
     }
 
 }
+
+

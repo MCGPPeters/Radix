@@ -1,3 +1,4 @@
+using Radix.Data;
 using Radix.Math.Pure.Algebra.Operations;
 using Radix.Math.Pure.Algebra.Structure;
 
@@ -24,6 +25,35 @@ public static class Extensions
         data[data.Length - 1] = stop;
         return data;
     }
+
+    /// <summary>
+    /// Insertion sort
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TOrd"></typeparam>
+    /// <param name="xs"></param>
+    /// <returns></returns>
+    public static T[] Sort<T, TOrd>(this T[] xs)
+        where TOrd : Order<T>
+    {
+        int n = xs.Length;
+        for (int i = 1; i < n; i++)
+        {
+            for (int j = i; j > 0 ; j--)
+            {
+                switch (TOrd.Compare(xs[j], xs[j - 1]))
+                {
+                    case LT:
+                        T swap = xs[j];
+                        xs[j] = xs[j - 1];
+                        xs[j - 1] = swap;
+                        break;
+                }            
+            }
+        }
+        return xs;
+    }
+
 
     public static T Aggregate<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate(M.Identity, M.Combine);    
 

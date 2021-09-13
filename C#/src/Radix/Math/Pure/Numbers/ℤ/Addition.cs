@@ -10,4 +10,5 @@ public class Addition : Group<int>, Algebra.Operations.Addition
     public static Func<int, int, int> Combine => (x, y) => x + y;
 
     public static Func<int, int> Invert => a => -a;
+
 }
