@@ -19,7 +19,7 @@ public class Aggregate<TCommand, TEvent>
     }
 
     /// <summary>
-    ///     The address of the aggregate
+    ///     The id of the aggregate
     /// </summary>
     public Id Id { get; }
 

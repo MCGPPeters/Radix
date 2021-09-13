@@ -1,9 +1,3 @@
 namespace Radix;
 
-internal record NoneExistentVersion : Version
-{
-    public NoneExistentVersion() : base(-1)
-    {
-
-    }
-}
+internal record NoneExistentVersion() : Version(-1);

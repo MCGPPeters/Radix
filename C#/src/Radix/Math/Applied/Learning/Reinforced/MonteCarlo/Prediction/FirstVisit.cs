@@ -6,7 +6,10 @@ namespace Radix.Math.Applied.Learning.Reinforced.MonteCarlo.Prediction;
 
 public static class FirstVisit
 {
-    public static Expectation<S> Evaluate<S, A, O>(this Policy<O, A> π, Environment<S, A, O> environment, Func<Policy<O, A>, List<(Transition<S>, Reward)>> runEpisode, int numberOfEpisodes) where S : notnull where A : notnull where O : notnull
+    public static Expectation<S> Evaluate<S, A, O>(this Policy<O, A> π, Environment<S, A, O> environment, Func<Policy<O, A>, List<(Transition<S>, Reward)>> runEpisode, int numberOfEpisodes)
+        where S : notnull
+        where A : notnull
+        where O : notnull
     {
         var stateValues = new Dictionary<S, double>();
         var returns = new Dictionary<S, List<Return>>();

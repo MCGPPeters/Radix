@@ -1,6 +1,12 @@
-﻿namespace Radix.Math.Pure.Algebra.Linear;
+﻿using System.Collections.ObjectModel;
+using Radix.Math.Pure.Algebra.Operations;
+using Radix.Math.Pure.Algebra.Structure;
 
-public interface Vector<out T>
+namespace Radix.Math.Pure.Algebra.Linear;
+
+public interface Vector<out T, FAdd, FMul>
+    where FAdd : Field<T>, Addition
+    where FMul : Field<T>, Multiplication
 {
-    T[] Elements { get; }
+    ReadOnlyCollection<T> Elements { get; }
 }

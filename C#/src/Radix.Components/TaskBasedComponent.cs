@@ -12,20 +12,9 @@ public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> 
     where TEvent : notnull
 {
     private bool _shouldRender;
-
-    // ReSharper disable once MemberCanBeProtected.Global
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     [Inject] public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; } = null!;
-
-    // ReSharper disable once MemberCanBeProtected.Global
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
-
-    // ReSharper disable once MemberCanBeProtected.Global
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     [Inject] public NavigationManager NavigationManager { get; set; } = null!;
-
-    // ReSharper disable once MemberCanBePrivate.Global
     [Inject] protected TViewModel ViewModel { get; set; } = default!;
 
 
