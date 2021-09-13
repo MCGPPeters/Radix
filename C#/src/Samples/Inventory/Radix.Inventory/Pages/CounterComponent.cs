@@ -29,7 +29,7 @@ public class CounterComponent : TaskBasedComponent<CounterViewModel, IncrementCo
                         async args =>
                         {
                             Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());
-                            Aggregate<IncrementCommand, CounterIncremented>? counter = BoundedContext.Create(Counter.Decide, Counter.Update);
+                            var counter = BoundedContext.Create<Counter, CounterCommandHandler>();
                             Option<Error[]> result = await Dispatch(counter, validCommand);
                             switch (result)
                             {

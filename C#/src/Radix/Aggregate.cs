@@ -1,30 +1,8 @@
-namespace Radix;
-
-/// <summary>
-///     Represent an aggregate root which can accept commands to process
-/// </summary>
-/// <typeparam name="TCommand">The type of command the aggregate can accept</typeparam>
-/// <typeparam name="TEvent">The type of events the aggregate can produce</typeparam>
-public class Aggregate<TCommand, TEvent>
+﻿namespace Radix
 {
-    /// <summary>
-    ///     An aggregate instance should only be created by the runtime
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="accept"></param>
-    internal Aggregate(Id id, Accept<TCommand, TEvent> accept)
+    public interface Aggregate<TCommand, TEvent> where TEvent : notnull
     {
-        Id = id;
-        Accept = accept;
+        Accept<TCommand, TEvent> Accept { get; }
+        Id Id { get; }
     }
-
-    /// <summary>
-    ///     The id of the aggregate
-    /// </summary>
-    public Id Id { get; }
-
-    /// <summary>
-    ///     Accepts commands and returns either the resulting events or the errors that occurred
-    /// </summary>
-    public Accept<TCommand, TEvent> Accept { get; }
 }

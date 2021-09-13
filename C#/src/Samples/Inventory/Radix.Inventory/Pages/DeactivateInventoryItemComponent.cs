@@ -34,7 +34,7 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
                                 async args =>
                                 {
                                     Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(currentViewModel.Reason);
-                                    Aggregate<InventoryItemCommand, InventoryItemEvent>? inventoryItem = BoundedContext.Get(Id, InventoryItem.Decide, InventoryItem.Update);
+                                    var inventoryItem = BoundedContext.Get<InventoryItem, InventoryItemCommandHandler>(Id);
                                     Option<Error[]> result = await Dispatch(inventoryItem, validCommand);
                                     switch (result)
                                     {
