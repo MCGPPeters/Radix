@@ -6,5 +6,5 @@ public struct CommandResult<TEvent>
 
     public Version ExpectedVersion { get; init; }
 
-    public IEnumerable<TEvent> Events { get; init; }
+    public TEvent[] Events { get; init; }
 }

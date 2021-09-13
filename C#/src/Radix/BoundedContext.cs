@@ -123,7 +123,7 @@ public class BoundedContext<TCommand, TEvent, TFormat> : IDisposable
 
                 await foreach (EventDescriptor<TEvent> eventDescriptor in eventsSince)
                 {
-                    state = update(state, eventDescriptor.Event);
+                    state = update(state, new[] { eventDescriptor.Event });
                     expectedVersion = eventDescriptor.CurrentVersion;
                 }
 
