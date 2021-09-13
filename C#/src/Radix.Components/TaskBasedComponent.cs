@@ -11,8 +11,9 @@ public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> 
     where TViewModel : ViewModel
     where TEvent : notnull
 {
-    private bool _shouldRender;
     [Inject] public BoundedContext<TCommand, TEvent, TFormat> BoundedContext { get; set; } = null!;
+
+    private bool _shouldRender;
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
     [Inject] public NavigationManager NavigationManager { get; set; } = null!;
     [Inject] protected TViewModel ViewModel { get; set; } = default!;

@@ -52,7 +52,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                                 true,
                                 currentViewModel.InventoryItemCount);
 
-                            Aggregate<InventoryItemCommand, InventoryItemEvent> inventoryItem = BoundedContext.Create(InventoryItem.Decide, InventoryItem.Update);
+                            var inventoryItem = BoundedContext.Create<InventoryItem, InventoryItemCommandHandler>();
                             Option<Error[]> result = await Dispatch(inventoryItem, validCommand);
                             switch (result)
                             {
