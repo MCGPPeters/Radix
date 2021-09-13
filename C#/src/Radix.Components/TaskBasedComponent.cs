@@ -38,7 +38,7 @@ public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> 
         {
             case Ok<CommandResult<TEvent>, Error[]>(var commandResult):
                 _shouldRender = commandResult.Events.Any();
-                ViewModel = commandResult.Events.Aggregate(ViewModel, (current, @event) => Update(current, @event));
+                ViewModel = Update(ViewModel, commandResult.Events);
                 StateHasChanged();
                 return None<Error[]>();
             case Error<CommandResult<TEvent>, Error[]>(var errors):
