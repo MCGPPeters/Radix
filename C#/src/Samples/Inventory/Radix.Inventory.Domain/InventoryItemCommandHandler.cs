@@ -2,7 +2,7 @@
 
 namespace Radix.Inventory.Domain;
 
-public class InventoryItemCommandHandler : CommandHandler<InventoryItem, InventoryItemCommand, InventoryItemEvent, InventoryItemCommandHandler>
+public class InventoryItemCommandHandler : CommandHandler<InventoryItem, InventoryItemCommand, InventoryItemEvent>
 {
     public static Update<InventoryItem, InventoryItemEvent> Update
     {

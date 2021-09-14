@@ -22,10 +22,7 @@ public class Startup
     // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddRazorPages();
-        services.AddServerSideBlazor();
 
-        
         IndexViewModel indexViewModel = new(InventoryItems);
         InventoryBoundedContext inventoryBoundedContext = new InventoryBoundedContext();
 
@@ -46,7 +43,6 @@ public class Startup
                             switch (optionalInventoryItemEvent)
                             {
                                 case Some<InventoryItemCreated>(var inventoryItemCreated):
-
                                     indexViewModel.InventoryItems.Add(new InventoryItemModel(aggregateId, inventoryItemCreated.Name, inventoryItemCreated.Activated));
                                     break;
                                 case Some<InventoryItemDeactivated>(_):
@@ -84,15 +80,13 @@ public class Startup
                         });
             });
 
-        AddInventoryItemViewModel addInventoryItemViewModel = new();
-        CounterViewModel counterViewModel = new();
-        DeactivateInventoryItemViewModel deactivateInventoryItemViewModel = new();
-
-        services.AddSingleton< BoundedContext<IncrementCommand, CounterIncremented, Json>>(_ => new CounterBoundedContext());
-        services.AddSingleton< BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>>(_ => inventoryBoundedContext);
+        services.AddRazorPages();
+        services.AddServerSideBlazor();
+        services.AddSingleton<BoundedContext<IncrementCommand, CounterIncremented, Json>>(_ => new CounterBoundedContext());
+        services.AddSingleton<BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>>(_ => inventoryBoundedContext);
         services.AddSingleton(indexViewModel);
         services.AddTransient(_ => new AddInventoryItemViewModel());
-        services.AddSingleton(counterViewModel);
+        services.AddSingleton(new CounterViewModel());
         services.AddTransient(_ => new DeactivateInventoryItemViewModel());
 
     }

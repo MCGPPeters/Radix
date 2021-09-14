@@ -20,7 +20,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
 
     public Aggregate<TCommand, TEvent> Get<TState, TCommandHandler>(Id id)
         where TState : new()
-        where TCommandHandler : CommandHandler<TState, TCommand, TEvent, TCommandHandler>
+        where TCommandHandler : CommandHandler<TState, TCommand, TEvent>
     {
         if (!s_instances.TryGetValue(id, out object value))
         {
@@ -35,13 +35,13 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
 
     public Aggregate<TCommand, TEvent> Create<TState, TCommandHandler>()
         where TState : new()
-        where TCommandHandler : CommandHandler<TState, TCommand, TEvent, TCommandHandler> =>
+        where TCommandHandler : CommandHandler<TState, TCommand, TEvent> =>
             Create<TState, TCommandHandler>(new Id(Guid.NewGuid()), new NoneExistentVersion());
 
 
     private Aggregate<TCommand, TEvent> Create<TState, TCommandHandler>(Id id, Version expectedVersion)
         where TState : new()
-        where TCommandHandler : CommandHandler<TState, TCommand, TEvent, TCommandHandler>
+        where TCommandHandler : CommandHandler<TState, TCommand, TEvent>
     {
         EventStreamDescriptor eventStreamDescriptor = new(typeof(TState).FullName, id);
         Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel = Channel.CreateUnbounded<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)>(new UnboundedChannelOptions { SingleReader = true });
@@ -116,7 +116,6 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
                         break;
                     case Error<TEvent[], CommandDecisionError>(var error):
                         taskCompletionSource.SetResult(Error<CommandResult<TEvent>, Error[]>(new Error[] { error.Message }));
-
                         break;
                 }
             }
