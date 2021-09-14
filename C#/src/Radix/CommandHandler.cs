@@ -1,9 +1,6 @@
-using System.Runtime.CompilerServices;
-
 namespace Radix;
 
-public interface CommandHandler<TState, TCommand, TEvent, TCommandHandler>
-    where TCommandHandler : CommandHandler<TState, TCommand, TEvent, TCommandHandler>
+public interface CommandHandler<TState, TCommand, TEvent>
 {
     static abstract Update<TState, TEvent> Update { get; }
 

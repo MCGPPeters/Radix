@@ -1,6 +1,6 @@
 ﻿namespace Radix.Blazor.Inventory.Server.Pages;
 
-public class CounterCommandHandler : CommandHandler<Counter, IncrementCommand, CounterIncremented, CounterCommandHandler>
+public class CounterCommandHandler : CommandHandler<Counter, IncrementCommand, CounterIncremented>
 {
     public static Update<Counter, CounterIncremented> Update => (state, @event) =>
     {
