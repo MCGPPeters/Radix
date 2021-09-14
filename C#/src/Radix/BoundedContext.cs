@@ -26,9 +26,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
         {
             Aggregate<TCommand, TEvent> aggregate = Create<TState, TCommandHandler>(id, new ExistingVersion(0));
             using (ICacheEntry cacheEntry = s_instances.CreateEntry(id))
-            {
-                value = (cacheEntry.Value = aggregate);
-            }
+            value = cacheEntry.Value = aggregate;
             return aggregate;
         }
 
@@ -97,27 +95,18 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
                             case Ok<ExistingVersion, AppendEventsError>(var version):
                                 // the events have been saved to the stream successfully. Update the state
                                 state = TCommandHandler.Update(state, events);
-
                                 expectedVersion = version;
-
                                 taskCompletionSource.SetResult(Ok<CommandResult<TEvent>, Error[]>(new CommandResult<TEvent> { Id = commandDescriptor.Recipient, Events = events, ExpectedVersion = expectedVersion }));
                                 break;
                             case Error<ExistingVersion, AppendEventsError>(var error):
                                 switch (error)
                                 {
                                     case OptimisticConcurrencyError _:
-
-                                        // todo => see if is a concurrency error according to business rules (custom rules)
-
-                                        // re issue the transientCommand to try again
                                         await channel.Writer.WriteAsync((commandDescriptor, taskCompletionSource), cancellationToken).ConfigureAwait(false);
-
                                         break;
                                     default:
-
                                         throw new NotSupportedException();
                                 }
-
                                 break;
                             default:
                                 taskCompletionSource.SetResult(Error<CommandResult<TEvent>, Error[]>(new Error[] { "Unexpected state" }));

@@ -20,7 +20,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    
     <ProjectReference Include="..\Radix\Radix.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Radix.Components.Generators\Radix.Components.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"/>
   </ItemGroup>
 
 </Project>

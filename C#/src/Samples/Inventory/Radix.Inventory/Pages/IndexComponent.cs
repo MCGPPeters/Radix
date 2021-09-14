@@ -3,9 +3,6 @@ using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
 using Radix.Components.Html;
 using Radix.Inventory.Domain;
-using static Radix.Components.Html.Attributes;
-using static Radix.Components.Html.Components;
-using static Radix.Components.Html.Elements;
 
 namespace Radix.Blazor.Inventory.Server.Pages;
 
@@ -13,42 +10,88 @@ namespace Radix.Blazor.Inventory.Server.Pages;
 public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
 {
 
-    protected override Update<IndexViewModel, InventoryItemEvent> Update { get; } =
-        (state, events) => state;
+    protected override Update<IndexViewModel, InventoryItemEvent> Update { get; } = (state, events) => state;
 
 
-    protected override Node View(IndexViewModel currentViewModel)
-    {
-        Node[] inventoryItemNodes = GetInventoryItemNodes(currentViewModel.InventoryItems);
-
-        return concat(
-            navLinkMatchAll(new[] { @class("btn btn-primary"), href("Add") }, text("Add")),
-            h1(Attributes.None, text("All items")),
-            table(Attributes.None, inventoryItemNodes)
+    protected override Node View(IndexViewModel currentViewModel) =>
+        concat
+        (
+            navLinkMatchAll
+            (
+                new[]
+                {
+                    @class("btn btn-primary"),
+                    href("Add")
+                }, text("Add")
+            ),
+            h1
+            (
+                text
+                (
+                    "All items"
+                )
+            ),
+            table
+            (
+                    GetInventoryItemNodes(currentViewModel.InventoryItems)
+            )    
         );
-    }
+    
 
 
     private static Node[] GetInventoryItemNodes(IEnumerable<InventoryItemModel>? inventoryItems) =>
-        inventoryItems?.Select(
-            inventoryItem =>
-                tr(
-                    Attributes.None,
-                    td(
-                        Attributes.None,
-                        navLinkMatchAll(
-                            new[] { href($"/Details/{inventoryItem.id}") },
-                            text(inventoryItem.name ?? string.Empty))),
+        inventoryItems?
+            .Select(inventoryItem =>
+                tr
+                (
+                    td
+                    (
+                        navLinkMatchAll
+                        (
+                            new[]
+                            {
+                                href($"/Details/{inventoryItem.id}")
+                            },
+                            text
+                            (
+                                inventoryItem.name ?? string.Empty
+                            )
+                        )
+                    ),
                     // conditional formating
                     inventoryItem.activated
-                        ? td(
-                            Attributes.None,
-                            navLinkMatchAll(
-                                new[] { href($"/Deactivate/{inventoryItem.id}") },
-                                text("Deactivate")))
-                        : td(
-                            Attributes.None,
-                            navLinkMatchAll(
-                                new[] { href($"/Activate/{inventoryItem.id}") },
-                                text("Activate"))))).ToArray() ?? Array.Empty<Node>();
+                    ?
+                        td
+                        (
+                            navLinkMatchAll
+                            (
+                                new[]
+                                {
+                                    href($"/Deactivate/{inventoryItem.id}")
+                                },
+                                text
+                                (
+                                    "Deactivate"
+                                )
+                            )
+                        )
+                    :
+                        td
+                        (
+                            navLinkMatchAll
+                            (
+                                new[]
+                                {
+                                    href($"/Activate/{inventoryItem.id}")
+                                },
+                                text
+                                (
+                                    "Activate"
+                                )
+                            )
+                        )
+                    )
+            ).ToArray()
+        ??
+            Array.Empty<Node>();
 }

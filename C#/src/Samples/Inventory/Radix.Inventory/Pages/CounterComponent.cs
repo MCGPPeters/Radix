@@ -3,9 +3,6 @@ using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
 using Radix.Components.Html;
 using Radix.Option;
-using static Radix.Components.Html.Attributes;
-using static Radix.Components.Html.Elements;
-using static Radix.Validated.Extensions;
 
 namespace Radix.Blazor.Inventory.Server.Pages;
 
@@ -19,13 +16,30 @@ public class CounterComponent : TaskBasedComponent<CounterViewModel, IncrementCo
     };
 
 
-    protected override Node View(CounterViewModel currentViewModel) => concat(
-        h1(Enumerable.Empty<IAttribute>(), text("Counter")),
-        p(Enumerable.Empty<IAttribute>(), text(ViewModel.Count.ToString())),
-        button(
+    protected override Node View(CounterViewModel currentViewModel) =>
+    concat
+    (
+        h1
+        (
+            text
+            (
+                "Counter"
+            )
+        ),
+        p
+        (
+            text
+            (
+                ViewModel.Count.ToString()
+            )
+        ),
+        button
+        (
             new[]
             {
-                    @class("btn", "btn-primary"), on.click(
+                    @class("btn", "btn-primary"),
+                    on.click
+                    (
                         async args =>
                         {
                             Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());
@@ -46,7 +60,13 @@ public class CounterComponent : TaskBasedComponent<CounterViewModel, IncrementCo
 
                             }
 
-                        })
+                        }
+                    )
             },
-            text("Click me")));
+            text
+            (
+                "Click me"
+            )
+        )
+    );
 }

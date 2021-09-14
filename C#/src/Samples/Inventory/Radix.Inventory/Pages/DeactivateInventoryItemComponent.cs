@@ -4,9 +4,6 @@ using Radix.Components;
 using Radix.Components.Html;
 using Radix.Inventory.Domain;
 using Radix.Option;
-using static Radix.Components.Html.Attributes;
-using static Radix.Components.Html.Components;
-using static Radix.Components.Html.Elements;
 
 namespace Radix.Blazor.Inventory.Server.Pages;
 
@@ -16,21 +13,33 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
     [Parameter] public Guid Id { get; set; }
 
     protected override Node View(DeactivateInventoryItemViewModel currentViewModel) =>
-        concat(
-            h1(None, text($"Deactivate item : {ViewModel.InventoryItemName}")),
-            div(
+        concat
+        (
+            h1
+            (
+                text
+                (
+                    $"Deactivate item : {ViewModel.InventoryItemName}"
+                )
+            ),
+            div
+            (
                 new[] { @class("form-group") },
-                Elements.label(
+                label
+                (
                     new[] { @for("reasonInput") },
                     text("Reason")),
-                input(
+                input
+                (
                     @class("form-control"),
                     id("reasonInput"),
                     bind.input(currentViewModel.Reason, reason => currentViewModel.Reason = reason)),
-                button(
+                button
+                (
                     new[]
                     {
-                            @class("btn btn-primary"), on.click(
+                            @class("btn btn-primary"),
+                            on.click(
                                 async args =>
                                 {
                                     Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(currentViewModel.Reason);
@@ -54,29 +63,72 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
                     text("Ok")
                 ),
                 navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
-                div(
-                    None,
-                    div(
+                div
+                (
+                    div
+                    (
                         new[] { @class("toast"), attribute("data-autohide", "false") },
-                        div(
-                            new[] { @class("toast-header") },
-                            strong(new[] { @class("mr-auto") }, text("Invalid input")),
-                            small(None, text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))),
-                            button(new[] { type("button"), @class("ml-2 mb-1 close"), attribute("data-dismiss", "toast") }, Elements.span(None, text("🗙")))),
-                        div(
-                            new[] { @class("toast-body") },
+                        div
+                        (
+                            new[]
+                            {
+                                @class("toast-header") },
+                                strong
+                                (
+                                    new[] { @class("mr-auto") },
+                                    text("Invalid input")
+                                ),
+                                small
+                                (
+                                    text
+                                    (
+                                        DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
+                                    )
+                                ),
+                                button
+                                (
+                                    new[]
+                                    {
+                                        type("button"), @class("ml-2 mb-1 close"),
+                                        attribute("data-dismiss", "toast")
+                                    },
+                                    span
+                                    (
+                                        text("🗙")
+                                    )
+                                )
+                            ),
+                        div
+                        (
+                            new[]
+                            {
+                                @class("toast-body")
+                            },
                             FormatErrorMessages(currentViewModel.Errors)
-                        )))));
-
-    private static IEnumerable<IAttribute> None
-        => Enumerable.Empty<IAttribute>();
+                        )
+                    )
+                )
+            )
+        );
 
     private static Node FormatErrorMessages(IEnumerable<Error> errors)
     {
         Node node = new Empty();
         if (errors is not null)
         {
-            node = ul(Array.Empty<IAttribute>(), errors.Select(error => li(Array.Empty<IAttribute>(), text(error.ToString()))).ToArray());
+            node =
+                ul
+                (
+                    errors.Select(error =>
+                    li
+                    (
+                        text
+                        (
+                            error.ToString()
+                        )
+                    )
+                ).ToArray()
+            );
         }
 
         return node;
