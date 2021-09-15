@@ -1,8 +1,6 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Radix.Validated;
 using Xunit;
-using static Radix.Validated.Extensions;
 
 namespace Radix.Tests
 {
@@ -30,7 +28,7 @@ namespace Radix.Tests
             switch (validationResult)
             {
                 case Valid<Person> _:
-                    Assert.Fail();
+                    Fail();
                     break;
                 case Invalid<Person> error:
                     error.Reasons.Should().Contain("Must have a valid age", "Must have a valid first name");

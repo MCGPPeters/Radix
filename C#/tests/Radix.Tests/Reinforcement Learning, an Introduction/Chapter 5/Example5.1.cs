@@ -272,8 +272,8 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
             var stateValues = π.Evaluate(blackjack.environment, RunEpisode, 10000);
             PlotValueFunction(stateValues);
 
-            var stateValues_ = π.Evaluate(blackjack.environment, RunEpisode, 500000);
-            PlotValueFunction(stateValues_);
+            //var stateValues_ = π.Evaluate(blackjack.environment, RunEpisode, 500000);
+            //PlotValueFunction(stateValues_);
         }
 
         private static void PlotValueFunction(Expectation<State> stateValue)
