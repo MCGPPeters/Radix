@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Radix.Math.Applied.Optimization.Control;
+﻿using Radix.Math.Applied.Optimization.Control;
 using Radix.Math.Applied.Optimization.Control.POMDP;
 using Radix.Math.Applied.Probability;
 using Xunit;
 using Radix.Validated;
-using System;
 using static Radix.Math.Applied.Probability.Distribution.Generators;
 using static Radix.Math.Applied.Learning.Reinforced.MonteCarlo.Prediction.FirstVisit;
 using XPlot.Plotly;

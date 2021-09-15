@@ -1,4 +1,4 @@
-using Radix.Data;
+﻿using Radix.Data;
 using Radix.Math.Pure.Algebra.Operations;
 using Radix.Math.Pure.Algebra.Structure;
 
@@ -60,6 +60,11 @@ public static class Extensions
     public static T Fold<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate<T, M>();
 
     public static T Sum<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Addition => Aggregate<T, M>(values);
+    public static T Σ<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Addition => Sum<T, M>(values);
+
+    public static T Product<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Multiplication => Aggregate<T, M>(values);
+    public static T Π<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Multiplication => Product<T, M>(values);
+
 
     public static T Average<T, GAdd, GMul>(this IEnumerable<T> values)
         where GAdd : Group<T>, Addition
