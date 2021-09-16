@@ -21,6 +21,9 @@ namespace Radix.Components.Generators
 
                 public static Node {tagName}(IEnumerable<IAttribute> attributes, params Node[] children) =>
                     element(nameof({tagName}), attributes, children);
+
+                public static Node {tagName}(IAttribute attribute, params Node[] children) =>
+                    element(nameof({tagName}), new []{{ attribute }}, children);
             ";
 
 

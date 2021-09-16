@@ -24,7 +24,7 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
             ),
             div
             (
-                new[] { @class("form-group") },
+                @class("form-group"),
                 label
                 (
                     new[] { @for("reasonInput") },
@@ -62,48 +62,58 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
                     },
                     text("Ok")
                 ),
-                navLinkMatchAll(new[] { @class("btn btn-primary"), href("/") }, text("Cancel")),
+                navLinkMatchAll
+                (
+                    new[]
+                    {
+                        @class("btn btn-secondary"),
+                        href("/")
+                    },
+                    text
+                    (
+                        "Cancel"
+                    )
+                ),
                 div
                 (
                     div
                     (
-                        new[] { @class("toast"), attribute("data-autohide", "false") },
+                        new[]
+                        {
+                            @class("toast"),
+                            attribute("data-autohide", "false")
+                        },
                         div
                         (
-                            new[]
-                            {
-                                @class("toast-header") },
-                                strong
+                            @class("toast-header"),
+                            strong
+                            (
+                                @class("mr-auto"),
+                                text("Invalid input")
+                            ),
+                            small
+                            (
+                                text
                                 (
-                                    new[] { @class("mr-auto") },
-                                    text("Invalid input")
-                                ),
-                                small
-                                (
-                                    text
-                                    (
-                                        DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
-                                    )
-                                ),
-                                button
-                                (
-                                    new[]
-                                    {
-                                        type("button"), @class("ml-2 mb-1 close"),
-                                        attribute("data-dismiss", "toast")
-                                    },
-                                    span
-                                    (
-                                        text("🗙")
-                                    )
+                                    DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
                                 )
                             ),
+                            button
+                            (
+                                new[]
+                                {
+                                    type("button"), @class("ml-2 mb-1 close"),
+                                    attribute("data-dismiss", "toast")
+                                },
+                                span
+                                (
+                                    text("🗙")
+                                )
+                            )
+                        ),
                         div
                         (
-                            new[]
-                            {
-                                @class("toast-body")
-                            },
+                            @class("toast-body"),
                             FormatErrorMessages(currentViewModel.Errors)
                         )
                     )
