@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Blazor.Inventory.Server.Pages;
 using Radix.Inventory.Domain;
+using Radix.Inventory.Shared;
 using Radix.Option;
 using Radix.Validated;
 using SqlStreamStore;
@@ -89,6 +90,7 @@ public class Startup
         services.AddSingleton<BoundedContext<IncrementCommand, CounterIncremented, Json>>(_ => new CounterBoundedContext());
         services.AddSingleton<BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>>(_ => inventoryBoundedContext);
         services.AddSingleton(indexViewModel);
+        services.AddSingleton(_ => new NavMenuViewModel());
         services.AddTransient(_ => new AddInventoryItemViewModel());
         services.AddSingleton(new CounterViewModel());
         services.AddTransient(_ => new DeactivateInventoryItemViewModel());

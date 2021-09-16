@@ -9,10 +9,6 @@ namespace Radix.Blazor.Inventory.Server.Pages;
 [Route("/")]
 public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
 {
-
-    protected override Update<IndexViewModel, InventoryItemEvent> Update { get; } = (state, events) => state;
-
-
     protected override Node View(IndexViewModel currentViewModel) =>
         concat
         (
@@ -23,7 +19,10 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
                     @class("btn btn-primary"),
                     href("Add")
                 },
-                text("Add")
+                text
+                (
+                    "Add"
+                )
             ),
             h1
             (
@@ -59,7 +58,7 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
                             )
                         )
                     ),
-                    // conditional formating
+                    // conditional output
                     inventoryItem.activated
                     ?
                         td

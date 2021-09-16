@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
-using Radix.Components.Html;
 using Radix.Result;
 using static Radix.Option.Extensions;
 
 namespace Radix.Components;
 
-public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> : ComponentBase
+public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> : Component<TViewModel>
     where TViewModel : ViewModel
     where TEvent : notnull
 {
@@ -16,9 +15,13 @@ public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> 
     private bool _shouldRender;
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
     [Inject] public NavigationManager NavigationManager { get; set; } = null!;
-    [Inject] protected TViewModel ViewModel { get; set; } = default!;
+    
 
 
+    /// <summary>
+    /// Called when the Dispatch method resulted in events being generated. Usefull to override when not navigating
+    /// to another component and the state presented in this component has to be updated
+    /// </summary>
     protected virtual Update<TViewModel, TEvent> Update { get; } = (state, events) => state;
 
     /// <summary>
@@ -54,18 +57,4 @@ public abstract class TaskBasedComponent<TViewModel, TCommand, TEvent, TFormat> 
     }
 
     protected override bool ShouldRender() => _shouldRender;
-
-    /// <summary>
-    ///     This function is called whenever it is decided the state of the viewmodel has changed
-    /// </summary>
-    /// <param name="currentViewModel"></param>
-    /// <returns></returns>
-    protected abstract Node View(TViewModel currentViewModel);
-
-    protected override void BuildRenderTree(RenderTreeBuilder builder)
-    {
-        base.BuildRenderTree(builder);
-
-        Rendering.RenderNode(this, builder, 0, View(ViewModel));
-    }
 }

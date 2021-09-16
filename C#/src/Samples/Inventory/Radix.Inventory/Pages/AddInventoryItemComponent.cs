@@ -18,8 +18,9 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
             (
                 text
                 (
-                    "Add new item")
-                ),
+                    "Add new item"
+                )
+            ),
             div
             (
                 @class("form-group"),
@@ -40,7 +41,10 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                 label
                 (
                     @for("nameInput"),
-                    text("Name")
+                    text
+                    (
+                        "Name"
+                    )
                 ),
                 input
                 (
@@ -161,7 +165,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                         ),
                         div
                         (
-                             @class("toast-body"),
+                            @class("toast-body"),
                             FormatErrorMessages(currentViewModel.Errors)
                         )
                     )

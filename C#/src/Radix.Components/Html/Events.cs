@@ -5,13 +5,16 @@ namespace Radix.Components.Html;
 
 public static class on
 {
-    public static IAttribute @event<T>(Name name, Action<T> callback) where T : EventArgs => new ExplicitAttribute(
-        name,
-        (builder, sequence, receiver) =>
-        {
-            builder.AddAttribute(sequence, "on" + name, EventCallback.Factory.Create(receiver, callback));
-            return sequence + 1;
-        });
+    public static IAttribute @event<T>(Name name, Action<T> callback) where T : EventArgs =>
+        new ExplicitAttribute
+        (
+            name,
+            (builder, sequence, receiver) =>
+            {
+                builder.AddAttribute(sequence, "on" + name, EventCallback.Factory.Create(receiver, callback));
+                return sequence + 1;
+            }
+        );
 
     public static IAttribute focus(Action<FocusEventArgs> callback) => @event(nameof(focus), callback);
 
