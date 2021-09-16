@@ -22,10 +22,10 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                 ),
             div
             (
-                new[] { @class("form-group") },
+                @class("form-group"),
                 label
                 (
-                    new[] { @for("idInput") },
+                    @for("idInput"),
                     text
                     (
                         "Id"
@@ -39,7 +39,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                 ),
                 label
                 (
-                    new[] { @for("nameInput") },
+                    @for("nameInput"),
                     text("Name")
                 ),
                 input
@@ -50,7 +50,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                 ),
                 label
                 (
-                    new[] { @for("countInput") },
+                    @for("countInput"),
                     text
                     (
                         "Count"
@@ -104,7 +104,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
             (
                 new[]
                 {
-                    @class("btn btn-primary"),
+                    @class("btn btn-secondary"),
                     href("/")
                 },
                 text
@@ -123,10 +123,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                     },
                     div
                     (
-                        new[]
-                        {
-                            @class("toast-header")
-                        },
+                        @class("toast-header"),
                         strong
                         (
                             new[]
@@ -164,10 +161,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                         ),
                         div
                         (
-                            new[]
-                            {
-                                @class("toast-body")
-                            },
+                             @class("toast-body"),
                             FormatErrorMessages(currentViewModel.Errors)
                         )
                     )

@@ -22,7 +22,8 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
                 {
                     @class("btn btn-primary"),
                     href("Add")
-                }, text("Add")
+                },
+                text("Add")
             ),
             h1
             (
@@ -33,7 +34,7 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
             ),
             table
             (
-                    GetInventoryItemNodes(currentViewModel.InventoryItems)
+                GetInventoryItemNodes(currentViewModel.InventoryItems)
             )    
         );
     
