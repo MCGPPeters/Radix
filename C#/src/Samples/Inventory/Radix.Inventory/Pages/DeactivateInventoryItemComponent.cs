@@ -27,19 +27,25 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
                 @class("form-group"),
                 label
                 (
-                    new[] { @for("reasonInput") },
-                    text("Reason")),
+                    @for("reasonInput"),
+                    text
+                    (
+                        "Reason"
+                    )
+                ),
                 input
                 (
                     @class("form-control"),
                     id("reasonInput"),
-                    bind.input(currentViewModel.Reason, reason => currentViewModel.Reason = reason)),
+                    bind.input(currentViewModel.Reason, reason => currentViewModel.Reason = reason)
+                ),
                 button
                 (
                     new[]
                     {
                             @class("btn btn-primary"),
-                            on.click(
+                            on.click
+                            (
                                 async args =>
                                 {
                                     Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(currentViewModel.Reason);
@@ -58,9 +64,13 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
                                             NavigationManager.NavigateTo("/");
                                             break;
                                     }
-                                })
+                                }
+                            )
                     },
-                    text("Ok")
+                    text
+                    (
+                        "Ok"
+                    )
                 ),
                 navLinkMatchAll
                 (
@@ -102,12 +112,16 @@ public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInv
                             (
                                 new[]
                                 {
-                                    type("button"), @class("ml-2 mb-1 close"),
+                                    type("button"),
+                                    @class("ml-2 mb-1 close"),
                                     attribute("data-dismiss", "toast")
                                 },
                                 span
                                 (
-                                    text("🗙")
+                                    text
+                                    (
+                                        "🗙"
+                                    )
                                 )
                             )
                         ),
