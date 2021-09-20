@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Components.Generators
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shop", "Shop", "{0DB17544-11E7-4E91-B950-CEC96012DB70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Shop", "src\Samples\Shop\Radix.Shop\Radix.Shop.csproj", "{3179FC72-A7C1-4642-B14D-D7A133C6E8AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop", "src\Samples\Shop\Radix.Shop\Radix.Shop.csproj", "{3179FC72-A7C1-4642-B14D-D7A133C6E8AB}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -131,6 +133,18 @@ Global
 		{3179FC72-A7C1-4642-B14D-D7A133C6E8AB}.Release|x64.Build.0 = Release|Any CPU
 		{3179FC72-A7C1-4642-B14D-D7A133C6E8AB}.Release|x86.ActiveCfg = Release|Any CPU
 		{3179FC72-A7C1-4642-B14D-D7A133C6E8AB}.Release|x86.Build.0 = Release|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Debug|x64.Build.0 = Debug|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Debug|x86.Build.0 = Debug|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Release|x64.ActiveCfg = Release|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Release|x64.Build.0 = Release|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Release|x86.ActiveCfg = Release|Any CPU
+		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

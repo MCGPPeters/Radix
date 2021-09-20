@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  radix.shop:
+    image: ${DOCKER_REGISTRY-}radixshop
+    build:
+      context: .
+      dockerfile: src/Samples/Shop/Radix.Shop/Dockerfile
+    volumes:
+      - C:\dev\Radix\C#\src\Samples\Shop\Radix.Shop:/app
+      - C:\dev\Radix\C#:/src
+      - C:\Users\mcgpp\vsdbg\vs2017u5:/remote_debugger:rw
+      - C:\Users\mcgpp\.nuget\packages\:/root/.nuget/packages:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
