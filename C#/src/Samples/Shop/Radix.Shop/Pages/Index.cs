@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Components;
 using Radix.Components.Html;
+using Radix.Shop.Sales;
 
 namespace Radix.Shop.Pages
 {
@@ -63,7 +64,12 @@ namespace Radix.Shop.Pages
                             @class("btn btn-primary"),
                             on.click
                             (
-                                currentViewModel.ApplyFilter()
+                                async _ =>
+                                {
+                                    currentViewModel.FilteredProducts = new List<Product>();
+                                    await foreach (Product product in currentViewModel.GetFilteredProducts(currentViewModel.Brands, currentViewModel.Types))
+                                   currentViewModel.FilteredProducts.Add(product);
+                                }
                             )
                         },
                         text
@@ -75,7 +81,10 @@ namespace Radix.Shop.Pages
                 div
                 (
                     @class(""),
-                    RendedFilteredProducts(currentViewModel.FilteredProducts)
+                    table
+                    (
+                        RendedFilteredProducts(currentViewModel.FilteredProducts)
+                    )
                 )
 
             );
@@ -91,8 +100,8 @@ namespace Radix.Shop.Pages
                     )   
                 )
             ).ToArray();
-        internal static Node[] GetFilteredProducts() => Array.Empty<Node>();
-        internal static Node[] RenderTypeOptions(IEnumerable<Type> types) =>
+
+        internal static Node[] RenderTypeOptions(IEnumerable<ProductType> types) =>
             types.Select(type =>
                 option
                 (
@@ -104,6 +113,33 @@ namespace Radix.Shop.Pages
                 )
             ).ToArray();
 
-        private static Node[] RendedFilteredProducts(IEnumerable<Product> filteredProducts) => Array.Empty<Node>();
+        private static Node[] RendedFilteredProducts(IEnumerable<Product> filteredProducts) =>
+            filteredProducts.Select(product =>
+                tr
+                (
+                    td
+                    (
+                        text
+                        (
+                            product.Id.ToString()
+                        )
+                    ),
+                    td
+                    (
+                        text
+                        (
+                            product.Name
+                        )
+                    ),
+                    td
+                    (
+                        text
+                        (
+                            product.Price.ToString("N2")
+                        )
+                    )
+                )
+            ).ToArray();
+            
     }
 }

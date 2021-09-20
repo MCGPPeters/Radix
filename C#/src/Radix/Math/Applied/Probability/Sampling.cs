@@ -4,13 +4,12 @@ public static class Sampling
 {
     public static IEnumerable<T> Scan<T>(this Distribution<T> distribution, Probability target) where T : notnull
     {
-        var eventProbabilities = distribution.Value.ToList();
         Random? random = new();
-        int maxValue = eventProbabilities.Count - 1;
+        int maxValue = distribution.EventProbabilities.Length - 1;
         while (true)
         {
             int row = random.Next(0, maxValue);
-            (Event<T> @event, Probability probability) = eventProbabilities[row];
+            (Event<T> @event, Probability probability) = distribution.EventProbabilities[row];
             if (target <= probability)
             {
                 yield return @event.Value;

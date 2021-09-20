@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Components.Web;
-using Radix.Components;
+﻿using Radix.Components;
+using Radix.Shop.Sales;
 
 namespace Radix.Shop.Pages
 {
     public record IndexViewModel : ViewModel
     {
-        public IndexViewModel()
+        public IndexViewModel(Func<IEnumerable<Brand>, IEnumerable<ProductType>, IAsyncEnumerable<Product>> getFilteredProducts)
         {
-            Types = new List<Type>()
+            Types = new List<ProductType>()
             {
                 "Mug",
                 "Sheet",
@@ -20,13 +20,14 @@ namespace Radix.Shop.Pages
                 "Azure",
                 "Other"
             };
+            GetFilteredProducts = getFilteredProducts;
         }
         public string TypeFilter { get; internal set; }
         public string BrandFilter { get; internal set; }
-        public IEnumerable<Product> FilteredProducts { get; internal set; }
-        public IEnumerable<Type> Types { get; internal set; }
-        public IEnumerable<Brand> Brands { get; internal set; } 
+        public List<Product> FilteredProducts { get; internal set; } = new List<Product>();
+        public IEnumerable<ProductType> Types { get; internal set; }
+        public IEnumerable<Brand> Brands { get; internal set; }
 
-        internal Action<MouseEventArgs> ApplyFilter() => _ => { };
+        public Func<IEnumerable<Brand>, IEnumerable<ProductType>, IAsyncEnumerable<Product>> GetFilteredProducts { get; }
     }
 }

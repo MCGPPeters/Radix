@@ -2,15 +2,21 @@
 
 namespace Radix.Math.Applied.Probability;
 
-public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability probability)>> where T : notnull
+public record Distribution<T> : Alias<Distribution<T>, (Event<T> @event, Probability probability)[]>
 {
+    public (Event<T> @event, Probability probability)[] EventProbabilities { get; }
+
+    public static implicit operator (Event<T> @event, Probability probability)[](Distribution<T> distribution) => distribution.EventProbabilities;
+    public static implicit operator Distribution<T>((Event<T> @event, Probability probability)[] eventProbabilities) => new(eventProbabilities);
+
     public Probability Max { get; init; }
 
-    private Distribution(IEnumerable<(Event<T> @event, Probability probability)> distribution) : base(distribution)
+    private Distribution((Event<T> @event, Probability probability)[] eventProbabilities)
     {
+        EventProbabilities = eventProbabilities;
     }
 
-    public static Validated<Distribution<T>> Create(IEnumerable<(Event<T> @event, Probability probability)> distribution)
+    public static Validated<Distribution<T>> Create((Event<T> @event, Probability probability)[] distribution)
         =>
             distribution.Sum(x => x.probability) == 1.0
             ? Valid(new Distribution<T>(distribution) { Max = distribution.Max(x => x.probability) })
@@ -36,15 +42,15 @@ public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability 
 
     public static Distribution<U> Bind<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
     {
-        IEnumerable<(Event<U> y, Probability)>? result = from Prior in prior.Value
+        IEnumerable<(Event<U> y, Probability)>? result = from Prior in prior.EventProbabilities
                                                          let x = Prior.@event
                                                          let P = Prior.probability
-                                                         let posteriors = f(x).Value
-                                                         from Posterior in posteriors
+                                                         let posteriors = f(x)
+                                                         from Posterior in posteriors.EventProbabilities
                                                          let y = Posterior.@event
                                                          let Q = Posterior.probability
                                                          select (y, new Probability(P * Q));
-        return new Distribution<U>(result);
+        return new Distribution<U>(result.ToArray());
     }
 
     public static Distribution<U> SelectMany<U>(Distribution<T> prior, Func<T, Distribution<U>> f) where U : notnull
@@ -52,12 +58,12 @@ public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability 
 
     public static Distribution<U> Map<U>(Distribution<T> distribution, Func<T, U> project) where U : notnull
     {
-        IEnumerable<(Event<U>, Probability P)>? result = from d in distribution.Value
+        IEnumerable<(Event<U>, Probability P)>? result = from d in distribution.EventProbabilities
                                                          let x = d.@event
                                                          let P = d.probability
                                                          let y = x.Map(project)
-                                                         select (new Event<U>(y), P);
-        return new Distribution<U>(result);
+                                                         select (y, P);
+        return new Distribution<U>(result.ToArray());
     }
 
     public static Distribution<U> Select<U>(Distribution<T> distribution, Func<T, U> project) where U : notnull
@@ -65,7 +71,7 @@ public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability 
 
     public static Probability Sum(Distribution<T> distribution)
     {
-        double result = (from d in distribution.Value
+        double result = (from d in distribution.EventProbabilities
                          select d.probability).Aggregate((a, b) => a + b);
         return new Probability(result);
     }
@@ -73,8 +79,7 @@ public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability 
     public static Distribution<T> Scale(Distribution<T> distribution)
     {
         Probability? q = Sum(distribution);
-        IEnumerable<(Event<T> @event, Probability probability)> d = distribution.Value;
-        return new Distribution<T>(d.Select(x => (x.@event, new Probability(x.probability / q.Value))));
+        return new Distribution<T>(distribution.EventProbabilities.Select(x => (x.@event, new Probability(x.probability / q.Value))).ToArray());
     }
 
     public static Spread<T> Shape(Func<double, double> f)
@@ -95,7 +100,7 @@ public record Distribution<T> : Alias<IEnumerable<(Event<T> @event, Probability 
                                 .Select(p => new Probability(p));
                         IEnumerable<Event<T>>? events = xs.Select(x => new Event<T>(x));
                         IEnumerable<(Event<T> @event, Probability probability)>? d = events.Zip(probabilities, (@event, probability) => (@event, probability));
-                        return Scale(new Distribution<T>(d));
+                        return Scale(new Distribution<T>(d.ToArray()));
                 }
             };
 

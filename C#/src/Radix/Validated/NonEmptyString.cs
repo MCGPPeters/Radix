@@ -1,8 +1,15 @@
 ﻿namespace Radix.Validated;
 
-public record NonEmptyString : Alias<string>
+public record struct NonEmptyString
 {
-    private NonEmptyString(string value) : base(value) { }
+    public string Value { get; }
+
+    private NonEmptyString(string value)
+    {
+        Value = value;
+    }
+
+    public static implicit operator string(NonEmptyString nonEmptyString) => nonEmptyString.Value;
 
     public static Validated<NonEmptyString> Create(string value, string errorMessage)
         => value.IsNotNullNorEmpty(errorMessage)
