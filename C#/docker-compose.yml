@@ -3,11 +3,13 @@ version: '3.4'
 services:
   radix.shop:
     image: ${DOCKER_REGISTRY-}radixshop
+    container_name: radix.shop
     build:
       context: .
       dockerfile: src/Samples/Shop/Radix.Shop/Dockerfile
   eventstore.db:
     image: eventstore/eventstore:20.10.2-buster-slim
+    container_name: eventstore.db
     environment:
       - EVENTSTORE_CLUSTER_SIZE=1
       - EVENTSTORE_RUN_PROJECTIONS=All
@@ -27,6 +29,14 @@ services:
       - type: volume
         source: eventstore-volume-logs
         target: /var/log/eventstore
+  raven.db:
+    image: ravendb/ravendb
+    container_name: raven.db
+    ports:
+     - "8080:8080"
+     - "38888:38888"
+    environment:
+      - RAVEN_ARGS='--Setup.Mode=None'
 
 volumes:
   eventstore-volume-data:

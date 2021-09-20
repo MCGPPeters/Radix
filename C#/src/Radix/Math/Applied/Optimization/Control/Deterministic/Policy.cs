@@ -37,7 +37,7 @@ public static class Policy
                 foreach (A action in mdp.Actions)
                 {
                     (Transition<S> transition, Probability.Probability transitionProbability) = mdp.Dynamics(state, action);
-                    Probability.Probability actionProbability = π(state).Value.FirstOrDefault(eventProbability => eventProbability.@event.Value.Equals(action)).probability;
+                    Probability.Probability actionProbability = π(state).EventProbabilities.FirstOrDefault(eventProbability => eventProbability.@event.Value.Equals(action)).probability;
                     value += actionProbability * transitionProbability * (mdp.Reward(transition.Origin) + mdp.γ * stateValues[transition.Destination]);
                 }
 
@@ -91,8 +91,8 @@ public static class Policy
 
             Policy<S, A>? newPolicy = Improve(mdp, stateValues);
 
-            IEnumerable<A> newPolicyActions = stateValues.Keys.SelectMany(s => newPolicy(s).Value.Select(tuple => tuple.@event.Value));
-            IEnumerable<A> currentPolicyActions = stateValues.Keys.SelectMany(s => currentPolicy(s).Value.Select(tuple => tuple.@event.Value));
+            IEnumerable<A> newPolicyActions = stateValues.Keys.SelectMany(s => newPolicy(s).EventProbabilities.Select(tuple => tuple.@event.Value));
+            IEnumerable<A> currentPolicyActions = stateValues.Keys.SelectMany(s => currentPolicy(s).EventProbabilities.Select(tuple => tuple.@event.Value));
             isPolicyStable = newPolicyActions.SequenceEqual(currentPolicyActions);
 
             currentPolicy = newPolicy;

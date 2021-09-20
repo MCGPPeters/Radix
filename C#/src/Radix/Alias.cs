@@ -1,12 +1,7 @@
 ﻿namespace Radix;
 
-/// <summary>
-/// This is basically the identity functor
-/// </summary>
-/// <typeparam name="T"></typeparam>
-/// <param name="Value"></param>
-public abstract record Alias<T>(T Value) where T : notnull
+public interface Alias<T, TTarget> where T : Alias<T, TTarget>
 {
-    public static implicit operator T(Alias<T> alias) => alias.Value;
-    public override string ToString() => Value.ToString() ?? string.Empty;
+    static abstract implicit operator T(TTarget alias);
+    static abstract implicit operator TTarget(T t);
 }

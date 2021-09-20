@@ -19,11 +19,27 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
     public record Hit : Action;
     public record Stick : Action;
 
-    public record Deck() :
-        Alias<Distribution<int>>(Distribution<int>.
-            Uniform(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 }));
+    public record Deck :
+        Alias<Deck, Distribution<int>>
+    {
+        private Deck(Distribution<int> distribution)
+        {
+            Value = distribution;
+        }
+        public Deck() => Value = Distribution<int>.Uniform(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 });
+        public Distribution<int> Value { get; init; }
 
-    public record Card(Random<int> x) : Alias<Random<int>>(x);
+        public static implicit operator Deck(Distribution<int> distribution) => new Deck(distribution);
+
+        public static implicit operator Distribution<int>(Deck deck) => deck.Value;
+    }
+
+    public record Card(Random<int> Value) : Alias<Card, Random<int>>
+    {
+        public static implicit operator Card(Random<int> random) => new Card(random.Value);
+        public static implicit operator Random<int>(Card random) => random;
+    }
+
     public record Hand(List<Card> Cards);
 
     public class State : IEquatable<State>
@@ -41,17 +57,17 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
         public bool Equals(State? other)
         {
             bool v = EqualityComparer<int>.Default.Equals(PlayerSum, other.PlayerSum)
-                        && EqualityComparer<int>.Default.Equals(DealerShowing.Value, other.DealerShowing.Value)
+                        && EqualityComparer<Card>.Default.Equals(DealerShowing, other.DealerShowing)
                         && PlayerHasUsableAce == other.PlayerHasUsableAce;
             return v;
         }
         public override int GetHashCode()
         {
-            int v = HashCode.Combine(PlayerSum, DealerShowing.Value, PlayerHasUsableAce);
+            int v = HashCode.Combine(PlayerSum, DealerShowing, PlayerHasUsableAce);
             return v;
         }
 
-        public override string ToString() => $"DealerShowing : {DealerShowing.Value}, PlayerSum : {PlayerSum}, PlayerHasUsableAce: {PlayerHasUsableAce}";
+        public override string ToString() => $"DealerShowing : {DealerShowing}, PlayerSum : {PlayerSum}, PlayerHasUsableAce: {PlayerHasUsableAce}";
     }
 
     public record Observation

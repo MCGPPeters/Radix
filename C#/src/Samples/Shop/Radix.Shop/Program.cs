@@ -2,15 +2,22 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radix.Shop.Data;
 using Radix.Shop.Pages;
+using Radix.Shop.Sales;
 using Radix.Shop.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<NavMenuViewModel>();
-builder.Services.AddSingleton<IndexViewModel>();
+builder.Services.AddSingleton(_ = new IndexViewModel((x, y) =>
+{
+    async IAsyncEnumerable<Product> GetProducts()
+    { yield return new Product() {  Name = "foo" , Price = 20, Id = new Radix.Id(Guid.NewGuid())}; };
+    return GetProducts();
+}));
 
 var app = builder.Build();
 
