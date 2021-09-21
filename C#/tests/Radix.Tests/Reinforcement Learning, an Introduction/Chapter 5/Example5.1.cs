@@ -27,11 +27,8 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
         public Distribution<int> Value { get; init; }
     }
 
-    public record Card(Random<int> Value) : Alias<Card, Random<int>>
-    {
-        public static implicit operator Card(Random<int> random) => new Card(random.Value);
-        public static implicit operator Random<int>(Card random) => random;
-    }
+    [Alias<Random<int>>]
+    public partial record Card(Random<int> Value);
 
     public record Hand(List<Card> Cards);
 
