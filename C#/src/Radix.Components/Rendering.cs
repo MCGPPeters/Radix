@@ -16,7 +16,7 @@ public static class Rendering
                 builder.AddContent(sequence, text);
                 return sequence + 1;
             case HtmlString html:
-                builder.AddMarkupContent(sequence, html.Value);
+                builder.AddMarkupContent(sequence, html);
                 return sequence + 1;
             case Concat nodes:
                 foreach (Node n in nodes)

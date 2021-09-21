@@ -19,19 +19,12 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
     public record Hit : Action;
     public record Stick : Action;
 
-    public record Deck :
-        Alias<Deck, Distribution<int>>
+    [Alias<Distribution<int>>]
+
+    public partial record Deck 
     {
-        private Deck(Distribution<int> distribution)
-        {
-            Value = distribution;
-        }
         public Deck() => Value = Distribution<int>.Uniform(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 });
         public Distribution<int> Value { get; init; }
-
-        public static implicit operator Deck(Distribution<int> distribution) => new Deck(distribution);
-
-        public static implicit operator Distribution<int>(Deck deck) => deck.Value;
     }
 
     public record Card(Random<int> Value) : Alias<Card, Random<int>>
