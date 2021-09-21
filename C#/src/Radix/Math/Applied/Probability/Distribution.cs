@@ -2,7 +2,7 @@
 
 namespace Radix.Math.Applied.Probability;
 
-public record Distribution<T> : Alias<Distribution<T>, (Event<T> @event, Probability probability)[]>
+public record Distribution<T>
 {
     public (Event<T> @event, Probability probability)[] EventProbabilities { get; }
 
