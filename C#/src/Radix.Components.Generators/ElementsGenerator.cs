@@ -56,7 +56,7 @@ namespace Radix.Components.Generators
 
                 namespace Radix.Components.Html;
 
-                public static partial class Elements
+                public static class Elements
                 {{
                     public static Node text(string text) => new Text(text);
 

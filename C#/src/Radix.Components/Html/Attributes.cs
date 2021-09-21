@@ -166,7 +166,7 @@ public static class Attributes
         => attribute(nameof(hreflang), values);
 
     public static attribute httpequiv = values
-        => attribute(new Name("http-equiv"), values);
+        => attribute("http-equiv", values);
 
     public static attribute icon = values
         => attribute(nameof(icon), values);
