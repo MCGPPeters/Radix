@@ -25,7 +25,7 @@ public class AliasGenerator : ISourceGenerator
             var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
             foreach (var attribute in attributes)
             {
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, attributeSymbol, candidate.isStruct);
+                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, attributeSymbol, candidate.typeDeclarationSyntax);
                 context.AddSource(
                     $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_alias",
                     SourceText.From(classSource, Encoding.UTF8));
@@ -45,7 +45,7 @@ public class AliasGenerator : ISourceGenerator
     }
 
     internal static string ProcessType(string valueType, ISymbol typeSymbol, ISymbol attributeSymbol,
-            bool isStruct)
+           TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return null;
@@ -56,27 +56,54 @@ public class AliasGenerator : ISourceGenerator
         var overridenNameOpt =
             attributeData.NamedArguments.SingleOrDefault(kvp => kvp.Key == "PropertyName").Value;
         var propertyName = overridenNameOpt.IsNull ? defaultPropertyName : overridenNameOpt.Value.ToString();
+        var kindSource = typeDeclarationSyntax.Kind() switch
+        {
+            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
+            SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
+            SyntaxKind.StructDeclaration => $"public partial struct {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
+            SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
+            _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
+        };
+
+        var equalsOperatorsSource = $@"
+                public static bool operator ==({typeSymbol.Name} left, {typeSymbol.Name} right) => Equals(left, right);
+                public static bool operator !=({typeSymbol.Name} left, {typeSymbol.Name} right) => !Equals(left, right);
+            ";
+
+        var equalsSource = typeDeclarationSyntax.Kind() switch
+        {
+            SyntaxKind.ClassDeclaration => $@"
+                {equalsOperatorsSource}
+                public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
+                public override int GetHashCode() => {propertyName}.GetHashCode();
+                public bool Equals({typeSymbol.Name} other){{ return {propertyName} == other.{propertyName}; }}",
+            SyntaxKind.RecordDeclaration => "",
+            SyntaxKind.StructDeclaration => $@"
+                {equalsOperatorsSource}
+                public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
+                public override int GetHashCode() => {propertyName}.GetHashCode();
+                public bool Equals({typeSymbol.Name} other)
+                {{
+                    if (ReferenceEquals(null, other)) return false;
+                    if (ReferenceEquals(this, other)) return true;
+                    return {propertyName} == other.{propertyName};
+                }}",
+            SyntaxKind.RecordStructDeclaration => "",
+            _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
+        };
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
-    public {(isStruct ? "" : "sealed")} partial {(isStruct ? "struct" : "class")} {typeSymbol.Name} : System.IEquatable<{typeSymbol.Name}>
+    {kindSource}
     {{
         public {valueType} {propertyName} {{ get; }}
         public {typeSymbol.Name}({valueType} value)
         {{
             {propertyName} = value;
         }}
-        public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
-        public override int GetHashCode() => {propertyName}.GetHashCode();
+
         public override string ToString() => {propertyName}.ToString();
-        public static bool operator ==({typeSymbol.Name} left, {typeSymbol.Name} right) => Equals(left, right);
-        public static bool operator !=({typeSymbol.Name} left, {typeSymbol.Name} right) => !Equals(left, right);
-        public bool Equals({typeSymbol.Name} other)
-        {{
-            {(isStruct ? "" : "if (ReferenceEquals(null, other)) return false;")}
-            {(isStruct ? "" : "if (ReferenceEquals(this, other)) return true;")}
-            return EqualityComparer<{valueType}>.Default.Equals({propertyName}, other.{propertyName});
-        }}
+        {equalsSource}
         public static explicit operator {typeSymbol.Name}({valueType} value) => new {typeSymbol.Name}(value);
         public static implicit operator {valueType}({typeSymbol.Name} value) => value.{propertyName};
     }}
