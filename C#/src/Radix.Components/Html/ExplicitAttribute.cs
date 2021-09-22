@@ -4,7 +4,7 @@ namespace Radix.Components.Html;
 
 public class ExplicitAttribute : IAttribute
 {
-    public ExplicitAttribute(Name name, Func<RenderTreeBuilder, int, object, int> factory)
+    public ExplicitAttribute(string name, Func<RenderTreeBuilder, int, object, int> factory)
     {
         Name = name;
         Factory = factory;
@@ -12,5 +12,5 @@ public class ExplicitAttribute : IAttribute
 
     public Func<RenderTreeBuilder, int, object, int> Factory { get; }
 
-    public Name Name { get; set; }
+    public string Name { get; set; }
 }

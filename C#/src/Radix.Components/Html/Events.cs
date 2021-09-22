@@ -5,7 +5,7 @@ namespace Radix.Components.Html;
 
 public static class on
 {
-    public static IAttribute @event<T>(Name name, Action<T> callback) where T : EventArgs =>
+    public static IAttribute @event<T>(string name, Action<T> callback) where T : EventArgs =>
         new ExplicitAttribute
         (
             name,
@@ -193,7 +193,7 @@ public static class on
     public static class task
     {
 
-        public static IAttribute @event<T>(Name name, Func<T, Task> callback) where T : EventArgs => new ExplicitAttribute(
+        public static IAttribute @event<T>(string name, Func<T, Task> callback) where T : EventArgs => new ExplicitAttribute(
             name,
             (builder, sequence, receiver) =>
             {

@@ -2,7 +2,7 @@
 
 public class Attribute : IAttribute
 {
-    public Attribute(Name name, params string[] values)
+    public Attribute(string name, params string[] values)
     {
 
         Name = name;
@@ -11,9 +11,9 @@ public class Attribute : IAttribute
 
     public IEnumerable<string> Values { get; set; }
 
-    public Name Name { get; set; }
+    public string Name { get; set; }
 
-    public void Deconstruct(out Name name, out IEnumerable<string> values)
+    public void Deconstruct(out string name, out IEnumerable<string> values)
 
     {
         name = Name;

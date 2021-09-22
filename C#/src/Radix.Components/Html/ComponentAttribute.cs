@@ -10,9 +10,9 @@ public class ComponentAttribute : IAttribute
 
     public object Value { get; }
 
-    public Name Name { get; set; }
+    public string Name { get; set; }
 
-    public void Deconstruct(out Name name, out object value)
+    public void Deconstruct(out string name, out object value)
 
     {
         name = Name;

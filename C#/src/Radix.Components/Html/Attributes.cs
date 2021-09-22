@@ -363,5 +363,5 @@ public static class Attributes
     public static attribute wrap = values
         => attribute(nameof(wrap), values);
 
-    public static Attribute attribute(Name name, params string[] values) => new(name, values);
+    public static Attribute attribute(string name, params string[] values) => new(name, values);
 }

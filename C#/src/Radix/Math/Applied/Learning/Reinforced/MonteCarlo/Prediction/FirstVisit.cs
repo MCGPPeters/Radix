@@ -23,7 +23,7 @@ public static class FirstVisit
             {
                 if (visits.Contains(transition.Origin)) continue;
                 visits.Add(transition.Origin);
-                G = environment.γ * G + reward.Value;
+                G = environment.γ * (DiscountFactor)G + reward.Value;
                 if (returns.TryGetValue(transition.Origin, out List<Return>? rs))
                 {
                     rs.Add(new Return(G));

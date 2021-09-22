@@ -2,5 +2,5 @@
 
 public interface IAttribute
 {
-    Name Name { get; set; }
+    string Name { get; set; }
 }

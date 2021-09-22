@@ -75,9 +75,9 @@ namespace {namespaceName}
         {{
             {(isStruct ? "" : "if (ReferenceEquals(null, other)) return false;")}
             {(isStruct ? "" : "if (ReferenceEquals(this, other)) return true;")}
-            return {propertyName} == other.{propertyName};
+            return EqualityComparer<{valueType}>.Default.Equals({propertyName}, other.{propertyName});
         }}
-        public static implicit operator {typeSymbol.Name}({valueType} value) => new {typeSymbol.Name}(value);
+        public static explicit operator {typeSymbol.Name}({valueType} value) => new {typeSymbol.Name}(value);
         public static implicit operator {valueType}({typeSymbol.Name} value) => value.{propertyName};
     }}
 }}");
