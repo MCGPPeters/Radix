@@ -6,7 +6,7 @@ services:
     container_name: radix.shop
     build:
       context: .
-      dockerfile: src/Samples/Shop/Radix.Shop/Dockerfile
+      dockerfile: Radix.Shop/Dockerfile
   eventstore.db:
     image: eventstore/eventstore:20.10.2-buster-slim
     container_name: eventstore.db

@@ -1,5 +1,4 @@
 using Radix.Validated;
-using static Radix.Validated.Extensions;
 
 namespace Radix.Inventory.Domain;
 
