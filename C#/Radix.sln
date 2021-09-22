@@ -1,4 +1,4 @@
-﻿
+﻿c
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31512.422
@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shop", "Shop", "{0DB17544-1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop", "src\Samples\Shop\Radix.Shop\Radix.Shop.csproj", "{3179FC72-A7C1-4642-B14D-D7A133C6E8AB}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}"
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "src\Samples\Shop\docker-compose.dcproj", "{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "src\Radix.Generators\Radix.Generators.csproj", "{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}"
 EndProject

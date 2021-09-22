@@ -5,7 +5,7 @@ services:
     image: ${DOCKER_REGISTRY-}radixshop
     build:
       context: .
-      dockerfile: src/Samples/Shop/Radix.Shop/Dockerfile
+      dockerfile: Radix.Shop/Dockerfile
     volumes:
       - C:\dev\Radix\C#\src\Samples\Shop\Radix.Shop:/app
       - C:\dev\Radix\C#:/src

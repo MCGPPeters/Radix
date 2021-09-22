@@ -128,7 +128,7 @@ namespace Radix.Shop.Pages
                     (
                         text
                         (
-                            product.Name
+                            product.ProductName
                         )
                     ),
                     td
