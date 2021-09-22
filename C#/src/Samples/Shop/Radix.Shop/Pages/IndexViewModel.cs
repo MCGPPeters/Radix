@@ -9,16 +9,16 @@ namespace Radix.Shop.Pages
         {
             Types = new List<ProductType>()
             {
-                "Mug",
-                "Sheet",
-                "T-Shirt"
+                (ProductType)"Mug",
+                (ProductType)"Sheet",
+                (ProductType)"T-Shirt"
             };
 
             Brands = new List<Brand>()
             {
-                ".NET",
-                "Azure",
-                "Other"
+                (Brand)".NET",
+                (Brand)"Azure",
+                (Brand)"Other"
             };
             GetFilteredProducts = getFilteredProducts;
         }

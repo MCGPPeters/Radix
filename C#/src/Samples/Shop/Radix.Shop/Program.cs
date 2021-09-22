@@ -15,7 +15,7 @@ builder.Services.AddSingleton<NavMenuViewModel>();
 builder.Services.AddSingleton(_ = new IndexViewModel((x, y) =>
 {
     async IAsyncEnumerable<Product> GetProducts()
-    { yield return new Product(Guid.NewGuid(), "foo", "bar", "what?", 20); };
+    { yield return new Product(Guid.NewGuid(), (ProductName)"foo", (ProductType)"bar", (Brand)"what?", 20); };
     return GetProducts();
 }));
 

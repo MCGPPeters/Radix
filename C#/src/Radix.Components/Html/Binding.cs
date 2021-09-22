@@ -9,7 +9,7 @@ public static class bind
     private const string InputEventName = "input";
     private const string ChangeEventName = "change";
 
-    private static IAttribute binder<T>(Name name, T currentValue, Action<T> callback, CultureInfo cultureInfo) => new ExplicitAttribute(
+    private static IAttribute binder<T>(string name, T currentValue, Action<T> callback, CultureInfo cultureInfo) => new ExplicitAttribute(
         name,
         (builder, sequence, receiver) =>
         {

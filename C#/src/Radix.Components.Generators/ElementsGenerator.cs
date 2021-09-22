@@ -62,7 +62,7 @@ namespace Radix.Components.Generators
 
                     public static Concat concat(params Node[] nodes) => new(nodes);
 
-                    public static Element element(Name name, IEnumerable<IAttribute> attributes, params Node[] children) => new(name, attributes, children);
+                    public static Element element(string name, IEnumerable<IAttribute> attributes, params Node[] children) => new(name, attributes, children);
 
                     {methodsStringBuilder}
                 }}

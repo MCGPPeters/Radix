@@ -2,14 +2,14 @@
 
 public class Element : Node
 {
-    public Element(Name name, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
+    public Element(string name, IEnumerable<IAttribute> attributes, IEnumerable<Node> children)
     {
         Name = name;
         Attributes = attributes;
         Children = children;
     }
 
-    public Element(Name name, IEnumerable<IAttribute> attributes) : this(name, attributes, Array.Empty<Node>())
+    public Element(string name, IEnumerable<IAttribute> attributes) : this(name, attributes, Array.Empty<Node>())
     {
     }
 
@@ -17,7 +17,7 @@ public class Element : Node
     {
     }
 
-    public Name Name { get; }
+    public string Name { get; }
     public IEnumerable<IAttribute> Attributes { get; }
     public IEnumerable<Node> Children { get; }
 }
