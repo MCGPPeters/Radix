@@ -205,7 +205,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                                     GameOver = false,
                                     PlayerHasUsableAce = ContainsUsableAce(newPlayerHand)
                                 };
-                            return (new Transition<State>(state, nextState), new Probability(1.0));
+                            return (new Transition<State>(state, nextState), (Probability)1);
 
                         case Stick:
                             Hand newDealerHand;
@@ -223,7 +223,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                                 PlayerHasUsableAce = ContainsUsableAce(state.PlayerHand)
                             };
 
-                            return (new Transition<State>(state, nextState), new Probability(1.0));
+                            return (new Transition<State>(state, nextState), (Probability)1);
                         default:
                             throw new InvalidOperationException("Illegal move");
                     }

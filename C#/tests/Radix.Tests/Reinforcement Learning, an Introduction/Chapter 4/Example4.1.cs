@@ -25,15 +25,15 @@ public class Example_4
         {
             if (state == (0, 0) || state == (3, 3))
             {
-                return (new Transition<State>(state, state), new Probability(1));
+                return (new Transition<State>(state, state), (Probability)1);
             }
 
             (int x, int y) = action;
             State nextState = (x: state.x + x, y: state.y + y);
 
-            (Transition<State>, Probability) stayedInCurrentState = (new Transition<State>(state, state), new Probability(1));
+            (Transition<State>, Probability) stayedInCurrentState = (new Transition<State>(state, state), (Probability)1);
             (Transition<State>, Probability)
-                arrivedAtNextState = (new Transition<State>(state, nextState), new Probability(1));
+                arrivedAtNextState = (new Transition<State>(state, nextState), (Probability)1);
 
             return nextState.x < 0 || nextState.x >= 4 || nextState.y < 0 || nextState.y >= 4
                 ? stayedInCurrentState

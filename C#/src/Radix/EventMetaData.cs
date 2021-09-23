@@ -9,6 +9,6 @@ public class EventMetaData
     }
 
     public MessageId CausationId { get; }
-    public MessageId MessageId { get; } = new(Guid.NewGuid());
+    public MessageId MessageId { get; } = (MessageId)Guid.NewGuid();
     public MessageId CorrelationId { get; }
 }

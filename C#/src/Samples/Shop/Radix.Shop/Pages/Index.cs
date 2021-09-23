@@ -15,78 +15,86 @@ namespace Radix.Shop.Pages
                 (
                     text
                     (
-                        "Product"
+                        "Products"
                     )
                 ),
                 div
                 (
-                    @class("form-group"),
-                    label
+                    @class("container-fluid"),
+                    div
                     (
-                        @for("brandFilter"),
-                        text
+                        @class("row"),
+                        div
                         (
-                            "Brand"
-                        )
-                    ),
-                    select
-                    (
-                        new[]
-                        {
-                            @class("form-control"),
-                            id("brandFilter"),
-                            bind.change(currentViewModel.BrandFilter, brand => currentViewModel.TypeFilter = brand)
-                        },
-                        RenderBrandOptions(currentViewModel.Brands)
-                    ),
-                    label
-                    (
-                        @for("typeFilter"),
-                        text
-                        (
-                            "Type"
-                        )
-                    ),
-                    select
-                    (
-                        new[]
-                        {
-                            @class("form-control"),
-                            id("typeFilter"),
-                            bind.change(currentViewModel.TypeFilter, type => currentViewModel.TypeFilter = type)
-                        },
-                        RenderTypeOptions(currentViewModel.Types)
-                    ),
-                    button
-                    (
-                        new[]
-                        {
-                            @class("btn btn-primary"),
-                            on.click
+                            @class("col"),
+                            div
                             (
-                                async _ =>
-                                {
-                                    currentViewModel.FilteredProducts = new List<Product>();
-                                    await foreach (Product product in currentViewModel.GetFilteredProducts(currentViewModel.Brands, currentViewModel.Types))
-                                   currentViewModel.FilteredProducts.Add(product);
-                                }
+                                @class("form-group"),
+                                label
+                                (
+                                    @for("brandFilter"),
+                                    text
+                                    (
+                                        "Brand"
+                                    )
+                                ),
+                                select
+                                (
+                                    new[]
+                                    {
+                                        @class("form-control"),
+                                        id("brandFilter"),
+                                        bind.change(currentViewModel.BrandFilter, brand => currentViewModel.TypeFilter = brand)
+                                    },
+                                    RenderBrandOptions(currentViewModel.Brands)
+                                ),
+                                label
+                                (
+                                    @for("typeFilter"),
+                                    text
+                                    (
+                                        "Type"
+                                    )
+                                ),
+                                select
+                                (
+                                    new[]
+                                    {
+                                        @class("form-control"),
+                                        id("typeFilter"),
+                                        bind.change(currentViewModel.TypeFilter, type => currentViewModel.TypeFilter = type)
+                                    },
+                                    RenderTypeOptions(currentViewModel.Types)
+                                ),
+                                button
+                                (
+                                    new[]
+                                    {
+                                        @class("btn btn-primary"),
+                                        on.click
+                                        (
+                                            async _ =>
+                                            {
+                                                currentViewModel.FilteredProducts = new List<Product>();
+                                                await foreach (Product product in currentViewModel.GetFilteredProducts(currentViewModel.Brands, currentViewModel.Types))
+                                               currentViewModel.FilteredProducts.Add(product);
+                                            }
+                                        )
+                                    },
+                                    text
+                                    (
+                                        "Search"
+                                    )
+                                )
                             )
-                        },
-                        text
-                        (
-                            "Search"
                         )
-                    )
-                ),
-                div
-                (
-                    @class(""),
-                    table
+                    ),
+                    div
                     (
-                        RendedFilteredProducts(currentViewModel.FilteredProducts)
-                    )
+                        @class("row"),
+                        RendedFilteredProducts(currentViewModel)
+                    )      
                 )
-
             );
 
         internal static Node[] RenderBrandOptions(IEnumerable<Brand> brands) =>
@@ -113,30 +121,58 @@ namespace Radix.Shop.Pages
                 )
             ).ToArray();
 
-        private static Node[] RendedFilteredProducts(IEnumerable<Product> filteredProducts) =>
-            filteredProducts.Select(product =>
-                tr
+        private static Node[] RendedFilteredProducts(IndexViewModel viewModel) =>
+            viewModel.FilteredProducts.Select(product =>
+                div
                 (
-                    td
+                    @class("col"),
+                    div
                     (
-                        text
+                        new[]
+                        {
+                            @class("card"),
+                            attribute("style", "width: 18rem;"),
+                        },
+                        img
                         (
-                            product.Id.ToString()
-                        )
-                    ),
-                    td
-                    (
-                        text
+                            new[]
+                            {
+                                @class("card-img-top"),
+                                src("/images/products/1.png")
+                            }
+                        ),    
+                        div
                         (
-                            product.ProductName
-                        )
-                    ),
-                    td
-                    (
-                        text
-                        (
-                            product.Price.ToString("N2")
-                        )
+                            @class("card-body"),
+                            h5
+                            (
+                                @class("card-title"),
+                                text
+                                (
+                                    product.ProductName
+                                )
+                            ),
+                            p
+                            (
+                                @class("card-text"),
+                                text
+                                (
+                                    product.Price.ToString("N2")
+                                )
+                            ),
+                            button
+                            (
+                                new[]
+                                {
+                                    @class("btn btn-primary"),     
+                                    on.click(_ => viewModel.AddToBasket(product))
+                                },                               
+                                text
+                                (
+                                    "Add to basket"
+                                )
+                            )
+                         )
                     )
                 )
             ).ToArray();

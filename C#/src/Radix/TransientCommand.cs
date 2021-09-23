@@ -10,7 +10,7 @@ public class TransientCommandDescriptor<TCommand>
     {
         Recipient = recipient;
         Command = command;
-        MessageId = new MessageId(Guid.NewGuid());
+        MessageId = (MessageId)Guid.NewGuid();
         CorrelationId = MessageId;
     }
 

@@ -49,7 +49,7 @@ public record Distribution<T>
                                                          from Posterior in posteriors.EventProbabilities
                                                          let y = Posterior.@event
                                                          let Q = Posterior.probability
-                                                         select (y, new Probability(P * Q));
+                                                         select (y, (Probability)(P * Q));
         return new Distribution<U>(result.ToArray());
     }
 
@@ -73,13 +73,13 @@ public record Distribution<T>
     {
         double result = (from d in distribution.EventProbabilities
                          select d.probability).Aggregate((a, b) => a + b);
-        return new Probability(result);
+        return (Probability)result;
     }
 
     public static Distribution<T> Scale(Distribution<T> distribution)
     {
         Probability? q = Sum(distribution);
-        return new Distribution<T>(distribution.EventProbabilities.Select(x => (x.@event, new Probability(x.probability / q.Value))).ToArray());
+        return new Distribution<T>(distribution.EventProbabilities.Select(x => (x.@event, (Probability)(x.probability / q.Value))).ToArray());
     }
 
     public static Spread<T> Shape(Func<double, double> f)
@@ -97,7 +97,7 @@ public record Distribution<T>
                             _
                                 .Iterate(0.0, x => incr + x)
                                 .Select(f)
-                                .Select(p => new Probability(p));
+                                .Select(p => (Probability)p);
                         IEnumerable<Event<T>>? events = xs.Select(x => new Event<T>(x));
                         IEnumerable<(Event<T> @event, Probability probability)>? d = events.Zip(probabilities, (@event, probability) => (@event, probability));
                         return Scale(new Distribution<T>(d.ToArray()));
