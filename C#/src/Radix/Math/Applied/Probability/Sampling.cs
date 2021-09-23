@@ -20,7 +20,7 @@ public static class Sampling
     public static Random<T> Choose<T>(this Distribution<T> distribution) where T : notnull
     {
         Random? random = new();
-        Probability probability = new(random.NextDouble());
+        Probability probability = (Probability)random.NextDouble();
         // don't scan for a target larger than the maximum probability in the distribution
         Probability target = probability <= distribution.Max ? probability : distribution.Max;
         return

@@ -29,5 +29,7 @@ namespace Radix.Shop.Pages
         public IEnumerable<Brand> Brands { get; internal set; }
 
         public Func<IEnumerable<Brand>, IEnumerable<ProductType>, IAsyncEnumerable<Product>> GetFilteredProducts { get; }
+
+        internal void AddToBasket(Product product) => throw new NotImplementedException();
     }
 }

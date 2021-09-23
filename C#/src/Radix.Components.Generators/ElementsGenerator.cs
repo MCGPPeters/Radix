@@ -58,7 +58,7 @@ namespace Radix.Components.Generators
 
                 public static class Elements
                 {{
-                    public static Node text(string text) => new Text(text);
+                    public static Node text(string text) => (Text)text;
 
                     public static Concat concat(params Node[] nodes) => new(nodes);
 

@@ -1,13 +1,9 @@
 namespace Radix.Math.Applied.Probability;
 
-public readonly record struct Probability : IComparable<Probability>
+[Alias<double>]
+public readonly partial record struct Probability : IComparable<Probability>
 {
-    private readonly double _p;
-
-    public Probability(double p) => _p = p;
-
-    public override string ToString() => _p.ToString();
-    public int CompareTo(Probability other) => Comparer<double>.Default.Compare(_p, other._p);
+    public int CompareTo(Probability other) => Comparer<double>.Default.Compare(Value, other.Value);
 
     public static Func<double, Validated<Probability>> Create =>
         value =>
@@ -17,9 +13,7 @@ public readonly record struct Probability : IComparable<Probability>
                 _ => Invalid<Probability>("The value of a probability should be in the interval [0.0, 1.0]")
             };
 
-    public static implicit operator double(Probability value) => value._p;
-
-    public static Probability operator +(Probability p, Probability q) => new Probability(p._p + q._p);
+    public static Probability operator +(Probability p, Probability q) => new(p.Value + q.Value);
 }
 
 public delegate Distribution<T> Spread<T>(IEnumerable<T> ts) where T : notnull;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -15,17 +14,17 @@ public class AliasGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-        if (!(context.SyntaxReceiver is SyntaxReceiver receiver)) return;
+        if (context.SyntaxReceiver is not SyntaxReceiver receiver) return;
 
         foreach (var candidate in receiver.CandidateTypes)
         {
-            var model = context.Compilation.GetSemanticModel(candidate.typeDeclarationSyntax.SyntaxTree);
-            var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate.typeDeclarationSyntax);
+            var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
+            var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.AliasAttribute`1");
             var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
             foreach (var attribute in attributes)
             {
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, attributeSymbol, candidate.typeDeclarationSyntax);
+                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, attributeSymbol, candidate);
                 context.AddSource(
                     $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_alias",
                     SourceText.From(classSource, Encoding.UTF8));
@@ -56,6 +55,7 @@ public class AliasGenerator : ISourceGenerator
         var overridenNameOpt =
             attributeData.NamedArguments.SingleOrDefault(kvp => kvp.Key == "PropertyName").Value;
         var propertyName = overridenNameOpt.IsNull ? defaultPropertyName : overridenNameOpt.Value.ToString();
+
         var kindSource = typeDeclarationSyntax.Kind() switch
         {
             SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
@@ -91,13 +91,14 @@ public class AliasGenerator : ISourceGenerator
             SyntaxKind.RecordStructDeclaration => "",
             _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
         };
+
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
     {kindSource}
     {{
         public {valueType} {propertyName} {{ get; }}
-        public {typeSymbol.Name}({valueType} value)
+        private {typeSymbol.Name}({valueType} value)
         {{
             {propertyName} = value;
         }}
@@ -109,26 +110,5 @@ namespace {namespaceName}
     }}
 }}");
         return source.ToString();
-    }
-}
-
-internal class SyntaxReceiver : ISyntaxReceiver
-{
-    internal IList<(TypeDeclarationSyntax typeDeclarationSyntax, bool isStruct)> CandidateTypes { get; } =
-        new List<(TypeDeclarationSyntax, bool)>();
-
-    public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-    {
-        if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax
-            && classDeclarationSyntax.AttributeLists.Count > 0)
-            CandidateTypes.Add((classDeclarationSyntax, false));
-
-        if (syntaxNode is StructDeclarationSyntax structDeclarationSyntax
-            && structDeclarationSyntax.AttributeLists.Count > 0)
-            CandidateTypes.Add((structDeclarationSyntax, true));
-
-        if (syntaxNode is RecordDeclarationSyntax recordDeclarationSyntax
-            && recordDeclarationSyntax.AttributeLists.Count > 0)
-            CandidateTypes.Add((recordDeclarationSyntax, true));
     }
 }

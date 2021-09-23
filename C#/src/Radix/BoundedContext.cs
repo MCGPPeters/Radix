@@ -85,7 +85,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
                                     new EventType(@event.GetType()),
                                     Serialize(@event),
                                     SerializeMetaData(new EventMetaData(commandDescriptor.MessageId, commandDescriptor.CorrelationId)),
-                                    new MessageId(Guid.NewGuid()))).ToArray();
+                                    (MessageId)Guid.NewGuid())).ToArray();
                         Result<ExistingVersion, AppendEventsError> appendResult = await
                                 AppendEvents(commandDescriptor.Recipient, expectedVersion, eventStreamDescriptor, eventDescriptors)
                                 .ConfigureAwait(false);
