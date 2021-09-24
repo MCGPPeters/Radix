@@ -1,4 +1,4 @@
-﻿c
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31512.422
@@ -28,6 +28,12 @@ EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "src\Samples\Shop\docker-compose.dcproj", "{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "src\Radix.Generators\Radix.Generators.csproj", "{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{8851DE31-86D2-4B8F-912A-E1869BA7ACFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog", "src\Samples\Shop\Radix.Shop.Catalog\Radix.Shop.Catalog.csproj", "{F260A894-8172-4CC8-A247-DCB12D62C04C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Shop.Catalog.Search.AH", "src\Samples\Shop\Radix.Shop.Catalog.Search.AH\Radix.Shop.Catalog.Search.AH.csproj", "{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,6 +165,30 @@ Global
 		{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}.Release|x64.Build.0 = Release|Any CPU
 		{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}.Release|x86.ActiveCfg = Release|Any CPU
 		{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}.Release|x86.Build.0 = Release|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Debug|x64.Build.0 = Debug|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Debug|x86.Build.0 = Debug|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Release|x64.ActiveCfg = Release|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Release|x64.Build.0 = Release|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Release|x86.ActiveCfg = Release|Any CPU
+		{F260A894-8172-4CC8-A247-DCB12D62C04C}.Release|x86.Build.0 = Release|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x64.Build.0 = Debug|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x86.Build.0 = Debug|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x64.ActiveCfg = Release|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x64.Build.0 = Release|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +201,9 @@ Global
 		{0DB17544-11E7-4E91-B950-CEC96012DB70} = {0785E614-5D3E-4C4E-82F7-9112B0BC662F}
 		{3179FC72-A7C1-4642-B14D-D7A133C6E8AB} = {0DB17544-11E7-4E91-B950-CEC96012DB70}
 		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562} = {0DB17544-11E7-4E91-B950-CEC96012DB70}
+		{8851DE31-86D2-4B8F-912A-E1869BA7ACFA} = {0DB17544-11E7-4E91-B950-CEC96012DB70}
+		{F260A894-8172-4CC8-A247-DCB12D62C04C} = {8851DE31-86D2-4B8F-912A-E1869BA7ACFA}
+		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288} = {8851DE31-86D2-4B8F-912A-E1869BA7ACFA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6065D135-A7A4-4DCA-B7F1-3AA667613474}
