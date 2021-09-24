@@ -119,7 +119,7 @@ public class Example_4
         switch (optimalPolicy)
         {
             case Valid<Policy<State, Action>>(var p):
-                var result = stateSpace.Select(s => p(s).EventProbabilities.ArgMax(x => x.probability));
+                var result = stateSpace.Select(s => p(s).EventProbabilities.MaxBy(x => x.probability));
                 break;
             default:
                 break;

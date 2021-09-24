@@ -7,6 +7,15 @@ services:
     build:
       context: .
       dockerfile: Radix.Shop/Dockerfile
+  redis:
+    image: "redis:alpine"
+    container_name: redis.db
+    command: redis-server
+    expose:
+     - "6379"
+    volumes:
+      - redis-data:/data
+      - redis-conf:/usr/local/etc/redis/redis.conf
   eventstore.db:
     image: eventstore/eventstore:20.10.2-buster-slim
     container_name: eventstore.db
@@ -39,5 +48,7 @@ services:
       - RAVEN_ARGS='--Setup.Mode=None'
 
 volumes:
+  redis-data:
+  redis-conf:
   eventstore-volume-data:
   eventstore-volume-logs:
