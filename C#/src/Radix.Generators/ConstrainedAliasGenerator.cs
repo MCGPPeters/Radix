@@ -51,7 +51,6 @@ public class ConstrainedAliasGenerator : ISourceGenerator
 
         var propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();
-        var attributeData = typeSymbol.GetAttributes().Single(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
         string kindSource = NewMethod(typeSymbol, typeDeclarationSyntax);
 
         var equalsOperatorsSource = $@"
