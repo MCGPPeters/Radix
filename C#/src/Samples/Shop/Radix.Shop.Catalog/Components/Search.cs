@@ -7,6 +7,7 @@ namespace Radix.Shop.Catalog.Components
 {
     public class Search : Component<SearchViewModel>
     {
+       
         protected override Node View(SearchViewModel currentViewModel) =>
             concat
             (

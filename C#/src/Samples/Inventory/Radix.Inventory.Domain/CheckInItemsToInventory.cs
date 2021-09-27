@@ -7,7 +7,8 @@ public record CheckInItemsToInventory(long Id, int Amount) : InventoryItemComman
     private static Func<long, int, InventoryItemCommand> New => (id, amount) =>
         new CheckInItemsToInventory(id, amount);
 
-    public static Validated<InventoryItemCommand> Create(long id, int amount) => Valid(New)
+    public static Validated<InventoryItemCommand> Create(long id, int amount) =>
+        Valid(New)
         .Apply(
             id > 0
                 ? Valid(id)
