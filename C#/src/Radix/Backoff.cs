@@ -2,7 +2,6 @@
 
 public static class Backoff
 {
-
     public static TimeSpan[] Exponentially(int maxNumberOfTimes = 3) => Enumerable
         .Range(1, maxNumberOfTimes)
         .Select(
