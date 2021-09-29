@@ -2,11 +2,25 @@ version: '3.4'
 
 services:
   radix.shop:
-    image: ${DOCKER_REGISTRY-}radixshop
     container_name: radix.shop
     build:
-      context: .
-      dockerfile: Radix.Shop/Dockerfile
+      context: ../../../
+      dockerfile: /src/Samples/Shop/Radix.Shop/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+  # wtf : docker compose projects in vs do not support azure functions => https://github.com/microsoft/DockerTools/issues/124
+  radix.shop.catalog.search.ah:
+    container_name: radix.shop.catalog.search.ah
+    build:
+      context: ./Radix.Shop.Catalog.Search.AH
+      dockerfile: Dockerfile
   redis:
     image: "redis:alpine"
     container_name: redis.db

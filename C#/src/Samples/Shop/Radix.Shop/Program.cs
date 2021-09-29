@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<NavMenuViewModel>();
+builder.Services.AddSingleton<IndexViewModel>();
 
 var app = builder.Build();
 
