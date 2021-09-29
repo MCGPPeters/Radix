@@ -9,8 +9,9 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["src/Samples/Shop/Radix.Shop/Radix.Shop.csproj", "src/Samples/Shop/Radix.Shop/"]
 COPY ["src/Radix/Radix.csproj", "src/Radix/"]
-COPY ["src/Radix.Components/Radix.Components.csproj", "src/Radix.Components/"]
+COPY ["src/Radix.Generators/Radix.Generators.csproj", "src/Radix.Generators/"]
 COPY ["src/Radix.Components.Generators/Radix.Components.Generators.csproj", "src/Radix.Components.Generators/"]
+COPY ["src/Radix.Components/Radix.Components.csproj", "src/Radix.Components/"]
 RUN dotnet restore "src/Samples/Shop/Radix.Shop/Radix.Shop.csproj"
 COPY . .
 WORKDIR "/src/src/Samples/Shop/Radix.Shop"

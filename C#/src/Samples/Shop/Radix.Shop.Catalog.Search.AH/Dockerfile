@@ -1,106 +1,22 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS installer-env
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-# It's a good idea to use dumb-init to help prevent zombie chrome processes.
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
-RUN chmod +x /usr/local/bin/dumb-init
+FROM mcgppeters/netfunctions4-playwright AS base
+WORKDIR /home/site/wwwroot
+EXPOSE 80
 
-# tools to let browser run in headfull mode without having a screen
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    xvfb
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["./Radix.Shop.Catalog.Search.AH.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Search.AH/"]
+RUN dotnet restore "src/Samples/Shop/Radix.Shop.Catalog.Search.AH/Radix.Shop.Catalog.Search.AH.csproj"
+COPY . .
+WORKDIR "/src/src/Samples/Shop/Radix.Shop.Catalog.Search.AH"
+RUN dotnet build "Radix.Shop.Catalog.Search.AH.csproj" -c Release -o /app/build
 
-# Install WebKit dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libwoff1 \
-    libopus0 \
-    libwebp6 \
-    libwebpdemux2 \
-    libenchant1c2a \
-    libgudev-1.0-0 \
-    libsecret-1-0 \
-    libhyphen0 \
-    libgdk-pixbuf2.0-0 \
-    libegl1 \
-    libnotify4 \
-    libxslt1.1 \
-    libevent-2.1-6 \
-    libgles2 \
-    libvpx5 \
-    libxcomposite1 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libepoxy0 \
-    libgtk-3-0 \
-    libharfbuzz-icu0
+FROM build AS publish
+RUN dotnet publish "Radix.Shop.Catalog.Search.AH.csproj" -c Release -o /app/publish
 
-# Install gstreamer and plugins to support video playback in WebKit.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgstreamer-gl1.0-0 \
-    libgstreamer-plugins-bad1.0-0 \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-libav
-
-# Install Chromium dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libnss3 \
-    libxss1 \
-    libasound2 \
-    fonts-noto-color-emoji \
-    libxtst6
-
-# Install Firefox dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libdbus-glib-1-2 \
-    libxt6
-
-# Install ffmpeg to bring in audio and video codecs necessary for playing videos in Firefox.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg
-
-# (Optional) Install XVFB if there's a need to run browsers in headful mode
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    xvfb
-
-# === INSTALL Node.js ===
-
-# Install node14
-RUN apt-get update && apt-get install -y curl && \
-    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
-
-# Feature-parity with node.js base images.
-RUN apt-get update && apt-get install -y --no-install-recommends git ssh && \
-    npm install -g yarn
-
-RUN adduser pwuser
-
-# === BAKE BROWSERS INTO IMAGE ===
-
-# 1. Install playwright and then delete the installation.
-#    Browsers will remain downloaded in `/home/pwuser/.cache/ms-playwright`.
-RUN su pwuser -c "mkdir /tmp/pw && cd /tmp/pw && npm init -y && \
-    npm i playwright" && \
-    rm -rf /tmp/pw
-    
-# 2. Symlink downloaded browsers for current user
-RUN mkdir /home/.cache/ && \
-    ln -s /home/pwuser/.cache/ms-playwright/ /home/.cache/ms-playwright
-
-RUN chown -R 1000:1000 "/home/.npm"
-RUN chown -R 1000:1000 "/mnt"
-
-
-# Build requires 3.1 SDK
-COPY --from=mcr.microsoft.com/dotnet/core/sdk:3.1 /usr/share/dotnet /usr/share/dotnet
-
-COPY . /src/dotnet-function-app
-RUN cd /src/dotnet-function-app && \
-    mkdir -p /home/site/wwwroot && \
-    dotnet publish *.csproj --output /home/site/wwwroot
-
-# To enable ssh & remote debugging on app service change the base image to the one below
-# FROM mcr.microsoft.com/azure-functions/dotnet:4-appservice
-FROM mcr.microsoft.com/azure-functions/dotnet:4
+FROM base AS final
+WORKDIR /home/site/wwwroot
+COPY --from=publish /app/publish .
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
-
-COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
