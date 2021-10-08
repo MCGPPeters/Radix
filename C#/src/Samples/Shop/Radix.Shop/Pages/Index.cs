@@ -10,7 +10,11 @@ namespace Radix.Shop.Pages
         protected override Node View(IndexViewModel currentViewModel) =>
             concat
             (
-               
+                component<Catalog.Components.Search>
+                (
+                    new IAttribute[] { },
+                    new Node[] { }
+                )
             );
 
 

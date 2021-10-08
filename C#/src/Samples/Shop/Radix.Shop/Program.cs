@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Radix.Shop.Catalog.Components;
 using Radix.Shop.Data;
 using Radix.Shop.Pages;
 using Radix.Shop.Shared;
@@ -12,6 +13,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<NavMenuViewModel>();
 builder.Services.AddSingleton<IndexViewModel>();
+builder.Services.AddSingleton<SearchViewModel>();
 
 var app = builder.Build();
 
