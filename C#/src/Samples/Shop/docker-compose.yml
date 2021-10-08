@@ -19,8 +19,8 @@ services:
   radix.shop.catalog.search.ah:
     container_name: radix.shop.catalog.search.ah
     build:
-      context: ./Radix.Shop.Catalog.Search.AH
-      dockerfile: Dockerfile
+      context: ../../../
+      dockerfile: /src/Samples/Shop/Radix.Shop.Catalog.Search.AH/Dockerfile
   redis:
     image: "redis:alpine"
     container_name: redis.db

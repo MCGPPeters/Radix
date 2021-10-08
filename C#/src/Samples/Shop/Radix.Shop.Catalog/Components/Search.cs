@@ -2,6 +2,7 @@
 using Radix.Components.Html;
 using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
+using Radix.Shop.Catalog.Domain;
 
 namespace Radix.Shop.Catalog.Components
 {
@@ -29,6 +30,7 @@ namespace Radix.Shop.Catalog.Components
                             on.click(async _ =>
                             {
                                 currentViewModel.Products = new List<Product>();
+                                
                                 await foreach(var product in currentViewModel.Search((SearchTerm)currentViewModel.SearchTerm))
                                 {
                                     currentViewModel.Products.Add(product);

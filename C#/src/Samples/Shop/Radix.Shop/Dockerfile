@@ -8,6 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["src/Samples/Shop/Radix.Shop/Radix.Shop.csproj", "src/Samples/Shop/Radix.Shop/"]
+COPY ["src/Samples/Shop/Radix.Shop.Catalog/Radix.Shop.Catalog.csproj", "src/Samples/Shop/Radix.Shop.Catalog/"]
 COPY ["src/Radix/Radix.csproj", "src/Radix/"]
 COPY ["src/Radix.Generators/Radix.Generators.csproj", "src/Radix.Generators/"]
 COPY ["src/Radix.Components.Generators/Radix.Components.Generators.csproj", "src/Radix.Components.Generators/"]
