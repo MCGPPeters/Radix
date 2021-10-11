@@ -24,6 +24,10 @@ services:
     build:
       context: ../../../
       dockerfile: /src/Samples/Shop/Radix.Shop.Catalog.Search.AH/Dockerfile
+    expose:
+      - "80"
+    ports:
+      - "5101:80"
   redis:
     image: "redis:alpine"
     container_name: redis.db
