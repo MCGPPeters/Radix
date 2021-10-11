@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Components;
 using Radix.Components.Html;
+using Radix.Shop.Catalog.Interface.Logic.Components;
 
 namespace Radix.Shop.Pages
 {
@@ -10,7 +11,7 @@ namespace Radix.Shop.Pages
         protected override Node View(IndexViewModel currentViewModel) =>
             concat
             (
-                component<Catalog.Components.Search>
+                component<Search>
                 (
                     new IAttribute[] { },
                     new Node[] { }

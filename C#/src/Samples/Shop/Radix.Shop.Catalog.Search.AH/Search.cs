@@ -29,7 +29,7 @@ public static class Search
 
         var productElements = await page.QuerySelectorAllAsync("//*[@data-testhook='product-card']");
 
-        var products = new List<Product>();
+        var products = new List<ProductDTO>();
 
         foreach (var productElement in productElements)
         {
@@ -41,20 +41,16 @@ public static class Search
             string scrapedPriceUnits = await productPriceUnits.TextContentAsync();
             string scrapedPriceFraction = await productPriceFraction.TextContentAsync();
             string scrapedPoductTitle = await productTitle.TextContentAsync();
-            var productResult = from parsedPriceUnits in Math.Pure.Numbers.ℤ.FromString.Parse(scrapedPriceUnits)
-                                from parsedPriceFraction in Math.Pure.Numbers.ℤ.FromString.Parse(scrapedPriceFraction)
-                                select new Product(
-                                        (ProductTitle)scrapedPoductTitle,
-                                        (ProductDescription)"",
-                                        (ProductImageUri)"",
-                                        (MerchantName)merchant,
-                                        new Price((PriceUnits)parsedPriceUnits, (PriceFraction)parsedPriceFraction));
-            switch (productResult)
-            {
-                case Ok<Product, Error> product:
-                    products.Add(product);
-                    break;
-            }
+            var product = new ProductDTO
+                                {
+                                    Title = scrapedPoductTitle,
+                                    Description = "",
+                                    ImageSource = "",
+                                    MerchantName = merchant,
+                                    PriceUnits = scrapedPriceUnits,
+                                    PriceFraction = scrapedPriceFraction
+                                };
+            products.Add(product);
         }
 
         await page.CloseAsync();
