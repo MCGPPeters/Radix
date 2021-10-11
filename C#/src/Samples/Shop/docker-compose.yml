@@ -9,12 +9,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
+      - CATALOG.SEARCH.AH.URI=http://radix.shop.catalog.search.ah/api/search?searchterm= 
     ports:
       - "80"
       - "443"
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+    depends_on:
+      - radix.shop.catalog.search.ah
   # wtf : docker compose projects in vs do not support azure functions => https://github.com/microsoft/DockerTools/issues/124
   radix.shop.catalog.search.ah:
     container_name: radix.shop.catalog.search.ah
