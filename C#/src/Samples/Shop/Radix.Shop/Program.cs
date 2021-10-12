@@ -14,9 +14,6 @@ var httpClient = new HttpClient();
 
 var configureAHApiEndPoint = AH.ConfigureSetHttpClient(httpClient);
 Search<Product> searchAH = configureAHApiEndPoint(new Uri(builder.Configuration["CATALOG.SEARCH.AH.URI"]));
-
-Console.WriteLine(builder.Configuration["CATALOG.SEARCH.AH.URI"]);
-
 var searchViewModel = new SearchViewModel() { Search = Workflows.SearchAll(searchAH) };
 
 // Add services to the container.
