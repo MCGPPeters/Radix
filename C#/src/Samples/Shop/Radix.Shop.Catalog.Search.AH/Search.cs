@@ -37,6 +37,8 @@ public static class Search
             var productPriceUnits = await productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']");
             var productPriceFraction = await productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']");
             var productUnitSize = await productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']");
+            var imageElement = await productElement.QuerySelectorAsync("css=[data-testhook='product-image']");
+            var imageSource = await imageElement.GetAttributeAsync("src"); 
 
             string scrapedPriceUnits = await productPriceUnits.TextContentAsync();
             string scrapedPriceFraction = await productPriceFraction.TextContentAsync();
@@ -45,7 +47,7 @@ public static class Search
                                 {
                                     Title = scrapedPoductTitle,
                                     Description = "",
-                                    ImageSource = "",
+                                    ImageSource = imageSource,
                                     MerchantName = merchant,
                                     PriceUnits = scrapedPriceUnits,
                                     PriceFraction = scrapedPriceFraction
