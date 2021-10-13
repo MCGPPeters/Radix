@@ -32,7 +32,7 @@ namespace Radix.Shop.Shared
                             },
                             text
                             (
-                                "Radix.Shop"
+                                "tsheap"
                             )
                         ),
                         button

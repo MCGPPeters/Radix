@@ -26,6 +26,12 @@ public static class Extensions
             _ => throw new NotSupportedException()
         };
 
+    public static Option<TResult> Select<T, TResult>
+         (this Option<T> option, Func<T, TResult> f)
+        where T : notnull
+        where TResult : notnull =>
+            Map(option, f);
+
     public static Option<TResult> SelectMany<T, TIntermediate, TResult>
      (this Option<T> option, Func<T, Option<TIntermediate>> bind, Func<T, TIntermediate, TResult> project)
         where T : notnull

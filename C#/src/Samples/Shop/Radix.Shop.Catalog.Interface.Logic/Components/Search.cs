@@ -4,6 +4,7 @@ using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
 using Radix.Shop.Catalog.Domain;
 using Microsoft.AspNetCore.Components;
+using Radix.Option;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components
 {
@@ -84,17 +85,43 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                         @class("card-text"),
                                         text
                                         (
-                                            product.Price.Units.ToString()
+                                            product.Price.Units
                                         ),
                                         sup
                                         (
                                             text
                                             (
-                                                $",{product.Price.Fraction}"
+                                                product.Price.Fraction 
                                             )
+                                        ),
+                                        text
+                                        (
+                                            product.UnitOfMeasure
                                         )
-
                                     ),
+                                    //p
+                                    //(
+                                    //    @class("card-text"),
+                                    //    small
+                                    //    (
+                                    //        @class("text-muted"),
+                                    //        text
+                                    //        (
+                                    //            product.Price.Units
+                                    //        ),
+                                    //        sup
+                                    //        (
+                                    //            text
+                                    //            (
+                                    //                $",{product.Price.Fraction}"
+                                    //            )
+                                    //        ),
+                                    //        text
+                                    //        (
+                                    //            product.UnitOfMeasure
+                                    //        )
+                                    //    )
+                                    //),
                                     button
                                     (
                                         new[]
