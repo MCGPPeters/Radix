@@ -16,7 +16,7 @@ namespace Radix.Shop.Catalog.Search.AH;
 public static class Search
 {
     [FunctionName("Search")]
-    public static async Task<IActionResult> Run(
+    public static async IAsyncEnumerable<ProductDTO> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
         ILogger log)
     {
@@ -36,24 +36,8 @@ public static class Search
         await page.GotoAsync($"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(req.Query["searchTerm"])}");
 
         var productElements = await page.QuerySelectorAllAsync("//*[@data-testhook='product-card']");
-        
 
-        var products = new List<ProductDTO>();
-        var tasks = productElements.Select(productElement => ScrapeProduct(productElement, merchant, products));
-
-        await Task.WhenAll(tasks);
-
-        await page.CloseAsync();
-
-        // Stop tracing and export it into a zip archive.
-        await context.Tracing.StopAsync(new TracingStopOptions
-        {
-            Path = "trace.zip"
-        });
-
-        return new OkObjectResult(products);
-
-        static async Task ScrapeProduct(IElementHandle productElement, string merchant, List<ProductDTO> products)
+        foreach (var productElement in productElements)
         {
             Task<IElementHandle> getProductTitle = productElement.QuerySelectorAsync("css=[data-testhook='product-title']");
             Task<IElementHandle> getPriceUnits = productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']");
@@ -61,7 +45,7 @@ public static class Search
             Task<IElementHandle> getUnitSize = productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']");
             Task<IElementHandle> getImageSource = productElement.QuerySelectorAsync("css=[data-testhook='product-image']");
 
-            // await Task.WhenAll(getImageSource, getPriceFraction, getUnitSize, getPriceUnits, getProductTitle);
+            await Task.WhenAll(getImageSource, getPriceFraction, getUnitSize, getPriceUnits, getProductTitle);
 
             var productTitle = await getProductTitle;
             var productPriceUnits = await getPriceUnits;
@@ -83,7 +67,7 @@ public static class Search
                 scrapedUnitOfMeasure = scrapedUnitSizeParts[1];
             }
 
-            var product =
+            var productDTO =
                 new ProductDTO
                 {
                     Title = scrapedProductTitle,
@@ -95,7 +79,16 @@ public static class Search
                     UnitSize = scrapedUnitSize,
                     UnitOfMeasure = scrapedUnitOfMeasure
                 };
-            products.Add(product);
+
+            yield return productDTO;
         }
+
+        await page.CloseAsync();
+
+        // Stop tracing and export it into a zip archive.
+        await context.Tracing.StopAsync(new TracingStopOptions
+        {
+            Path = "trace.zip"
+        });y            
     }
 }
