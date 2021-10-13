@@ -10,20 +10,26 @@ using System.Collections.Generic;
 using Radix.Result;
 using static Radix.Result.Extensions;
 using System.Linq;
+using Microsoft.Extensions.ObjectPool;
 
 namespace Radix.Shop.Catalog.Search.AH;
 
+
 public static class Search
 {
+
+    private static IPlaywright s_playwright;
+    private static IBrowser s_browser;
+
     [FunctionName("Search")]
     public static async IAsyncEnumerable<ProductDTO> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
         ILogger log)
     {
 
-        using var playwright = await Playwright.CreateAsync();
-        await using var browser = await playwright.Firefox.LaunchAsync(new BrowserTypeLaunchOptions {  });
-        var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+        if (s_playwright is null) s_playwright = await Playwright.CreateAsync();
+        if (s_browser is null) s_browser = await s_playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { });
+        var context = await s_browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         const string merchant = "Albert Heijn";
 
         await context.Tracing.StartAsync(new TracingStartOptions
@@ -89,6 +95,6 @@ public static class Search
         await context.Tracing.StopAsync(new TracingStopOptions
         {
             Path = "trace.zip"
-        });         
+        });            
     }
 }
