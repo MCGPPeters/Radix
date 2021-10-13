@@ -89,6 +89,6 @@ public static class Search
         await context.Tracing.StopAsync(new TracingStopOptions
         {
             Path = "trace.zip"
-        });y            
+        });         
     }
 }
