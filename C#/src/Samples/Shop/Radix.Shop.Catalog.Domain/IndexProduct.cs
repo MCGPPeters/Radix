@@ -5,7 +5,7 @@ using static Radix.Option.Extensions;
 
 namespace Radix.Shop.Catalog.Domain;
 
-public class ProductDTO
+public class IndexProduct
 {
     public string Title { get; set; }
     public string Description { get; set; }
@@ -19,7 +19,7 @@ public class ProductDTO
         
 public static class Extensions
 {
-    public static Product ToProduct(this ProductDTO productDTO)
+    public static Product ToProduct(this IndexProduct productDTO)
     {
         //var unitPrice = from unitSize in productDTO.UnitSize.AsOption()
         //                from priceUnits in productDTO.PriceUnits.AsOption()

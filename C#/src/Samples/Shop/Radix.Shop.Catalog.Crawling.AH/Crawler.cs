@@ -15,14 +15,14 @@ using Microsoft.Extensions.ObjectPool;
 namespace Radix.Shop.Catalog.Search.AH;
 
 
-public static class Search
+public static class Crawler
 {
 
     private static IPlaywright s_playwright;
     private static IBrowser s_browser;
 
-    [FunctionName("Search")]
-    public static async IAsyncEnumerable<ProductDTO> Run(
+    [FunctionName("crawl")]
+    public static async Task Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
         ILogger log)
     {
@@ -39,9 +39,10 @@ public static class Search
         });
 
         var page = await context.NewPageAsync();
-        await page.GotoAsync($"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(req.Query["searchTerm"])}");
-
+        await page.GotoAsync($"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(req.Query["searchTerm"])}&page=82");
         var productElements = await page.QuerySelectorAllAsync("//*[@data-testhook='product-card']");
+
+        var products = new List<IndexProduct>();
 
         foreach (var productElement in productElements)
         {
@@ -73,8 +74,8 @@ public static class Search
                 scrapedUnitOfMeasure = scrapedUnitSizeParts[1];
             }
 
-            var productDTO =
-                new ProductDTO
+            var indexedProduct =
+                new IndexProduct
                 {
                     Title = scrapedProductTitle,
                     Description = "",
@@ -86,7 +87,7 @@ public static class Search
                     UnitOfMeasure = scrapedUnitOfMeasure
                 };
 
-            yield return productDTO;
+            products.Add(indexedProduct);
         }
 
         await page.CloseAsync();

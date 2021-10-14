@@ -11,17 +11,18 @@
     <ItemGroup>
       <_BuildCopyItems Include="$(OutDir).playwright\**" />
     </ItemGroup>
-    <Message Text="[Fix] Copying files to the nested bin folder of the azure function... $(OutDir)bin" Importance="high"/>
-    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(OutDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Message Text="[Fix] Copying files to the nested bin folder of the azure function... $(OutDir)bin" Importance="high" />
+    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(OutDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
   <Target Name="FixPlaywrightCopyAfterPublish" AfterTargets="Publish">
     <ItemGroup>
       <_BuildCopyItems Include="$(PublishDir).playwright\**" />
     </ItemGroup>
-    <Message Text="[Fix] Copying files to the nested bin folder of the azure function for publishing... $(PublishDir)bin" Importance="high"/>
-    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(PublishDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Message Text="[Fix] Copying files to the nested bin folder of the azure function for publishing... $(PublishDir)bin" Importance="high" />
+    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(PublishDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
   <ItemGroup>
+    <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.0-preview2" />
     <PackageReference Include="Microsoft.Playwright" Version="1.15.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />

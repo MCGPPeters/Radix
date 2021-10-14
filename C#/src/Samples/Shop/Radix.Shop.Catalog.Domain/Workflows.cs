@@ -46,7 +46,7 @@ public static class AH
     {
         var searchQuery = $"{uri}{searchTerm}";
         var response = await httpClient.GetStreamAsync(searchQuery).ConfigureAwait(false);
-        IAsyncEnumerable<ProductDTO?> products = JsonSerializer.DeserializeAsyncEnumerable<ProductDTO>(response, new JsonSerializerOptions { DefaultBufferSize = 128, PropertyNameCaseInsensitive = true });
+        IAsyncEnumerable<IndexProduct?> products = JsonSerializer.DeserializeAsyncEnumerable<IndexProduct>(response, new JsonSerializerOptions { DefaultBufferSize = 128, PropertyNameCaseInsensitive = true });
         await foreach (var productDTO in products)
         {
             if (productDTO is not null) yield return productDTO.ToProduct();
