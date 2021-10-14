@@ -31,11 +31,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "src\Rad
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{8851DE31-86D2-4B8F-912A-E1869BA7ACFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Search.AH", "src\Samples\Shop\Radix.Shop.Catalog.Search.AH\Radix.Shop.Catalog.Search.AH.csproj", "{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Crawling.AH", "src\Samples\Shop\Radix.Shop.Catalog.Crawling.AH\Radix.Shop.Catalog.Crawling.AH.csproj", "{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Domain", "src\Samples\Shop\Radix.Shop.Catalog.Domain\Radix.Shop.Catalog.Domain.csproj", "{7E55398E-ACB6-4050-BCFD-A1E82CD48F97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Shop.Catalog.Interface.Logic", "src\Samples\Shop\Radix.Shop.Catalog.Interface.Logic\Radix.Shop.Catalog.Interface.Logic.csproj", "{13713E55-897F-4F52-B017-6AC9D898F125}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Interface.Logic", "src\Samples\Shop\Radix.Shop.Catalog.Interface.Logic\Radix.Shop.Catalog.Interface.Logic.csproj", "{13713E55-897F-4F52-B017-6AC9D898F125}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
