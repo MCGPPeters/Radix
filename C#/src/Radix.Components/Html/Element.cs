@@ -1,4 +1,6 @@
-﻿namespace Radix.Components.Html;
+﻿using Microsoft.AspNetCore.Components;
+
+namespace Radix.Components.Html;
 
 public class Element : Node
 {
@@ -17,6 +19,7 @@ public class Element : Node
     {
     }
 
+    public ElementReference ElementReference { get; set; }
     public string Name { get; }
     public IEnumerable<IAttribute> Attributes { get; }
     public IEnumerable<Node> Children { get; }

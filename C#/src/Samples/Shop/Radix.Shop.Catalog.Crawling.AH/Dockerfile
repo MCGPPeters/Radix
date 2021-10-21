@@ -63,16 +63,16 @@ RUN npm install -g npm@7
 RUN apt-get update && apt-get install -y --no-install-recommends git ssh && \
     npm install -g yarn
 
-COPY ["/src/Samples/Shop/Radix.Shop.Catalog.Search.AH/Radix.Shop.Catalog.Search.AH.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Search.AH/"]
+COPY ["/src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/Radix.Shop.Catalog.Crawling.AH.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/"]
 COPY ["/src/Radix/Radix.csproj", "src/Radix/"]
-RUN dotnet restore "src/Samples/Shop/Radix.Shop.Catalog.Search.AH/Radix.Shop.Catalog.Search.AH.csproj"
+RUN dotnet restore "src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/Radix.Shop.Catalog.Crawling.AH.csproj"
 COPY . .
-WORKDIR "/src/src/Samples/Shop/Radix.Shop.Catalog.Search.AH"
-RUN dotnet tool install --global Microsoft.Playwright.CLI && dotnet build "Radix.Shop.Catalog.Search.AH.csproj" -c Debug -o /app/build
+WORKDIR "/src/src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH"
+RUN dotnet tool install --global Microsoft.Playwright.CLI && dotnet build "Radix.Shop.Catalog.Crawling.AH.csproj" -c Debug -o /app/build
 RUN npx playwright install --with-deps
 
 FROM build AS publish
-RUN dotnet publish "Radix.Shop.Catalog.Search.AH.csproj" -c Debug -o /app/publish
+RUN dotnet publish "Radix.Shop.Catalog.Crawling.AH.csproj" -c Debug -o /app/publish
 
 FROM base AS final
 WORKDIR /home/site/wwwroot

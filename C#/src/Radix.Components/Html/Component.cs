@@ -1,6 +1,8 @@
-﻿namespace Radix.Components.Html;
+﻿using Microsoft.AspNetCore.Components;
 
-public record Component(Type Type, IEnumerable<IAttribute> Attributes, IEnumerable<Node> Children) : Node;
+namespace Radix.Components.Html;
+
+public record Component(Type Type, IEnumerable<IAttribute> Attributes, IEnumerable<Node> Children) : Node { }
 
 public delegate Component component(IAttribute[] attributes, params Node[] children);
 

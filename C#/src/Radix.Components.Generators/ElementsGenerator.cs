@@ -13,16 +13,16 @@ namespace Radix.Components.Generators
     {
         private string GetElementMethods(string tagName) =>
             $@"
-                public static Node {tagName}(params Node[] nodes) =>
+                public static Element {tagName}(params Node[] nodes) =>
                     element(nameof({tagName}), Array.Empty<IAttribute>(), nodes);
 
-                public static Node {tagName}(params IAttribute[] attributes) =>
+                public static Element {tagName}(params IAttribute[] attributes) =>
                     element(nameof({tagName}), attributes, Array.Empty<Node>());
 
-                public static Node {tagName}(IEnumerable<IAttribute> attributes, params Node[] children) =>
+                public static Element {tagName}(IEnumerable<IAttribute> attributes, params Node[] children) =>
                     element(nameof({tagName}), attributes, children);
 
-                public static Node {tagName}(IAttribute attribute, params Node[] children) =>
+                public static Element {tagName}(IAttribute attribute, params Node[] children) =>
                     element(nameof({tagName}), new []{{ attribute }}, children);
             ";
 

@@ -1,6 +1,6 @@
-﻿namespace Radix.Components.Html;
+﻿using Microsoft.AspNetCore.Components;
+
+namespace Radix.Components.Html;
 
 [Alias<string>]
-public partial struct HtmlString : Node
-{
-}
+public partial struct HtmlString : Node { }

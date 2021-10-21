@@ -15,10 +15,10 @@ public partial struct MerchantName { }
 [Alias<string>]
 public partial struct MerchantSearchUri { }
 
-[Alias<string>]
+[Alias<int>]
 public partial struct PriceUnits { }
 
-[Alias<string>]
+[Alias<int>]
 public partial struct PriceFraction { }
 
 [Alias<string>]

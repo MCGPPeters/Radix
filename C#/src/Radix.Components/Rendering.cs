@@ -27,17 +27,21 @@ public static class Rendering
 
                 return sequence;
             case Element element:
-                builder.OpenElement(sequence, element.Name);
-                sequence += 1;
+                builder.OpenRegion(sequence++);
+                int innerSequence = 0;
+                builder.OpenElement(innerSequence, element.Name);
+                
                 sequence = RenderAttributes(currentComponent, builder, sequence, element.Attributes);
-
                 foreach (Node elementChild in element.Children)
                 {
-                    RenderNode(currentComponent, builder, sequence, elementChild);
-                    sequence++;
+                    RenderNode(currentComponent, builder, innerSequence, elementChild);
+                    innerSequence++;
                 }
-
+                
+                builder.AddElementReferenceCapture(int.MaxValue, __elementReference => element.ElementReference = __elementReference);
+                
                 builder.CloseElement();
+                builder.CloseRegion();
                 return sequence;
             case Component component:
                 builder.OpenComponent(sequence, component.Type);

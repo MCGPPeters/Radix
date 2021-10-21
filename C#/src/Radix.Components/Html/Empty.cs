@@ -1,5 +1,5 @@
-﻿namespace Radix.Components.Html;
+﻿using Microsoft.AspNetCore.Components;
 
-public class Empty : Node
-{
-}
+namespace Radix.Components.Html;
+
+public class Empty : Node { }
