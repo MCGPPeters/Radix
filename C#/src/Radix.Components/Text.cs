@@ -1,10 +1,9 @@
-﻿using Radix.Components.Html;
+﻿using Microsoft.AspNetCore.Components;
+using Radix.Components.Html;
 
 namespace Radix.Components;
 
 
 [Alias<string>]
 
-public partial struct Text : Node
-{
-};
+public partial struct Text : Node { };

@@ -8,9 +8,11 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..\..</DockerfileContext>
     <LangVersion>Preview</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
   </ItemGroup>
 
@@ -23,6 +25,7 @@
     <ProjectReference Include="..\..\..\Radix.Generators\Radix.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\..\Radix.Components.Generators\Radix.Components.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Interface.Logic\Radix.Shop.Catalog.Interface.Logic.csproj" />
+    <ProjectReference Include="..\Radix.Shop.Catalog.Search\Radix.Shop.Catalog.Search.csproj" />
 
   </ItemGroup>
 </Project>

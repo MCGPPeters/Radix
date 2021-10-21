@@ -11,68 +11,96 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
     [Route("/catalog/search")]
     public class Search : Component<SearchViewModel>
     {
+        private Element? _searchInput;
 
-        protected override Node View(SearchViewModel currentViewModel) =>
-            concat
-            (
-                div
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (_searchInput is not null && firstRender) _searchInput.ElementReference.FocusAsync();
+        }
+
+        protected override Node View(SearchViewModel currentViewModel)
+        {
+            _searchInput =
+                input
                 (
-                    @class("input-group"),
-                    input
-                    (
-                        @class("form-control"),
-                        placeholder("What are you looking for?"),
-                        bind.input(currentViewModel.SearchTerm, searchTerm => currentViewModel.SearchTerm = searchTerm)
-                    ),
-                    button
-                    (
-                        new[]
-                        {
-                            @class("btn btn-primary"),
-                            type("button"),
-                            on.click(async _ =>
-                            {
-                                currentViewModel.Products = new List<Product>();
+                    @class("form-control"),
+                    placeholder("What are you looking for?"),
+                    autocomplete("off"),
+                    autocapitalize("off"),
+                    attribute("aria-label", "search"),
+                    type("text"),
+                    spellcheck("false"),
+                    attribute("role", "textbox"),
 
-                                await foreach(var product in currentViewModel.Search((SearchTerm)currentViewModel.SearchTerm))
-                                {
-                                    currentViewModel.Products.Add(product);
-                                    StateHasChanged();
-                                }
-                            })
-                        },
-                        text
+                    bind.input(currentViewModel.SearchTerm, searchTerm => currentViewModel.SearchTerm = searchTerm)
+                );
+
+            return concat
+            (
+                form
+                (
+                    attribute("onsubmit", "return false"),
+                    div
+                    (
+                        @class("input-group"),
+                        _searchInput,
+                        button
                         (
-                            "Search"
+                            new[]
+                            {
+                                @class("btn btn-primary"),
+                                type("submit"),
+
+                                on.click(async args =>
+                                {
+                                    currentViewModel.Products = new List<Product>();
+
+                                    await foreach(var product in currentViewModel.Search((SearchTerm)currentViewModel.SearchTerm))
+                                    {
+                                        currentViewModel.Products.Add(product);
+                                        StateHasChanged();
+                                    };
+
+                                    await currentViewModel.CrawlingMessageChannel.Writer.WriteAsync((SearchTerm)currentViewModel.SearchTerm);
+                                })
+                            },
+                            text
+                            (
+                                "Search"
+                            )
                         )
                     )
                 ),
                 div
                 (
-                    @class("row"),
+                    @class("row row-cols-auto g-1 "),
                     currentViewModel.Products.Select(product =>
                         div
                         (
-                            @class("col"),
+                            @class("col-md-3"),
                             div
                             (
                                 new[]
                                 {
-                                    @class("card"),
-                                    attribute("style", "width: 18rem;"),
+                                    @class("card p-3")
                                 },
-                                img
+                                div
                                 (
-                                    new[]
-                                    {
-                                        @class("card-img-top"),
-                                        src(product.ImageSource)
-                                    }
+                                    @class("text-center"),
+                                    img
+                                    (
+                                        new[]
+                                        {
+                                            @class("card-img-top"),
+                                            src(product.ImageSource),
+                                            width("200")
+                                        }
+                                    )
                                 ),
                                 div
                                 (
                                     @class("card-body"),
-                                    h5
+                                    h6
                                     (
                                         @class("card-title"),
                                         text
@@ -83,22 +111,27 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                     p
                                     (
                                         @class("card-text"),
-                                        text
+                                        span
                                         (
-                                            product.Price.Units
-                                        ),
-                                        sup
-                                        (
+                                            @class("font-weight-bold d-block"),
                                             text
                                             (
-                                                product.Price.Fraction 
+                                                product.PriceUnits.ToString()
+                                            ),
+                                            sup
+                                            (
+                                                text
+                                                (
+                                                    product.PriceFraction.ToString() + " "
+                                                )
                                             )
                                         ),
                                         text
                                         (
                                             product.UnitOfMeasure
                                         )
-                                    ),
+                                        
+                                    )
                                     //p
                                     //(
                                     //    @class("card-text"),
@@ -122,23 +155,13 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                     //        )
                                     //    )
                                     //),
-                                    button
-                                    (
-                                        new[]
-                                        {
-                                            @class("btn btn-primary"),
-                                            on.click(_ => throw new NotImplementedException())
-                                        },
-                                        text
-                                        (
-                                            "Add to basket"
-                                        )
-                                    )
+                                    
                                 )
                             )
                         )
                     ).ToArray()
                 )
             );
+        }
     }
 }

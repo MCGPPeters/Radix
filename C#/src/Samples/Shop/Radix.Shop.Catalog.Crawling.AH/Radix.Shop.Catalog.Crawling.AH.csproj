@@ -2,10 +2,12 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
+    <!--<DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..</DockerfileContext>
+    <DockerfileContext>..\..\..\..</DockerfileContext>-->
     <LangVersion>preview</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <Target Name="FixPlaywrightCopyAfterBuild" AfterTargets="Build">
     <ItemGroup>
@@ -22,7 +24,19 @@
     <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(PublishDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
   <ItemGroup>
+    <None Remove="local.settings.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.5" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.0-preview2" />
     <PackageReference Include="Microsoft.Playwright" Version="1.15.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
@@ -30,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Domain\Radix.Shop.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\Radix.Shop.Catalog.Search\Radix.Shop.Catalog.Search.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -39,5 +54,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\ServiceDependencies\" />
   </ItemGroup>
 </Project>
