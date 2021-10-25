@@ -59,7 +59,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                     (
                         new[]
                         {
-                            @class("mdc-text-field mdc-text-field--with-leading-icon"),
+                            @class("mdc-text-field mdc-textfield--fullwidth mdc-text-field--with-leading-icon"),
                                                 attribute("style", "width:100%"),
                         },
                         span

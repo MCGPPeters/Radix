@@ -86,7 +86,7 @@ public class Crawler
             // make sure to create a hash per merchant
             byte[] titleBytes = System.Text.Encoding.UTF8.GetBytes(scrapedProductTitle + merchant);
             using var stream = new MemoryStream(titleBytes);
-            if (s_fnv is null) s_fnv = FNV1aFactory.Instance.Create(FNVConfig.GetPredefinedConfig(32));
+            var s_fnv = FNV1aFactory.Instance.Create(FNVConfig.GetPredefinedConfig(32));
             var hash = await s_fnv.ComputeHashAsync(stream);
 
             var product =
