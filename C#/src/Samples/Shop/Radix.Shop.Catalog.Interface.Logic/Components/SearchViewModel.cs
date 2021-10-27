@@ -15,4 +15,16 @@ public record SearchViewModel : ViewModel
 
     public Search<Product> Search { get; set; }
     public Channel<SearchTerm> CrawlingMessageChannel { get; }
+
+    public async Task ExecuteSearch()
+    {
+        Products = new List<Product>();
+
+        await foreach (var product in Search((SearchTerm)SearchTerm))
+        {
+            Products.Add(product);
+        };
+
+        await CrawlingMessageChannel.Writer.WriteAsync((SearchTerm)SearchTerm);
+    }
 }

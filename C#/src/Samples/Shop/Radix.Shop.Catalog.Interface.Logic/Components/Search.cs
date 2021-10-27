@@ -15,7 +15,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (_searchInput is not null && firstRender) _searchInput.ElementReference.FocusAsync();
+            if (_searchInput is not null && firstRender) await _searchInput.ElementReference.FocusAsync();
         }
 
         protected override Node View(SearchViewModel currentViewModel)
@@ -23,7 +23,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
             _searchInput =
                 input
                 (
-                    @class("form-control w-100"),
+                    @class("form-control"),
                     placeholder("Search for products"),
                     autocomplete("off"),
                     autocapitalize("off"),
@@ -31,22 +31,14 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                     type("text"),
                     spellcheck("false"),
                     attribute("role", "textbox"),
-                    attribute("style", "padding-left: 2.5rem; width: 100% !important"),
 
                     bind.input(currentViewModel.SearchTerm, searchTerm => currentViewModel.SearchTerm = searchTerm),
                     on.keydown(async args =>
                     {
                         if (args.Key == "Enter")
                         {
-                            currentViewModel.Products = new List<Product>();
-
-                            await foreach (var product in currentViewModel.Search((SearchTerm)currentViewModel.SearchTerm))
-                            {
-                                currentViewModel.Products.Add(product);
-                                StateHasChanged();
-                            };
-
-                            await currentViewModel.CrawlingMessageChannel.Writer.WriteAsync((SearchTerm)currentViewModel.SearchTerm);
+                            await currentViewModel.ExecuteSearch();
+                            StateHasChanged();
                         }
                     })
                 );
@@ -59,7 +51,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                     @class("bg-light shadow-sm fixed-top data-fixed-element"),
                     div
                     (
-                        @class("navbar navbar-expand-lg navbar-light"),
+                        @class("navbar navbar-expand-lg navbar-light shadow"),
                         div
                         (
                             @class("container-fluid"),
@@ -80,9 +72,22 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                             (
                                 @class("input-group"),
                                 _searchInput,
-                                i
+                                button
                                 (
-                                    @class("position-absolute top-50 end-10 translate-middle-y ms-3 fa fa-search")
+                                    new[]
+                                    {
+                                        @class("btn btn-large btn-primary"),
+                                        type("button"),
+                                        on.click(async _ =>
+                                        {
+                                            await currentViewModel.ExecuteSearch();
+                                        StateHasChanged();
+                                        })
+                                    },                                    
+                                    i
+                                    (
+                                        @class("bi bi-search")
+                                    )
                                 )
                             )
                         )
@@ -92,15 +97,14 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                 (
                     new[]
                     {
-                        @class("pt-5"),
-                        attribute("style", "padding-top: 5rem")
+                        @class("pt-5")
                     },
                     section
                     (
                         @class("ps-lg-4 pe-lg-3 pt-4"),
                         div
                         (
-                            @class("row g-0 mx-n2"),
+                            @class("row row-cols-2 row-cols-md-4 row-cols-lg-6 g-0 mx-n2"),
                             currentViewModel.Products.Select
                             (
                                 product =>
@@ -108,19 +112,29 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                     return
                                     div
                                     (
-                                        @class("col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 px-2 mb-3"),
+                                        @class("col g-4"),
                                         div
                                         (
                                             new[]
                                             {
-                                                @class("card"),
-                                                attribute("style", "border:0; transition: all .15s ease-in-out")
+                                                @class("card shadow-sm"),
+                                                id("product-card"),
+                                                attribute("style", "border:0; transition: all .15s ease-in-out"),
+                                                
                                             },
+                                            style
+                                            (
+                                                text
+                                                (
+                                                    "#product-card:hover #product-title { text-overflow: initial; overflow: initial; white-space: initial;}" +
+                                                    "#product-card:hover { transform: scale(1.05); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;"
+                                                )
+                                            ),
                                             img
                                             (
                                                 new[]
                                                 {
-                                                    @class("card-img-top d-block overflow-hidden"),
+                                                    @class("card-img-top d-block overflow-hidden p-3"),
                                                     src(product.ImageSource)
                                                 }
                                                     
@@ -128,34 +142,46 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                             div
                                             (
                                                 @class("card-body py-2"),
-                                                h6
-                                                (
-                                                    @class("text-truncate"),
-                                                    small
-                                                    (
-                                                        @class("text-muted"),
-                                                        text
-                                                        (
-                                                            product.Title + $" ({product.UnitSize} {product.UnitOfMeasure})"
-                                                        )
-                                                    )
-                                                ),
                                                 div
                                                 (
-                                                    span
+                                                    @class("d-flex align-items-center justify-content-between"),
+                                                    div
+                                                    (
+                                                        span
+                                                        (
+                                                            @class("text-accent"),
+                                                            text
+                                                            (
+                                                                product.PriceUnits.ToString() + "."
+                                                            ),
+                                                            sup
+                                                            (
+                                                                text
+                                                                (
+                                                                    product.PriceFraction.ToString() + " "
+                                                                )
+                                                            )
+                                                        )
+                                                    ),
+                                                    div
                                                     (
                                                         @class("text-accent"),
                                                         text
                                                         (
-                                                            product.PriceUnits.ToString() + "."
-                                                        ),
-                                                        sup
-                                                        (
-                                                            text
-                                                            (
-                                                                product.PriceFraction.ToString() + " "
-                                                            )
+                                                            $"{product.UnitSize} {product.UnitOfMeasure}"
                                                         )
+                                                    )
+                                                ),
+                                                h6
+                                                (
+                                                    new[]
+                                                    {
+                                                        @class("text-truncate card-title"),
+                                                        id("product-title")
+                                                    },
+                                                    text
+                                                    (
+                                                        product.Title
                                                     )
                                                 )
                                             )
@@ -380,5 +406,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
             //)
             //    ); ;
         }
+
+        
     }
 }
