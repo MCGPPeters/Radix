@@ -60,8 +60,9 @@ public class Crawler
             using Task<IElementHandle> getPriceFraction = productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']");
             using Task<IElementHandle> getUnitSize = productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']");
             using Task<IElementHandle> getImageSource = productElement.QuerySelectorAsync("css=[data-testhook='product-image']");
+            using Task<IElementHandle> getDetailsPageUrl = productElement.QuerySelectorAsync("css=a:first-child");
 
-            await Task.WhenAll(getImageSource, getPriceFraction, getUnitSize, getPriceUnits, getProductTitle);
+            await Task.WhenAll(getImageSource, getPriceFraction, getUnitSize, getPriceUnits, getProductTitle, getDetailsPageUrl);
 
             var productTitle = await getProductTitle.ConfigureAwait(false);
             var productPriceUnits = await getPriceUnits.ConfigureAwait(false);
@@ -69,6 +70,9 @@ public class Crawler
             var unitSize = await getUnitSize.ConfigureAwait(false);
             var imageElement = await getImageSource.ConfigureAwait(false);
             var imageSource = await imageElement.GetAttributeAsync("src").ConfigureAwait(false);
+            var detailsPageLink = await getDetailsPageUrl.ConfigureAwait(false);
+            var detailsPageUrl = await detailsPageLink.GetAttributeAsync("href").ConfigureAwait(false);
+            var id = detailsPageUrl?.Split("/")[3] ?? "";
 
             string scrapedPriceUnits = await productPriceUnits.TextContentAsync().ConfigureAwait(false) ?? "";
             string scrapedPriceFraction = await productPriceFraction.TextContentAsync().ConfigureAwait(false) ?? "";
@@ -83,18 +87,19 @@ public class Crawler
                 scrapedUnitOfMeasure = scrapedUnitSizeParts[1] is not null ? scrapedUnitSizeParts[1] : "";
             }
 
-            // make sure to create a hash per merchant
-            byte[] titleBytes = System.Text.Encoding.UTF8.GetBytes(scrapedProductTitle + merchant);
-            using var stream = new MemoryStream(titleBytes);
-            var s_fnv = FNV1aFactory.Instance.Create(FNVConfig.GetPredefinedConfig(32));
-            var hash = await s_fnv.ComputeHashAsync(stream);
+            await using var detailsContext = await Browser.NewContextAsync(new BrowserNewContextOptions { }).ConfigureAwait(false);
+            var detailsPage = await detailsContext.NewPageAsync().ConfigureAwait(false);
+            await detailsPage.GotoAsync($"https://www.ah.nl{detailsPageUrl}", new PageGotoOptions { });
+            var descriptionElement = await detailsPage.QuerySelectorAsync("css=[data-testhook='product-summary']");
+            var description = await descriptionElement.TextContentAsync() ?? string.Empty;
+            await  detailsContext.CloseAsync().ConfigureAwait(false);
 
             var product =
                 new Product
                 {
-                    Id = hash.AsHexString(),
+                    Id = id,
                     Title = (ProductTitle)scrapedProductTitle,
-                    Description = (ProductDescription)"",
+                    Description = (ProductDescription)description,
                     ImageSource = (ProductImageUri)imageSource,
                     MerchantName = (MerchantName)merchant,
                     PriceUnits = (PriceUnits)int.Parse(scrapedPriceUnits),
@@ -103,12 +108,8 @@ public class Crawler
                     UnitOfMeasure = scrapedUnitOfMeasure
                 };
 
-            products.Add(product);
+            IndexDocumentsAction.Upload(product.ToIndexableProduct());
         }
-
-      IndexDocumentsBatch<IndexableProduct> batch =
-            IndexDocumentsBatch.Create(products.Select(product => IndexDocumentsAction.Upload(product.ToIndexableProduct())).ToArray());
-        IndexDocumentsResult result = SearchClient.SearchClient.IndexDocuments(batch);
 
         await page.CloseAsync();          
     }
