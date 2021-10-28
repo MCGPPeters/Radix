@@ -20,11 +20,11 @@ public record SearchViewModel : ViewModel
     {
         Products = new List<Product>();
 
+        await CrawlingMessageChannel.Writer.WriteAsync((SearchTerm)SearchTerm);
+
         await foreach (var product in Search((SearchTerm)SearchTerm))
         {
             Products.Add(product);
         };
-
-        await CrawlingMessageChannel.Writer.WriteAsync((SearchTerm)SearchTerm);
     }
 }
