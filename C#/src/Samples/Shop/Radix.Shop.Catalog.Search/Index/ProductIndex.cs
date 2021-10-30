@@ -10,7 +10,7 @@ namespace Radix.Shop.Catalog.Search.Index
             var fieldBuilder = new FieldBuilder();
             IList<SearchField>? searchFields = fieldBuilder.Build(typeof(IndexableProduct));
 
-            var definition = new SearchIndex(searchIndexName, searchFields);
+            var definition = new SearchIndex(searchIndexName.Value, searchFields);
 
             var suggester = new SearchSuggester("sg", new[] { nameof(IndexableProduct.Title), nameof(IndexableProduct.Description) });
             definition.Suggesters.Add(suggester);

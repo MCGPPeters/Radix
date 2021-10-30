@@ -24,7 +24,7 @@ public class AliasGenerator : ISourceGenerator
             var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
             foreach (var attribute in attributes)
             {
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, attributeSymbol, candidate);
+                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, candidate);
                 context.AddSource(
                     $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_alias",
                     SourceText.From(classSource, Encoding.UTF8));
@@ -45,8 +45,7 @@ public class AliasGenerator : ISourceGenerator
         Debug.WriteLine("Initalize code generator");
     }
 
-    internal static string ProcessType(string valueType, ISymbol typeSymbol, ISymbol attributeSymbol,
-           TypeDeclarationSyntax typeDeclarationSyntax)
+    internal static string ProcessType(string valueType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return null;
