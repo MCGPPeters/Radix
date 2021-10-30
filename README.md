@@ -23,9 +23,3 @@ However, as mentioned in the intro, the generalized library for building event s
 # Status
 
 A working of version of the event sourcing library is done. Most focus in on trying to build more tests, sample applications, docs and produce alpha NuGet package versions of the C# libraries. Work on essential components for creating probabilistic systems and basic RL has started as well.
-
-# JetBrains support
-
-I would like to thank the people at JetBrains for supporting this project with open source licenses of all their products.
-
-[![Foo](https://raw.githubusercontent.com/MCGPPeters/Radix/develop/jetbrains.svg)](https://www.jetbrains.com/?from=Radix)
