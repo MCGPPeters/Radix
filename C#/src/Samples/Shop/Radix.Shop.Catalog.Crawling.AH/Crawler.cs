@@ -1,19 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Radix.Shop.Catalog.Domain;
 using Microsoft.Playwright;
-using System.Collections.Generic;
 using Azure.Search.Documents.Models;
-using System.Linq;
 using Radix.Shop.Catalog.Search.Index;
-using Microsoft.Extensions.Configuration;
 using Radix.Shop.Catalog.Search;
 using System;
-using System.IO;
-using System.Data.HashFunction.FNV;
 
 namespace Radix.Shop.Catalog.Crawling.AH;
 
@@ -21,20 +14,12 @@ namespace Radix.Shop.Catalog.Crawling.AH;
 public class Crawler
 {
 
-    public static IBrowser Browser { get; set; }
-    public static IBrowserContext Context { get; private set; }
-
-    private static Search.Client SearchClient;
-    private static IFNV1a s_fnv;
+    public static IBrowser? Browser { get; set; }
+    public static IBrowserContext? Context { get; private set; }
 
     [FunctionName("crawl")]
-    public async Task Run([QueueTrigger("stq-radix-samples-shop-catalog-ah-searchterms", Connection = "AH_CONNECTION_STRING")]string searchTerm, ILogger log)
+    public static async Task Run([QueueTrigger("stq-radix-samples-shop-catalog-ah-searchterms", Connection = "AH_CONNECTION_STRING")]string searchTerm, ILogger log)
     {
-        var searchServiceName = (SearchServiceName)Environment.GetEnvironmentVariable(Constants.SearchServiceName);
-        var searchApiKey = (SearchApiKey)Environment.GetEnvironmentVariable(Constants.SearchApiKey);
-        var searchIndexName = (SearchIndexName)Environment.GetEnvironmentVariable(Constants.SearchIndexName);
-
-        if (SearchClient is null) SearchClient = Search.Client.Create(new Search.ClientSettings(searchServiceName, searchApiKey,searchIndexName));
         if (Browser is null)
         {
             IPlaywright? playwright = await Playwright.CreateAsync();
@@ -51,16 +36,14 @@ public class Crawler
         await page.GotoAsync($"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(searchTerm)}&page={numberOfPagesToCrawl}", new PageGotoOptions { Timeout = 0 });
         var productElements = await page.QuerySelectorAllAsync("//*[@data-testhook='product-card']");
 
-        var products = new List<Product>();
-
         foreach (var productElement in productElements)
         {
-            using Task<IElementHandle> getProductTitle = productElement.QuerySelectorAsync("css=[data-testhook='product-title']");
-            using Task<IElementHandle> getPriceUnits = productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']");
-            using Task<IElementHandle> getPriceFraction = productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']");
-            using Task<IElementHandle> getUnitSize = productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']");
-            using Task<IElementHandle> getImageSource = productElement.QuerySelectorAsync("css=[data-testhook='product-image']");
-            using Task<IElementHandle> getDetailsPageUrl = productElement.QuerySelectorAsync("css=a:first-child");
+            using Task<IElementHandle?> getProductTitle = productElement.QuerySelectorAsync("css=[data-testhook='product-title']");
+            using Task<IElementHandle?> getPriceUnits = productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']");
+            using Task<IElementHandle?> getPriceFraction = productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']");
+            using Task<IElementHandle?> getUnitSize = productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']");
+            using Task<IElementHandle?> getImageSource = productElement.QuerySelectorAsync("css=[data-testhook='product-image']");
+            using Task<IElementHandle?> getDetailsPageUrl = productElement.QuerySelectorAsync("css=a:first-child");
 
             await Task.WhenAll(getImageSource, getPriceFraction, getUnitSize, getPriceUnits, getProductTitle, getDetailsPageUrl);
 

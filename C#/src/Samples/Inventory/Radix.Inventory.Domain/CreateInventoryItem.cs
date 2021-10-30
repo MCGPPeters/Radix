@@ -1,15 +1,16 @@
+using Radix.Data;
 using Radix.Validated;
 
 namespace Radix.Inventory.Domain;
 
 
-public class InventoryItemIdValidator : Validator<long>
+public class InventoryItemIdValidator : Validity<long>
 {
-    public static Func<long, Validated<long>> Validate => id => id > 0 ? Valid(id) : Invalid<long>("Id must be larger than 0");
+    public static Validated<long> Validate(long value, string validationErrorMessage) => value > 0 ? Valid(value) : Invalid<long>($"{validationErrorMessage}. The value must be larger than 0");
 }
 
 
-[ConstrainedAlias<long, InventoryItemIdValidator>]
+[Validated<long, InventoryItemIdValidator>]
 public partial record InventoryItemId
 {
 

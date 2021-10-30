@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Radix.Generators;
 
 [Generator]
-public class ConstrainedAliasGenerator : ISourceGenerator
+public class ValidatedGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
@@ -20,38 +20,47 @@ public class ConstrainedAliasGenerator : ISourceGenerator
         {
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
-            var constrainedAttributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ConstrainedAliasAttribute`2");
-            var constrainedAttributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(constrainedAttributeSymbol.Name));
-            foreach (var attribute in constrainedAttributes)
+            var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ValidatedAttribute`2");
+            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
+            foreach (var attribute in attributes)
             {
-                var classSource = ProcessConstrainedType(attribute.AttributeClass.TypeArguments[0].Name, attribute.AttributeClass.TypeArguments[1].Name, typeSymbol, constrainedAttributeSymbol, candidate);
+                Console.WriteLine($"{attribute.AttributeClass.TypeArguments[1].ContainingNamespace.Name}.{attribute.AttributeClass.TypeArguments[1].Name}");
+                var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}" , typeSymbol, candidate);
                 context.AddSource(
-                    $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_constrained_alias",
+                    $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
                     SourceText.From(classSource, Encoding.UTF8));
             }
         }
     }
 
+
     public void Initialize(GeneratorInitializationContext context)
     {
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-#if DEBUG
-        if (!Debugger.IsAttached)
-        {
-            Debugger.Launch();
-        }
-#endif
+
+        //if (!Debugger.IsAttached)
+        //{
+        //    Debugger.Launch();
+        //}
         Debug.WriteLine("Initalize code generator");
     }
 
-    internal static string ProcessConstrainedType(string valueType, string validatorType, ISymbol typeSymbol, ISymbol attributeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
+    internal static string ProcessType(string valueType, string validityType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return null;
 
         var propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();
-        string kindSource = NewMethod(typeSymbol, typeDeclarationSyntax);
+
+        var kindSource = typeDeclarationSyntax.Kind() switch
+        {
+            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
+            SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbol.Name}",
+            SyntaxKind.StructDeclaration => $"public partial struct {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
+            SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbol.Name} ",
+            _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
+        };
 
         var equalsOperatorsSource = $@"
                 public static bool operator ==({typeSymbol.Name} left, {typeSymbol.Name} right) => Equals(left, right);
@@ -77,38 +86,35 @@ public class ConstrainedAliasGenerator : ISourceGenerator
                     return {propertyName} == other.{propertyName};
                 }}",
             SyntaxKind.RecordStructDeclaration => "",
-            _ => throw new NotSupportedException("Unsupported type kind for generating ConstainedAlias code")
+            _ => throw new NotSupportedException("Unsupported type kind for generating Validated code")
         };
 
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
+    using static Radix.Validated.Extensions;
+
     {kindSource}
     {{
+        public static Validated<{typeSymbol.Name}> Create({valueType} value)
+        {{
+            var result = from validated in {validityType}.Validate(value, ""The value provided for {typeSymbol.Name} is not valid"")
+                         select new {typeSymbol.Name}(validated);
+            return result;
+        }}
+        
+
         public {valueType} {propertyName} {{ get; }}
         private {typeSymbol.Name}({valueType} value)
         {{
             {propertyName} = value;
         }}
 
-        public static Validated<{typeSymbol.Name}>Create({valueType} value) => {validatorType}.Validate(value).Map<{valueType}, {typeSymbol.Name}>(v => new {typeSymbol.Name}(v)) ;
-
         public override string ToString() => {propertyName}.ToString();
         {equalsSource}
-
         public static implicit operator {valueType}({typeSymbol.Name} value) => value.{propertyName};
     }}
 }}");
         return source.ToString();
     }
-
-    private static string NewMethod(ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax) =>
-            typeDeclarationSyntax.Kind() switch
-            {
-                SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
-                SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbol.Name}",
-                SyntaxKind.StructDeclaration => $"public partial struct {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
-                SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbol.Name}",
-                _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
-            };
 }

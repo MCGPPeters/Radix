@@ -2,6 +2,12 @@ namespace Radix.Async;
 
 public static class Extensions
 {
+    public static async Task<Unit> Return(this Task task)
+    {
+        await task;
+        return Unit.Instance;
+    }
+
     public static async Task<TResult> Select<T, TResult>
         (this Task<T> task, Func<T, TResult> f) => f(await task);
 

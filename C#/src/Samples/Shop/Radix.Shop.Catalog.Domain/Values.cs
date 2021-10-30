@@ -1,4 +1,6 @@
-﻿namespace Radix.Shop.Catalog.Domain;
+﻿using Radix.Data.String.Validity;
+
+namespace Radix.Shop.Catalog.Domain;
 
 [Alias<string>]
 public partial struct ProductTitle { }
