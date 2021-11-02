@@ -18,49 +18,24 @@ namespace Radix.Shop.Catalog.Crawling.AH;
 public class Crawl
 {
 
-    public static IBrowser? Browser { get; set; }
-    public static IBrowserContext? Context { get; private set; }
+    public IBrowser Browser { get; set; }
+    public IBrowserContext BrowserContext { get; }
+    public SearchClient SearchClient { get; set; }
 
-    public static SearchClient SearchClient { get; set; }
+    public Crawl(SearchClient searchClient, IBrowser browser, IBrowserContext browserContext)
+    {
+        SearchClient = searchClient;
+        Browser = browser;
+        BrowserContext = browserContext;
+    }
 
     [FunctionName("crawl")]
-    public static async Task Run([QueueTrigger("stq-radix-samples-shop-catalog-ah-searchterms", Connection = "AH_CONNECTION_STRING")]string searchTerm, ILogger log)
+    public async Task Run([QueueTrigger("stq-radix-samples-shop-catalog-ah-searchterms", Connection = "AH_CONNECTION_STRING")]string searchTerm, ILogger log)
     {
-        if (SearchClient is null)
-        {
-            var result =
-                from indexName in SearchIndexName.Create(Environment.GetEnvironmentVariable(Constants.SearchIndexName))
-                from searchServiceName in SearchServiceName.Create(Environment.GetEnvironmentVariable(Constants.SearchServiceName))
-                from searchApiKey in SearchApiKey.Create(Environment.GetEnvironmentVariable(Constants.SearchApiKey))
-                let serviceEndpoint = new Uri($"https://{searchServiceName}.search.windows.net/")
-                let credentials = new Azure.AzureKeyCredential(searchApiKey)
-                select new SearchClient(serviceEndpoint, indexName, credentials);
-
-            switch (result)
-            {
-                case Valid<SearchClient>(var searchClient):
-                    SearchClient = searchClient;
-                    break;
-                case Invalid<SearchClient>(var errors):
-                    throw new Exception(errors.Aggregate<string, Concat>());
-                default:
-                    break;
-            }
-        }
-
-        if (Browser is null)
-        {
-            IPlaywright? playwright = await Playwright.CreateAsync();
-
-            Browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Timeout = 0 }).ConfigureAwait(false);
-        }
-
-        if (Context is null) Context = await Browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true }).ConfigureAwait(false);
-
         const string merchantName = "Albert Heijn";
 
         int numberOfPagesToCrawl = int.Parse(Environment.GetEnvironmentVariable(Constants.NumberOfPagesToCrawl));
-        var page = await Context.NewPageAsync().ConfigureAwait(false);
+        var page = await BrowserContext.NewPageAsync().ConfigureAwait(false);
         await page.GotoAsync($"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(searchTerm)}&page={numberOfPagesToCrawl}", new PageGotoOptions { Timeout = 0 }).ConfigureAwait(false);
         var productElements = await page.QuerySelectorAllAsync("//*[@data-testhook='product-card']").ConfigureAwait(false);
 
