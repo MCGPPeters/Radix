@@ -20,9 +20,6 @@ public class IndexableProduct
     [SearchableField(IsFilterable = true, IsSortable = true)]
     public string MerchantName { get; set; }
 
-    [SimpleField(IsFacetable = true, IsSortable = true, IsFilterable = true)]
-    public string Price { get; set; }
-
     [SimpleField()]
     public int PriceUnits { get; set; }
 
@@ -34,4 +31,10 @@ public class IndexableProduct
 
     [SimpleField(IsSortable = true, IsFacetable = true, IsFilterable = true)]
     public string UnitOfMeasure { get; set; }
+
+    [SimpleField()]
+    public string PricePerUnitPriceUnits { get; set; }
+
+    [SimpleField()]
+    public string PricePerUnitPriceFraction { get; set; }
 }

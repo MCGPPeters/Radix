@@ -3,7 +3,9 @@
 namespace Radix;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
-public class ValidatedAttribute<T, V> : Attribute where V : Validity<T>
+public class ParsedAttribute<T, F> : Attribute where F : FromString<T>
 {
 
 }
+
+

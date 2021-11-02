@@ -1,20 +1,6 @@
-using Radix.Data;
 using Radix.Validated;
 
 namespace Radix.Inventory.Domain;
-
-
-public class InventoryItemIdValidator : Validity<long>
-{
-    public static Validated<long> Validate(long value, string validationErrorMessage) => value > 0 ? Valid(value) : Invalid<long>($"{validationErrorMessage}. The value must be larger than 0");
-}
-
-
-[Validated<long, InventoryItemIdValidator>]
-public partial record InventoryItemId
-{
-
-}
 
 public record CreateInventoryItem : InventoryItemCommand
 {

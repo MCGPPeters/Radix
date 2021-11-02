@@ -2,5 +2,7 @@
 
 public interface FromString<T>
 {
-    static abstract Result<T, Error> Parse(string s);
+    static abstract Validated<T> Parse(string s);
+
+    static abstract Validated<T> Parse(string s, string validationErrorMessage);
 }
