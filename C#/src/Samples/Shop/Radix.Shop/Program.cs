@@ -16,6 +16,7 @@ using Radix.Collections.Generic.Enumerable;
 using Radix;
 using static Radix.Async.Extensions;
 using Azure.Search.Documents;
+using Radix.Shop.Components.AH;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,12 +40,26 @@ switch (result)
 {
     case Valid<(Task, SearchClient)> (var (createIndex, searchClient)) :
         await createIndex.Return().Retry(Backoff.Exponentially());
-        async IAsyncEnumerable<Product> SearchProducts(SearchTerm searchTerm)
+        async IAsyncEnumerable<ProductViewModel> SearchProducts(SearchTerm searchTerm)
         {
             Azure.Response<SearchResults<IndexableProduct>> response = await searchClient.SearchAsync<IndexableProduct>(searchTerm);
             await foreach (var result in response.Value.GetResultsAsync())
             {
-                yield return result.Document.ToProduct();
+                var productViewModel = new ProductViewModel
+                {
+                    Id = result.Document.Id,
+                    Title = result.Document.Title,
+                    Description = result.Document.Description,
+                    ImageSource = result.Document.ImageSource,
+                    MerchantName = result.Document.MerchantName,
+                    PriceFraction = result.Document.PriceFraction.ToString(),
+                    PriceUnits = result.Document.PriceUnits.ToString(),
+                    PricePerUnitPriceFraction = result.Document.PricePerUnitPriceFraction,
+                    PricePerUnitPriceUnits = result.Document.PricePerUnitPriceUnits,
+                    UnitOfMeasure = result.Document.UnitOfMeasure,
+                    UnitSize = result.Document.UnitSize,
+                };
+                yield return productViewModel;
             }
         };
         var channel = Channel.CreateUnbounded<SearchTerm>();
@@ -55,6 +70,7 @@ switch (result)
         builder.Services.AddServerSideBlazor();
         builder.Services.AddSingleton<NavMenuViewModel>();
         builder.Services.AddSingleton<IndexViewModel>();
+        builder.Services.AddSingleton<LogoReferenceViewModel>();
         builder.Services.AddSingleton(searchViewModel);
         builder.Services.AddSingleton(Workflows.CrawlAll(crawlAH));
         builder.Services.AddSingleton(channel);

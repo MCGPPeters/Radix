@@ -2,6 +2,6 @@
 {
     public interface Validity<T>
     {
-        public static abstract Validated<T> Validate(T value, string validationErrorMessage);
+        public static abstract Validated<T> Validate(T value);
     }
 }

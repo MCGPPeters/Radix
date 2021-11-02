@@ -2,9 +2,9 @@
 using Radix.Components.Html;
 using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
-using Radix.Shop.Catalog.Domain;
 using Microsoft.AspNetCore.Components;
 using Radix.Option;
+using System.Globalization;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components
 {
@@ -15,7 +15,8 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (_searchInput is not null && firstRender) await _searchInput.ElementReference.FocusAsync();
+            if (_searchInput is not null && firstRender)
+                await _searchInput.ElementReference.FocusAsync();
         }
 
         protected override Node View(SearchViewModel currentViewModel)
@@ -83,7 +84,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                             await currentViewModel.ExecuteSearch();
                                         StateHasChanged();
                                         })
-                                    },                                    
+                                    },
                                     i
                                     (
                                         @class("bi bi-search")
@@ -101,7 +102,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                     },
                     section
                     (
-                        @class("ps-lg-4 pe-lg-3 pt-4"),
+                        @class("ps-lg-4 pe-lg-3 pt-5"),
                         div
                         (
                             @class("row row-cols-2 row-cols-md-4 row-cols-lg-6 g-0 mx-n2"),
@@ -120,7 +121,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                                 @class("card shadow-sm"),
                                                 id("product-card"),
                                                 attribute("style", "border:0; transition: all .15s ease-in-out"),
-                                                
+
                                             },
                                             style
                                             (
@@ -137,7 +138,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                                     @class("card-img-top d-block overflow-hidden p-3"),
                                                     src(product.ImageSource)
                                                 }
-                                                    
+
                                             ),
                                             div
                                             (
@@ -147,28 +148,57 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                                                     @class("d-flex align-items-center justify-content-between"),
                                                     div
                                                     (
-                                                        span
+                                                        p
                                                         (
-                                                            @class("text-accent"),
+                                                            @class("text-accent mb-0"),
                                                             text
                                                             (
-                                                                product.PriceUnits.ToString() + "."
+                                                                product.PriceUnits + NumberFormatInfo.CurrentInfo.NumberDecimalSeparator
                                                             ),
                                                             sup
                                                             (
                                                                 text
                                                                 (
-                                                                    product.PriceFraction.ToString() + " "
+                                                                    product.PriceFraction
                                                                 )
+                                                            )
+                                                        ),
+                                                        p
+                                                        (
+                                                            attribute("style", "font-size: .6em"),
+                                                            text
+                                                            (
+                                                                $"{product.UnitSize} {product.UnitOfMeasure}"
                                                             )
                                                         )
                                                     ),
+                                                    
+                                                        currentViewModel.GetMerchentLogo(product.MerchantName)
+                                                    ,
                                                     div
                                                     (
-                                                        @class("text-accent"),
-                                                        text
+                                                        p
                                                         (
-                                                            $"{product.UnitSize} {product.UnitOfMeasure}"
+                                                            @class("text-accent mb-0"),
+                                                            text
+                                                            (
+                                                                product.PricePerUnitPriceUnits + NumberFormatInfo.CurrentInfo.NumberDecimalSeparator
+                                                            ),
+                                                            sup
+                                                            (
+                                                                text
+                                                                (
+                                                                    product.PricePerUnitPriceFraction
+                                                                )
+                                                            )
+                                                        ),
+                                                        p
+                                                        (
+                                                            attribute("style", "font-size: .6em"),
+                                                            text
+                                                            (
+                                                                $"/ {product.UnitOfMeasure}"
+                                                            )
                                                         )
                                                     )
                                                 ),
@@ -192,221 +222,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                         )
                     )
                 )
-            );;
-
-            //    form
-            //    (
-            //        attribute("onsubmit", "return false"),
-            //        label
-            //        (
-            //            new[]
-            //            {
-            //                @class("mdc-text-field mdc-textfield--fullwidth mdc-text-field--with-leading-icon"),
-            //                                    attribute("style", "width:100%"),
-            //            },
-            //            span
-            //            (
-            //                @class("mdc-text-field__ripple")
-            //            ),
-            //            i
-            //            (
-            //                new[]
-            //                {
-            //                    @class("material-icons mdc-text-field__icon mdc-text-field__icon--leading")
-            //                },
-            //                text("search")
-            //            ),
-            //            _searchInput,
-            //            span
-            //            (
-            //                new[]
-            //                {
-            //                    @class("mdc-floating-label"),
-            //                    id("search-label")
-            //                },
-            //                text
-            //                (
-            //                    "What are you looking for?"
-            //                )
-            //            ),
-
-            //            span
-            //            (
-            //                @class("mdc-line-ripple")
-            //            )
-            //        ),
-            //        script(text("new mdc.textField.MDCTextField(document.querySelector('.mdc-text-field'));")),
-            //        div
-            //        (
-            //            @class("mdc-layout-grid"),
-            //            div
-            //            (
-            //                @class("mdc-layout-grid__inner"),
-            //                currentViewModel.Products.Select(product =>
-            //                    div
-            //                    (
-            //                        @class("mdc-layout-grid__cell"),
-            //                        div
-            //                        (
-            //                            new[]
-            //                            {
-            //                                @class("mdc-card"),
-            //                                //attribute("style", "width: 350px; margin: 48px 0"),
-            //                            },
-
-            //                            div
-            //                            (
-            //                                @class("mdc-card__primary-action"),
-            //                                div
-            //                                (
-            //                                    new[]
-            //                                    {
-            //                                        @class("mdc-card__media mdc-card__media--square"),
-            //                                        attribute("style", $"background-size: auto; background-image: url({product.ImageSource})")
-
-            //                                    }
-            //                                    //,
-            //                                    //svg
-            //                                    //(
-            //                                    //    attribute("xmlns", "http://www.w3.org/2000/svg"),
-            //                                    //    attribute("xmlnsXlink", 
-
-            //                                    //)
-            //                                ),
-            //                                div
-            //                                (
-            //                                    attribute("style", "padding: 1rem"),
-            //                                    h2
-            //                                    (
-            //                                        @class("mdc-typography--title"),
-            //                                        text
-            //                                        (
-            //                                            product.Title
-            //                                        )
-            //                                    ),
-            //                                    h3
-            //                                    (
-            //                                        @class("mdc-typography--subtitle2"),
-            //                                        text
-            //                                        (
-            //                                            product.PriceUnits.ToString() + "."
-            //                                        ),
-            //                                        sup
-            //                                        (
-            //                                            text
-            //                                            (
-            //                                                product.PriceFraction.ToString() + " "
-            //                                            )
-            //                                        ),
-            //                                        text
-            //                                        (
-            //                                            $"{product.UnitSize} {product.UnitOfMeasure}"
-            //                                        )
-            //                                    )
-            //                                )
-
-            //                            )
-
-            //                        )
-            //                    )
-            //            ).ToArray()
-            //        )
-
-            //    )
-            ////div
-            ////(
-            ////    @class("row row-cols-auto g-1 "),
-            ////    currentViewModel.Products.Select(product =>
-            ////        div
-            ////        (
-            ////            @class("col-md-3"),
-            ////            div
-            ////            (
-            ////                new[]
-            ////                {
-            ////                    @class("card p-3")
-            ////                },
-            ////                div
-            ////                (
-            ////                    @class("text-center"),
-            ////                    img
-            ////                    (
-            ////                        new[]
-            ////                        {
-            ////                            @class("card-img-top"),
-            ////                            src(product.ImageSource),
-            ////                            width("200")
-            ////                        }
-            ////                    )
-            ////                ),
-            ////                div
-            ////                (
-            ////                    @class("card-body"),
-            ////                    h6
-            ////                    (
-            ////                        @class("card-title"),
-            ////                        text
-            ////                        (
-            ////                            product.Title
-            ////                        )
-            ////                    ),
-            ////                    p
-            ////                    (
-            ////                        @class("card-text"),
-            ////                        span
-            ////                        (
-            ////                            @class("font-weight-bold d-block"),
-            ////                            text
-            ////                            (
-            ////                                product.PriceUnits.ToString()
-            ////                            ),
-            ////                            sup
-            ////                            (
-            ////                                text
-            ////                                (
-            ////                                    product.PriceFraction.ToString() + " "
-            ////                                )
-            ////                            )
-            ////                        ),
-            ////                        text
-            ////                        (
-            ////                            product.UnitOfMeasure
-            ////                        )
-
-            ////                    )
-            ////                    //p
-            ////                    //(
-            ////                    //    @class("card-text"),
-            ////                    //    small
-            ////                    //    (
-            ////                    //        @class("text-muted"),
-            ////                    //        text
-            ////                    //        (
-            ////                    //            product.Price.Units
-            ////                    //        ),
-            ////                    //        sup
-            ////                    //        (
-            ////                    //            text
-            ////                    //            (
-            ////                    //                $",{product.Price.Fraction}"
-            ////                    //            )
-            ////                    //        ),
-            ////                    //        text
-            ////                    //        (
-            ////                    //            product.UnitOfMeasure
-            ////                    //        )
-            ////                    //    )
-            ////                    //),
-
-            ////                )
-            ////            )
-            ////        )
-            ////    ).ToArray()
-
-            //)
-            //    ); ;
+            );
         }
-
-        
     }
 }
