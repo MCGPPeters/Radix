@@ -7,20 +7,22 @@ using Radix.Shop.Catalog.Search;
 using Radix.Collections.Generic.Enumerable;
 using Radix.Data.String;
 using Microsoft.Playwright;
+using Microsoft.Extensions.Configuration;
 
-[assembly: FunctionsStartup(typeof(Radix.Shop.Catalog.Crawling.AH.Startup))]
+[assembly: FunctionsStartup(typeof(Radix.Shop.Catalog.Crawling.Startup))]
 
 
-namespace Radix.Shop.Catalog.Crawling.AH;
+namespace Radix.Shop.Catalog.Crawling;
 public class Startup : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
     {
+        var configuration = builder.GetContext().Configuration;
 
         var result =
-            from indexName in SearchIndexName.Create(Environment.GetEnvironmentVariable(Constants.SearchIndexName))
-            from searchServiceName in SearchServiceName.Create(Environment.GetEnvironmentVariable(Constants.SearchServiceName))
-            from searchApiKey in SearchApiKey.Create(Environment.GetEnvironmentVariable(Constants.SearchApiKey))
+            from indexName in SearchIndexName.Create(configuration[Constants.SearchIndexName])
+            from searchServiceName in SearchServiceName.Create(configuration[Constants.SearchServiceName])
+            from searchApiKey in SearchApiKey.Create(configuration[Constants.SearchApiKey])
             let serviceEndpoint = new Uri($"https://{searchServiceName}.search.windows.net/")
             let credentials = new Azure.AzureKeyCredential(searchApiKey)
             select new SearchClient(serviceEndpoint, indexName, credentials);
@@ -36,13 +38,13 @@ public class Startup : FunctionsStartup
                 break;
         }
 
-        builder.Services.AddSingleton<IBrowser>(serviceProvider =>
+        builder.Services.AddSingleton(serviceProvider =>
         {
             IPlaywright? playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
-            return playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Timeout = 0, Headless = false }).GetAwaiter().GetResult();
+            return playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Timeout = 0 }).GetAwaiter().GetResult();
         });
 
-        builder.Services.AddSingleton<IBrowserContext>(serviceProvider =>
+        builder.Services.AddSingleton(serviceProvider =>
         {
             var browser = serviceProvider.GetService<IBrowser>();
             return browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true }).GetAwaiter().GetResult();

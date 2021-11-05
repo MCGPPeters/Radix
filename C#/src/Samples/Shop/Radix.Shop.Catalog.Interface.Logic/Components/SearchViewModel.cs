@@ -2,7 +2,7 @@
 using Radix.Components;
 using Radix.Shop.Catalog.Domain;
 using static Radix.Components.Html.Components;
-using static Radix.Components.Html.Attributes;
+using static Radix.Components.Html.Elements;
 using Radix.Components.Html;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components;
@@ -36,7 +36,10 @@ public record SearchViewModel : ViewModel
         {
             "Albert Heijn" =>
                 component<AH.LogoReference>(Enumerable.Empty<IAttribute>()),
+            "Jumbo" =>
+                component<Jumbo.LogoReference>(Enumerable.Empty<IAttribute>()),
             _ => throw new NotImplementedException()
+
         };
     
 }
