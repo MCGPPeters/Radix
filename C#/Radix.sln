@@ -31,15 +31,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "src\Rad
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{8851DE31-86D2-4B8F-912A-E1869BA7ACFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Crawling.AH", "src\Samples\Shop\Radix.Shop.Catalog.Crawling.AH\Radix.Shop.Catalog.Crawling.AH.csproj", "{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Domain", "src\Samples\Shop\Radix.Shop.Catalog.Domain\Radix.Shop.Catalog.Domain.csproj", "{7E55398E-ACB6-4050-BCFD-A1E82CD48F97}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Interface.Logic", "src\Samples\Shop\Radix.Shop.Catalog.Interface.Logic\Radix.Shop.Catalog.Interface.Logic.csproj", "{13713E55-897F-4F52-B017-6AC9D898F125}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Search", "src\Samples\Shop\Radix.Shop.Catalog.Search\Radix.Shop.Catalog.Search.csproj", "{9A40DEE0-6A05-45E3-87CF-BD38F63DC09E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Shop.Catalog.Crawling", "src\Samples\Shop\Radix.Shop.Catalog.Crawling\Radix.Shop.Catalog.Crawling.csproj", "{1F834AA6-F570-4291-BD08-AEF3D34C4B73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Crawling", "src\Samples\Shop\Radix.Shop.Catalog.Crawling\Radix.Shop.Catalog.Crawling.csproj", "{1F834AA6-F570-4291-BD08-AEF3D34C4B73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,18 +169,6 @@ Global
 		{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}.Release|x64.Build.0 = Release|Any CPU
 		{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}.Release|x86.ActiveCfg = Release|Any CPU
 		{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}.Release|x86.Build.0 = Release|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x64.Build.0 = Debug|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Debug|x86.Build.0 = Debug|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x64.ActiveCfg = Release|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x64.Build.0 = Release|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x86.ActiveCfg = Release|Any CPU
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288}.Release|x86.Build.0 = Release|Any CPU
 		{7E55398E-ACB6-4050-BCFD-A1E82CD48F97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E55398E-ACB6-4050-BCFD-A1E82CD48F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E55398E-ACB6-4050-BCFD-A1E82CD48F97}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -244,7 +230,6 @@ Global
 		{3179FC72-A7C1-4642-B14D-D7A133C6E8AB} = {0DB17544-11E7-4E91-B950-CEC96012DB70}
 		{9AAD3DC8-2EF1-410A-A544-F1CFC8E81562} = {0DB17544-11E7-4E91-B950-CEC96012DB70}
 		{8851DE31-86D2-4B8F-912A-E1869BA7ACFA} = {0DB17544-11E7-4E91-B950-CEC96012DB70}
-		{5F7AE53A-AF84-412C-94F7-1F5ACD50B288} = {8851DE31-86D2-4B8F-912A-E1869BA7ACFA}
 		{7E55398E-ACB6-4050-BCFD-A1E82CD48F97} = {8851DE31-86D2-4B8F-912A-E1869BA7ACFA}
 		{13713E55-897F-4F52-B017-6AC9D898F125} = {8851DE31-86D2-4B8F-912A-E1869BA7ACFA}
 		{9A40DEE0-6A05-45E3-87CF-BD38F63DC09E} = {8851DE31-86D2-4B8F-912A-E1869BA7ACFA}
