@@ -11,6 +11,7 @@ using Radix.Validated;
 using Azure.Search.Documents;
 using System.Web;
 using System.Text;
+using System.Diagnostics;
 
 namespace Radix.Shop.Catalog.Crawling
 {
