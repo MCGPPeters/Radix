@@ -15,13 +15,13 @@ using System.Diagnostics;
 
 namespace Radix.Shop.Catalog.Crawling
 {
-    public class Jumbo
+    public class Crawler
     {
         public IBrowser Browser { get; set; }
         public IBrowserContext BrowserContext { get; }
         public SearchClient SearchClient { get; set; }
 
-        public Jumbo(SearchClient searchClient, IBrowser browser, IBrowserContext browserContext)
+        public Crawler(SearchClient searchClient, IBrowser browser, IBrowserContext browserContext)
         {
             SearchClient = searchClient;
             Browser = browser;
@@ -33,15 +33,14 @@ namespace Radix.Shop.Catalog.Crawling
         {
             const string merchantName = "Jumbo";
             var page = await BrowserContext.NewPageAsync().ConfigureAwait(false);
-            await page.GotoAsync($"https://www.jumbo.com/listers/zoeken?searchTerms={HttpUtility.UrlEncode(searchTerm)}", new PageGotoOptions { Timeout = 0 });
-            var productElements = await page.QuerySelectorAllAsync("//*[@class='jum-card']");
+            await page.GotoAsync($"https://www.jumbo.com/zoeken?searchTerms={HttpUtility.UrlEncode(searchTerm)}", new PageGotoOptions { Timeout = 0 });
+            var productElements = await page.QuerySelectorAllAsync("//*[@analytics-tag='product card']");
 
             foreach (var productElement in productElements)
             {
 
                 try
                 {
-                    using Task<IElementHandle?> getId = productElement.QuerySelectorAsync("css=[analytics-tag='product card']");
                     using Task<IElementHandle?> getProductTitle = productElement.QuerySelectorAsync("css=[class='title-link']");
                     using Task<IElementHandle?> getPriceUnits = productElement.QuerySelectorAsync("css=[class='whole']");
                     using Task<IElementHandle?> getPriceFraction = productElement.QuerySelectorAsync("css=[class='fractional']");
@@ -49,16 +48,15 @@ namespace Radix.Shop.Catalog.Crawling
                     using Task<IElementHandle?> getImageSource = productElement.QuerySelectorAsync("css=[class='image']");
                     using Task<IElementHandle?> getDetailsPageUrl = productElement.QuerySelectorAsync("css=a:first-child");
 
-                    await Task.WhenAll(getId, getImageSource, getPriceFraction, getUnitSizeAndMeasure, getPriceUnits, getProductTitle, getDetailsPageUrl);
+                    await Task.WhenAll(getImageSource, getPriceFraction, getUnitSizeAndMeasure, getPriceUnits, getProductTitle, getDetailsPageUrl);
 
-                    IElementHandle? idHandle = await getId.ConfigureAwait(false);
                     IElementHandle? productTitleHandle = await getProductTitle.ConfigureAwait(false);
                     IElementHandle? productPriceUnitsHandle = await getPriceUnits.ConfigureAwait(false);
                     IElementHandle? productPriceFractionHandle = await getPriceFraction.ConfigureAwait(false);
                     IElementHandle? unitSizeAndMeasureHandle = await getUnitSizeAndMeasure.ConfigureAwait(false);
                     IElementHandle? imageElementHandle = await getImageSource.ConfigureAwait(false);
 
-                    string? id = idHandle is not null ? await idHandle.GetAttributeAsync("data-product-id").ConfigureAwait(false) : "";
+                    string? id =  await productElement.GetAttributeAsync("data-product-id").ConfigureAwait(false);
                     string? title = productTitleHandle is not null ? await productTitleHandle.TextContentAsync().ConfigureAwait(false) : "";
                     string? detailsPageLink = productTitleHandle is not null ? await productTitleHandle.GetAttributeAsync("href").ConfigureAwait(false) : "";
                     string? priceUnits = productPriceUnitsHandle is not null ? await productPriceUnitsHandle.TextContentAsync().ConfigureAwait(false) : "";

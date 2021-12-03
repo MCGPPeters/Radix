@@ -10,17 +10,20 @@ using System;
 using Radix.Validated;
 using Azure.Search.Documents;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
-namespace Radix.Shop.Catalog.Crawling
+namespace Radix.Shop.Catalog.Crawling.Jumbo
 {
-    public class AH
+    public class Crawler
     {
         public IBrowser Browser { get; set; }
         public IBrowserContext BrowserContext { get; }
         public IConfiguration Configuration { get; }
         public SearchClient SearchClient { get; set; }
 
-        public AH(SearchClient searchClient, IBrowser browser, IBrowserContext browserContext, IConfiguration configuration)
+        static ActivitySource s_ActivitySource = new("AH");
+
+        public Crawler(SearchClient searchClient, IBrowser browser, IBrowserContext browserContext, IConfiguration configuration)
         {
             SearchClient = searchClient;
             Browser = browser;
@@ -32,6 +35,10 @@ namespace Radix.Shop.Catalog.Crawling
         public async Task Run([QueueTrigger("%AH_QUEUE_NAME%", Connection = "AH_CONNECTION_STRING")]string searchTerm, ILogger log)
         {
             const string merchantName = "Albert Heijn";
+
+            using (Activity? activity = s_ActivitySource.StartActivity($"Searching merchant {merchantName} for products containing search term '{searchTerm}'")) ;
+
+           
 
             int numberOfPagesToCrawl = int.Parse(Configuration[Constants.NumberOfPagesToCrawl]);
             var page = await BrowserContext.NewPageAsync().ConfigureAwait(false);

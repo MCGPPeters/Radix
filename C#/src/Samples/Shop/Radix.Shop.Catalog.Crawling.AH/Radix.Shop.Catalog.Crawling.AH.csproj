@@ -2,44 +2,26 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <!--<DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..</DockerfileContext>-->
-    <LangVersion>preview</LangVersion>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <Nullable>enable</Nullable>
+    <DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+    <UserSecretsId>dcef0fe6-5f31-4e82-8704-cb14e0476cd4</UserSecretsId>
   </PropertyGroup>
-  <Target Name="FixPlaywrightCopyAfterBuild" AfterTargets="Build">
-    <ItemGroup>
-      <_BuildCopyItems Include="$(OutDir).playwright\**" />
-    </ItemGroup>
-    <Message Text="[Fix] Copying files to the nested bin folder of the azure function... $(OutDir)bin" Importance="high" />
-    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(OutDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>
-  <Target Name="FixPlaywrightCopyAfterPublish" AfterTargets="Publish">
-    <ItemGroup>
-      <_BuildCopyItems Include="$(PublishDir).playwright\**" />
-    </ItemGroup>
-    <Message Text="[Fix] Copying files to the nested bin folder of the azure function for publishing... $(PublishDir)bin" Importance="high" />
-    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(PublishDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>
   <ItemGroup>
-    <None Remove="local.settings.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="local.settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.5" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.0-preview2" />
-    <PackageReference Include="Microsoft.Playwright" Version="1.15.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
+    <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.16.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.1.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc8" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc8" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc8" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
@@ -55,7 +37,18 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\ServiceDependencies\" />
-  </ItemGroup>
+  <Target Name="FixPlaywrightCopyAfterBuild" AfterTargets="Build">
+    <ItemGroup>
+      <_BuildCopyItems Include="$(OutDir).playwright\**" />
+    </ItemGroup>
+    <Message Text="[Fix] Copying files to the nested bin folder of the azure function... $(OutDir)bin" Importance="high" />
+    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(OutDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+  <Target Name="FixPlaywrightCopyAfterPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <_BuildCopyItems Include="$(PublishDir).playwright\**" />
+    </ItemGroup>
+    <Message Text="[Fix] Copying files to the nested bin folder of the azure function for publishing... $(PublishDir)bin" Importance="high" />
+    <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(PublishDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 </Project>

@@ -4,9 +4,9 @@ using Radix.Components.Html;
 
 namespace Radix.Components;
 
-public static class Rendering
+public static class Render
 {
-    public static int RenderNode(object currentComponent, RenderTreeBuilder builder, int sequence, Node node)
+    public static int Node(object currentComponent, RenderTreeBuilder builder, int sequence, Node node)
     {
         switch (node)
         {
@@ -21,7 +21,7 @@ public static class Rendering
             case Concat nodes:
                 foreach (Node n in nodes)
                 {
-                    RenderNode(currentComponent, builder, sequence, n);
+                    Node(currentComponent, builder, sequence, n);
                     sequence++;
                 }
 
@@ -31,10 +31,10 @@ public static class Rendering
                 int innerSequence = 0;
                 builder.OpenElement(innerSequence, element.Name);
                 
-                sequence = RenderAttributes(currentComponent, builder, sequence, element.Attributes);
+                sequence = Attributes(currentComponent, builder, sequence, element.Attributes);
                 foreach (Node elementChild in element.Children)
                 {
-                    RenderNode(currentComponent, builder, innerSequence, elementChild);
+                    Node(currentComponent, builder, innerSequence, elementChild);
                     innerSequence++;
                 }
                 
@@ -46,7 +46,7 @@ public static class Rendering
             case Component component:
                 builder.OpenComponent(sequence, component.Type);
                 sequence++;
-                sequence = RenderAttributes(currentComponent, builder, sequence, component.Attributes);
+                sequence = Render.Attributes(currentComponent, builder, sequence, component.Attributes);
                 if (component.Children.Any())
                 {
                     RenderFragment fragment = treeBuilder => treeBuilder.AddContent(
@@ -55,7 +55,7 @@ public static class Rendering
                         {
                             foreach (Node elementChild in component.Children)
                             {
-                                RenderNode(currentComponent, renderTreeBuilder, sequence, elementChild);
+                                Node(currentComponent, renderTreeBuilder, sequence, elementChild);
                             }
                         });
                     builder.AddAttribute(sequence, "ChildContent", fragment);
@@ -70,7 +70,7 @@ public static class Rendering
         }
     }
 
-    private static int RenderAttributes(object currentComponent, RenderTreeBuilder builder, int sequence, IEnumerable<IAttribute> attributes)
+    private static int Attributes(object currentComponent, RenderTreeBuilder builder, int sequence, IEnumerable<IAttribute> attributes)
     {
         foreach (IAttribute attribute in attributes)
         {

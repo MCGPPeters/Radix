@@ -105,13 +105,16 @@ namespace {namespaceName}
         
 
         public {valueType} {propertyName} {{ get; }}
+
         private {typeSymbol.Name}({valueType} value)
         {{
             {propertyName} = value;
         }}
 
         public override string ToString() => {propertyName}.ToString();
+
         {equalsSource}
+
         public static implicit operator {valueType}({typeSymbol.Name} value) => value.{propertyName};
     }}
 }}");

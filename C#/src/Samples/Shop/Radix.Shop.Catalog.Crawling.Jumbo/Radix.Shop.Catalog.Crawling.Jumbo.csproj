@@ -1,12 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <LangVersion>preview</LangVersion>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <Nullable>enable</Nullable>
-    <UserSecretsId>584f9cca-1a11-4f5a-9c94-c63fddf97b9a</UserSecretsId>
+    <DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+    <UserSecretsId>dcef0fe6-5f31-4e82-8704-cb14e0476cd4</UserSecretsId>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\.dockerignore" Link=".dockerignore">
+      <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
@@ -14,13 +21,26 @@
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="5.0.0" />
     <PackageReference Include="Microsoft.Playwright" Version="1.16.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.1.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc8" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc8" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc8" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Domain\Radix.Shop.Catalog.Domain.csproj" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Search\Radix.Shop.Catalog.Search.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
   <Target Name="FixPlaywrightCopyAfterBuild" AfterTargets="Build">
     <ItemGroup>
@@ -36,13 +56,4 @@
     <Message Text="[Fix] Copying files to the nested bin folder of the azure function for publishing... $(PublishDir)bin" Importance="high" />
     <Copy SourceFiles="@(_BuildCopyItems)" DestinationFiles="@(_BuildCopyItems->'$(PublishDir)bin\.playwright\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
-  <ItemGroup>
-    <None Update="host.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="local.settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </None>
-  </ItemGroup>
 </Project>
