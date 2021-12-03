@@ -43,14 +43,15 @@ public static class Extensions
     /// <returns></returns>
     public static Validated<TResult> Select<T, TResult>(this Validated<T> result, Func<T, TResult> function) => result.Map(function);
 
-    public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated) => (fValidated, xValidated) switch
-    {
-        (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid(f(x)),
-        (Invalid<Func<T, TResult>>(var error), Valid<T>(_)) => Invalid<TResult>(error),
-        (Valid<Func<T, TResult>>(_), Invalid<T>(var error)) => Invalid<TResult>(error),
-        (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError).ToArray()),
-        _ => throw new NotSupportedException("Unlikely")
-    };
+    public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated) =>
+        (fValidated, xValidated) switch
+        {
+            (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid(f(x)),
+            (Invalid<Func<T, TResult>>(var error), Valid<T>(_)) => Invalid<TResult>(error),
+            (Valid<Func<T, TResult>>(_), Invalid<T>(var error)) => Invalid<TResult>(error),
+            (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError).ToArray()),
+            _ => throw new NotSupportedException("Unlikely")
+        };
 
     public static IEnumerable<T> WhereValid<T>(this IEnumerable<Validated<T>> xs)
     {

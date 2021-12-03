@@ -7,12 +7,13 @@ using Radix.Shop.Catalog.Search;
 using Radix.Collections.Generic.Enumerable;
 using Radix.Data.String;
 using Microsoft.Playwright;
-using Microsoft.Extensions.Configuration;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 
-[assembly: FunctionsStartup(typeof(Radix.Shop.Catalog.Crawling.Startup))]
+[assembly: FunctionsStartup(typeof(Radix.Shop.Catalog.Crawling.Jumbo.Startup))]
 
 
-namespace Radix.Shop.Catalog.Crawling;
+namespace Radix.Shop.Catalog.Crawling.Jumbo;
 public class Startup : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
@@ -49,5 +50,15 @@ public class Startup : FunctionsStartup
             var browser = serviceProvider.GetService<IBrowser>();
             return browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true }).GetAwaiter().GetResult();
         });
+
+        var openTelemetry = Sdk.CreateTracerProviderBuilder()
+                .AddSource("Radix.Shop.Catalog.Crawling.Jumbo")
+                .AddAspNetCoreInstrumentation()
+                //.AddHttpClientInstrumentation()
+                // .SetSampler(new AlwaysOnSampler())
+                .AddConsoleExporter()
+                .Build();
+        builder.Services.AddSingleton(openTelemetry);
+
     }
 }

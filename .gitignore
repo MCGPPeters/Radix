@@ -340,3 +340,5 @@ C#/tests/obj/
 C#/.ionide/
 
 .ionide/
+
+C#/src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/local.settings.json

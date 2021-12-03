@@ -22,6 +22,6 @@ public abstract class Component<TViewModel> : ComponentBase
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         base.BuildRenderTree(builder);
-        Rendering.RenderNode(this, builder, 0, View(ViewModel));
+        Render.Node(this, builder, 0, View(ViewModel));
     }
 }

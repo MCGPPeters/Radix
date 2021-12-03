@@ -121,7 +121,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
             }
         }, cancellationToken);
 
-        AggregateInstance<TCommand, TEvent> aggregate = new(id, channel, agent, tokenSource);
+        AggregateInstance<TCommand, TEvent> aggregate = new(id, channel);
         var _ = s_instances.Set(id, aggregate);
         return aggregate;
     }

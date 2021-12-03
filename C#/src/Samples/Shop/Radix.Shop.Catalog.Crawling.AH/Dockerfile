@@ -2,6 +2,7 @@
 
 FROM mcr.microsoft.com/azure-functions/dotnet:4 AS base
 WORKDIR /home/site/wwwroot
+EXPOSE 80
 RUN apt-get update && apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
@@ -63,21 +64,28 @@ RUN npm install -g npm@7
 RUN apt-get update && apt-get install -y --no-install-recommends git ssh && \
     npm install -g yarn
 
-COPY ["/src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/Radix.Shop.Catalog.Crawling.AH.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/"]
-COPY ["/src/Radix/Radix.csproj", "src/Radix/"]
+RUN dotnet tool install --global Microsoft.Playwright.CLI
+RUN npx playwright install --with-deps
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/Radix.Shop.Catalog.Crawling.AH.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/"]
+COPY ["src/Radix/Radix.csproj", "src/Radix/"]
+COPY ["src/Radix.Generators/Radix.Generators.csproj", "src/Radix.Generators/"]
+COPY ["src/Samples/Shop/Radix.Shop.Catalog.Search/Radix.Shop.Catalog.Search.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Search/"]
+COPY ["src/Samples/Inventory/Radix.Inventory.Domain/Radix.Inventory.Domain.csproj", "src/Samples/Inventory/Radix.Inventory.Domain/"]
+COPY ["src/Samples/Shop/Radix.Shop.Catalog.Domain/Radix.Shop.Catalog.Domain.csproj", "src/Samples/Shop/Radix.Shop.Catalog.Domain/"]
+
 RUN dotnet restore "src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/Radix.Shop.Catalog.Crawling.AH.csproj"
 COPY . .
 WORKDIR "/src/src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH"
-RUN dotnet tool install --global Microsoft.Playwright.CLI && dotnet build "Radix.Shop.Catalog.Crawling.AH.csproj" -c Debug -o /app/build
-RUN npx playwright install --with-deps
+RUN dotnet build "Radix.Shop.Catalog.Crawling.AH.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Radix.Shop.Catalog.Crawling.AH.csproj" -c Debug -o /app/publish
+RUN dotnet publish "Radix.Shop.Catalog.Crawling.AH.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /home/site/wwwroot
 COPY --from=publish /app/publish .
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
-
-

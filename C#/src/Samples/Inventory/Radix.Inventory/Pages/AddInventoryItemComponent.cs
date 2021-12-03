@@ -76,14 +76,14 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                         (
                             async args =>
                             {
-                                Validated<InventoryItemCommand> validCommand = CreateInventoryItem.Create(
+                                Validated<InventoryItemCommand> validatedCommand = CreateInventoryItem.Create(
                                     currentViewModel.InventoryItemId,
                                     currentViewModel.InventoryItemName,
                                     true,
                                     currentViewModel.InventoryItemCount);
 
                                 var inventoryItem = BoundedContext.Create<InventoryItem, InventoryItemCommandHandler>();
-                                Option<Error[]> result = await Dispatch(inventoryItem, validCommand);
+                                Option<Error[]> result = await Dispatch(inventoryItem, validatedCommand);
                                 switch (result)
                                 {
                                     case Some<Error[]>(_):

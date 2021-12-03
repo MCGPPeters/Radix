@@ -14,25 +14,17 @@ namespace Radix;
 /// <typeparam name="TEvent">The type of events the aggregate can produce</typeparam>
 internal class AggregateInstance<TCommand, TEvent> : Aggregate<TCommand, TEvent> where TEvent : notnull
 {
-    private static readonly MemoryCache s_instances = new(new MemoryCacheOptions { });
-
     private readonly Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> _channel;
-
-    private Task _agent;
-    private readonly CancellationTokenSource _tokenSource;
-
 
     /// <summary>
     ///     An aggregate instance should only be created by the runtime
     /// </summary>
     /// <param name="id"></param>
     /// <param name="accept"></param>
-    public AggregateInstance(Id id, Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel, Task agent, CancellationTokenSource tokenSource)
+    public AggregateInstance(Id id, Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel)
     {
         Id = id;
         _channel = channel;
-        _agent = agent;
-        _tokenSource = tokenSource;
     }
 
     /// <summary>

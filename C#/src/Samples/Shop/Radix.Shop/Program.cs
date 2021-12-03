@@ -17,6 +17,8 @@ using Radix;
 using static Radix.Async.Extensions;
 using Azure.Search.Documents;
 using Radix.Shop.Components.AH;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,14 @@ switch (result)
         builder.Services.AddSingleton(channel);
 
         builder.Services.AddHostedService<CrawlingHostedService>();
+
+        var openTelemetry = Sdk.CreateTracerProviderBuilder()
+                .AddSource("Radix.Shop")
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddJaegerExporter()
+                .Build();
+        builder.Services.AddSingleton(openTelemetry);
 
         var app = builder.Build();
 
