@@ -21,6 +21,18 @@ public static class Extensions
         return new Writer<R, TOutput>(result, output);
     }
 
+    public static Writer<TProjection, TOutput> SelectMany<T, R, TOutput, TProjection>(Writer<T, TOutput> writer, Func<T, Writer<R, TOutput>> f,
+        Func<T, R, TProjection> project)
+            where TOutput : Monoid<TOutput>
+        {
+            (T? t, TOutput? output) = writer;
+            return f(t).Bind(r => Return<TProjection, TOutput>(project(t, r)));
+        }
+
+    public static Writer<R, TOutput> Select<T, R, TOutput>(this Writer<T, TOutput> writer, Func<T, R> f)
+        where TOutput : Monoid<TOutput> =>
+            writer.Map(f);
+
     public static Writer<T, TOutput> Return<T, TOutput>(T t)
         where TOutput : Monoid<TOutput> =>
             new(t, TOutput.Identity);
