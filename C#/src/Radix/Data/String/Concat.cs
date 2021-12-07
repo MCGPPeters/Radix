@@ -7,4 +7,5 @@ public class Concat : Monoid<string>
     public static string Identity => "";
 
     public static Func<string, string, string> Combine => (x, y) => x + y;
+
 }

@@ -54,7 +54,7 @@ namespace Radix.Tests
                             Interlocked.Increment(ref numberOfTries);
                             return Task.FromException<int>(new ApplicationException());
                         })
-                    .Where(exception => exception is ApplicationException)
+                    .Catch(exception => exception is ApplicationException)
                     .Retry(Enumerable.Repeat(TimeSpan.FromMilliseconds(1), numberOfCalls.Get).ToArray());
             }
             catch (AggregateException ex)

@@ -11,6 +11,8 @@ using Radix.Validated;
 using Azure.Search.Documents;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
+using static Radix.Writer.Extensions;
+using static Radix.Async.Extensions;
 
 namespace Radix.Shop.Catalog.Crawling.Jumbo
 {
@@ -38,59 +40,31 @@ namespace Radix.Shop.Catalog.Crawling.Jumbo
 
             using (Activity? activity = s_ActivitySource.StartActivity($"Searching merchant {merchantName} for products containing search term '{searchTerm}'")) ;
 
-           
-
             int numberOfPagesToCrawl = int.Parse(Configuration[Constants.NumberOfPagesToCrawl]);
             var page = await BrowserContext.NewPageAsync().ConfigureAwait(false);
-            await page.GotoAsync($"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(searchTerm)}&page={numberOfPagesToCrawl}", new PageGotoOptions { Timeout = 0 }).ConfigureAwait(false);
+            string url = $"https://www.ah.nl/zoeken?query={System.Web.HttpUtility.UrlEncode(searchTerm)}&page={numberOfPagesToCrawl}";
+            await page
+                .GotoAsync(url, new PageGotoOptions { Timeout = 0 })
+                .ConfigureAwait(false);
             var productElements = await page.QuerySelectorAllAsync("//*[@data-testhook='product-card']").ConfigureAwait(false);
 
             foreach (var productElement in productElements)
             {
                 try
                 {
-                    using Task<IElementHandle?> getProductTitle = productElement.QuerySelectorAsync("css=[data-testhook='product-title']");
-                    using Task<IElementHandle?> getPriceUnits = productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']");
-                    using Task<IElementHandle?> getPriceFraction = productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']");
-                    using Task<IElementHandle?> getUnitSize = productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']");
-                    using Task<IElementHandle?> getImageSource = productElement.QuerySelectorAsync("css=[data-testhook='product-image']");
-                    using Task<IElementHandle?> getDetailsPageUrl = productElement.QuerySelectorAsync("css=a:first-child");
+                    // Get all data in parallel and create a validated product
+                    var validatedProduct =
+                        Return(CreateProduct())
+                            .Apply(GetProductTitle(productElement))
+                            .Apply(GetProductDescriptionAndId(productElement, Browser))
+                            .Apply(Return(merchantName))
+                            .Apply(GetPriceUnits(productElement))
+                            .Apply(GetPriceFraction(productElement))
+                            .Apply(GetImageSource(productElement))
+                            .Apply(GetUnit(productElement));
 
-                    await Task.WhenAll(getImageSource, getPriceFraction, getUnitSize, getPriceUnits, getProductTitle, getDetailsPageUrl);
 
-                    IElementHandle? productTitle = await getProductTitle.ConfigureAwait(false);
-                    IElementHandle? productPriceUnits = await getPriceUnits.ConfigureAwait(false);
-                    IElementHandle? productPriceFraction = await getPriceFraction.ConfigureAwait(false);
-                    IElementHandle? unitSize = await getUnitSize.ConfigureAwait(false);
-                    IElementHandle? imageElement = await getImageSource.ConfigureAwait(false);
-                    IElementHandle? detailsPageLink = await getDetailsPageUrl.ConfigureAwait(false);
-
-                    string? detailsPageUrl = await detailsPageLink.GetAttributeAsync("href").ConfigureAwait(false);
-                    string? id = detailsPageUrl?.Split("/")[3] ?? "";
-                    string? scrapedImageSource = await imageElement.GetAttributeAsync("src").ConfigureAwait(false);
-                    string scrapedPriceUnits = await productPriceUnits.TextContentAsync().ConfigureAwait(false) ?? "";
-                    string scrapedPriceFraction = await productPriceFraction.TextContentAsync().ConfigureAwait(false) ?? "";
-                    string scrapedTitle = await productTitle.TextContentAsync().ConfigureAwait(false) ?? "";
-                    string scrapedUnitSize = "";
-                    string scrapedUnitOfMeasure = "";
-
-                    if (unitSize is not null)
-                    {
-                        Console.WriteLine(await unitSize.TextContentAsync().ConfigureAwait(false));
-                        var scrapedUnitSizeParts = (await unitSize.TextContentAsync().ConfigureAwait(false))?.Split(" ");
-                        scrapedUnitSize = scrapedUnitSizeParts[0] is not null ? scrapedUnitSizeParts[0] : "";
-                        scrapedUnitOfMeasure = scrapedUnitSizeParts[1] is not null ? scrapedUnitSizeParts[1] : "";
-                    }
-
-                    await using var detailsContext = await Browser.NewContextAsync(new BrowserNewContextOptions { }).ConfigureAwait(false);
-                    var detailsPage = await detailsContext.NewPageAsync().ConfigureAwait(false);
-                    await detailsPage.GotoAsync($"https://www.ah.nl{detailsPageUrl}", new PageGotoOptions { Timeout = 0 });
-                    var descriptionElement = await detailsPage.QuerySelectorAsync("css=[data-testhook='product-summary']");
-                    var scrapedDescription = await descriptionElement.TextContentAsync() ?? string.Empty;
-                    await detailsContext.CloseAsync().ConfigureAwait(false);
-
-                    var validatedProduct = Product.Create(id, scrapedTitle, scrapedDescription, merchantName, scrapedPriceUnits, scrapedPriceFraction, scrapedImageSource, scrapedUnitSize, scrapedUnitOfMeasure);
-                    switch (validatedProduct)
+                    switch (await validatedProduct)
                     {
                         case Valid<Product>(var product):
                             var result = IndexDocumentsAction.MergeOrUpload(product.ToIndexableProduct());
@@ -116,5 +90,47 @@ namespace Radix.Shop.Catalog.Crawling.Jumbo
 
             await page.CloseAsync().ConfigureAwait(false);
         }
+
+        private static Task<string> GetProductTitle(IElementHandle productElement) =>
+                                    from productTitleElement in productElement.QuerySelectorAsync("css=[data-testhook='product-title']")
+                                    from productTitle in productTitleElement.TextContentAsync()
+                                    select productTitle;
+
+        private static Task<string> GetPriceUnits(IElementHandle productElement) =>
+                                    from priceUnitElement in productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']")
+                                    from priceUnit in priceUnitElement.TextContentAsync()
+                                    select priceUnit;
+
+        private static Task<string> GetPriceFraction(IElementHandle productElement) =>
+                                    from priceFractionElement in productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']")
+                                    from priceFraction in priceFractionElement.TextContentAsync()
+                                    select priceFraction;
+
+        private static Task<(string, string)> GetUnit(IElementHandle productElement) =>
+                                    from unitSizeElement in productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']")
+                                    from unitSizeElementText in unitSizeElement.TextContentAsync()
+                                    let unitSizeParts = unitSizeElementText.Split(" ")
+                                    let unitSize = unitSizeParts[0]
+                                    let unitOfMeasure = unitSizeParts[1]
+                                    select (unitSize, unitOfMeasure);
+
+        private static Task<string> GetImageSource(IElementHandle productElement) =>
+                                    from imageSourceElement in productElement.QuerySelectorAsync("css=[data-testhook='product-image']")
+                                    from imagesSource in imageSourceElement.GetAttributeAsync("src")
+                                    select imagesSource;
+
+        private static Task<(string id, string description)> GetProductDescriptionAndId(IElementHandle productElement, IBrowser browser) =>
+                                    from detailsPageElement in productElement.QuerySelectorAsync("css=a:first-child")
+                                    from detailsPageLink in detailsPageElement.GetAttributeAsync("href")
+                                    from detailsContext in browser.NewContextAsync(new BrowserNewContextOptions { })
+                                    from detailsPage in detailsContext.NewPageAsync()
+                                    from _ in detailsPage.GotoAsync($"https://www.ah.nl{detailsPageLink}", new PageGotoOptions { Timeout = 0 })
+                                    from descriptionElement in detailsPage.QuerySelectorAsync("css=[data-testhook='product-summary']")
+                                    from description in descriptionElement.TextContentAsync()
+                                    select (detailsPageLink?.Split("/")[3] ?? "", description ?? "");
+
+        private static Func<string, (string id, string description), string, string, string, string, (string unitSize, string unitOfMeasure), Validated<Product>> CreateProduct() =>
+                                (title, idAndDescription, merchantName, priceUnits, priceFraction, imageSource, unitSizeAndUnitOfMeasure) =>
+                                    Product.Create(idAndDescription.id, title, idAndDescription.description, merchantName, priceUnits, priceFraction, imageSource, unitSizeAndUnitOfMeasure.unitSize, unitSizeAndUnitOfMeasure.unitOfMeasure);
     }
 }
