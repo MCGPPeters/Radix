@@ -56,7 +56,7 @@ public class Startup : FunctionsStartup
         var openTelemetry = Sdk.CreateTracerProviderBuilder()
                 .AddSource("Radix.Shop.Catalog.Crawling.AH")
                 .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
+                // .AddHttpClientInstrumentation()
                 // .SetSampler(new AlwaysOnSampler())
                 .AddConsoleExporter()
                 .Build();

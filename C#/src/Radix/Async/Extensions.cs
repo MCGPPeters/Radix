@@ -8,11 +8,21 @@ public static class Extensions
         return Unit.Instance;
     }
 
-    public static async Task<TResult> Select<T, TResult>
-        (this Task<T> task, Func<T, TResult> f) => f(await task);
+    public static Task<T> Return<T>(T t) =>
+        Task.FromResult(t);
 
+    /// <summary>
+    /// Compose tasks to run sequentially.
+    /// Choose this if there is if there is a dependency between tasks
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="task"></param>
+    /// <param name="f"></param>
+    /// <returns></returns>
     public static async Task<TResult> Bind<T, TResult>
-        (this Task<T> task, Func<T, Task<TResult>> f) => await f(await task);
+        (this Task<T> task, Func<T, Task<TResult>> f) =>
+            await f(await task.ConfigureAwait(false)).ConfigureAwait(false);
 
     public static Task<TResult> SelectMany<T, TResult>
         (this Task<T> task, Func<T, Task<TResult>> f) => Bind(task, f);
@@ -24,6 +34,108 @@ public static class Extensions
         T r = await bind(Unit.Instance);
         return project(Unit.Instance, r);
     }
+
+    public static async Task<TProjected> SelectMany<T, TResult, TProjected>
+         (this Task<T> task, Func<T, Task<TResult>> bind, Func<T, TResult, TProjected> project)
+    {
+        T t = await task;
+        TResult r = await bind(t);
+        return project(t, r);
+    }
+
+    public static async Task<TResult> Map<T, TResult>
+        (this Task<T> task, Func<T, TResult> f)
+        => f(await task.ConfigureAwait(false));
+
+    public static async Task<R> Map<R>
+       (this Task task, Func<R> f)
+    {
+        await task;
+        return f();
+    }
+
+    public static Task<Func<T2, R>> Map<T1, T2, R>
+       (this Task<T1> @this, Func<T1, T2, R> func)
+        => @this.Map(func.Curry());
+
+    public static Task<Func<T2, T3, R>> Map<T1, T2, T3, R>
+       (this Task<T1> @this, Func<T1, T2, T3, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static Task<Func<T2, T3, T4, R>> Map<T1, T2, T3, T4, R>
+       (this Task<T1> @this, Func<T1, T2, T3, T4, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static Task<Func<T2, T3, T4, T5, R>> Map<T1, T2, T3, T4, T5, R>
+       (this Task<T1> @this, Func<T1, T2, T3, T4, T5, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static Task<Func<T2, T3, T4, T5, T6, R>> Map<T1, T2, T3, T4, T5, T6, R>
+       (this Task<T1> @this, Func<T1, T2, T3, T4, T5, T6, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static Task<Func<T2, T3, T4, T5, T6, T7, R>> Map<T1, T2, T3, T4, T5, T6, T7, R>
+       (this Task<T1> @this, Func<T1, T2, T3, T4, T5, T6, T7, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static Task<Func<T2, T3, T4, T5, T6, T7, T8, R>> Map<T1, T2, T3, T4, T5, T6, T7, T8, R>
+       (this Task<T1> @this, Func<T1, T2, T3, T4, T5, T6, T7, T8, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static Task<Func<T2, T3, T4, T5, T6, T7, T8, T9, R>> Map<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
+       (this Task<T1> @this, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> func)
+        => @this.Map(func.CurryFirst());
+
+    public static async Task<TResult> Select<T, TResult>
+        (this Task<T> task, Func<T, TResult> f) => await task.Map(f);
+
+
+    /// <summary>
+    /// Compose tasks to run in parallel
+    /// Use this when tasks have no dependencies
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="f"></param>
+    /// <param name="arg"></param>
+    /// <returns></returns>
+    public static async Task<TResult> Apply<T, TResult>
+         (this Task<Func<T, TResult>> f, Task<T> arg)
+         => (await f.ConfigureAwait(false))(await arg.ConfigureAwait(false));
+
+
+    public static Task<Func<T2, R>> Apply<T1, T2, R>
+         (this Task<Func<T1, T2, R>> f, Task<T1> arg)
+         => Apply(f.Map(_.Curry), arg);
+
+    public static Task<Func<T2, T3, R>> Apply<T1, T2, T3, R>
+       (this Task<Func<T1, T2, T3, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
+    public static Task<Func<T2, T3, T4, R>> Apply<T1, T2, T3, T4, R>
+       (this Task<Func<T1, T2, T3, T4, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
+    public static Task<Func<T2, T3, T4, T5, R>> Apply<T1, T2, T3, T4, T5, R>
+       (this Task<Func<T1, T2, T3, T4, T5, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
+    public static Task<Func<T2, T3, T4, T5, T6, R>> Apply<T1, T2, T3, T4, T5, T6, R>
+       (this Task<Func<T1, T2, T3, T4, T5, T6, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
+    public static Task<Func<T2, T3, T4, T5, T6, T7, R>> Apply<T1, T2, T3, T4, T5, T6, T7, R>
+       (this Task<Func<T1, T2, T3, T4, T5, T6, T7, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
+    public static Task<Func<T2, T3, T4, T5, T6, T7, T8, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, R>
+       (this Task<Func<T1, T2, T3, T4, T5, T6, T7, T8, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
+    public static Task<Func<T2, T3, T4, T5, T6, T7, T8, T9, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
+       (this Task<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>> @this, Task<T1> arg)
+       => Apply(@this.Map(_.CurryFirst), arg);
+
 
     /// <summary>
     ///     Try to execute the first task, otherwise use the fallback method
@@ -66,7 +178,7 @@ public static class Extensions
     /// <param name="f"></param>
     /// <param name="exceptionFilter"></param>
     /// <returns></returns>
-    public static Func<Task<T>> Where<T>(this Func<Task<T>> f
+    public static Func<Task<T>> Catch<T>(this Func<Task<T>> f
         , Func<Exception, bool> exceptionFilter) => () =>
         f().ContinueWith(
             t =>
@@ -112,9 +224,9 @@ public static class Extensions
     /// <param name="t"></param>
     /// <param name="exceptionFilter"></param>
     /// <returns></returns>
-    public static async Task<T> Where<T>(this Task<T> t
+    public static async Task<T> Catch<T>(this Task<T> t
         , Func<Exception, bool> exceptionFilter) =>
-        await Where(() => t, exceptionFilter)();
+        await Catch(() => t, exceptionFilter)();
 
 
     /// <summary>
