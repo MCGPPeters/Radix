@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Radix.Nullable;
+using Radix.Control.Nullable;
 using SqlStreamStore;
 
 namespace Radix.Inventory.Domain;

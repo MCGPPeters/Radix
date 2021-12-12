@@ -1,3 +1,6 @@
+using Radix.Data;
+using static Radix.Control.Validated.Extensions;
+
 namespace Radix.Math.Applied.Probability;
 
 [Alias<double>]

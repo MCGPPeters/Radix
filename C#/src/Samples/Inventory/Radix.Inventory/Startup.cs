@@ -7,8 +7,7 @@ using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Blazor.Inventory.Server.Pages;
 using Radix.Inventory.Domain;
 using Radix.Inventory.Shared;
-using Radix.Option;
-using Radix.Validated;
+using Radix.Data;
 using SqlStreamStore;
 
 namespace Radix.Inventory;

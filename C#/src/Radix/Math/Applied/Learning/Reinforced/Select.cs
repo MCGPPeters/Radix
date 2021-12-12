@@ -1,5 +1,5 @@
 ﻿using Radix.Math.Applied.Probability;
-using static Radix.Collections.Generic.Enumerable.Extensions;
+using static Radix.Data.Collections.Generic.Enumerable.Extensions;
 
 namespace Radix.Math.Applied.Learning.Reinforced;
 

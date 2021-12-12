@@ -1,4 +1,6 @@
-﻿namespace Radix.Math.Applied.Optimization.Control.POMDP;
+﻿using Radix.Data;
+
+namespace Radix.Math.Applied.Optimization.Control.POMDP;
 
 public record Environment<State, Action, Observation>(MDP.Dynamics<State, Action> Dynamics, Reward<Observation> Reward, DiscountFactor γ);
 

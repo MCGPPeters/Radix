@@ -1,4 +1,6 @@
 using System.Globalization;
+using Radix.Data;
+using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Shop.Catalog.Domain;
 
@@ -25,15 +27,15 @@ public record Product
     private static Func<Id, ProductTitle, ProductDescription, MerchantName, Price, ProductImageSource, UnitSize, UnitOfMeasure, Product> New => (id, title, description, merchantName, price, imageSource, unitSize, unitOfMeasure) =>
         new Product(id, title, description, merchantName, price, imageSource, unitSize, unitOfMeasure);
 
-    public static Validated<Product> Create(string id, string title, string description, string merchantName, string priceUnits, string priceFraction, string imageSource, string unitSize, string unitOfMeasure) =>
+    public static Func<string, string, string, string, string, string, string, string, string, Validated<Product>> Create => (id, title, description, merchantName, priceUnits, priceFraction, imageSource, unitSize, unitOfMeasure) =>
         Valid(New)
         .Apply(Id.Create(id))
         .Apply(ProductTitle.Create(title))
-        .Apply(ProductDescription.Create(description))
+        .Apply(Valid((ProductDescription)description))
         .Apply(MerchantName.Create(merchantName))
         .Apply(Price.Create(priceUnits, priceFraction))
         .Apply(ProductImageSource.Create(imageSource))
-        .Apply(UnitSize.Create(unitSize))
+        .Apply(UnitSize.Create(unitSize.ToString()))
         .Apply(UnitOfMeasure.Create(unitOfMeasure));
 
     public Id Id {  get; }

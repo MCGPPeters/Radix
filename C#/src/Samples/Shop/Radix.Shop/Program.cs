@@ -8,17 +8,19 @@ using Azure.Search.Documents.Models;
 using System.Threading.Channels;
 using Radix.Shop;
 using Azure.Storage.Queues;
-using Radix.Validated;
+using Radix.Data;
 using System.Configuration;
 using Azure.Search.Documents.Indexes;
 using Radix.Data.String;
-using Radix.Collections.Generic.Enumerable;
+using Radix.Data.Collections.Generic.Enumerable;
 using Radix;
-using static Radix.Async.Extensions;
+using static Radix.Control.Task.Extensions;
+using static Radix.Control.Validated.Extensions;
 using Azure.Search.Documents;
 using Radix.Shop.Components.AH;
 using OpenTelemetry;
 using OpenTelemetry.Trace;
+using Radix.Control.Task;
 
 var builder = WebApplication.CreateBuilder(args);
 

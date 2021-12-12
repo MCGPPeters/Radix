@@ -1,5 +1,4 @@
-﻿using Radix.Math.Pure.Algebra.Operations;
-using Radix.Math.Pure.Algebra.Structure;
+﻿using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers.ℝ;
 
@@ -9,5 +8,5 @@ public class Multiplication : Field<double>, Algebra.Operations.Multiplication
 
     public static Func<double, double, double> Combine => new((x, y) => x * y);
 
-    public static Func<double, double> Invert => a => 1/a;
+    public static Func<double, double> Invert => a => 1 / a;
 }

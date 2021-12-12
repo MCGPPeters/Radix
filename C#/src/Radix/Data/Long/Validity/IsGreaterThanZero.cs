@@ -1,6 +1,6 @@
-﻿using Radix.Data;
+﻿namespace Radix.Data.Long.Validity;
 
-namespace Radix.Data.Long.Validity;
+using static Radix.Control.Validated.Extensions;
 
 public class IsGreaterThanZero : Validity<long>
 {

@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Components;
 using Radix.Components;
 using Radix.Components.Html;
+using Radix.Data;
 using Radix.Inventory.Domain;
-using Radix.Option;
 
 namespace Radix.Blazor.Inventory.Server.Pages;
 

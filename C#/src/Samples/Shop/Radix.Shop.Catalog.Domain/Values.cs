@@ -9,7 +9,7 @@ public partial record Id { }
 [Validated<string, IsNotNullOrEmpty>]
 public partial record ProductTitle { }
 
-[Validated<string, IsNotNullOrEmpty>]
+[Alias<string>]
 public partial record ProductDescription { }
 
 [Validated<string, IsNotNullOrEmpty>]
@@ -30,7 +30,7 @@ public partial record PriceFraction { }
 [Alias<string>]
 public partial struct SearchTerm { }
 
-[Parsed<int, Data.Int.FromString>]
+[Parsed<decimal, Data.Decimal.FromString>]
 public partial record UnitSize { }
 
 [Validated<string, IsNotNullOrEmpty>]

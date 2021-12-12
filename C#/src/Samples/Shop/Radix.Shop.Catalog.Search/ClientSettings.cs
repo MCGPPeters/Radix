@@ -1,5 +1,5 @@
-﻿using Radix.Validated;
-using static Radix.Validated.Extensions;
+﻿using Radix.Data;
+using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Shop.Catalog.Search
 {

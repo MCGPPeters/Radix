@@ -1,5 +1,7 @@
 ﻿namespace Radix.Data.String.Validity;
 
+using static Radix.Control.Validated.Extensions;
+
 public class IsNotNullOrEmpty : Validity<string>
 {
     public static Validated<string> Validate(string value, string validationErrorMessage) =>

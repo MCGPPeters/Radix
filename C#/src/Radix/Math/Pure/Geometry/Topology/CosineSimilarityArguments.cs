@@ -1,4 +1,8 @@
-﻿namespace Radix.Math.Pure.Geometry.Topology;
+﻿using Radix.Data;
+
+using static Radix.Control.Validated.Extensions;
+
+namespace Radix.Math.Pure.Geometry.Topology;
 
 public record CosineSimilarityArguments : SimilarityArguments<double[]>
 {

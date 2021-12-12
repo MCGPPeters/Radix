@@ -2,15 +2,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Azure.Search.Documents;
-using Radix.Validated;
+using Radix.Data;
 using Radix.Shop.Catalog.Search;
-using Radix.Collections.Generic.Enumerable;
+using Radix.Data.Collections.Generic.Enumerable;
 using Radix.Data.String;
 using Microsoft.Playwright;
 using OpenTelemetry;
 using OpenTelemetry.Trace;
-using Microsoft.Extensions.Configuration;
-using System.Reflection;
+using static Radix.Control.Validated.Extensions;
 
 [assembly: FunctionsStartup(typeof(Radix.Shop.Catalog.Crawling.AH.Startup))]
 

@@ -1,6 +1,7 @@
 using FsCheck;
 using FsCheck.Xunit;
-using Radix.Result;
+using Radix.Control.Result;
+using Radix.Data;
 using Xunit;
 
 using static Xunit.Assert;
@@ -12,7 +13,7 @@ namespace Radix.Tests
         [Property(
             DisplayName =
                 "As a developer I want to be able to use the language support for pattern matching, so that the code is easy to understand")]
-        public void Test1(NonEmptyString s)
+        public void Test1(FsCheck.NonEmptyString s)
         {
             Result<string, string> result = Ok<string, string>(s.Get);
 

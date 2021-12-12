@@ -1,6 +1,9 @@
-﻿using Radix.Math.Applied.Probability.Event;
+﻿using Radix.Data;
+using Radix.Math.Applied.Probability.Event;
 
 namespace Radix.Math.Applied.Probability;
+
+using static Radix.Control.Validated.Extensions;
 
 public record Distribution<T>
 {
@@ -11,10 +14,7 @@ public record Distribution<T>
 
     public Probability Max { get; init; }
 
-    private Distribution((Event<T> @event, Probability probability)[] eventProbabilities)
-    {
-        EventProbabilities = eventProbabilities;
-    }
+    private Distribution((Event<T> @event, Probability probability)[] eventProbabilities) => EventProbabilities = eventProbabilities;
 
     public static Validated<Distribution<T>> Create((Event<T> @event, Probability probability)[] distribution)
         =>

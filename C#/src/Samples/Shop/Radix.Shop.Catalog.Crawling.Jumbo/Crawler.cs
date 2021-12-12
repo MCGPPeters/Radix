@@ -7,7 +7,7 @@ using Azure.Search.Documents.Models;
 using Radix.Shop.Catalog.Search.Index;
 using Radix.Shop.Catalog.Search;
 using System;
-using Radix.Validated;
+using Radix.Data;
 using Azure.Search.Documents;
 using System.Web;
 using System.Text;
