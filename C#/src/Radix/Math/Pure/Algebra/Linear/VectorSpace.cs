@@ -1,9 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.Numerics;
-using Radix.Data;
 using Radix.Math.Pure.Algebra.Operations;
 using Radix.Math.Pure.Algebra.Structure;
-using Radix.Result;
 
 namespace Radix.Math.Pure.Algebra.Linear;
 

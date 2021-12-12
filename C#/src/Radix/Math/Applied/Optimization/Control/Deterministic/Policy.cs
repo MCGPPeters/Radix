@@ -2,7 +2,6 @@
 using Radix.Math.Applied.Optimization.Control.MDP;
 using Radix.Math.Applied.Probability;
 using Radix.Math.Applied.Probability.Distribution;
-using Radix.Option;
 using static System.Math;
 
 namespace Radix.Math.Applied.Optimization.Control.Deterministic;

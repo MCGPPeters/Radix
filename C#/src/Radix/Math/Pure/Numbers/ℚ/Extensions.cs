@@ -1,4 +1,4 @@
-﻿using Radix.Math.Pure.Algebra.Structure;
+﻿using Radix.Data;
 using static Radix.Math.Pure.Numbers.ℤ.Extensions;
 
 namespace Radix.Math.Pure.Numbers.ℚ;

@@ -2,5 +2,5 @@
 
 public interface EventProcessor<TEvent, TCommand>
 {
-    static abstract Observe<TEvent, TCommand> Observe { get; } 
+    static abstract Observe<TEvent, TCommand> Observe { get; }
 }

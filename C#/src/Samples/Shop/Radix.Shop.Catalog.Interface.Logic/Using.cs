@@ -1,2 +1,2 @@
-﻿global using static Radix.Validated.Extensions;
+﻿global using static Radix.Control.Validated.Extensions;
 

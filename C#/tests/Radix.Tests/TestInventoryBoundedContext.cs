@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Radix.Control.Nullable;
 using Radix.Inventory.Domain;
 
 namespace Radix.Tests

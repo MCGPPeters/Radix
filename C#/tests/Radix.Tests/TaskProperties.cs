@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FsCheck;
 using FsCheck.Xunit;
-using static Radix.Async.Extensions;
+using Radix.Control.Task;
+using static Radix.Control.Task.Extensions;
 using static Xunit.Assert;
 
 namespace Radix.Tests
@@ -80,7 +81,7 @@ namespace Radix.Tests
                             Interlocked.Increment(ref numberOfTries);
                             return Task.FromException<int>(new ApplicationException());
                         })
-                    .Where(exception => exception is ArgumentNullException)
+                    .Catch(exception => exception is ArgumentNullException)
                     .Retry(Enumerable.Repeat(TimeSpan.FromMilliseconds(1), numberOfCalls.Get).ToArray());
             }
             catch

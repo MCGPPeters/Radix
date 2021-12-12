@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Radix.Validated;
+using Radix.Data;
 using Xunit;
 
 namespace Radix.Tests

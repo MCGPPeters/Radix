@@ -1,5 +1,4 @@
-﻿using Radix.Math.Pure.Algebra.Operations;
-using Radix.Math.Pure.Algebra.Structure;
+﻿using Radix.Math.Pure.Algebra.Structure;
 
 namespace Radix.Math.Pure.Numbers.ℕ;
 
@@ -20,4 +19,4 @@ public class Multiplication : Monoid<Natural>, Algebra.Operations.Multiplication
 
            return Multiply(a, b);
        };
-    }
+}

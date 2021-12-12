@@ -1,4 +1,5 @@
 ﻿using System.Threading.Channels;
+using Radix.Data;
 
 namespace Radix.Shop.Catalog.Domain;
 

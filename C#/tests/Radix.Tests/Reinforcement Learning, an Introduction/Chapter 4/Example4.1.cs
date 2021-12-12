@@ -4,7 +4,7 @@ using Radix.Math.Applied.Optimization.Control.MDP;
 using Radix.Math.Applied.Optimization.Control.Deterministic;
 using Radix.Math.Applied.Probability;
 using Xunit;
-using Radix.Validated;
+using Radix.Data;
 
 namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_4;
 

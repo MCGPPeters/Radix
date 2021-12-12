@@ -2,7 +2,7 @@
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
 using Radix.Components.Html;
-using Radix.Option;
+using Radix.Data;
 
 namespace Radix.Blazor.Inventory.Server.Pages;
 

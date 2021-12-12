@@ -1,15 +1,16 @@
 
-using Microsoft.Extensions.Caching.Memory;
-using System.Threading.Channels;
-using Radix.Result;
-using Radix.Validated;
 using System.Runtime.CompilerServices;
+using System.Threading.Channels;
+using Microsoft.Extensions.Caching.Memory;
+using Radix.Data;
+
+using static Radix.Control.Result.Extensions;
 
 namespace Radix;
 
 public interface BoundedContext<TCommand, TEvent, TFormat>
     where TEvent : notnull
-{ 
+{
     private static readonly MemoryCache s_instances = new(new MemoryCacheOptions { });
 
     AppendEvents<TFormat> AppendEvents { get; }
@@ -26,7 +27,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
         {
             Aggregate<TCommand, TEvent> aggregate = Create<TState, TCommandHandler>(id, new ExistingVersion(0));
             using (ICacheEntry cacheEntry = s_instances.CreateEntry(id))
-            value = cacheEntry.Value = aggregate;
+                value = cacheEntry.Value = aggregate;
             return aggregate;
         }
 
@@ -122,7 +123,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
         }, cancellationToken);
 
         AggregateInstance<TCommand, TEvent> aggregate = new(id, channel);
-        var _ = s_instances.Set(id, aggregate);
+        AggregateInstance<TCommand, TEvent>? _ = s_instances.Set(id, aggregate);
         return aggregate;
     }
 }

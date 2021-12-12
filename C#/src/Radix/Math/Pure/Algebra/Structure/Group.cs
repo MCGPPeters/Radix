@@ -1,6 +1,4 @@
-﻿using Radix.Math.Pure.Algebra.Operations;
-
-namespace Radix.Math.Pure.Algebra.Structure;
+﻿namespace Radix.Math.Pure.Algebra.Structure;
 
 public interface Group<A> : Monoid<A>
 {

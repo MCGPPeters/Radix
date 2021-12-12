@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Queues;
+using Radix.Data;
 using Radix.Shop.Catalog.Domain;
 
 namespace Radix.Shop;

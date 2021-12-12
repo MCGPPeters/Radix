@@ -1,4 +1,6 @@
-using Radix.Validated;
+
+using Radix.Data;
+using Radix.Data.String.Validity;
 
 namespace Radix.Inventory.Domain;
 
@@ -22,7 +24,7 @@ public record CreateInventoryItem : InventoryItemCommand
 
     public static Validated<InventoryItemCommand> Create(long id, string? name, bool activated, int count) => Valid(New)
         .Apply(InventoryItemId.Create(id))
-        .Apply(name.IsNotNullNorEmpty("An inventory item must have a name"))
+        .Apply(IsNotNullOrEmpty.Validate(name, "An inventory item must have a name"))
         .Apply(Valid(activated))
         .Apply(
             count > 0

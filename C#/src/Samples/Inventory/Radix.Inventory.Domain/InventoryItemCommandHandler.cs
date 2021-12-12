@@ -1,4 +1,4 @@
-﻿using static Radix.Result.Extensions;
+﻿using static Radix.Control.Result.Extensions;
 
 namespace Radix.Inventory.Domain;
 

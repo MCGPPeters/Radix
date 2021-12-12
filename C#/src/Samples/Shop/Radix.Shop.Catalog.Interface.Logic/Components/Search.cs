@@ -3,7 +3,6 @@ using Radix.Components.Html;
 using static Radix.Components.Html.Elements;
 using static Radix.Components.Html.Attributes;
 using Microsoft.AspNetCore.Components;
-using Radix.Option;
 using System.Globalization;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components

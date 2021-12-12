@@ -92,13 +92,14 @@ public class ParsedGenerator : ISourceGenerator
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
-    using static Radix.Validated.Extensions;
+    using static Radix.Control.Validated.Extensions;
+    using Radix.Data;
 
     {kindSource}
     {{
         public static Validated<{typeSymbol.Name}> Create(string? value)
         {{
-            var result = from validated in {validityType}.Parse(value, ""The value provided for {typeSymbol.Name} is not valid"")
+            var result = from validated in {validityType}.Parse(value, $""The value provided for {typeSymbol.Name}, '{{value}}',  is not valid"")
                          select new {typeSymbol.Name}(validated);
             return result;
         }}

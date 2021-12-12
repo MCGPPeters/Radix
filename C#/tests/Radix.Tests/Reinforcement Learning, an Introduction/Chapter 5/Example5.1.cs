@@ -2,7 +2,7 @@
 using Radix.Math.Applied.Optimization.Control.POMDP;
 using Radix.Math.Applied.Probability;
 using Xunit;
-using Radix.Validated;
+using Radix.Data;
 using static Radix.Math.Applied.Probability.Distribution.Generators;
 using static Radix.Math.Applied.Learning.Reinforced.MonteCarlo.Prediction.FirstVisit;
 using XPlot.Plotly;

@@ -1,9 +1,7 @@
-﻿using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Radix.Result;
-using Radix.Validated;
+﻿using System.Threading.Channels;
+using Radix.Data;
+
+using static Radix.Control.Result.Extensions;
 
 namespace Radix;
 
@@ -35,9 +33,8 @@ internal class AggregateInstance<TCommand, TEvent> : Aggregate<TCommand, TEvent>
     /// <summary>
     ///     Accepts commands and returns either the resulting events or the errors that occurred
     /// </summary>
-    public Accept<TCommand, TEvent> Accept
-    {
-        get => async validatedCommand =>
+    public Accept<TCommand, TEvent> Accept =>
+        async validatedCommand =>
         {
             switch (validatedCommand)
             {
@@ -56,5 +53,4 @@ internal class AggregateInstance<TCommand, TEvent> : Aggregate<TCommand, TEvent>
                 default: throw new InvalidOperationException();
             }
         };
-    }
 }

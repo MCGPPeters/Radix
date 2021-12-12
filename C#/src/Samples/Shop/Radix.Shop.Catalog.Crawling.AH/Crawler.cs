@@ -7,14 +7,21 @@ using Azure.Search.Documents.Models;
 using Radix.Shop.Catalog.Search.Index;
 using Radix.Shop.Catalog.Search;
 using System;
-using Radix.Validated;
 using Azure.Search.Documents;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
-using static Radix.Writer.Extensions;
-using static Radix.Async.Extensions;
+using static Radix.Control.Task.Result.Extensions;
+using static Radix.Control.Result.Extensions;
+using Radix.Control.Option;
+using Radix.Data;
+using Radix.Shop.Catalog.Crawling.AH.ElementHandle;
+using Radix.Shop.Catalog.Crawling.AH.Browser;
+using Radix.Shop.Catalog.Crawling.AH.BrowserContext;
+using Radix.Shop.Catalog.Crawling.AH.Page;
+using Radix.Data.Collections.Generic.Enumerable;
+using System.Collections.Generic;
 
-namespace Radix.Shop.Catalog.Crawling.Jumbo
+namespace Radix.Shop.Catalog.Crawling.AH
 {
     public class Crawler
     {
@@ -34,7 +41,7 @@ namespace Radix.Shop.Catalog.Crawling.Jumbo
         }
 
         [FunctionName("AH")]
-        public async Task Run([QueueTrigger("%AH_QUEUE_NAME%", Connection = "AH_CONNECTION_STRING")]string searchTerm, ILogger log)
+        public async Task Run([QueueTrigger("%AH_QUEUE_NAME%", Connection = "AH_CONNECTION_STRING")] string searchTerm, ILogger log)
         {
             const string merchantName = "Albert Heijn";
 
@@ -54,10 +61,10 @@ namespace Radix.Shop.Catalog.Crawling.Jumbo
                 {
                     // Get all data in parallel and create a validated product
                     var validatedProduct =
-                        Return(CreateProduct())
+                        CreateProduct()
                             .Apply(GetProductTitle(productElement))
                             .Apply(GetProductDescriptionAndId(productElement, Browser))
-                            .Apply(Return(merchantName))
+                            .Apply(Return<string, Error>(merchantName))
                             .Apply(GetPriceUnits(productElement))
                             .Apply(GetPriceFraction(productElement))
                             .Apply(GetImageSource(productElement))
@@ -66,18 +73,12 @@ namespace Radix.Shop.Catalog.Crawling.Jumbo
 
                     switch (await validatedProduct)
                     {
-                        case Valid<Product>(var product):
+                        case Ok<Product, Error>(var product):
                             var result = IndexDocumentsAction.MergeOrUpload(product.ToIndexableProduct());
-                            await SearchClient.IndexDocumentsAsync(IndexDocumentsBatch.Create(result));
+                            await SearchClient.IndexDocumentsAsync(IndexDocumentsBatch.Create(result)).ConfigureAwait(false);
                             break;
-                        case Invalid<Product>(var errors):
-                            // TODO : proper tracing
-                            foreach (var error in errors)
-                            {
-                                Console.WriteLine(error);
-                            }
-                            break;
-                        default:
+                        case Error<Product, Error>(var error):
+                            Console.WriteLine($"Validation error : {error}");
                             break;
                     }
                 }
@@ -91,46 +92,76 @@ namespace Radix.Shop.Catalog.Crawling.Jumbo
             await page.CloseAsync().ConfigureAwait(false);
         }
 
-        private static Task<string> GetProductTitle(IElementHandle productElement) =>
-                                    from productTitleElement in productElement.QuerySelectorAsync("css=[data-testhook='product-title']")
-                                    from productTitle in productTitleElement.TextContentAsync()
+        private static Task<Result<string, Error>> GetProductTitle(IElementHandle productElement) =>
+                                    from productTitleElement in productElement.QuerySelector("css=[data-testhook='product-title']")
+                                    from productTitle in productTitleElement.TextContent()
                                     select productTitle;
 
-        private static Task<string> GetPriceUnits(IElementHandle productElement) =>
-                                    from priceUnitElement in productElement.QuerySelectorAsync("css=[class='price-amount_integer__1cJgL']")
-                                    from priceUnit in priceUnitElement.TextContentAsync()
+        private static Task<Result<string, Error>> GetPriceUnits(IElementHandle productElement) =>
+                                    from priceUnitElement in productElement.QuerySelector("css=[class='price-amount_integer__1cJgL']")
+                                    from priceUnit in priceUnitElement.TextContent()
                                     select priceUnit;
 
-        private static Task<string> GetPriceFraction(IElementHandle productElement) =>
-                                    from priceFractionElement in productElement.QuerySelectorAsync("css=[class='price-amount_fractional__2wVIK']")
-                                    from priceFraction in priceFractionElement.TextContentAsync()
+        private static Task<Result<string, Error>> GetPriceFraction(IElementHandle productElement) =>
+                                    from priceFractionElement in productElement.QuerySelector("css=[class='price-amount_fractional__2wVIK']")
+                                    from priceFraction in priceFractionElement.TextContent()
                                     select priceFraction;
 
-        private static Task<(string, string)> GetUnit(IElementHandle productElement) =>
-                                    from unitSizeElement in productElement.QuerySelectorAsync("css=[data-testhook='product-unit-size']")
-                                    from unitSizeElementText in unitSizeElement.TextContentAsync()
+        private static Task<Result<(string unitSize, string unitOfMeasure), Error>> GetUnit(IElementHandle productElement) =>
+                                    from unitSizeElement in productElement.QuerySelector("css=[data-testhook='product-unit-size']")
+                                    from unitSizeElementText in unitSizeElement.TextContent()
                                     let unitSizeParts = unitSizeElementText.Split(" ")
                                     let unitSize = unitSizeParts[0]
                                     let unitOfMeasure = unitSizeParts[1]
                                     select (unitSize, unitOfMeasure);
 
-        private static Task<string> GetImageSource(IElementHandle productElement) =>
-                                    from imageSourceElement in productElement.QuerySelectorAsync("css=[data-testhook='product-image']")
-                                    from imagesSource in imageSourceElement.GetAttributeAsync("src")
+        private static Task<Result<string, Error>> GetImageSource(IElementHandle productElement) =>
+                                    from imageSourceElement in productElement.QuerySelector("css=[data-testhook='product-image']")
+                                    from imagesSource in imageSourceElement.GetAttribute("src")
                                     select imagesSource;
 
-        private static Task<(string id, string description)> GetProductDescriptionAndId(IElementHandle productElement, IBrowser browser) =>
-                                    from detailsPageElement in productElement.QuerySelectorAsync("css=a:first-child")
-                                    from detailsPageLink in detailsPageElement.GetAttributeAsync("href")
-                                    from detailsContext in browser.NewContextAsync(new BrowserNewContextOptions { })
-                                    from detailsPage in detailsContext.NewPageAsync()
-                                    from _ in detailsPage.GotoAsync($"https://www.ah.nl{detailsPageLink}", new PageGotoOptions { Timeout = 0 })
-                                    from descriptionElement in detailsPage.QuerySelectorAsync("css=[data-testhook='product-summary']")
-                                    from description in descriptionElement.TextContentAsync()
-                                    select (detailsPageLink?.Split("/")[3] ?? "", description ?? "");
+        private static Task<Result<(string id, string description), Error>> GetProductDescriptionAndId(IElementHandle productElement, IBrowser browser) =>
+                                    from detailsPageElement in productElement.QuerySelector("css=a:first-child")
+                                    from detailsPageLink in detailsPageElement.GetAttribute("href")
+                                    from detailsContext in browser.NewContext(new BrowserNewContextOptions { })
+                                    from detailsPage in detailsContext.NewPage()
+                                    from _ in detailsPage.Goto($"https://www.ah.nl{detailsPageLink}", new PageGotoOptions { Timeout = 0 })
+                                    from descriptionElement in detailsPage.QuerySelector("css=[data-testhook='product-summary']")
+                                    from description in descriptionElement.TextContent()
+                                    let id = detailsPageLink?.Split("/")[3]
+                                    select (id, description);
 
-        private static Func<string, (string id, string description), string, string, string, string, (string unitSize, string unitOfMeasure), Validated<Product>> CreateProduct() =>
-                                (title, idAndDescription, merchantName, priceUnits, priceFraction, imageSource, unitSizeAndUnitOfMeasure) =>
-                                    Product.Create(idAndDescription.id, title, idAndDescription.description, merchantName, priceUnits, priceFraction, imageSource, unitSizeAndUnitOfMeasure.unitSize, unitSizeAndUnitOfMeasure.unitOfMeasure);
+        private static Task<Func<Result<string, Error>, Result<(string id, string description), Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<(string unitSize, string unitOfMeasure), Error>, Result<Product, Error>>> CreateProduct() =>
+                                Task.FromResult<Func<Result<string, Error>, Result<(string id, string description), Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<(string unitSize, string unitOfMeasure), Error>, Result<Product, Error>>> ((title, idAndDescription, merchantName, priceUnits, priceFraction, imageSource, unitSizeAndUnitOfMeasure) =>
+                                {
+                                    var id = idAndDescription.Map(x => x.id);
+                                    var description = idAndDescription.Map(y => y.description);
+                                    var unitSize = unitSizeAndUnitOfMeasure.Map(x => x.unitSize);
+                                    var unitOfMeasure = unitSizeAndUnitOfMeasure.Map(y => y.unitOfMeasure);
+
+                                    var result =  Control.Result.Extensions.Ok<Func<string, string, string, string, string, string, string, string, string, Validated<Product>>, Error>(Product.Create)
+                                    .Apply(id)
+                                    .Apply(title)
+                                    .Apply(description)
+                                    .Apply(merchantName)
+                                    .Apply(priceUnits)
+                                    .Apply(priceFraction)
+                                    .Apply(imageSource)
+                                    .Apply(unitSize)
+                                    .Apply(unitOfMeasure);
+
+                                    return result switch
+                                    {
+                                        Ok<Validated<Product>, Error>(var validated) =>
+                                            validated switch
+                                            {
+                                                Valid<Product>(var product) => Ok<Product, Error>(product),
+                                                Invalid<Product>(var errors) => Error<Product, Error>(errors.Aggregate<string, Data.String.Concat>()),
+                                                _ => throw new NotImplementedException()
+                                            },
+                                        Error<Validated<Product>, Error>(var error) => Error<Product, Error>(error),
+                                        _ => throw new NotImplementedException()
+                                    };
+                                });
     }
 }
