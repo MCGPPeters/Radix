@@ -26,9 +26,12 @@ public class ParsedGenerator : ISourceGenerator
             {
                 Console.WriteLine($"{attribute.AttributeClass.TypeArguments[1].ContainingNamespace.Name}.{attribute.AttributeClass.TypeArguments[1].Name}");
                 var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}" , typeSymbol, candidate);
+                // fix text formating according to default ruleset
+                var normalizedSourceCodeText
+                    = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
                 context.AddSource(
                     $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
-                    SourceText.From(classSource, Encoding.UTF8));
+                    normalizedSourceCodeText);
             }
         }
     }

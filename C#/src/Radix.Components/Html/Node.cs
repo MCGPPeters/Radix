@@ -2,4 +2,6 @@
 
 namespace Radix.Components.Html;
 
-public interface Node { }
+public partial interface Node
+{
+}

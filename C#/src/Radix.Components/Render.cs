@@ -10,12 +10,11 @@ public static class Render
     {
         switch (node)
         {
-            case Empty _:
-                return sequence;
-            case Text text:
+
+            case Text (var text):
                 builder.AddContent(sequence, text);
                 return sequence + 1;
-            case HtmlString html:
+            case HtmlString (var html):
                 builder.AddMarkupContent(sequence, html);
                 return sequence + 1;
             case Concat nodes:
@@ -46,7 +45,7 @@ public static class Render
             case Component component:
                 builder.OpenComponent(sequence, component.Type);
                 sequence++;
-                sequence = Render.Attributes(currentComponent, builder, sequence, component.Attributes);
+                sequence = Attributes(currentComponent, builder, sequence, component.Attributes);
                 if (component.Children.Any())
                 {
                     RenderFragment fragment = treeBuilder => treeBuilder.AddContent(

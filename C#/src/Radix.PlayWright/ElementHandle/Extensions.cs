@@ -9,7 +9,7 @@ using static Radix.Control.Validated.Extensions;
 using Radix.Control.Result;
 using Radix.Data;
 
-namespace Radix.Shop.Catalog.Crawling.AH.ElementHandle;
+namespace Radix.PlayWright.ElementHandle;
 
 public static class Extensions
 {

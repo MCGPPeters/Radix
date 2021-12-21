@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Radix.Shop.Catalog.Domain;
@@ -6,20 +5,17 @@ using Microsoft.Playwright;
 using Azure.Search.Documents.Models;
 using Radix.Shop.Catalog.Search.Index;
 using Radix.Shop.Catalog.Search;
-using System;
 using Azure.Search.Documents;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
 using static Radix.Control.Task.Result.Extensions;
 using static Radix.Control.Result.Extensions;
 using Radix.Control.Option;
-using Radix.Data;
-using Radix.Shop.Catalog.Crawling.AH.ElementHandle;
-using Radix.Shop.Catalog.Crawling.AH.Browser;
-using Radix.Shop.Catalog.Crawling.AH.BrowserContext;
 using Radix.Shop.Catalog.Crawling.AH.Page;
 using Radix.Data.Collections.Generic.Enumerable;
-using System.Collections.Generic;
+using Radix.PlayWright.ElementHandle;
+using Radix.PlayWright.Browser;
+using Radix.PlayWright.BrowserContext;
 
 namespace Radix.Shop.Catalog.Crawling.AH
 {
@@ -132,14 +128,14 @@ namespace Radix.Shop.Catalog.Crawling.AH
                                     select (id, description);
 
         private static Task<Func<Result<string, Error>, Result<(string id, string description), Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<(string unitSize, string unitOfMeasure), Error>, Result<Product, Error>>> CreateProduct() =>
-                                Task.FromResult<Func<Result<string, Error>, Result<(string id, string description), Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<string, Error>, Result<(string unitSize, string unitOfMeasure), Error>, Result<Product, Error>>> ((title, idAndDescription, merchantName, priceUnits, priceFraction, imageSource, unitSizeAndUnitOfMeasure) =>
+                                Task.FromResult ((Result<string, Error> title, Result<(string id, string description), Error> idAndDescription, Result<string, Error> merchantName, Result<string, Error> priceUnits, Result<string, Error> priceFraction, Result<string, Error> imageSource, Result<(string unitSize, string unitOfMeasure), Error> unitSizeAndUnitOfMeasure) =>
                                 {
                                     var id = idAndDescription.Map(x => x.id);
                                     var description = idAndDescription.Map(y => y.description);
                                     var unitSize = unitSizeAndUnitOfMeasure.Map(x => x.unitSize);
                                     var unitOfMeasure = unitSizeAndUnitOfMeasure.Map(y => y.unitOfMeasure);
 
-                                    var result =  Control.Result.Extensions.Ok<Func<string, string, string, string, string, string, string, string, string, Validated<Product>>, Error>(Product.Create)
+                                    var result = Ok<Func<string, string, string, string, string, string, string, string, string, Validated<Product>>, Error>(Product.Create)
                                     .Apply(id)
                                     .Apply(title)
                                     .Apply(description)

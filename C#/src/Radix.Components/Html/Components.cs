@@ -14,4 +14,7 @@ public static class Components
 
     public static Component component<T>(IEnumerable<IAttribute> attributes, params Node[] children)
         where T : IComponent => new(typeof(T), attributes, children);
+
+    public static Component component<T>(params IAttribute[] attributes)
+        where T : IComponent => new(typeof(T), attributes);
 }

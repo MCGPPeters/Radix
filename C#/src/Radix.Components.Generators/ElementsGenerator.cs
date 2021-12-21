@@ -2,6 +2,7 @@
 using System;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Radix.Components.Generators
 {
@@ -50,7 +51,7 @@ namespace Radix.Components.Generators
                 methodsStringBuilder.Append(Environment.NewLine);
             }
 
-            string classText =
+            string classSourceText =
             $@"
                 using System;
 
@@ -58,7 +59,7 @@ namespace Radix.Components.Generators
 
                 public static class Elements
                 {{
-                    public static Node text(string text) => (Text)text;
+                    public static Node text(string text) => new Text(text);
 
                     public static Concat concat(params Node[] nodes) => new(nodes);
 
@@ -68,8 +69,11 @@ namespace Radix.Components.Generators
                 }}
             ";
 
+            var normalizedSourceCodeText
+                    = CSharpSyntaxTree.ParseText(classSourceText).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
+
             // Register the attribute source
-            context.AddSource("Elements", classText);
+            context.AddSource("Elements", normalizedSourceCodeText);
         }
 
         public void Initialize(GeneratorInitializationContext context) { }

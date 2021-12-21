@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Playwright" Version="1.16.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.1.0" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc8" />
@@ -24,6 +23,7 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Radix.PlayWright\Radix.PlayWright.csproj" />
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Domain\Radix.Shop.Catalog.Domain.csproj" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Search\Radix.Shop.Catalog.Search.csproj" />

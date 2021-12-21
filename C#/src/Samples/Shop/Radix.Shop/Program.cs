@@ -21,6 +21,7 @@ using Radix.Shop.Components.AH;
 using OpenTelemetry;
 using OpenTelemetry.Trace;
 using Radix.Control.Task;
+using Tsheap.Com.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +91,9 @@ switch (result)
                 .AddJaegerExporter()
                 .Build();
         builder.Services.AddSingleton(openTelemetry);
+        builder.Services.AddSingleton<IndexViewModel>();
+        builder.Services.AddSingleton<ListViewModel>();
+        builder.Services.AddSingleton(new CarouselViewModel("frequentItems", new CarouselOptions(), text("foo"), text("bar")));
 
         var app = builder.Build();
 
