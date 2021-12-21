@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web.Extensions" Version="5.0.0-preview9.20513.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Radix.Components\Radix.Components.csproj" />
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
   </ItemGroup>

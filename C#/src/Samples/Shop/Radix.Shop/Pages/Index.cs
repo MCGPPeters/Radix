@@ -13,13 +13,9 @@ namespace Radix.Shop.Pages
             (
                 component<Search>
                 (
-                    new IAttribute[] { },
-                    new Node[] { }
+                    Array.Empty<IAttribute>(),
+                    Array.Empty<Node>()
                 )
-            );
-
-
-        
-            
+            );          
     }
 }

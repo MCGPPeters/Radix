@@ -14,20 +14,25 @@ public class AliasGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
+
         if (context.SyntaxReceiver is not SyntaxReceiver receiver) return;
 
         foreach (var candidate in receiver.CandidateTypes)
         {
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
+            CompilationUnitSyntax root = candidate.SyntaxTree.GetCompilationUnitRoot();
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.AliasAttribute`1");
             var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
             foreach (var attribute in attributes)
             {
                 var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, candidate);
+                // fix text formating according to default ruleset
+                var normalizedSourceCodeText
+                    = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
                 context.AddSource(
                     $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_alias",
-                    SourceText.From(classSource, Encoding.UTF8));
+                    normalizedSourceCodeText);
             }
         }
     }

@@ -4,7 +4,7 @@ using Radix.Data;
 using static Radix.Control.Task.Extensions;
 using static Radix.Control.Result.Extensions;
 
-namespace Radix.Shop.Catalog.Crawling.AH.BrowserContext;
+namespace Radix.PlayWright.BrowserContext;
 
 public static class Extensions
 {
@@ -15,5 +15,5 @@ public static class Extensions
                 Error<IPage, Error>($"Could not open a new page in the browser context because of {faulted.InnerException}"),
             succeeded =>
                 Ok<IPage, Error>(succeeded));
-}   
+}
 

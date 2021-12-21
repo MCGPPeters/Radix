@@ -1,15 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Playwright;
+﻿using Microsoft.Playwright;
 using Radix.Control.Task;
 using static Radix.Control.Task.Extensions;
 using static Radix.Control.Result.Extensions;
-using static Radix.Control.Validated.Extensions;
-using Radix.Control.Result;
 using Radix.Data;
+using System.Threading.Tasks;
 
-namespace Radix.Shop.Catalog.Crawling.AH.Browser;
+namespace Radix.PlayWright.Browser;
 
 public static class Extensions
 {
