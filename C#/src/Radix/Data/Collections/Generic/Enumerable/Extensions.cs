@@ -66,31 +66,31 @@ public static class Extensions
     public static T Π<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Multiplication => Product<T, M>(values);
 
 
-    public static T Average<T, GAdd, GMul>(this IEnumerable<T> values)
-        where GAdd : Group<T>, Addition
-        where GMul : Group<T>, Multiplication
-        where T : IFloatingPoint<T>
-        => GMul.Combine(Sum<T, GAdd>(values), GMul.Invert(T.Create(values.Count())));
+    //public static T Average<T, GAdd, GMul>(this IEnumerable<T> values)
+    //    where GAdd : Group<T>, Addition
+    //    where GMul : Group<T>, Multiplication
+    //    where T : IFloatingPoint<T>
+    //    => GMul.Combine(Sum<T, GAdd>(values), GMul.Invert(T.Create(values.Count())));
 
-    public static T StandardDeviation<T, GAdd, GMul>(IEnumerable<T> values)
-        where GAdd : Group<T>, Addition
-        where GMul : Group<T>, Multiplication
-        where T : IFloatingPoint<T>
-    {
-        T standardDeviation = GAdd.Identity;
+    //public static T StandardDeviation<T, GAdd, GMul>(IEnumerable<T> values)
+    //    where GAdd : Group<T>, Addition
+    //    where GMul : Group<T>, Multiplication
+    //    where T : IFloatingPoint<T>
+    //{
+    //    T standardDeviation = GAdd.Identity;
 
-        if (values.Any())
-        {
-            T average = Average<T, GAdd, GMul>(values);
-            T variance = Average<T, GAdd, GMul>(values.Select((value) =>
-            {
-                T deviation = GAdd.Combine(value, GAdd.Invert(average));
-                return GMul.Combine(deviation, deviation);
-            }));
-            standardDeviation = T.Sqrt(variance);
-        }
+    //    if (values.Any())
+    //    {
+    //        T average = Average<T, GAdd, GMul>(values);
+    //        T variance = Average<T, GAdd, GMul>(values.Select((value) =>
+    //        {
+    //            T deviation = GAdd.Combine(value, GAdd.Invert(average));
+    //            return GMul.Combine(deviation, deviation);
+    //        }));
+    //        standardDeviation = T.Sqrt(variance);
+    //    }
 
-        return standardDeviation;
-    }
+    //    return standardDeviation;
+    //}
 
 }
