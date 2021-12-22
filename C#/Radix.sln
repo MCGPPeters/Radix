@@ -53,7 +53,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Catalog.Crawling
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.PlayWright", "src\Radix.PlayWright\Radix.PlayWright.csproj", "{5E815109-68C8-454E-A91D-0AD7E5461DCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Shop.Wasm", "src\Samples\Shop\Radix.Shop.Wasm\Radix.Shop.Wasm.csproj", "{B5984F30-1BCB-4E3A-A66D-372DEC1FA9B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Shop.Wasm", "src\Samples\Shop\Radix.Shop.Wasm\Radix.Shop.Wasm.csproj", "{B5984F30-1BCB-4E3A-A66D-372DEC1FA9B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Components.Material.3.2.0", "src\Radix.Components.Material.3.2.0\Radix.Components.Material.3.2.0.csproj", "{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -269,6 +271,18 @@ Global
 		{B5984F30-1BCB-4E3A-A66D-372DEC1FA9B5}.Release|x64.Build.0 = Release|Any CPU
 		{B5984F30-1BCB-4E3A-A66D-372DEC1FA9B5}.Release|x86.ActiveCfg = Release|Any CPU
 		{B5984F30-1BCB-4E3A-A66D-372DEC1FA9B5}.Release|x86.Build.0 = Release|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x86.Build.0 = Debug|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x64.ActiveCfg = Release|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x64.Build.0 = Release|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x86.ActiveCfg = Release|Any CPU
+		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
