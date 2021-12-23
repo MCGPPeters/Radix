@@ -1,15 +1,25 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Radix.Shop.Pages;
+using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
+using Radix.Components.Material._3._2._0.AppBar.Top.Navigation.Buttons;
 using Radix.Shop.Wasm;
-using Tsheap.Com.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<IndexViewModel>();
-builder.Services.AddSingleton(new CarouselViewModel("frequentItems", new CarouselOptions(), text("foo"), text("bar")));
+var regularAppBarViewModel = new Radix.Components.Material._3._2._0.AppBar.Top.RegularViewModel
+{
+    ActionButtons = new()
+    {
+        new ShoppingCart()
+    },
+    NavigationButton = new Menu(),
+    PageTitle = "Radix"
+};
+
+builder.Services.AddSingleton<Radix.Components.Material._3._2._0.AppBar.Top.RegularViewModel>(_ => regularAppBarViewModel);
+
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddMsalAuthentication(options =>

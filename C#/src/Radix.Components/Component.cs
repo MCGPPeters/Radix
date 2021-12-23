@@ -25,3 +25,21 @@ public abstract class Component<TViewModel> : ComponentBase
         Render.Node(this, builder, 0, View(ViewModel));
     }
 }
+
+public abstract class Component : ComponentBase
+{
+    [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+
+    /// <summary>
+    ///     This function is called whenever it is decided the state of the viewmodel has changed
+    /// </summary>
+    /// <param name="currentViewModel"></param>
+    /// <returns></returns>
+    protected abstract Node View();
+
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        base.BuildRenderTree(builder);
+        Render.Node(this, builder, 0, View());
+    }
+}
