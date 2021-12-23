@@ -31,7 +31,7 @@ public record SearchViewModel : ViewModel
         };
     }
 
-    public Component GetMerchentLogo(string merchantName) =>
+    public Radix.Components.Html.Component GetMerchentLogo(string merchantName) =>
         merchantName switch
         {
             "Albert Heijn" =>

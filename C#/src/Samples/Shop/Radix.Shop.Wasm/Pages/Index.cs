@@ -8,17 +8,10 @@ using Radix.Shop.Wasm.Pages;
 namespace Radix.Shop.Pages
 {
     [Route("/")]
-    public class Index : Component<IndexViewModel>
+    public class Index : Radix.Components.Component
     {
-        protected override Node View(IndexViewModel currentViewModel) =>
-            concat
-            (
-                component<Carousel>
-                (
-                    Array.Empty<IAttribute>(),
-                    Array.Empty<Node>()
-                )
-            );
+        protected override Node View() =>
+            text("Hello!");
     }
     
 }

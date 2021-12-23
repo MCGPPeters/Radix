@@ -42,7 +42,7 @@ public static class Render
                 builder.CloseElement();
                 builder.CloseRegion();
                 return sequence;
-            case Component component:
+            case Html.Component component:
                 builder.OpenComponent(sequence, component.Type);
                 sequence++;
                 sequence = Attributes(currentComponent, builder, sequence, component.Attributes);
