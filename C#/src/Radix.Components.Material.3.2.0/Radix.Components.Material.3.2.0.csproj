@@ -31,8 +31,6 @@
 
   <ItemGroup>
     <Folder Include="AppBar\Bottom\" />
-    <Folder Include="Layout\" />
-    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>

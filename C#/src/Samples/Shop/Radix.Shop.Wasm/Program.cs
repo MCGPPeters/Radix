@@ -12,7 +12,8 @@ var regularAppBarViewModel = new Radix.Components.Material._3._2._0.AppBar.Top.R
 {
     ActionButtons = new()
     {
-        new ShoppingCart()
+        new ShoppingCart(),
+        new Search()
     },
     NavigationButton = new Menu(),
     PageTitle = "Radix"
