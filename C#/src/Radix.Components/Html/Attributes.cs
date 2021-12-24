@@ -27,6 +27,9 @@ public static class Attributes
     public static attribute alt = values
         => attribute(nameof(alt), values);
 
+    public static attribute aria_label = values
+        => attribute("aria-label", values);
+
     public static attribute async = values
         => attribute(nameof(async), values);
 
