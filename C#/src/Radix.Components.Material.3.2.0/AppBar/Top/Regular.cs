@@ -16,19 +16,6 @@ public class Regular : Component<RegularViewModel>
 
     private const string SearchSearchInputCssClassName = $"{AppBarCssClassName}-search-input";
 
-    private Lazy<Search>? _searchButtonComponent;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        // await JSRuntime.InvokeAsync<Unit>("showSearchBar", Array.Empty<object>());
-        //_searchButtonComponent = new Lazy<Search>(() =>
-        //{
-        //    var searchButton = new Search();
-        //    searchButton.OnClick = async _ => await JSRuntime.InvokeAsync<Unit>("showSearchBar", Array.Empty<object>());
-        //    return searchButton;
-        //});
-    }
-
     protected override Node View(RegularViewModel currentViewModel)
     {
         var hasSearch = currentViewModel.ActionButtons.Any(button => button is Search);
@@ -45,9 +32,9 @@ public class Regular : Component<RegularViewModel>
                 (
                     text
                     (
-                        @"
-                            function showSearchBar() { document.querySelector('.mdc-top-app-bar').classList.add('search-show') }
-                            function hideSearchBar() { document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }                            
+                        $@"
+                            function showSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.add('search-show'); document.querySelector('.{SearchSearchInputCssClassName}').focus();  }}
+                            function hideSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }}                            
                         "
                     )
                 ),
@@ -136,7 +123,7 @@ public class Regular : Component<RegularViewModel>
                     @class(SearchSearchInputCssClassName),
                     placeholder("Search"),
                     aria_label("Type what you want to search and press enter"),
-                    autocomplete("off")
+                    autocomplete("off"),
                 }
             )
         );
@@ -152,6 +139,7 @@ public class Regular : Component<RegularViewModel>
                         width: 72px;
                         border: 0;
                         background-color: white;
+                        cursor: pointer;
                     }}
 
                     header.{AppBarCssClassName}.search-show .{SearchBackButtonCssClassName} {{
