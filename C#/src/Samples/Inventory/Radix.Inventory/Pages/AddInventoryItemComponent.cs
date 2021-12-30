@@ -6,7 +6,7 @@ using Radix.Components.Html;
 using Radix.Data;
 using Radix.Inventory.Domain;
 
-namespace Radix.Blazor.Inventory.Server.Pages;
+namespace Radix.Inventory.Pages;
 
 [Route("/Add")]
 public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>

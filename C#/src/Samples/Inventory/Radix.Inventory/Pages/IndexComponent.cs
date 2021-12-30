@@ -4,7 +4,7 @@ using Radix.Components;
 using Radix.Components.Html;
 using Radix.Inventory.Domain;
 
-namespace Radix.Blazor.Inventory.Server.Pages;
+namespace Radix.Inventory.Pages;
 
 [Route("/")]
 public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>

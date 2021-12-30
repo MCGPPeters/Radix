@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Radix.Generators;
 
 [Generator]
-public class AliasGenerator : ISourceGenerator
+public class LiteralGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
@@ -21,16 +21,16 @@ public class AliasGenerator : ISourceGenerator
         {
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
-            var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.AliasAttribute`1");
+            var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.LiteralAttribute");
             var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
-            foreach (var attribute in attributes)
+            foreach (var _ in attributes)
             {
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, candidate);
+                var classSource = ProcessType(typeSymbol, candidate);
                 // fix text formating according to default ruleset
                 var normalizedSourceCodeText
                     = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
                 context.AddSource(
-                    $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_alias",
+                    $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_literal",
                     normalizedSourceCodeText);
             }
         }
@@ -49,12 +49,11 @@ public class AliasGenerator : ISourceGenerator
         Debug.WriteLine("Initialize code generator");
     }
 
-    internal static string ProcessType(string valueType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
+    internal static string ProcessType(ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return null;
 
-        var propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();
 
         var kindSource = typeDeclarationSyntax.Kind() switch
@@ -63,7 +62,7 @@ public class AliasGenerator : ISourceGenerator
             SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbol.Name}",
             SyntaxKind.StructDeclaration => $"public partial struct {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
             SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbol.Name} ",
-            _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
+            _ => throw new NotSupportedException("Unsupported type kind for generating Literal code")
         };
 
         var equalsOperatorsSource = $@"
@@ -75,22 +74,17 @@ public class AliasGenerator : ISourceGenerator
         {
             SyntaxKind.ClassDeclaration => $@"
                 {equalsOperatorsSource}
-                public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
-                public override int GetHashCode() => {propertyName}.GetHashCode();
-                public bool Equals({typeSymbol.Name} other){{ return {propertyName} == other.{propertyName}; }}",
+                public override bool Equals(object obj) => obj is {typeSymbol.Name} other;
+                public override int GetHashCode() => ""{typeSymbol.Name}"".GetHashCode();
+                public bool Equals({typeSymbol.Name} other) => true;",
             SyntaxKind.RecordDeclaration => "",
             SyntaxKind.StructDeclaration => $@"
                 {equalsOperatorsSource}
-                public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
-                public override int GetHashCode() => {propertyName}.GetHashCode();
-                public bool Equals({typeSymbol.Name} other)
-                {{
-                    if (ReferenceEquals(null, other)) return false;
-                    if (ReferenceEquals(this, other)) return true;
-                    return {propertyName} == other.{propertyName};
-                }}",
+                public override bool Equals(object? obj) => obj is {typeSymbol.Name} other;
+                public override int GetHashCode() => ""{typeSymbol.Name}"".GetHashCode();
+                public bool Equals({typeSymbol.Name} other) => true;",
             SyntaxKind.RecordStructDeclaration => "",
-            _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
+            _ => throw new NotSupportedException("Unsupported type kind for generating Literal code")
         };
 
         var source = new StringBuilder($@"
@@ -98,16 +92,11 @@ namespace {namespaceName}
 {{
     {kindSource}
     {{
-        public {valueType} {propertyName} {{ get; }}
-        private {typeSymbol.Name}({valueType} value)
-        {{
-            {propertyName} = value;
-        }}
-
-        public override string ToString() => {propertyName}.ToString();
+        public override string ToString() => ""{typeSymbol.Name}"";
         {equalsSource}
-        public static explicit operator {typeSymbol.Name}({valueType} value) => new {typeSymbol.Name}(value);
-        public static implicit operator {valueType}({typeSymbol.Name} value) => value.{propertyName};
+        public static implicit operator string({typeSymbol.Name} value) => ""{typeSymbol.Name}"";
+        public static implicit operator {typeSymbol.Name}(string value) => value  == ""{typeSymbol.Name}"" ? new() : throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
+
     }}
 }}");
         return source.ToString();

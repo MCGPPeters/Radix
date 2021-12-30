@@ -4,7 +4,7 @@ using Radix.Components;
 using Radix.Components.Html;
 using Radix.Data;
 
-namespace Radix.Blazor.Inventory.Server.Pages;
+namespace Radix.Inventory.Pages;
 
 [Route("/counter")]
 public class CounterComponent : TaskBasedComponent<CounterViewModel, IncrementCommand, CounterIncremented, Json>

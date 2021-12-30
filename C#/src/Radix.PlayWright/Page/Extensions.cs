@@ -4,7 +4,7 @@ using Radix.Data;
 using static Radix.Control.Task.Extensions;
 using static Radix.Control.Result.Extensions;
 
-namespace Radix.Shop.Catalog.Crawling.AH.Page;
+namespace Radix.PlayWright.Page;
 public static class Extensions
 {
     public static Task<Result<IResponse, Error>> Goto(this IPage page, string url, PageGotoOptions pageGotoOptions) =>

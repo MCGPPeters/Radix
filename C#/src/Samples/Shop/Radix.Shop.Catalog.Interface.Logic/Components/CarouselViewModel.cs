@@ -1,7 +1,7 @@
 ﻿using Radix.Components;
 using Radix.Components.Html;
 
-namespace Tsheap.Com.Components;
+namespace Radix.Shop.Catalog.Interface.Logic.Components;
 
 public record CarouselViewModel 
 (

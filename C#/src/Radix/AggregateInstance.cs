@@ -19,6 +19,7 @@ internal class AggregateInstance<TCommand, TEvent> : Aggregate<TCommand, TEvent>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="accept"></param>
+    /// <param name="channel"></param>
     public AggregateInstance(Id id, Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel)
     {
         Id = id;
@@ -41,10 +42,7 @@ internal class AggregateInstance<TCommand, TEvent> : Aggregate<TCommand, TEvent>
                 case Valid<TCommand>(var validCommand):
                     TransientCommandDescriptor<TCommand> transientCommandDescriptor = new(Id, validCommand);
                     var taskCompletionSource = new TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>();
-                    if (_channel is not null)
-                    {
-                        await _channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
-                    }
+                    await _channel.Writer.WriteAsync((transientCommandDescriptor, taskCompletionSource)).ConfigureAwait(false);
 
                     return await taskCompletionSource.Task;
 

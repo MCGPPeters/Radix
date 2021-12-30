@@ -1,4 +1,4 @@
-﻿namespace Radix.Blazor.Inventory.Server.Pages;
+﻿namespace Radix.Inventory.Pages;
 
 public class CounterCommandHandler : CommandHandler<Counter, IncrementCommand, CounterIncremented>
 {

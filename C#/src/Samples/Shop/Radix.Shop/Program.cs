@@ -17,11 +17,10 @@ using Radix;
 using static Radix.Control.Task.Extensions;
 using static Radix.Control.Validated.Extensions;
 using Azure.Search.Documents;
-using Radix.Shop.Components.AH;
 using OpenTelemetry;
 using OpenTelemetry.Trace;
 using Radix.Control.Task;
-using Tsheap.Com.Components;
+using Radix.Shop.Catalog.Interface.Logic.Components.Jumbo;
 
 var builder = WebApplication.CreateBuilder(args);
 

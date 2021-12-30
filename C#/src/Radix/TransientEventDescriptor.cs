@@ -9,11 +9,8 @@ public class TransientEventDescriptor<TFormat>
     /// <summary>
     /// </summary>
     /// <param name="eventType"></param>
-    /// <param name="serialize"></param>
     /// <param name="event"></param>
     /// <param name="eventMetaData"></param>
-    /// <param name="causationId"></param>
-    /// <param name="correlationId"></param>
     /// <param name="messageId"></param>
     public TransientEventDescriptor(EventType eventType, TFormat @event, TFormat eventMetaData, MessageId messageId)
     {

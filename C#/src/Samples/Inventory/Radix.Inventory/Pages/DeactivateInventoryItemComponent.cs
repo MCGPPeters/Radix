@@ -5,9 +5,9 @@ using Radix.Components.Html;
 using Radix.Data;
 using Radix.Inventory.Domain;
 
-namespace Radix.Blazor.Inventory.Server.Pages;
+namespace Radix.Inventory.Pages;
 
-[Route("/Deactivate/{id:guid}")]
+[Route("/Deactivate/{Id:guid}")]
 public class DeactivateInventoryItemComponent : TaskBasedComponent<DeactivateInventoryItemViewModel, InventoryItemCommand, InventoryItemEvent, Json>
 {
     [Parameter] public Guid Id { get; set; }
