@@ -21,7 +21,7 @@ public class TransientCommandDescriptor<TCommand>
     public MessageId MessageId { get; }
 
     /// <summary>
-    ///     Since a command is always a the start of a message chain, its message id is the correlation id as well
+    ///     Since a command is always a the start of a message chain, its message Id is the correlation Id as well
     /// </summary>
     public MessageId CorrelationId { get; }
 }

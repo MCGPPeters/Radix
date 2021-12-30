@@ -30,12 +30,11 @@ namespace Radix.Components.Generators
 
         public void Execute(GeneratorExecutionContext context)
         {
-            string[] tagNames = new string[]
-            {
+            string[] tagNames = {
                 "a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "@base", "basefont",
                 "bdi", "bdo", "big", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "content",
                 "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption",
-                "figure", "font", "footer", "form", "frame", "fraeset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hr", "html",
+                "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hr", "html",
                 "i", "iframe", "img", "input", "ïns", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "menu", "menuitem",
                 "meta", "meter", "nav", "noembed", "noframes", "noscript", "@object", "ol", "optgroup", "option", "output", "p", "param",
                 "picture", "pre", "progress", "q", "rb", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot",

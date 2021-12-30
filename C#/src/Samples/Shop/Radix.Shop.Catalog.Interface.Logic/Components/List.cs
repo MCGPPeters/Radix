@@ -1,11 +1,7 @@
 ﻿using Radix.Components;
 using Radix.Components.Html;
-using static Radix.Components.Html.Elements;
-using static Radix.Components.Html.Components;
-using static Radix.Components.Html.Attributes;
-using Radix.Shop.Catalog.Interface.Logic.Components;
 
-namespace Tsheap.Com.Components;
+namespace Radix.Shop.Catalog.Interface.Logic.Components;
 
 public class List : Component<ListViewModel>
 {

@@ -2,7 +2,7 @@
 using Radix.Control.Nullable;
 using SqlStreamStore;
 
-namespace Radix.Blazor.Inventory.Server.Pages;
+namespace Radix.Inventory.Pages;
 
 public class CounterBoundedContext : BoundedContext<IncrementCommand, CounterIncremented, Json>
 {

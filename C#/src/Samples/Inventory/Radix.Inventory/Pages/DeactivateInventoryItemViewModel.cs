@@ -1,6 +1,6 @@
 ﻿using Radix.Components;
 
-namespace Radix.Blazor.Inventory.Server.Pages;
+namespace Radix.Inventory.Pages;
 
 public record DeactivateInventoryItemViewModel : ViewModel
 {

@@ -5,7 +5,6 @@ using static Radix.Components.Html.Components;
 using static Radix.Components.Html.Attributes;
 using Microsoft.AspNetCore.Components;
 using System.Globalization;
-using Tsheap.Com.Components;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components
 {

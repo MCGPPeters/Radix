@@ -1,19 +1,17 @@
+using System;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Radix.Shop.Catalog.Domain;
 using Microsoft.Playwright;
-using Azure.Search.Documents.Models;
-using Radix.Shop.Catalog.Search.Index;
-using Radix.Shop.Catalog.Search;
-using System;
 using Radix.Data;
-using Azure.Search.Documents;
-using System.Web;
-using System.Text;
-using System.Diagnostics;
+using Radix.Shop.Catalog.Domain;
+using Radix.Shop.Catalog.Search.Index;
 
-namespace Radix.Shop.Catalog.Crawling
+namespace Radix.Shop.Catalog.Crawling.Jumbo
 {
     public class Crawler
     {
@@ -56,7 +54,7 @@ namespace Radix.Shop.Catalog.Crawling
                     IElementHandle? unitSizeAndMeasureHandle = await getUnitSizeAndMeasure.ConfigureAwait(false);
                     IElementHandle? imageElementHandle = await getImageSource.ConfigureAwait(false);
 
-                    string? id =  await productElement.GetAttributeAsync("data-product-id").ConfigureAwait(false);
+                    string? id =  await productElement.GetAttributeAsync("data-product-Id").ConfigureAwait(false);
                     string? title = productTitleHandle is not null ? await productTitleHandle.TextContentAsync().ConfigureAwait(false) : "";
                     string? detailsPageLink = productTitleHandle is not null ? await productTitleHandle.GetAttributeAsync("href").ConfigureAwait(false) : "";
                     string? priceUnits = productPriceUnitsHandle is not null ? await productPriceUnitsHandle.TextContentAsync().ConfigureAwait(false) : "";

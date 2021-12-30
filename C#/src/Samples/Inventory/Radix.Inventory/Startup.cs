@@ -4,10 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Blazor.Inventory.Server.Pages;
 using Radix.Inventory.Domain;
 using Radix.Inventory.Shared;
 using Radix.Data;
+using Radix.Inventory.Pages;
 using SqlStreamStore;
 
 namespace Radix.Inventory;

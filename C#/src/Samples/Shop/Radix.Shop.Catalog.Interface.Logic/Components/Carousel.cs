@@ -2,7 +2,6 @@
 using Radix.Components;
 using Radix.Components.Html;
 using Microsoft.AspNetCore.Components.Web.Extensions.Head;
-using Tsheap.Com.Components;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components;
 

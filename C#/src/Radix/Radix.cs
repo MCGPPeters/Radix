@@ -43,7 +43,7 @@ public static class _<T>
 
     public static Func<A, B> Memoize<A, B>(Func<A, B> f) where A : notnull
     {
-        Dictionary<A, B>? cache = new Dictionary<A, B>();
+        Dictionary<A, B>? cache = new();
         return x =>
         {
             if (cache.TryGetValue(x, out B? v))

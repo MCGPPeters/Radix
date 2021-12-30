@@ -1,6 +1,6 @@
 ﻿using Radix.Components;
 
-namespace Radix.Shop.Pages
+namespace Radix.Shop.Wasm.Pages
 {
     public record IndexViewModel : ViewModel
     {

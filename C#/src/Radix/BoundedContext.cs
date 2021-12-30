@@ -11,7 +11,7 @@ namespace Radix;
 public interface BoundedContext<TCommand, TEvent, TFormat>
     where TEvent : notnull
 {
-    private static readonly MemoryCache s_instances = new(new MemoryCacheOptions { });
+    private static readonly MemoryCache s_instances = new(new MemoryCacheOptions());
 
     AppendEvents<TFormat> AppendEvents { get; }
     GetEventsSince<TEvent> GetEventsSince { get; }
@@ -23,15 +23,15 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
         where TState : new()
         where TCommandHandler : CommandHandler<TState, TCommand, TEvent>
     {
-        if (!s_instances.TryGetValue(id, out object value))
+        if (s_instances.TryGetValue(id, out object value))
         {
-            Aggregate<TCommand, TEvent> aggregate = Create<TState, TCommandHandler>(id, new ExistingVersion(0));
-            using (ICacheEntry cacheEntry = s_instances.CreateEntry(id))
-                value = cacheEntry.Value = aggregate;
-            return aggregate;
+            return (Aggregate<TCommand, TEvent>)value;
         }
 
-        return (Aggregate<TCommand, TEvent>)value;
+        Aggregate<TCommand, TEvent> aggregate = Create<TState, TCommandHandler>(id, new ExistingVersion(0));
+        using ICacheEntry cacheEntry = s_instances.CreateEntry(id);
+        cacheEntry.Value = aggregate;
+        return aggregate;
     }
 
     public Aggregate<TCommand, TEvent> Create<TState, TCommandHandler>()
@@ -123,7 +123,7 @@ public interface BoundedContext<TCommand, TEvent, TFormat>
         }, cancellationToken);
 
         AggregateInstance<TCommand, TEvent> aggregate = new(id, channel);
-        AggregateInstance<TCommand, TEvent>? _ = s_instances.Set(id, aggregate);
+        s_instances.Set(id, aggregate);
         return aggregate;
     }
 }
