@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <Folder Include="AppBar\Bottom\" />
+    <Folder Include="Card\" />
   </ItemGroup>
 
 </Project>

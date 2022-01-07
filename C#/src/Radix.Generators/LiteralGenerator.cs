@@ -23,9 +23,10 @@ public class LiteralGenerator : ISourceGenerator
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.LiteralAttribute");
             var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
-            foreach (var _ in attributes)
+            foreach (var attribute in attributes)
             {
-                var classSource = ProcessType(typeSymbol, candidate);
+                var stringRepresentation = attribute.NamedArguments.Any() ? attribute.NamedArguments[0].Value.Value.ToString() : "";
+                var classSource = ProcessType(typeSymbol, candidate, stringRepresentation);
                 // fix text formating according to default ruleset
                 var normalizedSourceCodeText
                     = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
@@ -49,7 +50,7 @@ public class LiteralGenerator : ISourceGenerator
         Debug.WriteLine("Initialize code generator");
     }
 
-    internal static string ProcessType(ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
+    internal static string ProcessType(ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax, string stringRepresention)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return null;
@@ -87,15 +88,17 @@ public class LiteralGenerator : ISourceGenerator
             _ => throw new NotSupportedException("Unsupported type kind for generating Literal code")
         };
 
+        var toString = string.IsNullOrEmpty(stringRepresention) ? typeSymbol.Name : stringRepresention;
+
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
     {kindSource}
     {{
-        public override string ToString() => ""{typeSymbol.Name}"";
+        public override string ToString() => ""{toString}"";
         {equalsSource}
-        public static implicit operator string({typeSymbol.Name} value) => ""{typeSymbol.Name}"";
-        public static implicit operator {typeSymbol.Name}(string value) => value  == ""{typeSymbol.Name}"" ? new() : throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
+        public static implicit operator string({typeSymbol.Name} value) => ""{toString}"";
+        public static implicit operator {typeSymbol.Name}(string value) => value  == ""{toString}"" ? new() : throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
 
     }}
 }}");

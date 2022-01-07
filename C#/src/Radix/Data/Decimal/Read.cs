@@ -2,7 +2,7 @@
 
 using static Radix.Control.Validated.Extensions;
 
-public class FromString : FromString<decimal>
+public class Read : Read<decimal>
 {
     public static Validated<decimal> Parse(string s) =>
         Parse(s, $"The value {s} is not a valid integer");

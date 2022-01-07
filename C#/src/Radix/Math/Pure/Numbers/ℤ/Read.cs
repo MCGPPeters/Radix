@@ -4,7 +4,7 @@ using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Math.Pure.Numbers.ℤ;
 
-public class FromString : FromString<int>
+public class Read : Read<int>
 {
     public static Validated<int> Parse(string s) =>
         int.TryParse(s, out int i)

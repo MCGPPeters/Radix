@@ -21,16 +21,16 @@ public partial record MerchantName { }
 [Validated<string, IsNotNullOrEmpty>]
 public partial record MerchantSearchUri { }
 
-[Parsed<int, Data.Int.FromString>]
+[Parsed<int, Data.Int.Read>]
 public partial record PriceUnits { }
 
-[Parsed<int, Data.Int.FromString>]
+[Parsed<int, Data.Int.Read>]
 public partial record PriceFraction { }
 
 [Alias<string>]
 public partial struct SearchTerm { }
 
-[Parsed<decimal, Data.Decimal.FromString>]
+[Parsed<decimal, Data.Decimal.Read>]
 public partial record UnitSize { }
 
 [Validated<string, IsNotNullOrEmpty>]
