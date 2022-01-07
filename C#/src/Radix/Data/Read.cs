@@ -1,6 +1,6 @@
 ﻿namespace Radix.Data;
 
-public interface FromString<T>
+public interface Read<T>
 {
     static abstract Validated<T> Parse(string s);
 

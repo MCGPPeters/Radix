@@ -1,7 +1,7 @@
 ﻿namespace Radix.Data.Int;
 
 using static Radix.Control.Validated.Extensions;
-public class FromString : FromString<int>
+public class Read : Read<int>
 {
     public static Validated<int> Parse(string s) =>
         Parse(s, $"The value {s} is not a valid integer");
