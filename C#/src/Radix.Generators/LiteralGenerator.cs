@@ -61,7 +61,7 @@ public class LiteralGenerator : ISourceGenerator
 
         var kindSource = typeDeclarationSyntax.Kind() switch
         {
-            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbol.Name}  : System.IEquatable<{typeSymbolName}>",
+            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbolName}  : System.IEquatable<{typeSymbolName}>",
             SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbolName}",
             SyntaxKind.StructDeclaration => $"public partial struct {typeSymbolName}  : System.IEquatable<{typeSymbolName}>",
             SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbolName} ",
@@ -69,21 +69,21 @@ public class LiteralGenerator : ISourceGenerator
         };
 
         var equalsOperatorsSource = $@"
-                public static bool operator ==({typeSymbolName} left, {typeSymbolName} right) => Equals(left, right);
-                public static bool operator !=({typeSymbolName} left, {typeSymbolName} right) => !Equals(left, right);
+                public static bool operator ==({typeSymbol.ToDisplayString()} left, {typeSymbol.ToDisplayString()} right) => Equals(left, right);
+                public static bool operator !=({typeSymbol.ToDisplayString()} left, {typeSymbol.ToDisplayString()} right) => !Equals(left, right);
             ";
 
         var equalsSource = typeDeclarationSyntax.Kind() switch
         {
             SyntaxKind.ClassDeclaration => $@"
                 {equalsOperatorsSource}
-                public override bool Equals(object obj) => obj is {typeSymbolName} other;
+                public override bool Equals(object obj) => obj is {typeSymbol.ToDisplayString()} other;
                 public override int GetHashCode() => ""{typeSymbolName}"".GetHashCode();
                 public bool Equals({typeSymbolName} other) => true;",
             SyntaxKind.RecordDeclaration => "",
             SyntaxKind.StructDeclaration => $@"
                 {equalsOperatorsSource}
-                public override bool Equals(object? obj) => obj is {typeSymbolName} other;
+                public override bool Equals(object? obj) => obj is {typeSymbol.ToDisplayString()} other;
                 public override int GetHashCode() => ""{typeSymbolName}"".GetHashCode();
                 public bool Equals({typeSymbolName} other) => true;",
             SyntaxKind.RecordStructDeclaration => "",
