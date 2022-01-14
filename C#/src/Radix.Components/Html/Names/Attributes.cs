@@ -26,6 +26,9 @@ public partial struct allowfullscreen { }
 [Literal]
 public partial struct alt { }
 
+[Literal(StringRepresentation = "aria-label")]
+public partial struct ariaLabel { }
+
 [Literal]
 public partial struct async { }
 
