@@ -1,6 +1,7 @@
 ﻿namespace Radix.Web.Css.Data.Dimensions;
 
-public record Time : Dimension<Units.Time.Unit>
+public record Time<T> : Dimension<T>
+    where T : Literal<T>, Units.Time.Unit<T>
 {
     public Number Number { get; init; }
 }

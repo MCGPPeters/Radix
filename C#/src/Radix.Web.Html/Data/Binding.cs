@@ -18,7 +18,9 @@ public static class bind
             return sequence + 1;
         });
 
-    public static Attribute input<T>(T value, Action<T> callback, CultureInfo cultureInfo = default) => binder(InputEventName, value, callback, cultureInfo);
+    public static Attribute input<T>(T value, Action<T> callback, CultureInfo cultureInfo = default) =>
+        binder(InputEventName, value, callback, cultureInfo);
 
-    public static Attribute change<T>(T value, Action<T> callback, CultureInfo cultureInfo = default) => binder(ChangeEventName, value, callback, cultureInfo);
+    public static Attribute change<T>(T value, Action<T> callback, CultureInfo cultureInfo = default) =>
+        binder(ChangeEventName, value, callback, cultureInfo);
 }
