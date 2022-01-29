@@ -5,7 +5,7 @@
 /// </summary>
 /// <typeparam name="T">The unit type that goes with this type of dimension</typeparam>
 public interface Dimension<out T>
-    where T : Unit
+    where T : Unit<T>, Literal<T>
 {
     Number Number { get; init; }
 };

@@ -1330,7 +1330,7 @@ public static class Elements
     public static Element<wbr> wbr(params Data.Attribute[] attributes) =>
         new(attributes);
 
-    public static Element<wbr> wbrdd(Data.Attribute attribute, params Node[] children) =>
+    public static Element<wbr> wbr(Data.Attribute attribute, params Node[] children) =>
     new(new[] { attribute }, children);
 
 }

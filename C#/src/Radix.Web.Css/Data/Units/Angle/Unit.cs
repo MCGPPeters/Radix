@@ -1,3 +1,3 @@
 ﻿namespace Radix.Web.Css.Data.Units.Angle;
 
-public interface Unit : Data.Unit { }
+public interface Unit<T> : Data.Unit<T> where T : Literal<T> { }
