@@ -11,7 +11,7 @@ public class List : Component<ListViewModel>
             (
                 component<Carousel>
                 (
-                    Array.Empty<IAttribute>(),
+                    Array.Empty<Radix.Components.Attribute>(),
                     Array.Empty<Node>()
                 )
             );

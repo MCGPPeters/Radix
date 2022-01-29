@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
-using Radix.Components.Html;
 
 namespace Radix.Components;
 
@@ -12,6 +11,8 @@ public abstract class Component<TViewModel> : ComponentBase
 
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+    [Inject] public Render Render { get; set; } = null!;
+ 
     /// <summary>
     ///     This function is called whenever it is decided the state of the viewmodel has changed
     /// </summary>
@@ -22,13 +23,15 @@ public abstract class Component<TViewModel> : ComponentBase
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         base.BuildRenderTree(builder);
-        Render.Node(this, builder, 0, View(ViewModel));
+        Render(this, builder, 0, View(ViewModel));
     }
 }
 
 public abstract class Component : ComponentBase
 {
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+
+    [Inject] public Render Render { get; set; } = null!;
 
     /// <summary>
     ///     This function is called whenever it is decided the state of the viewmodel has changed
@@ -40,6 +43,6 @@ public abstract class Component : ComponentBase
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         base.BuildRenderTree(builder);
-        Render.Node(this, builder, 0, View());
+        Render(this, builder, 0, View());
     }
 }

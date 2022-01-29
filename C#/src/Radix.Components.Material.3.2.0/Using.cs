@@ -1,4 +1,5 @@
-﻿global using static Radix.Components.Html.Attributes;
-global using static Radix.Components.Html.Components;
-global using static Radix.Components.Html.Elements;
+﻿global using static Radix.Web.Html.Attributes;
+global using static Radix.Web.Html.Elements;
+global using Radix.Web.Html.Data;
+global using static Radix.Components.Prelude;
 

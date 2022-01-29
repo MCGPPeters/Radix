@@ -1,10 +1,7 @@
 ﻿using Radix.Components;
-using Radix.Components.Html;
-using static Radix.Components.Html.Elements;
-using static Radix.Components.Html.Components;
-using static Radix.Components.Html.Attributes;
 using Microsoft.AspNetCore.Components;
 using System.Globalization;
+using Radix.Web.Html.Data.Nodes;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components
 {
@@ -101,7 +98,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                     {
                         @class("pt-5")
                     },
-                    component<List>(Array.Empty<IAttribute>()),
+                    component<List>(Array.Empty<Radix.Components.Attribute>()),
                     section
                     (
                         @class("ps-lg-4 pe-lg-3 pt-5"),

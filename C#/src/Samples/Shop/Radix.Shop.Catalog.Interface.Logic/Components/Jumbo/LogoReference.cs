@@ -1,7 +1,4 @@
 ﻿using Radix.Components;
-using Radix.Components.Html;
-using static Radix.Components.Html.Elements;
-using static Radix.Components.Html.Attributes;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components.Jumbo;
 

@@ -1,8 +1,6 @@
 ﻿using Radix.Components;
 using Radix.Components.Html;
 using Radix.Shop.Catalog.Interface.Logic.Components.Jumbo;
-using static Radix.Components.Html.Elements;
-using static Radix.Components.Html.Attributes;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components.AH;
 

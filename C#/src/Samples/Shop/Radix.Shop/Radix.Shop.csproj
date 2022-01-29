@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Radix.Generators\Radix.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\..\..\Radix.Components.Generators\Radix.Components.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Interface.Logic\Radix.Shop.Catalog.Interface.Logic.csproj" />
     <ProjectReference Include="..\Radix.Shop.Catalog.Search\Radix.Shop.Catalog.Search.csproj" />
 

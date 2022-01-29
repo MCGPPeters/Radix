@@ -40,7 +40,7 @@ namespace Radix.Shop.Shared
                             new[]
                             {
                                 @class("navbar-toggler"),
-                                Attributes.title("Navigation menu"),
+                                Web.Html.Attributes.title("Navigation menu"),
                                 on.click(_ => ToggleNavMenu())
                             },
                             span

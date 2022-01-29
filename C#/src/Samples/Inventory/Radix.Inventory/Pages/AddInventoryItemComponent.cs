@@ -5,6 +5,7 @@ using Radix.Components;
 using Radix.Components.Html;
 using Radix.Data;
 using Radix.Inventory.Domain;
+using Radix.Web.Html.Data;
 
 namespace Radix.Inventory.Pages;
 
@@ -35,7 +36,7 @@ public class AddInventoryItemComponent : TaskBasedComponent<AddInventoryItemView
                 input
                 (
                     @class("form-control"),
-                    id("idInput"),
+                    id("idInput") ,
                     bind.input(currentViewModel.InventoryItemId, id => currentViewModel.InventoryItemId = id)
                 ),
                 label
