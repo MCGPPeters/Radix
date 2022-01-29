@@ -17,13 +17,13 @@ namespace Radix.Components.Generators
                 public static Element {tagName}(params Node[] nodes) =>
                     element(nameof({tagName}), Array.Empty<IAttribute>(), nodes);
 
-                public static Element {tagName}(params IAttribute[] attributes) =>
+                public static Element {tagName}(params Attribute[] attributes) =>
                     element(nameof({tagName}), attributes, Array.Empty<Node>());
 
-                public static Element {tagName}(IEnumerable<IAttribute> attributes, params Node[] children) =>
+                public static Element {tagName}(IEnumerable<Attribute> attributes, params Node[] children) =>
                     element(nameof({tagName}), attributes, children);
 
-                public static Element {tagName}(IAttribute attribute, params Node[] children) =>
+                public static Element {tagName}(Attribute attribute, params Node[] children) =>
                     element(nameof({tagName}), new []{{ attribute }}, children);
             ";
 
@@ -53,8 +53,10 @@ namespace Radix.Components.Generators
             string classSourceText =
             $@"
                 using System;
+                using Radix.Components;
+                using Radix.Components.Nodes;
 
-                namespace Radix.Components.Html;
+                namespace Radix.Web.Html;
 
                 public static class Elements
                 {{

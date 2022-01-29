@@ -11,7 +11,7 @@ public class InventoryBoundedContext : BoundedContext<InventoryItemCommand, Inve
 
     public AppendEvents<Json> AppendEvents => SqlStreamStore.AppendEvents;
 
-    public GetEventsSince<InventoryItemEvent> GetEventsSince => SqlStreamStore.CreateGetEventsSince<InventoryItemEvent>(
+    public GetEventsSince<InventoryItemEvent> GetEventsSince => SqlStreamStore.CreateGetEventsSince(
             (json, type) =>
             {
                 if (string.Equals(type.Value, nameof(InventoryItemCreated), StringComparison.Ordinal))

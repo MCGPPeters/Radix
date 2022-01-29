@@ -1,9 +1,6 @@
 ﻿using System.Threading.Channels;
 using Radix.Components;
 using Radix.Shop.Catalog.Domain;
-using static Radix.Components.Html.Components;
-using static Radix.Components.Html.Elements;
-using Radix.Components.Html;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components;
 
@@ -31,13 +28,13 @@ public record SearchViewModel : ViewModel
         };
     }
 
-    public Radix.Components.Html.Component GetMerchentLogo(string merchantName) =>
+    public Radix.Components.Nodes.Component GetMerchentLogo(string merchantName) =>
         merchantName switch
         {
             "Albert Heijn" =>
-                component<AH.LogoReference>(Enumerable.Empty<IAttribute>()),
+                component<AH.LogoReference>(Enumerable.Empty<Radix.Components.Attribute>()),
             "Jumbo" =>
-                component<Jumbo.LogoReference>(Enumerable.Empty<IAttribute>()),
+                component<Jumbo.LogoReference>(Enumerable.Empty<Radix.Components.Attribute>()),
             _ => throw new NotImplementedException()
 
         };

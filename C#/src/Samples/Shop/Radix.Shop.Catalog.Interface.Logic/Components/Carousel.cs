@@ -35,13 +35,13 @@ public class Carousel : Component<CarouselViewModel>, IAsyncDisposable
                             },
                             ul
                             (
-                                @class("glide__slides"),
+                                new[] { @class("glide__slides") },
                                 currentViewModel.Children.Select
                                 (
                                     element =>
                                         li
                                         (
-                                            @class("glide__slide"),
+                                            new[] { @class("glide__slide") },
                                             element
                                         )
                                 ).ToArray()

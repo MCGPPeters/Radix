@@ -56,7 +56,7 @@ public class Regular : Component<RegularViewModel>
                                 @class("mdc-top-app-bar__section mdc-top-app-bar__section--align-start")
                         },
                         currentViewModel.NavigationButton is not null
-                            ? new Html.Component(currentViewModel.NavigationButton.GetType(), Enumerable.Empty<IAttribute>())
+                            ? new Radix.Components.Nodes.Component(currentViewModel.NavigationButton.GetType(), Enumerable.Empty<Attribute>())
                             : new Empty(),
                         span
                         (
@@ -80,7 +80,7 @@ public class Regular : Component<RegularViewModel>
                         concat
                         (
                             currentViewModel.ActionButtons.Select(button =>
-                                new Html.Component(button.GetType(), Enumerable.Empty<IAttribute>())).ToArray()
+                                new Nodes.Component(button.GetType(), Enumerable.Empty<Attribute>())).ToArray()
                         )
                     )
                 ),

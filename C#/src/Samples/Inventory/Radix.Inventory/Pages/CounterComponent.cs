@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
-using Radix.Components.Html;
 using Radix.Data;
 
 namespace Radix.Inventory.Pages;

@@ -13,7 +13,7 @@ namespace Radix.Shop.Pages
             (
                 component<Search>
                 (
-                    Array.Empty<IAttribute>(),
+                    Array.Empty<ComponentAttribute>(),
                     Array.Empty<Node>()
                 )
             );          

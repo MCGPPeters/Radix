@@ -61,10 +61,10 @@ public class LiteralGenerator : ISourceGenerator
 
         var kindSource = typeDeclarationSyntax.Kind() switch
         {
-            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbolName}  : System.IEquatable<{typeSymbolName}>",
-            SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbolName}",
-            SyntaxKind.StructDeclaration => $"public partial struct {typeSymbolName}  : System.IEquatable<{typeSymbolName}>",
-            SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbolName} ",
+            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbolName} : Literal<{typeSymbolName}>, System.IEquatable<{typeSymbolName}>",
+            SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbolName} : Literal<{typeSymbolName}>",
+            SyntaxKind.StructDeclaration => $"public partial struct {typeSymbolName}  : Literal<{typeSymbolName}>, System.IEquatable<{typeSymbolName}>",
+            SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbolName} : Literal<{typeSymbolName}>",
             _ => throw new NotSupportedException("Unsupported type kind for generating Literal code")
         };
 
@@ -101,7 +101,7 @@ namespace {namespaceName}
         {equalsSource}
         public static implicit operator string({typeSymbolName} value) => ""{toString}"";
         public static implicit operator {typeSymbolName}(string value) => value  == ""{toString}"" ? new() : throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
-
+        public static string Format() => ""{toString}"";
     }}
 }}");
         return source.ToString();
