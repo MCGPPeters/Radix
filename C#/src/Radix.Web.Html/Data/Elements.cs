@@ -189,7 +189,7 @@ public static class Elements
         new(attributes, children);
 
     public static Element<button> button(Data.Attribute attribute, params Node[] children) =>
-        new(new[]{ attribute }, children);
+        new(new[] { attribute }, children);
 
     public static Element<canvas> canvas(params Node[] children) =>
         new(children);

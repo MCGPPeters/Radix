@@ -24,7 +24,6 @@ public class Attribute<T> : Attribute
     public string Name { get; init; }
 
     public void Deconstruct(out string name, out IEnumerable<string> values)
-
     {
         name = Name;
         values = Values;
