@@ -33,15 +33,15 @@ public static class Extensions
     /// <typeparam name="TOrd"></typeparam>
     /// <param name="xs"></param>
     /// <returns></returns>
-    public static T[] Sort<T, TOrd>(this T[] xs)
-        where TOrd : Order<T>
+    public static T[] Sort<T>(this T[] xs)
+        where T : Order<T>
     {
         int n = xs.Length;
         for (int i = 1; i < n; i++)
         {
             for (int j = i; j > 0; j--)
             {
-                switch (TOrd.Compare(xs[j], xs[j - 1]))
+                switch (T.Compare(xs[j], xs[j - 1]))
                 {
                     case LT:
                         T swap = xs[j];

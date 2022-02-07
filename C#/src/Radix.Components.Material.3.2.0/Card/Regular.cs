@@ -15,8 +15,11 @@ namespace Radix.Components.Material._3._2._0.Card
 
         private const string PrimaryActionCssClassName = "mdc-card__primary-action";
 
+
+
         protected override Node View(RegularViewModel currentViewModel)
         {
+            
             return
                 div
                 (
@@ -48,7 +51,7 @@ namespace Radix.Components.Material._3._2._0.Card
                     }}
 
                     .my-card-dimensions {{
-                      height: {currentViewModel.Height.ToString()};
+                      {currentViewModel.Height.ToString()};
                       width: {currentViewModel.Width.ToString()};
                     }}
                 "
@@ -59,8 +62,8 @@ namespace Radix.Components.Material._3._2._0.Card
     public record RegularViewModel
         (
             Length Padding,
-            Length Height,
-            Length Width,
+            Web.Css.Data.Declarations.Height.Declaration Height,
+            Web.Css.Data.Declarations.Width.Declaration Width,
             string? Id,
             int TabIndex,
             string? HeaderText
