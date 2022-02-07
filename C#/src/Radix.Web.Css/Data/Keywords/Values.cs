@@ -14,3 +14,15 @@ public partial struct max_content : Value { }
 
 [Literal(StringRepresentation = "min-content")]
 public partial struct min_content : Value { }
+
+[Literal]
+public partial struct inherit : Value { }
+
+[Literal]
+public partial struct initial : Value { }
+
+[Literal]
+public partial struct revert : Value { }
+
+[Literal]
+public partial struct unset : Value { }
