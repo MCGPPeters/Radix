@@ -19,7 +19,7 @@ namespace Radix.Components.Material._3._2._0.Card
 
         protected override Node View(RegularViewModel currentViewModel)
         {
-            
+
             return
                 div
                 (
@@ -34,7 +34,7 @@ namespace Radix.Components.Material._3._2._0.Card
                         {
                             @class(PrimaryActionCssClassName),
                             tabindex($"{currentViewModel.TabIndex}")
-                        }                        
+                        }
                     )
                 );
         }
@@ -45,23 +45,26 @@ namespace Radix.Components.Material._3._2._0.Card
             // todo : figure out media query in style element for search box font-size
             text
             (
-                $@"
-                    .my-card-content {{
-                      padding: {currentViewModel.Padding.ToString()};
-                    }}
+""                //$@"
+                //    .my-card-content {{
+                //      padding: {currentViewModel.Padding.ToString()};
+                //    }}
 
-                    .my-card-dimensions {{
-                      {currentViewModel.Height.ToString()};
-                      width: {currentViewModel.Width.ToString()};
-                    }}
-                "
+                //    .my-card-dimensions {{
+                //      {currentViewModel.Height.ToString()};
+                //      width: {currentViewModel.Width.ToString()};
+                //    }}
+                //"
             )
         );
     }
 
     public record RegularViewModel
         (
-            Length Padding,
+            //Web.Css.Data.Declarations.PaddingLeft PaddingLeft,
+            //Web.Css.Data.Declarations.PaddingRight PaddingRight,
+            //Web.Css.Data.Declarations.PaddingTop PaddingTop,
+            //Web.Css.Data.Declarations.PaddingBottom PaddingBottom,
             Web.Css.Data.Declarations.Height.Declaration Height,
             Web.Css.Data.Declarations.Width.Declaration Width,
             string? Id,
@@ -69,7 +72,7 @@ namespace Radix.Components.Material._3._2._0.Card
             string? HeaderText
         ) : ViewModel;
 
-    
+
 }
 
 
