@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Html.Data.Names.Attributes;
+﻿using Radix.Interaction.Data;
+
+namespace Radix.Web.Html.Data.Names.Attributes;
 
 // https://html.spec.whatwg.org/multipage/indices.html#index
 

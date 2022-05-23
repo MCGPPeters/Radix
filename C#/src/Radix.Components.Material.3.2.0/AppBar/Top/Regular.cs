@@ -1,12 +1,20 @@
-﻿using Radix.Components.Html;
+﻿
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
 using Radix.Data;
+using Radix.Interaction;
+using Radix.Interaction.Components;
+using Radix.Interaction.Components.Nodes;
+using Radix.Interaction.Data;
+using Radix.Interaction.Web.Components;
+using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top;
 
 // todo : add tooltips
 
-public class Regular : Component<RegularViewModel>
+public class Regular : Component<RegularModel, RegularCommand>
 {
     private const string AppBarCssClassName = "mdc-top-app-bar";
 
@@ -16,114 +24,144 @@ public class Regular : Component<RegularViewModel>
 
     private const string SearchSearchInputCssClassName = $"{AppBarCssClassName}-search-input";
 
-    protected override Node View(RegularViewModel currentViewModel)
-    {
-        var hasSearch = currentViewModel.ActionButtons.Any(button => button is Search);
-               
-        return
-            header
-            (
-                new[]
-                {
-                        @class($"{AppBarCssClassName} show"),
-                        id(currentViewModel.Id ?? "")
-                },
-                script
-                (
-                    text
+    [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+
+    protected override Interact<RegularModel, RegularCommand> Interact =>
+            async (model, dispatch) =>
+            {
+                var hasSearch = model.ActionButtons.Any(button => button is Search);
+
+                return
+                    header
                     (
-                        $@"
-                            function showSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.add('search-show'); document.querySelector('.{SearchSearchInputCssClassName}').focus();  }}
-                            function hideSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }}                            
-                        "
-                    )
-                ),
-                Styles(),
-                div
-                (
-                    new[]
-                    {
-                            @class("mdc-top-app-bar__row")
-                    },
-                    hasSearch
-                        ? SearchBar()
-                        : new Empty()
-                    ,
-                    section
-                    (
+                        (NodeId)1,
                         new[]
                         {
-                                @class("mdc-top-app-bar__section mdc-top-app-bar__section--align-start")
+                            @class((AttributeId)1, AppBarCssClassName, "show"),
+                            id((AttributeId)2,model.Id ?? "")
                         },
-                        currentViewModel.NavigationButton is not null
-                            ? new Radix.Components.Nodes.Component(currentViewModel.NavigationButton.GetType(), Enumerable.Empty<Attribute>())
-                            : new Empty(),
-                        span
+                        script
                         (
-                            new[]
-                            {
-                                @class("mdc-top-app-bar__title")
-                            },
+                            (NodeId)2,
                             text
                             (
-                                currentViewModel.PageTitle ?? ""
+                                (NodeId)3,
+                                $@"
+                                    function showSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.add('search-show'); document.querySelector('.{SearchSearchInputCssClassName}').focus();  }}
+                                    function hideSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }}                            
+                                "
+                            )
+                        ),
+                        Styles(),
+                        div
+                        (
+                            (NodeId)4,
+                            new[]
+                            {
+                                @class((AttributeId)3, "mdc-top-app-bar__row")
+                            },
+                            hasSearch
+                                ? SearchBar(model)
+                                : new Empty((NodeId)30)
+                            ,
+                            section
+                            (
+                                (NodeId)5,
+                                new[]
+                                {
+                                    @class((AttributeId)4, "mdc-top-app-bar__section", "mdc-top-app-bar__section--align-start")
+                                },
+                                model.NavigationButton is not null
+                                    ? new Interaction.Components.Nodes.Component((NodeId)20, model.NavigationButton.GetType(), Enumerable.Empty<Interaction.Data.Attribute<object>>())
+                                    : new Empty((NodeId)20),
+                                span
+                                (
+                                    (NodeId)6,
+                                    new[]
+                                    {
+                                        @class((AttributeId)5, "mdc-top-app-bar__title")
+                                    },
+                                    text
+                                    (
+                                        (NodeId)7,
+                                        model.PageTitle ?? ""
+                                    )
+                                )
+                            ),
+                            section
+                            (
+                                (NodeId)8,
+                                new[]
+                                {
+                                    @class((AttributeId)6,"mdc-top-app-bar__section mdc-top-app-bar__section--align-end"),
+                                    attribute((AttributeId)7, "role", "toolbar")
+                                },
+                                concat
+                                (
+                                    (NodeId)9,
+                                    model.ActionButtons.Select(button =>
+                                        new Component((NodeId)20, button.GetType(), Enumerable.Empty<Interaction.Data.Attribute<object>>())).ToArray()
+                                )
+                            )
+                        ),
+                        script
+                        (
+                            (NodeId)10,
+                            text
+                            (
+                                (NodeId)11,
+                                "mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('.mdc-top-app-bar'));"
                             )
                         )
-                    ),
-                    section
-                    (
-                        new[]
-                        {
-                                @class("mdc-top-app-bar__section mdc-top-app-bar__section--align-end"),
-                                attribute("role", "toolbar")
-                        },
-                        concat
-                        (
-                            currentViewModel.ActionButtons.Select(button =>
-                                new Nodes.Component(button.GetType(), Enumerable.Empty<Attribute>())).ToArray()
-                        )
-                    )
-                ),
-                script
-                (
-                    text
-                    (
-                        "mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('.mdc-top-app-bar'));"
-                    )
-                )
-            );
-    }
+                    );
+            };
 
-    private Node SearchBar() =>
+    protected override Interaction.Update<RegularModel, RegularCommand> Update => throw new NotImplementedException();
+
+    private Node SearchBar(RegularModel model) =>
         form
         (
+            (NodeId)11,
             @class
             (
+                (AttributeId)1,
                 $"{SearchFormCssClassName} form"
             ),
             button
             (
+                (NodeId)12,
                 new[]
                 {
-                    type("button"),
-                    @class($"{SearchBackButtonCssClassName} material-icons"),
-                    aria_label("Exit search results"),
-                    on.click(async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
+                    type((AttributeId)2, "button"),
+                    @class((AttributeId)3, $"{SearchBackButtonCssClassName} material-icons"),
+                    aria_label((AttributeId)4, "Exit search results"),
+                    on.click((AttributeId)5, async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
                 },
                 text
                 (
+                    (NodeId)13,
                     "arrow_back"
-                )                
+                )
             ),
             input
             (
+                (NodeId)14,
                 new[]
                 {
-                    type("text"),
-                    @class(SearchSearchInputCssClassName),
-                    placeholder("Search"),
-                    aria_label("Type what you want to search and press enter"),
-                    autocomplete("off"),
+                    type((AttributeId)6, "text"),
+                    @class((AttributeId)7, SearchSearchInputCssClassName),
+                    placeholder((AttributeId)8, "Search"),
+                    aria_label((AttributeId)9, "Type what you want to search and press enter"),
+                    autocomplete((AttributeId)10, "off"),
+                    bind.input((AttributeId)11, model.SearchTerm, searchTerm => model.SearchTerm = searchTerm),
+                    on.keydown((AttributeId)12, async args =>
+                    {
+                        if (args.Key == "Enter")
+                        {
+                            await model.Search(model.SearchTerm);
+                            StateHasChanged();
+                        }
+                    })
                 }
             )
         );
@@ -131,9 +169,11 @@ public class Regular : Component<RegularViewModel>
     private Node Styles() =>
         style
         (
+            (NodeId)15,
             // todo : figure out media query in style element for search box font-size
             text
             (
+                (NodeId)16,
                 $@"
                     header.{AppBarCssClassName} .{SearchBackButtonCssClassName} {{
                         width: 72px;

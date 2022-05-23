@@ -1,23 +1,36 @@
-﻿using Radix.Components.Html;
+﻿
+using Radix.Interaction;
+using Radix.Interaction.Data;
+using Radix.Interaction.Web.Components;
+
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top.Navigation;
 
-public abstract class Button : Component
-{
-    protected abstract string Name { get; }
-    protected abstract string AriaLabel { get; }
+public interface Button { }
 
-    protected override Node View() =>
-        button
-        (
-            new[]
+public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Button
+    where TModel : ButtonModel
+    where TCommand : ButtonCommand<TCommand>
+{
+
+    protected override Interact<TModel, TCommand> Interact =>
+            async (model, dispatch) =>
             {
-                    @class("material-icons mdc-top-app-bar__navigation-icon mdc-icon-button"),
-                    attribute("aria-label", AriaLabel)
-            },
-            text
-            (
-                Name
-            )
-        );
+                return button
+                (
+                    (NodeId)1,
+                    new[]
+                    {
+                        @class((AttributeId)1, "material-icons", "mdc-top-app-bar__navigation-icon", "mdc-icon-button"),
+                        attribute((AttributeId)2, "aria-label", model.AriaLabel),
+                        on.click((AttributeId)3, mouseEventArgs => dispatch(TCommand.Create()))
+                    },
+                    text
+                    (
+                        (NodeId)2,
+                        model.Name
+                    )
+                );
+            };
+
 }

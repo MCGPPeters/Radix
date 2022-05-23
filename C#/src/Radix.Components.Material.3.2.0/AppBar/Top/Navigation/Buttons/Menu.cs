@@ -1,10 +1,8 @@
-﻿using Radix.Components.Html;
+﻿
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top.Navigation.Buttons;
 
-public class Menu : Button
+public class Menu : Button<MenuButtonModel, MenuButtonCommand>
 {
-    protected override string Name => "menu";
-
-    protected override string AriaLabel => "Open vavigation menu";
+    protected override Interaction.Update<MenuButtonModel, MenuButtonCommand> Update => throw new NotImplementedException();
 }

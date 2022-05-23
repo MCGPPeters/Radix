@@ -3,7 +3,7 @@ using Radix.Data;
 
 namespace Radix.Shop.Catalog.Domain;
 
-public delegate IAsyncEnumerable<T> Search<T>(SearchTerm searchTerm);
+public delegate IAsyncEnumerable<T> Search<out T>(SearchTerm searchTerm);
 
 public delegate Task<Unit> Crawl(SearchTerm searchTerm);
 

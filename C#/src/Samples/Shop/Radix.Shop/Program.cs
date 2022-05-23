@@ -21,6 +21,7 @@ using OpenTelemetry;
 using OpenTelemetry.Trace;
 using Radix.Control.Task;
 using Radix.Shop.Catalog.Interface.Logic.Components.Jumbo;
+using Radix.Interaction.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,12 +47,12 @@ switch (result)
 {
     case Valid<(Task, SearchClient)> (var (createIndex, searchClient)) :
         await createIndex.Return().Retry(Backoff.Exponentially());
-        async IAsyncEnumerable<ProductViewModel> SearchProducts(SearchTerm searchTerm)
+        async IAsyncEnumerable<ProductModel> SearchProducts(SearchTerm searchTerm)
         {
             Azure.Response<SearchResults<IndexableProduct>> response = await searchClient.SearchAsync<IndexableProduct>(searchTerm);
             await foreach (var result in response.Value.GetResultsAsync())
             {
-                var productViewModel = new ProductViewModel
+                var productViewModel = new ProductModel
                 {
                     Id = result.Document.Id,
                     Title = result.Document.Title,
@@ -69,14 +70,13 @@ switch (result)
             }
         };
         var channel = Channel.CreateUnbounded<SearchTerm>();
-        var searchViewModel = new SearchViewModel(channel) { Search = SearchProducts };
+        var searchViewModel = new SearchModel(channel) { Search = SearchProducts };
 
         // Add services to the container.
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
-        builder.Services.AddSingleton<NavMenuViewModel>();
-        builder.Services.AddSingleton<IndexViewModel>();
-        builder.Services.AddSingleton<LogoReferenceViewModel>();
+        builder.Services.AddSingleton<IndexModel>();
+        builder.Services.AddSingleton<LogoReferenceModel>();
         builder.Services.AddSingleton(searchViewModel);
         builder.Services.AddSingleton(Workflows.CrawlAll(crawlAH, crawlJumbo));
         builder.Services.AddSingleton(channel);
@@ -90,9 +90,9 @@ switch (result)
                 .AddJaegerExporter()
                 .Build();
         builder.Services.AddSingleton(openTelemetry);
-        builder.Services.AddSingleton<IndexViewModel>();
-        builder.Services.AddSingleton<ListViewModel>();
-        builder.Services.AddSingleton(new CarouselViewModel("frequentItems", new CarouselOptions(), text("foo"), text("bar")));
+        builder.Services.AddSingleton<IndexModel>();
+        builder.Services.AddSingleton<ListModel>();
+        builder.Services.AddSingleton(new CarouselModel("frequentItems", new CarouselOptions(), text((NodeId)1, "foo"), text((NodeId)2, "bar")));
 
         var app = builder.Build();
 

@@ -7,11 +7,8 @@ using Radix.Web.Css.Data.Dimensions;
 
 namespace Radix.Web.Css.Data.Declarations.Height;
 
-public struct Length<T, U> : Declaration<Length<U>>
-    where U : Literal<U>, Units.Length.Unit<U>
-    where T : Literal<Property>
+public record Length : Declaration<Properties.Height.Values.Length>
 {
-    public Properties.Values.Height Property { get; init; }
-    public Properties.Width.Value<Length<U>> Value { get; init; }
+    public Radix.Web.Css.Data.Properties.Height.Values.Length Value { get; init; }
 }
 

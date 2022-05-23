@@ -9,3 +9,23 @@ public partial struct Height : Property
 public partial struct Width : Property
 {
 }
+
+[Literal(StringRepresentation = "padding-left")]
+public partial struct PaddingLeft : Property
+{
+}
+
+[Literal(StringRepresentation = "padding-right")]
+public partial struct PaddingRight : Property
+{
+}
+
+[Literal(StringRepresentation = "padding-top")]
+public partial struct PaddingTop : Property
+{
+}
+
+[Literal(StringRepresentation = "padding-bottom")]
+public partial struct PaddingBottom : Property
+{
+}

@@ -1,10 +1,8 @@
-﻿using Radix.Components.Html;
+﻿
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
 
-public class Options : Button
+public class Options : Button<OptionsButtonModel, OptionsButtonCommand>
 {
-    protected override string Name => "more_vert";
-
-    protected override string AriaLabel => "Options";
+    protected override Interaction.Update<OptionsButtonModel, OptionsButtonCommand> Update => (model, command) => Task.FromResult(model);
 }

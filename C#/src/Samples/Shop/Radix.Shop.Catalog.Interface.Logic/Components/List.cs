@@ -1,24 +1,26 @@
-﻿using Radix.Components;
-using Radix.Components.Html;
+﻿using Radix.Interaction;
+using Radix.Interaction.Data;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components;
 
-public class List : Component<ListViewModel>
+public class List : Component<ListModel, ListCommand>
 {
-    protected override Node View(ListViewModel currentViewModel)
-    {
-        return concat
+    protected override Interact<ListModel, ListCommand> Interact =>
+        async (model, dispatch) =>
+        {
+            return concat
             (
+                (NodeId)1,
                 component<Carousel>
                 (
-                    Array.Empty<Radix.Components.Attribute>(),
+                    (NodeId)2,
+                    Array.Empty<Interaction.Data.Attribute<object>>(),
                     Array.Empty<Node>()
                 )
             );
-    }
-}
+        };
 
-public record ListViewModel : ViewModel
-{
+    protected override Interaction.Update<ListModel, ListCommand> Update => (model, _) => Task.FromResult(model);
+
 }
 

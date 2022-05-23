@@ -12,9 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Radix.Components\Radix.Components.csproj" />
+    <ProjectReference Include="..\..\..\Radix.Interaction\Radix.Interaction.csproj" />
     <ProjectReference Include="..\..\..\Radix.Web.Css\Radix.Web.Css.csproj" />
     <ProjectReference Include="..\..\..\Radix.Web.Html\Radix.Web.Html.csproj" />
+    <ProjectReference Include="..\..\..\Radix.Web\Radix.Interaction.Web.csproj" />
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
   </ItemGroup>
 

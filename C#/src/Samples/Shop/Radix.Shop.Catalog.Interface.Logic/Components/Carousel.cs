@@ -1,47 +1,71 @@
 ﻿using Microsoft.JSInterop;
 using Radix.Components;
-using Radix.Components.Html;
+
 using Microsoft.AspNetCore.Components.Web.Extensions.Head;
+using Radix.Interaction;
+using Radix.Interaction.Data;
+using Microsoft.AspNetCore.Components;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components;
 
-public class Carousel : Component<CarouselViewModel>, IAsyncDisposable
+public class Carousel : Component<CarouselModel, CarouselCommand>, IAsyncDisposable
 {
     private IJSObjectReference? _glider;
 
+    [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override Node View(CarouselViewModel currentViewModel) => concat
+    protected override Interaction.Update<CarouselModel, CarouselCommand> Update => (model, _) => Task.FromResult(model);
+
+    protected override Interact<CarouselModel, CarouselCommand> Interact =>
+        async (model, dispatch) =>
+            concat
             (
+                (NodeId)1,
                 component<Link>
                 (
-                    rel("stylesheet"),
-                    href("https://unpkg.com/@glidejs/glide@3.5.0/dist/css/glide.core.min.css")
+                    (NodeId)2,
+
+                    new[]
+                    {
+                        rel((AttributeId)1, "stylesheet"),
+                        href((AttributeId)2, "https://unpkg.com/@glidejs/glide@3.5.0/dist/css/glide.core.min.css")
+                    }
                 ),
                 script
                 (
-                    text($"function createGlideInstance() {{ return new Glide('.{ViewModel.Id}').mount()}};")
+                    (NodeId)3,
+                    text
+                    (
+                        (NodeId)31,
+                        $"function createGlideInstance() {{ return new Glide('.{model.Id}').mount()}};"
+                    )
                 ),
                 div
                 (
-                    @class(currentViewModel.Id),
+                    (NodeId)4,
+                    @class((AttributeId)3,model.Id),
                     concat
                     (
+                        (NodeId)5,
                         div
                         (
+                            (NodeId)6,
                             new[]
                             {
-                                @class("glide__track"),
-                                attribute("data-glide-el", "track")
+                                @class((AttributeId)4, "glide__track"),
+                                attribute((AttributeId)5, "data-glide-el", "track")
                             },
                             ul
                             (
-                                new[] { @class("glide__slides") },
-                                currentViewModel.Children.Select
+                                (NodeId)7,
+                                new[] { @class((AttributeId)6, "glide__slides") },
+                                model.Children.Select
                                 (
                                     element =>
                                         li
                                         (
-                                            new[] { @class("glide__slide") },
+                                            (NodeId)8,
+                                            new[] { @class((AttributeId)7, "glide__slide") },
                                             element
                                         )
                                 ).ToArray()
@@ -49,59 +73,66 @@ public class Carousel : Component<CarouselViewModel>, IAsyncDisposable
                         ),
                         div
                         (
+                            (NodeId)9,
                             new[]
                             {
-                                @class("glide__arrows"),
-                                attribute("data-glide-el", "controls")
+                                @class((AttributeId)8, "glide__arrows"),
+                                attribute((AttributeId)9, "data-glide-el", "controls")
                             },
                             button
                             (
+                                (NodeId)10,
                                 new[]
                                 {
-                                    @class("slider__arrow slider__arrow--next glide__arrow glide__arrow--left"),
-                                    attribute("data-glide-dir", "<")
+                                    @class((AttributeId)10, "slider__arrow slider__arrow--next glide__arrow glide__arrow--left"),
+                                    attribute((AttributeId)11, "data-glide-dir", "<")
                                 },
                                 svg
                                 (
+                                    (NodeId)11,
                                     new[]
                                     {
-                                        attribute("xmlns", "http://www.w3.org/2000/svg"),
-                                        width("18"),
-                                        height("18"),
-                                        attribute("viewBox", "0 0 24 24")
+                                        attribute((AttributeId)12, "xmlns", "http://www.w3.org/2000/svg"),
+                                        width((AttributeId)13, "18"),
+                                        height((AttributeId)14, "18"),
+                                        attribute((AttributeId)15, "viewBox", "0 0 24 24")
                                     },
                                     element
                                     (
+                                        (NodeId)12,
                                         "path",
                                         new[]
                                         {
-                                            attribute("d", "M0 12l10.975 11 2.848-2.828-6.176-6.176H24v-3.992H7.646l6.176-6.176L10.975 1 0 12z")
+                                            attribute((AttributeId)16, "d", "M0 12l10.975 11 2.848-2.828-6.176-6.176H24v-3.992H7.646l6.176-6.176L10.975 1 0 12z")
                                         }
                                     )
                                 )
                             ),
                             button
                             (
+                                (NodeId)13,
                                 new[]
                                 {
-                                    @class("slider__arrow slider__arrow--next glide__arrow glide__arrow--right"),
-                                    attribute("data-glide-dir", ">")
+                                    @class((AttributeId)17, "slider__arrow slider__arrow--next", "glide__arrow", "glide__arrow--right"),
+                                    attribute((AttributeId)18, "data-glide-dir", ">")
                                 },
                                 svg
                                 (
+                                    (NodeId)14,
                                     new[]
                                     {
-                                        attribute("xmlns", "http://www.w3.org/2000/svg"),
-                                        width("18"),
-                                        height("18"),
-                                        attribute("viewBox", "0 0 24 24")
+                                        attribute((AttributeId)19, "xmlns", "http://www.w3.org/2000/svg"),
+                                        width((AttributeId)20, "18"),
+                                        height((AttributeId)21, "18"),
+                                        attribute((AttributeId)22, "viewBox", "0 0 24 24")
                                     },
                                     element
                                     (
+                                        (NodeId)15,
                                         "path",
                                         new[]
                                         {
-                                            attribute("d", "M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z")
+                                            attribute((AttributeId)23, "d", "M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z")
                                         }
                                     )
                                 )

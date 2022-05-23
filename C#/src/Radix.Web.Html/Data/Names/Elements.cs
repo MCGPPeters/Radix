@@ -1,345 +1,345 @@
 ﻿namespace Radix.Web.Html.Data.Names.Elements;
 
 [Literal]
-public partial struct a : TagName { }
+public partial struct a : Element { }
 
 [Literal]
-public partial struct abbr : TagName { }
+public partial struct abbr : Element { }
 
 [Literal]
-public partial struct address : TagName { }
+public partial struct address : Element { }
 
 [Literal]
-public partial struct area : TagName { }
+public partial struct area : Element { }
 
 [Literal]
-public partial struct article : TagName { }
+public partial struct article : Element { }
 
 [Literal]
-public partial struct aside : TagName { }
+public partial struct aside : Element { }
 
 [Literal]
-public partial struct audio : TagName { }
+public partial struct audio : Element { }
 
 [Literal]
-public partial struct b : TagName { }
+public partial struct b : Element { }
 
 [Literal(StringRepresentation = "base")]
-public partial struct @base : TagName { }
+public partial struct @base : Element { }
 
 [Literal]
-public partial struct bdi : TagName { }
+public partial struct bdi : Element { }
 
 [Literal]
-public partial struct bdo : TagName { }
+public partial struct bdo : Element { }
 
 [Literal]
-public partial struct blockquote : TagName { }
+public partial struct blockquote : Element { }
 
 [Literal]
-public partial struct body : TagName { }
+public partial struct body : Element { }
 
 [Literal]
-public partial struct br : TagName { }
+public partial struct br : Element { }
 
 [Literal]
-public partial struct button : TagName { }
+public partial struct button : Element { }
 
 [Literal]
-public partial struct canvas : TagName { }
+public partial struct canvas : Element { }
 
 [Literal]
-public partial struct caption : TagName { }
+public partial struct caption : Element { }
 
 [Literal]
-public partial struct code : TagName { }
+public partial struct code : Element { }
 
 [Literal]
-public partial struct col : TagName { }
+public partial struct col : Element { }
 
 [Literal]
-public partial struct colgroup : TagName { }
+public partial struct colgroup : Element { }
 
 [Literal]
-public partial struct data : TagName { }
+public partial struct data : Element { }
 
 [Literal]
-public partial struct datalist : TagName { }
+public partial struct datalist : Element { }
 
 [Literal]
-public partial struct dd : TagName { }
+public partial struct dd : Element { }
 
 [Literal]
-public partial struct del : TagName { }
-
-
-[Literal]
-public partial struct details : TagName { }
-
-[Literal]
-public partial struct dfn : TagName { }
-
-[Literal]
-public partial struct dialog : TagName { }
-
-[Literal]
-public partial struct div : TagName { }
-
-[Literal]
-public partial struct dl : TagName { }
-
-[Literal]
-public partial struct dt : TagName { }
-
-[Literal]
-public partial struct em : TagName { }
-
-[Literal]
-public partial struct embed : TagName { }
-
-[Literal]
-public partial struct fieldset : TagName { }
-
-[Literal]
-public partial struct figcaption : TagName { }
-
-[Literal]
-public partial struct figure : TagName { }
-
-[Literal]
-public partial struct form : TagName { }
-
-[Literal]
-public partial struct footer : TagName { }
-
-[Literal]
-public partial struct h1 : TagName { }
-
-[Literal]
-public partial struct h2 : TagName { }
-
-[Literal]
-public partial struct h3 : TagName { }
-
-[Literal]
-public partial struct h4 : TagName { }
-
-[Literal]
-public partial struct h5 : TagName { }
-
-[Literal]
-public partial struct h6 : TagName { }
-
-[Literal]
-public partial struct head : TagName { }
-
-[Literal]
-public partial struct header : TagName { }
-
-[Literal]
-public partial struct hgroup : TagName { }
-
-[Literal]
-public partial struct hr : TagName { }
-
-[Literal]
-public partial struct html : TagName { }
-
-[Literal]
-public partial struct i : TagName { }
-
-[Literal]
-public partial struct iframe : TagName { }
+public partial struct del : Element { }
 
 
 [Literal]
-public partial struct img : TagName { }
+public partial struct details : Element { }
 
 [Literal]
-public partial struct input : TagName { }
+public partial struct dfn : Element { }
 
 [Literal]
-public partial struct ins : TagName { }
+public partial struct dialog : Element { }
 
 [Literal]
-public partial struct kbd : TagName { }
+public partial struct div : Element { }
 
 [Literal]
-public partial struct label : TagName { }
+public partial struct dl : Element { }
+
+[Literal]
+public partial struct dt : Element { }
+
+[Literal]
+public partial struct em : Element { }
+
+[Literal]
+public partial struct embed : Element { }
+
+[Literal]
+public partial struct fieldset : Element { }
+
+[Literal]
+public partial struct figcaption : Element { }
+
+[Literal]
+public partial struct figure : Element { }
+
+[Literal]
+public partial struct form : Element { }
+
+[Literal]
+public partial struct footer : Element { }
+
+[Literal]
+public partial struct h1 : Element { }
+
+[Literal]
+public partial struct h2 : Element { }
+
+[Literal]
+public partial struct h3 : Element { }
+
+[Literal]
+public partial struct h4 : Element { }
+
+[Literal]
+public partial struct h5 : Element { }
+
+[Literal]
+public partial struct h6 : Element { }
+
+[Literal]
+public partial struct head : Element { }
+
+[Literal]
+public partial struct header : Element { }
+
+[Literal]
+public partial struct hgroup : Element { }
+
+[Literal]
+public partial struct hr : Element { }
+
+[Literal]
+public partial struct html : Element { }
+
+[Literal]
+public partial struct i : Element { }
+
+[Literal]
+public partial struct iframe : Element { }
+
+
+[Literal]
+public partial struct img : Element { }
+
+[Literal]
+public partial struct input : Element { }
+
+[Literal]
+public partial struct ins : Element { }
+
+[Literal]
+public partial struct kbd : Element { }
+
+[Literal]
+public partial struct label : Element { }
 
 
 
 [Literal]
-public partial struct legend : TagName { }
+public partial struct legend : Element { }
 
 [Literal]
-public partial struct li : TagName { }
+public partial struct li : Element { }
 
 [Literal]
-public partial struct link : TagName { }
+public partial struct link : Element { }
 
 [Literal]
-public partial struct main : TagName { }
+public partial struct main : Element { }
 
 [Literal]
-public partial struct map : TagName { }
+public partial struct map : Element { }
 
 [Literal]
-public partial struct mark : TagName { }
+public partial struct mark : Element { }
 
 [Literal]
-public partial struct math : TagName { }
+public partial struct math : Element { }
 
 [Literal]
-public partial struct menu : TagName { }
+public partial struct menu : Element { }
 
 
 [Literal]
-public partial struct meta : TagName { }
+public partial struct meta : Element { }
 
 [Literal]
-public partial struct meter : TagName { }
+public partial struct meter : Element { }
 
 [Literal]
-public partial struct nav : TagName { }
+public partial struct nav : Element { }
 
 [Literal]
-public partial struct noscript : TagName { }
+public partial struct noscript : Element { }
 
 [Literal(StringRepresentation = "object")]
-public partial struct @object : TagName { }
+public partial struct @object : Element { }
 
 [Literal]
-public partial struct ol : TagName { }
+public partial struct ol : Element { }
 
 [Literal]
-public partial struct optgroup : TagName { }
+public partial struct optgroup : Element { }
 
 [Literal]
-public partial struct option : TagName { }
+public partial struct option : Element { }
 
 [Literal]
-public partial struct output : TagName { }
+public partial struct output : Element { }
 
 [Literal]
-public partial struct p : TagName { }
+public partial struct p : Element { }
 
 [Literal]
-public partial struct param : TagName { }
+public partial struct param : Element { }
 
 [Literal]
-public partial struct picture : TagName { }
+public partial struct picture : Element { }
 
 [Literal]
-public partial struct pre : TagName { }
+public partial struct pre : Element { }
 
 [Literal]
-public partial struct progress : TagName { }
+public partial struct progress : Element { }
 
 [Literal]
-public partial struct q : TagName { }
+public partial struct q : Element { }
 
 [Literal]
-public partial struct rp : TagName { }
+public partial struct rp : Element { }
 
 [Literal]
-public partial struct rt : TagName { }
+public partial struct rt : Element { }
 
 [Literal]
-public partial struct ruby : TagName { }
+public partial struct ruby : Element { }
 
 [Literal]
-public partial struct s : TagName { }
+public partial struct s : Element { }
 
 [Literal]
-public partial struct samp : TagName { }
+public partial struct samp : Element { }
 
 [Literal]
-public partial struct script : TagName { }
+public partial struct script : Element { }
 
 [Literal]
-public partial struct section : TagName { }
+public partial struct section : Element { }
 
 [Literal]
-public partial struct select : TagName { }
+public partial struct select : Element { }
 
 [Literal]
-public partial struct small : TagName { }
+public partial struct small : Element { }
 
 [Literal]
-public partial struct source : TagName { }
+public partial struct source : Element { }
 
 [Literal]
-public partial struct span : TagName { }
+public partial struct span : Element { }
 
 [Literal]
-public partial struct strong : TagName { }
+public partial struct strong : Element { }
 
 [Literal]
-public partial struct style : TagName { }
+public partial struct style : Element { }
 
 [Literal]
-public partial struct sub : TagName { }
+public partial struct sub : Element { }
 
 [Literal]
-public partial struct summary : TagName { }
+public partial struct summary : Element { }
 
 [Literal]
-public partial struct sup : TagName { }
+public partial struct sup : Element { }
 
 [Literal]
-public partial struct svg : TagName { }
+public partial struct svg : Element { }
 
 [Literal]
-public partial struct table : TagName { }
+public partial struct table : Element { }
 
 [Literal]
-public partial struct tbody : TagName { }
+public partial struct tbody : Element { }
 
 [Literal]
-public partial struct td : TagName { }
+public partial struct td : Element { }
 
 [Literal]
-public partial struct template : TagName { }
+public partial struct template : Element { }
 
 [Literal]
-public partial struct textarea : TagName { }
+public partial struct textarea : Element { }
 
 
 [Literal]
-public partial struct tfoot : TagName { }
+public partial struct tfoot : Element { }
 
 [Literal]
-public partial struct th : TagName { }
+public partial struct th : Element { }
 
 [Literal]
-public partial struct thead : TagName { }
+public partial struct thead : Element { }
 
 [Literal]
-public partial struct time : TagName { }
+public partial struct time : Element { }
 
 [Literal]
-public partial struct title : TagName { }
+public partial struct title : Element { }
 
 [Literal]
-public partial struct tr : TagName { }
+public partial struct tr : Element { }
 
 [Literal]
-public partial struct track : TagName { }
+public partial struct track : Element { }
 
 [Literal]
-public partial struct u : TagName { }
+public partial struct u : Element { }
 
 [Literal]
-public partial struct ul : TagName { }
+public partial struct ul : Element { }
 
 [Literal(StringRepresentation = "var")]
-public partial struct @var : TagName { }
+public partial struct @var : Element { }
 
 [Literal]
-public partial struct video : TagName { }
+public partial struct video : Element { }
 
 [Literal]
-public partial struct wbr : TagName { }
+public partial struct wbr : Element { }
 
 

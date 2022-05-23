@@ -1,7 +1,6 @@
 ﻿namespace Radix.Web.Css.Data.Declarations.Height;
 
-public partial struct min_content : Declaration<Keywords.min_content>
+public record min_content : Declaration<Keywords.min_content>
 {
-    public Properties.Values.Height Property { get; init; }
-    public Properties.Width.Value<Keywords.min_content> Value { get; init; }
+    public Properties.Height.Value<Keywords.min_content> Value { get; init; }
 }

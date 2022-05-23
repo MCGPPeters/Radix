@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Radix.Shop.Catalog.Interface.Logic.Components
 {
-    public record ProductViewModel
+    public record ProductModel
     {
         public string Id { get; set; }
         public string Title { get; set; }

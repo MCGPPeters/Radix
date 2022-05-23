@@ -1,21 +1,30 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Radix.Components;
-using Radix.Components.Html;
+using Radix.Interaction;
+using Radix.Interaction.Components;
+using Radix.Interaction.Data;
+using Radix.Interaction.Web.Components;
 using Radix.Shop.Catalog.Interface.Logic.Components;
 
 namespace Radix.Shop.Pages
 {
     [Route("/")]
-    public class Index : Component<IndexViewModel>
+    public class Index : Component<IndexModel, object>
     {
-        protected override Node View(IndexViewModel currentViewModel) =>
-            concat
-            (
-                component<Search>
+        protected override Interact<IndexModel, object> Interact =>
+            async (model, _) =>
+                concat
                 (
-                    Array.Empty<ComponentAttribute>(),
-                    Array.Empty<Node>()
-                )
-            );          
+                    (NodeId)1,
+                    component<Search>
+                    (
+                        (NodeId)2,
+                        Array.Empty<ComponentAttribute>(),
+                        Array.Empty<Node>()
+                    )
+                );
+
+        protected override Interaction.Update<IndexModel, object> Update => (model, _) => Task.FromResult(model);
+
+                     
     }
 }

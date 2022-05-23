@@ -2,7 +2,7 @@
 
 public interface Declaration { }
 
-public interface Declaration<T> : Declaration<Properties.Values.Height, Properties.Width.Value<T>>, Declaration
+public record Declaration<T> : Declaration<Properties.Values.Height, Properties.Height.Value<T>>, Declaration
 
 {
 

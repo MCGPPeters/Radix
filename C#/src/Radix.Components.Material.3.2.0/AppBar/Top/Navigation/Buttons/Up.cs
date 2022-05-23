@@ -1,10 +1,8 @@
-﻿using Radix.Components.Html;
+﻿
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top.Navigation.Buttons;
 
-public class Up : Button
+public class Up : Button<UpButtonModel, UpButtonCommand>
 {
-    protected override string Name => "arrow_upward";
-
-    protected override string AriaLabel => "Navigate upward through the application hierarchy";
+    protected override Interaction.Update<UpButtonModel, UpButtonCommand> Update => (model, _) => Task.FromResult(model);
 }

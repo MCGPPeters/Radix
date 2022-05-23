@@ -27,7 +27,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
 
-        IndexViewModel indexViewModel = new(InventoryItems);
+        IndexModel indexViewModel = new(InventoryItems);
         InventoryBoundedContext inventoryBoundedContext = new InventoryBoundedContext();
 
         IAllStreamSubscription? _ = InventoryBoundedContext.StreamStore.SubscribeToAll(
@@ -89,10 +89,10 @@ public class Startup
         services.AddSingleton<BoundedContext<IncrementCommand, CounterIncremented, Json>>(_ => new CounterBoundedContext());
         services.AddSingleton<BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>>(_ => inventoryBoundedContext);
         services.AddSingleton(indexViewModel);
-        services.AddSingleton(_ => new NavMenuViewModel());
-        services.AddTransient(_ => new AddInventoryItemViewModel());
-        services.AddSingleton(new CounterViewModel());
-        services.AddTransient(_ => new DeactivateInventoryItemViewModel());
+        services.AddSingleton(_ => new NavMenuModel());
+        services.AddTransient(_ => new AddInventoryItemModel());
+        services.AddSingleton(new CounterModel());
+        services.AddTransient(_ => new DeactivateInventoryItemModel());
 
     }
 

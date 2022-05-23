@@ -9,9 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-
-    <ProjectReference Include="..\Radix.Components\Radix.Components.csproj" />
-
+    <ProjectReference Include="..\Radix.Interaction\Radix.Interaction.csproj" />
     <ProjectReference Include="..\Radix\Radix.csproj" />
   </ItemGroup>
 

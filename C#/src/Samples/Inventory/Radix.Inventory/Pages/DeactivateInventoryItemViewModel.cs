@@ -2,7 +2,7 @@
 
 namespace Radix.Inventory.Pages;
 
-public record DeactivateInventoryItemViewModel : ViewModel
+public record DeactivateInventoryItemModel : ViewModel
 {
 
     public string? InventoryItemName { get; set; }

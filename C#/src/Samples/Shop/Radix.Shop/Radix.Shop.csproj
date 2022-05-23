@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Radix.Components\Radix.Components.csproj" />
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
   </ItemGroup>
 

@@ -1,42 +1,56 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Components;
-using Radix.Components.Html;
+using static Radix.Interaction.Web.Components.Components;
+
 using Radix.Inventory.Domain;
+using Radix.Data;
+using Radix.Interaction.Web.Components;
+using Radix.Interaction;
+using Radix.Interaction.Data;
+using Node = Radix.Interaction.Data.Node;
 
 namespace Radix.Inventory.Pages;
 
 [Route("/")]
-public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCommand, InventoryItemEvent, Json>
+public class IndexComponent : Component<IndexModel, Validated<InventoryItemCommand>>
 {
-    protected override Node View(IndexViewModel currentViewModel) =>
-        concat
-        (
-            navLinkMatchAll
+    protected override Interaction.Update<IndexModel, Validated<InventoryItemCommand>> Update => (model, _) => Task.FromResult(model);
+
+    protected override Interact<IndexModel, Validated<InventoryItemCommand>> Interact =>
+        async (model, dispatch) =>
+            concat
             (
-                new[]
-                {
-                    @class("btn btn-primary"),
-                    href("Add")
-                },
-                text
+                (NodeId)1,
+                navLinkMatchAll
                 (
-                    "Add"
-                )
-            ),
-            h1
-            (
-                text
+                    (NodeId)2,
+                    new[]
+                    {
+                        @class((AttributeId)1, "btn", "btn-primary"),
+                        href((AttributeId)2, "Add")
+                    },
+                    text
+                    (
+                        (NodeId)3,
+                        "Add"
+                    )
+                ),
+                h1
                 (
-                    "All items"
+                    (NodeId)4,
+                    text
+                    (
+                        (NodeId)5,
+                        "All items"
+                    )
+                ),
+                table
+                (
+                    (NodeId)6,
+                    GetInventoryItemNodes(model.InventoryItems)
                 )
-            ),
-            table
-            (
-                GetInventoryItemNodes(currentViewModel.InventoryItems)
-            )    
-        );
-    
+            );   
 
 
     private static Node[] GetInventoryItemNodes(IEnumerable<InventoryItemModel>? inventoryItems) =>
@@ -44,16 +58,20 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
             .Select(inventoryItem =>
                 tr
                 (
+                    (NodeId)7,
                     td
                     (
+                        (NodeId)8,
                         navLinkMatchAll
                         (
+                            (NodeId)9,      
                             new[]
                             {
-                                href($"/Details/{inventoryItem.id}")
+                                href((AttributeId)3, $"/Details/{inventoryItem.id}")
                             },
                             text
                             (
+                                (NodeId)10,
                                 inventoryItem.name ?? string.Empty
                             )
                         )
@@ -63,14 +81,17 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
                     ?
                         td
                         (
+                            (NodeId)11,
                             navLinkMatchAll
                             (
+                                (NodeId)12,
                                 new[]
                                 {
-                                    href($"/Deactivate/{inventoryItem.id}")
+                                    href((AttributeId)4, $"/Deactivate/{inventoryItem.id}")
                                 },
                                 text
                                 (
+                                    (NodeId)13,
                                     "Deactivate"
                                 )
                             )
@@ -78,14 +99,17 @@ public class IndexComponent : TaskBasedComponent<IndexViewModel, InventoryItemCo
                     :
                         td
                         (
+                            (NodeId)14,
                             navLinkMatchAll
                             (
+                                (NodeId)15,
                                 new[]
                                 {
-                                    href($"/Activate/{inventoryItem.id}")
+                                    href((AttributeId)5, $"/Activate/{inventoryItem.id}")
                                 },
                                 text
                                 (
+                                    (NodeId)16,
                                     "Activate"
                                 )
                             )

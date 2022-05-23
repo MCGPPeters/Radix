@@ -1,10 +1,9 @@
-﻿using Radix.Components.Html;
+﻿
+using Radix.Components.Material._3._2._0.AppBar.Top.Action;
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top.Navigation.Buttons;
 
-public class Back : Button
+public class Back : Button<BackButtonModel, BackButtonCommand>
 {
-    protected override string Name => "arrow_back";
-
-    protected override string AriaLabel => "Navigate back to previous screen";
+    protected override Interaction.Update<BackButtonModel, BackButtonCommand> Update => (model, command) => Task.FromResult(model);
 }
