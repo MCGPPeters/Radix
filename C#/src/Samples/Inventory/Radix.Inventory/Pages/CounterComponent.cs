@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Components;
 using Radix.Data;
 using Radix.Interaction.Data;
-using Node = Radix.Interaction.Data.Node;
 using Radix.Interaction.Web.Components;
 
 namespace Radix.Inventory.Pages;
@@ -38,7 +36,7 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
             return model;
         };
 
-    protected override Interaction.Interact<CounterModel, Validated<IncrementCommand>> Interact =>
+    protected override Interaction.View<CounterModel, Validated<IncrementCommand>> View =>
         async (model, dispatch) =>
         concat
         (

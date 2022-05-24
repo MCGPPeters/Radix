@@ -10,7 +10,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
     where TModel : ButtonModel
     where TCommand : ButtonCommand<TCommand>
 {
-    protected override Interact<TModel, TCommand> Interact =>
+    protected override View<TModel, TCommand> View =>
             async (model, dispatch) => {
                 return button
                                 (

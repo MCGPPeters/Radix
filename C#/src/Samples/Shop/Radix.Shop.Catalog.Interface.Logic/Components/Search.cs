@@ -22,7 +22,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
                 return model;
             };
 
-        protected override Interact<SearchModel, SearchCommand> Interact =>
+        protected override View<SearchModel, SearchCommand> View =>
             async (model, dispatch) =>
             {
                 _searchInput =

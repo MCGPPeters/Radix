@@ -11,7 +11,7 @@ namespace Radix.Shop.Wasm.Pages
     [Route("/")]
     public class Index : Component<IndexModel, object>
     {
-        protected override Interact<IndexModel, object> Interact => async (_, __) =>
+        protected override View<IndexModel, object> View => async (_, __) =>
             text((NodeId)1, "Hello!");
 
         protected override Interaction.Update<IndexModel, object> Update => (model, _) => Task.FromResult(model);

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Components;
 using static Radix.Interaction.Web.Components.Components;
 
 using Radix.Inventory.Domain;
@@ -17,7 +16,7 @@ public class IndexComponent : Component<IndexModel, Validated<InventoryItemComma
 {
     protected override Interaction.Update<IndexModel, Validated<InventoryItemCommand>> Update => (model, _) => Task.FromResult(model);
 
-    protected override Interact<IndexModel, Validated<InventoryItemCommand>> Interact =>
+    protected override View<IndexModel, Validated<InventoryItemCommand>> View =>
         async (model, dispatch) =>
             concat
             (

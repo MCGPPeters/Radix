@@ -10,7 +10,6 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Radix.Components\Radix.Components.csproj" />
     <ProjectReference Include="..\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj" />
     <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
   </ItemGroup>

@@ -1,8 +1,7 @@
-﻿using Radix.Components;
+﻿namespace Radix.Blazor.Inventory.Interface.Logic;
 
-namespace Radix.Blazor.Inventory.Interface.Logic;
-
-public record CounterModel : ViewModel
+public record CounterModel
 {
     public int Count { get; set; }
+    public Error[] Errors { get; set; }
 }

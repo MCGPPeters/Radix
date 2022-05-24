@@ -20,7 +20,7 @@ namespace Radix.Components.Material._3._2._0.Card
 
         protected override Interaction.Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);
 
-        protected override Interact<RegularModel, RegularCommand> Interact =>
+        protected override View<RegularModel, RegularCommand> View =>
             async (model, dispatch) =>
             {
 

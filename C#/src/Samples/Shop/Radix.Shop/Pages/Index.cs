@@ -10,7 +10,7 @@ namespace Radix.Shop.Pages
     [Route("/")]
     public class Index : Component<IndexModel, object>
     {
-        protected override Interact<IndexModel, object> Interact =>
+        protected override View<IndexModel, object> View =>
             async (model, _) =>
                 concat
                 (

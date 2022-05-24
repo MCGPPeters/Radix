@@ -1,5 +1,4 @@
-﻿using Radix.Components;
-using Radix.Interaction;
+﻿using Radix.Interaction;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
 using static Radix.Interaction.Web.Components.Components;
@@ -14,7 +13,7 @@ public class NavMenu : Component<NavMenuModel, object>
     protected override Interaction.Update<NavMenuModel, object> Update => (model, _) => Task.FromResult(model);
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : "";
 
-    protected override Interact<NavMenuModel, object> Interact =>
+    protected override View<NavMenuModel, object> View =>
         async (model, _)
             =>
             concat

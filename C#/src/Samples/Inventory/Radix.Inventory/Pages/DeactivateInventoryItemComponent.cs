@@ -49,7 +49,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
 
 
-protected override Interact<DeactivateInventoryItemModel, Validated<InventoryItemCommand>> Interact =>
+protected override View<DeactivateInventoryItemModel, Validated<InventoryItemCommand>> View =>
         async (model, dispatch) =>
             concat
             (

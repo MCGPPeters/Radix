@@ -44,7 +44,7 @@ public class AddInventoryItemComponent : Component<AddInventoryItemModel, Valida
             return model;
         };
 
-    protected override Interact<AddInventoryItemModel, Validated<InventoryItemCommand>> Interact =>
+    protected override View<AddInventoryItemModel, Validated<InventoryItemCommand>> View =>
         async (model, dispatch) =>
             concat
             (

@@ -30,6 +30,7 @@ QueueClient ahQueueClient = new QueueClient(builder.Configuration["AH_CONNECTION
 QueueClient jumboQueueClient = new QueueClient(builder.Configuration["JUMBO_CONNECTION_STRING"], builder.Configuration["JUMBO_QUEUE_NAME"], new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64});
 // Create the queue if it doesn't already exist
 ahQueueClient.CreateIfNotExists();
+jumboQueueClient.CreateIfNotExists();
 
 Crawl crawlAH = AH.ConfigureCrawl(ahQueueClient);
 Crawl crawlJumbo = Jumbo.ConfigureCrawl(jumboQueueClient);

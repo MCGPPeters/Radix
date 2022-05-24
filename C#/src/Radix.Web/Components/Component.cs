@@ -8,13 +8,12 @@ public abstract class Component<TModel, TCommand> : ComponentBase
 {
     [Inject] protected TModel Model { get; set; } = default!;
 
-
-    protected abstract Interact<TModel, TCommand> Interact { get; }
+    protected abstract View<TModel, TCommand> View { get; }
 
     protected abstract Update<TModel, TCommand> Update { get; }
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
-        Prelude<TModel, TCommand>.Next(Model, Interact, Update, Prelude.Render(this, builder), StateHasChanged);       
+        Prelude<TModel, TCommand>.Next(Model, View, Update, Prelude.Render(this, builder), StateHasChanged);       
     }
 }

@@ -5,7 +5,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components;
 
 public class List : Component<ListModel, ListCommand>
 {
-    protected override Interact<ListModel, ListCommand> Interact =>
+    protected override View<ListModel, ListCommand> View =>
         async (model, dispatch) =>
         {
             return concat

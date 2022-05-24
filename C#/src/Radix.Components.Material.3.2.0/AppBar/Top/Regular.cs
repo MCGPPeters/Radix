@@ -26,7 +26,7 @@ public class Regular : Component<RegularModel, RegularCommand>
 
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
-    protected override Interact<RegularModel, RegularCommand> Interact =>
+    protected override View<RegularModel, RegularCommand> View =>
             async (model, dispatch) =>
             {
                 var hasSearch = model.ActionButtons.Any(button => button is Search);
@@ -116,7 +116,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                     );
             };
 
-    protected override Interaction.Update<RegularModel, RegularCommand> Update => throw new NotImplementedException();
+    protected override Interaction.Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);
 
     private Node SearchBar(RegularModel model) =>
         form

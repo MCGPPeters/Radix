@@ -11,7 +11,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components.AH;
 public class LogoReference : Component<LogoReferenceModel, LogoReferenceCommand>
 {
 
-    protected override Interact<LogoReferenceModel, LogoReferenceCommand> Interact =>
+    protected override View<LogoReferenceModel, LogoReferenceCommand> View =>
         async (model, dispatch) =>
             img
             (

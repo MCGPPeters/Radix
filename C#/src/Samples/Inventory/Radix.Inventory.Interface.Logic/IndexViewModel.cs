@@ -1,8 +1,6 @@
-﻿using Radix.Components;
+﻿namespace Radix.Blazor.Inventory.Interface.Logic;
 
-namespace Radix.Blazor.Inventory.Interface.Logic;
-
-public record IndexModel : ViewModel
+public record IndexModel
 {
     public IndexModel(List<InventoryItemModel> inventoryItems) => InventoryItems = inventoryItems;
 

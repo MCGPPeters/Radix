@@ -16,14 +16,4 @@ public record SearchModel
 
     public Search<ProductModel> Search { get; set; }
     public Channel<SearchTerm> CrawlingMessageChannel { get; }
-
-    public async IAsyncEnumerable<ProductModel> ExecuteSearch(SearchTerm searchTerm)
-    {
-        await CrawlingMessageChannel.Writer.WriteAsync(searchTerm);
-
-        await foreach (var product in Search((SearchTerm)SearchTerm))
-        {
-            yield return product;
-        }
-    }    
 }

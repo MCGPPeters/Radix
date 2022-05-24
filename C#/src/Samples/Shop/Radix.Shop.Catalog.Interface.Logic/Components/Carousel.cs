@@ -16,7 +16,7 @@ public class Carousel : Component<CarouselModel, CarouselCommand>, IAsyncDisposa
 
     protected override Interaction.Update<CarouselModel, CarouselCommand> Update => (model, _) => Task.FromResult(model);
 
-    protected override Interact<CarouselModel, CarouselCommand> Interact =>
+    protected override View<CarouselModel, CarouselCommand> View =>
         async (model, dispatch) =>
             concat
             (
