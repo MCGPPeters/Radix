@@ -4,9 +4,9 @@ namespace Radix.Shop.Catalog.Search.Index;
 
 public class IndexableProduct
 {
+
     [SearchableField(IsKey = true, IsSortable = true)]
     public string Id { get; set; } 
-
 
     [SearchableField(IsSortable = true, IsFilterable = true)]
     public string Title { get; set; }

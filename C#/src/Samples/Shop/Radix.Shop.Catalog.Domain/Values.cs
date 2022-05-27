@@ -35,3 +35,6 @@ public partial record UnitSize { }
 
 [Validated<string, IsNotNullOrEmpty>]
 public partial record UnitOfMeasure { }
+
+[Alias<TimeSpan>]
+public partial record CacheDuration { }

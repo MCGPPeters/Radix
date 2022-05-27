@@ -25,9 +25,24 @@ using Radix.Interaction.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Retrieve the Connection String from the secrets manager 
+var connectionString = builder.Configuration.GetConnectionString("AZURE_APP_CONFIG_CONNECTION_STRING");
+
+builder.Configuration.AddAzureAppConfiguration(options =>
+    options
+        .Connect(connectionString)
+        .ConfigureRefresh(configure =>
+            configure
+                .Register("STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRING")
+                .Register("AH_QUEUE_NAME")
+                .Register("JUMBO_QUEUE_NAME")
+                .SetCacheExpiration(TimeSpan.FromDays(1))
+            )
+        );
+
 // Ensure base64 encoding is set
-QueueClient ahQueueClient = new QueueClient(builder.Configuration["AH_CONNECTION_STRING"], builder.Configuration["AH_QUEUE_NAME"], new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64});
-QueueClient jumboQueueClient = new QueueClient(builder.Configuration["JUMBO_CONNECTION_STRING"], builder.Configuration["JUMBO_QUEUE_NAME"], new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64});
+QueueClient ahQueueClient = new QueueClient(builder.Configuration["STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRING"], builder.Configuration["AH_QUEUE_NAME"], new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64});
+QueueClient jumboQueueClient = new QueueClient(builder.Configuration["STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRING"], builder.Configuration["JUMBO_QUEUE_NAME"], new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64});
 // Create the queue if it doesn't already exist
 ahQueueClient.CreateIfNotExists();
 jumboQueueClient.CreateIfNotExists();
@@ -53,7 +68,7 @@ switch (result)
             Azure.Response<SearchResults<IndexableProduct>> response = await searchClient.SearchAsync<IndexableProduct>(searchTerm);
             await foreach (var result in response.Value.GetResultsAsync())
             {
-                var productViewModel = new ProductModel
+                var productModel = new ProductModel
                 {
                     Id = result.Document.Id,
                     Title = result.Document.Title,
@@ -67,18 +82,18 @@ switch (result)
                     UnitOfMeasure = result.Document.UnitOfMeasure,
                     UnitSize = result.Document.UnitSize,
                 };
-                yield return productViewModel;
+                yield return productModel;
             }
         };
         var channel = Channel.CreateUnbounded<SearchTerm>();
-        var searchViewModel = new SearchModel(channel) { Search = SearchProducts };
+        var searchModel = new SearchModel(channel) { Search = SearchProducts };
 
         // Add services to the container.
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
         builder.Services.AddSingleton<IndexModel>();
         builder.Services.AddSingleton<LogoReferenceModel>();
-        builder.Services.AddSingleton(searchViewModel);
+        builder.Services.AddSingleton(searchModel);
         builder.Services.AddSingleton(Workflows.CrawlAll(crawlAH, crawlJumbo));
         builder.Services.AddSingleton(channel);
 

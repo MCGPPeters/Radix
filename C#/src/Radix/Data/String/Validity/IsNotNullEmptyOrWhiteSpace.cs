@@ -4,9 +4,9 @@ using static Radix.Control.Validated.Extensions;
 
 public class IsNotNullEmptyOrWhiteSpace : Validity<string>
 {
-    public static Validated<string> Validate(string value, string validationErrorMessage) =>
+    public static Validated<string> Validate(string name, string value) =>
         string.IsNullOrWhiteSpace(value)
-            ? Invalid<string>($"{validationErrorMessage}. The string may not be null, empty or whitespace")
+            ? Invalid<string>($"The value for '{name}' may not be null, empty or whitespace")
             : Valid(value);
 
     public static Validated<string> Validate(string value) =>

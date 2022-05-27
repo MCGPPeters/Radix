@@ -102,7 +102,7 @@ namespace {namespaceName}
     {{
         public static Validated<{typeSymbol.Name}> Create({valueType} value)
         {{
-            var result = from validated in {validityType}.Validate(value)
+            var result = from validated in {validityType}.Validate(""{typeSymbol.Name}"", value)
                          select new {typeSymbol.Name}(validated);
             return result;
         }}

@@ -23,7 +23,7 @@ public class CrawlingHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var searchTerm in SearchTermChannel.Reader.ReadAllAsync())
+        await foreach (var searchTerm in SearchTermChannel.Reader.ReadAllAsync(stoppingToken))
         {
             await Workflows.CrawlAll(Crawl)(searchTerm);
         }

@@ -18,8 +18,7 @@ namespace Radix.Shop.Pages
                     component<Search>
                     (
                         (NodeId)2,
-                        Array.Empty<ComponentAttribute>(),
-                        Array.Empty<Node>()
+                        Array.Empty<ComponentAttribute>()
                     )
                 );
 

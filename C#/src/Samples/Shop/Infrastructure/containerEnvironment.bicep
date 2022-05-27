@@ -5,13 +5,10 @@ param logAnalysticsWorkspaceId string
 @secure()
 param logAnalysticsWorkspaceClientSecret string
 
-resource containerAppEnvironment 'Microsoft.Web/kubeEnvironments@2021-02-01' = {
+resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2022-03-01' = {
   name: containerEnviromentName
   location: location
-  kind: 'containerenvironment'
   properties: {
-    type: 'managed'
-    internalLoadBalancerEnabled: false
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
@@ -22,4 +19,5 @@ resource containerAppEnvironment 'Microsoft.Web/kubeEnvironments@2021-02-01' = {
   }
 }
 
-output containerAppEnvironmentId string = containerAppEnvironment.id
+output containerAppEnvironmentId string = resourceId('Microsoft.App/managedEnvironments', containerAppEnvironment.name)
+output location string = location

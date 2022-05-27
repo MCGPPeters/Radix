@@ -52,6 +52,7 @@ module containerEnvironment 'containerEnvironment.bicep' = {
 module ahContainerAppModule 'ahContainerApp.bicep' = {
   name: 'ca-catalog-crawling-ah${uniqueString(resourceGroup().id)}'
   params: {
+    location: containerEnvironment.outputs.location
     ahQueueuName: ahQueueName
     dockerContainerImage: ahContainerImage
     searchApiKey: cognitiveSearchModule.outputs.searchApiKey
@@ -73,6 +74,7 @@ module ahContainerAppModule 'ahContainerApp.bicep' = {
 module jumboContainerAppModule 'jumboContainerApp.bicep' = {
   name: 'ca-catalog-crawling-jumbo${uniqueString(resourceGroup().id)}'
   params: {
+    location: containerEnvironment.outputs.location
     jumboQueueuName: jumboQueueName
     dockerContainerImage: jumboContainerImage
     searchApiKey: cognitiveSearchModule.outputs.searchApiKey
@@ -89,4 +91,66 @@ module jumboContainerAppModule 'jumboContainerApp.bicep' = {
     logAnalyticsModule
     storageModule
   ]
+}
+
+resource appConfiguration 'Microsoft.AppConfiguration/configurationStores@2021-10-01-preview' = {
+  location: location
+  name: 'appcs-radix-samples-shop-catalog${uniqueString(resourceGroup().id)}'
+  sku: {
+    name: 'standard'
+  }
+}
+
+resource storageAccountPrimaryConnectionStringKeyValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-10-01-preview' = {
+  name: 'STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRING'
+  parent: appConfiguration
+  properties: {
+    contentType: 'string'
+    value: storageModule.outputs.storageAccountPrimaryConnectionString
+  }
+}
+
+resource ahQueueNameKeyValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-10-01-preview' = {
+  name: 'AH_QUEUE_NAME'
+  parent: appConfiguration
+  properties: {
+    contentType: 'string'
+    value: ahQueueName
+  }
+}
+
+resource jumboQueueNameKeyValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-10-01-preview' = {
+  name: 'JUMBO_QUEUE_NAME'
+  parent: appConfiguration
+  properties: {
+    contentType: 'string'
+    value: jumboQueueName
+  }
+}
+
+resource searchServiceNameNameKeyValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-10-01-preview' = {
+  name: 'SEARCH_SERVICE_NAME'
+  parent: appConfiguration
+  properties: {
+    contentType: 'string'
+    value: searchServiceName
+  }
+}
+
+resource searchIndexNameNameKeyValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-10-01-preview' = {
+  name: 'SEARCH_INDEX_NAME'
+  parent: appConfiguration
+  properties: {
+    contentType: 'string'
+    value: searchIndexName
+  }
+}
+
+resource searchAPIKeyKeyValue 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-10-01-preview' = {
+  name: 'SEARCH_API_KEY'
+  parent: appConfiguration
+  properties: {
+    contentType: 'string'
+    value: cognitiveSearchModule.outputs.searchApiKey
+  }
 }

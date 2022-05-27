@@ -9,6 +9,7 @@ public record SearchModel
     public SearchModel(Channel<SearchTerm> crawlingMessageChannel)
     {
         CrawlingMessageChannel = crawlingMessageChannel;
+        Products = new List<ProductModel>();
     }
     public List<ProductModel> Products { get; internal set; }
 

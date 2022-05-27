@@ -15,6 +15,7 @@ namespace Radix.Shop.Catalog.Interface.Logic.Components
         protected override Interaction.Update<SearchModel, SearchCommand> Update =>
             async (model, command) =>
             {
+                await model.CrawlingMessageChannel.Writer.WriteAsync((SearchTerm)command.SearchTerm);
                 await foreach (var product in model.Search((SearchTerm)model.SearchTerm))
                 {
                     model.Products.Add(product);
