@@ -5,11 +5,10 @@ using Radix.Data;
 using Radix.Interaction.Data;
 using Radix.Inventory.Domain;
 using Radix.Interaction.Components.Nodes;
-using Radix.Interaction.Web.Components;
 using Radix.Interaction;
 using Radix.Interaction.Components;
 using Microsoft.JSInterop;
-using static Radix.Interaction.Web.Components.Components;
+using Radix.Interaction.Web.Components;
 
 namespace Radix.Inventory.Pages;
 
@@ -142,7 +141,7 @@ public class AddInventoryItemComponent : Component<AddInventoryItemModel, Valida
                         "Ok"
                     )
                 ),
-                navLinkMatchAll
+                Components.navLinkMatchAll
                 (
                     (NodeId)13,
                     new[]

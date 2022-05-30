@@ -2,6 +2,7 @@
 using Radix.Interaction;
 using Radix.Interaction.Components;
 using Radix.Interaction.Data;
+using Radix.Interaction.Web.Components;
 using Radix.Shop.Catalog.Domain;
 using System.Globalization;
 

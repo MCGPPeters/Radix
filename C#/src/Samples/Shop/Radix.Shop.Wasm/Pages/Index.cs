@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Radix.Components;
 using Radix.Interaction;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
