@@ -21,17 +21,20 @@ public class ValidatedGenerator : ISourceGenerator
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ValidatedAttribute`2");
-            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
-            foreach (var attribute in attributes)
+            var attributes = typeSymbol?.GetAttributes().Where(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.Name.Equals(attributeSymbol?.Name));
+            if (attributes is not null)
             {
-                Console.WriteLine($"{attribute.AttributeClass.TypeArguments[1].ContainingNamespace.Name}.{attribute.AttributeClass.TypeArguments[1].Name}");
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}" , typeSymbol, candidate);
-                // fix text formating according to default ruleset
-                var normalizedSourceCodeText
-                    = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
-                context.AddSource(
-                    $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
-                   normalizedSourceCodeText);
+                foreach (var attributeClass in attributes.Select(attribute => attribute.AttributeClass))
+                {
+                    Console.WriteLine($"{attributeClass?.TypeArguments[1].ContainingNamespace.Name}.{attributeClass?.TypeArguments[1].Name}");
+                    var classSource = ProcessType(attributeClass?.TypeArguments[0].Name, $"{attributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
+                    // fix text formating according to default ruleset
+                    var normalizedSourceCodeText
+                        = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
+                    context.AddSource(
+                        $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
+                       normalizedSourceCodeText);
+                }
             }
         }
     }

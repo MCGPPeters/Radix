@@ -22,16 +22,14 @@ public class AliasGenerator : ISourceGenerator
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.AliasAttribute`1");
-            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
-            foreach (var attribute in attributes)
+            var attributes = typeSymbol?.GetAttributes().Where(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.Name.Equals(attributeSymbol?.Name));
+            foreach (var normalizedSourceCodeText in from attribute in attributes
+                                                     let classSource = ProcessType(attribute.AttributeClass?.TypeArguments.First().Name, typeSymbol, candidate) // fix text formating according to default ruleset
+                                                     let normalizedSourceCodeText
+                                                                         = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8)
+                                                     select normalizedSourceCodeText)
             {
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, candidate);
-                // fix text formating according to default ruleset
-                var normalizedSourceCodeText
-                    = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
-                context.AddSource(
-                    $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_alias",
-                    normalizedSourceCodeText);
+                context.AddSource($"{typeSymbol?.ContainingNamespace.ToDisplayString()}_{typeSymbol?.Name}_alias", normalizedSourceCodeText);
             }
         }
     }

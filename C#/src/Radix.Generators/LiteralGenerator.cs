@@ -22,17 +22,18 @@ public class LiteralGenerator : ISourceGenerator
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.LiteralAttribute");
-            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
-            foreach (var attribute in attributes)
+            var attributes = typeSymbol?.GetAttributes().Where(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.Name.Equals(attributeSymbol?.Name));
+            foreach (var normalizedSourceCodeText in from attribute in attributes
+                                                     let namedAttributeValue = attribute.NamedArguments[0].Value.Value
+                                                     let stringRepresentation = attribute.NamedArguments.Any() && namedAttributeValue is not null ? namedAttributeValue.ToString() : ""
+                                                     let classSource = ProcessType(typeSymbol, candidate, stringRepresentation)// fix text formating according to default ruleset
+                                                     let normalizedSourceCodeText
+                                                                         = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8)
+                                                     select normalizedSourceCodeText)
             {
-                var stringRepresentation = attribute.NamedArguments.Any() ? attribute.NamedArguments[0].Value.Value.ToString() : "";
-                var classSource = ProcessType(typeSymbol, candidate, stringRepresentation);
-                // fix text formating according to default ruleset
-                var normalizedSourceCodeText
-                    = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
                 context.AddSource(
-                    $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_literal",
-                    normalizedSourceCodeText);
+                        $"{typeSymbol?.ContainingNamespace.ToDisplayString()}_{typeSymbol?.Name}_literal",
+                        normalizedSourceCodeText);
             }
         }
     }
