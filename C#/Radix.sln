@@ -55,7 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Web.Css", "src\Radix.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Web.Html", "src\Radix.Web.Html\Radix.Web.Html.csproj", "{DCD1A6B1-DC43-461F-9AE5-D797B5DB51D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Interaction.Web", "src\Radix.Web\Radix.Interaction.Web.csproj", "{017B2266-AC58-4A7C-8A32-0E997FD18B27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Interaction.Web", "src\Radix.Interaction.Web\Radix.Interaction.Web.csproj", "{017B2266-AC58-4A7C-8A32-0E997FD18B27}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Web.Css.Tests", "Radix.Web.Css.Tests\Radix.Web.Css.Tests.csproj", "{A97A3C54-6142-4F6E-82B8-01958FF97BF5}"
 EndProject
