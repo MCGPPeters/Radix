@@ -75,7 +75,7 @@ internal class Program
                 return;
             }
             Console.WriteLine($"Nuget API Key ({apiKey.Substring(0, 5)}) available. Pushing packages...");
-            Run("dotnet", $"nuget push \"{ArtifactsDir}/*.nupkg\" -s https://nuget.pkg.github.com/mcgppeters/index.json -k {apiKey} --skip-duplicate", noEcho: true);
+            Run("dotnet", $"nuget push \"{ArtifactsDir}{Path.DirectorySeparatorChar}*.nupkg\" -s https://nuget.pkg.github.com/mcgppeters/index.json -k {apiKey} --skip-duplicate", noEcho: true);
         });
         targets.Add(PushToGitHub);
 
@@ -88,7 +88,7 @@ internal class Program
                 return;
             }
             Console.WriteLine($"Nuget API Key ({apiKey.Substring(0, 5)}) available. Pushing packages...");
-            Run("dotnet", $"nuget push \"{ArtifactsDir}/*.nupkg\" -s https://api.nuget.org/v3/index.json -k {apiKey} --skip-duplicate", noEcho: true);
+            Run("dotnet", $"nuget push \"{ArtifactsDir}{Path.DirectorySeparatorChar}*.nupkg\" -s https://api.nuget.org/v3/index.json -k {apiKey} --skip-duplicate", noEcho: true);
         });
         targets.Add(PushToNugetOrg);
 
