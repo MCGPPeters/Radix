@@ -20,14 +20,6 @@
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.0-preview.4.22229.4" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="MinVer" Version="4.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
