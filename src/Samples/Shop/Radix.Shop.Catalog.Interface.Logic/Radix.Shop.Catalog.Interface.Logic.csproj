@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web.Extensions" Version="5.0.0-preview9.20513.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Radix.Interaction.Web\Radix.Interaction.Web.csproj" />
+    <ProjectReference Include="..\..\..\Radix.Interaction\Radix.Interaction.csproj" />
+    <ProjectReference Include="..\..\..\Radix.Web.Css\Radix.Web.Css.csproj" />
+    <ProjectReference Include="..\..\..\Radix.Web.Html\Radix.Web.Html.csproj" />
+    <ProjectReference Include="..\..\..\Radix\Radix.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Radix.Generators\Radix.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Radix.Shop.Catalog.Domain\Radix.Shop.Catalog.Domain.csproj" />
+
+  </ItemGroup>
+
+</Project>

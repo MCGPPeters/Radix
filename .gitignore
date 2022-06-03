@@ -328,17 +328,3 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-
-C#/src/obj/
-
-C#/tests/obj/Debug/netcoreapp2\.2/
-
-C#/tests/bin/Debug/netcoreapp2\.2/
-
-C#/tests/obj/
-
-C#/.ionide/
-
-.ionide/
-
-C#/src/Samples/Shop/Radix.Shop.Catalog.Crawling.AH/local.settings.json

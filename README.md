@@ -24,4 +24,3 @@ However, as mentioned in the intro, the generalized library for building event s
 
 A working of version of the event sourcing library is done.  Most focus is on building sample applications for testing realistic scenario's. Adding code generators for tedious work, like for value types and constrained value types with build in validation for preserving invariants.
 
-

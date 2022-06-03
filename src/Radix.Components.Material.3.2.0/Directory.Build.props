@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <Import Project="..\..\Radix.props" />
+
+  <PropertyGroup>
+    <MinVerTagPrefix>radix-components-material-3-2-0</MinVerTagPrefix>
+    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+
+</Project>
