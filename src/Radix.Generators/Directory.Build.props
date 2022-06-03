@@ -4,7 +4,6 @@
   <Import Project="..\..\Radix.props" />
 
   <PropertyGroup>
-    <MinVerTagPrefix>radix-generators</MinVerTagPrefix>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
   </PropertyGroup>
 
