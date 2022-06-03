@@ -60,9 +60,9 @@ jobs:
         dotnet-version: '7.0'
         include-prerelease: True
     - name: Install dependencies
-      run: dotnet restore ./C#
+      run: dotnet restore .
     - name: Build
-      run: dotnet build ./C# --configuration Release --no-restore
+      run: dotnet build ./ --configuration Release --no-restore
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
