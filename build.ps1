@@ -36,10 +36,10 @@ docker build `
 # Build inside build environment
 docker run --rm --name $tag `
  -v /var/run/docker.sock:/var/run/docker.sock `
- -v $PWD/artifacts:/repo/artifacts `
- -v $PWD/.git:/repo/.git `
- -v $PWD/temp:/repo/temp `
- -e NUGET_PACKAGES=/repo/temp/nuget-packages `
+ -v $PWD/artifacts:/artifacts `
+ -v $PWD/.git:/.git `
+ -v $PWD/temp:/temp `
+ -e NUGET_PACKAGES=/temp/nuget-packages `
  -e BUILD_NUMBER=$GitHubRunNumber `
  --network host `
  $tag `
