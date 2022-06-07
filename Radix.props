@@ -12,26 +12,18 @@
     <Deterministic>true</Deterministic>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <!--<PackageIcon>../../icon.png</PackageIcon>-->
+    <PackageLicenseExpression></PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <ProjectUrl>https://github.com/MCGPPeters/Radix</ProjectUrl>
+    <ProjectUrl>https://github.com/MCGPPeters/tsheap</ProjectUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
     <BUILD_NUMBER Condition="'$(BUILD_NUMBER)' == ''">0</BUILD_NUMBER>
     <MinVerBuildMetadata>build.$(BUILD_NUMBER)</MinVerBuildMetadata>
     <NoWarn>CS1591</NoWarn>
     <IsTestProject>false</IsTestProject>
-    <RepositoryUrl>https://github.com/MCGPPeters/Radix.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/MCGPPeters/tsheap.git</RepositoryUrl>
   </PropertyGroup>
 
-  <!--<ItemGroup>
-    <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>-->
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="MinVer" Version="4.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
