@@ -1,7 +1,6 @@
 
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
-using Microsoft.Extensions.Caching.Memory;
 using Radix.Data;
 using Radix.Domain.Control;
 using static Radix.Control.Result.Extensions;
@@ -11,28 +10,22 @@ namespace Radix.Domain.Data;
 public interface Context<TCommand, TEvent, TFormat>
     where TEvent : notnull
 {
-    private static readonly MemoryCache s_instances = new(new MemoryCacheOptions());
-
     AppendEvents<TFormat> AppendEvents { get; }
     GetEventsSince<TEvent> GetEventsSince { get; }
     FromEventDescriptor<TEvent, TFormat> FromEventDescriptor { get; }
     Serialize<TEvent, TFormat> Serialize { get; }
     Serialize<EventMetaData, TFormat> SerializeMetaData { get; }
-
+    
     public Aggregate<TCommand, TEvent> Get<TState, TCommandHandler>(Aggregate.Id id)
         where TState : new()
+        where TCommandHandler : CommandHandler<TState, TCommand, TEvent> => 
+            Prelude.Memoize<Aggregate.Id, Aggregate<TCommand, TEvent>>(GetInternal<TState, TCommandHandler>)(id);
+
+    private Aggregate<TCommand, TEvent> GetInternal<TState, TCommandHandler>(Aggregate.Id id)
+        where TState : new()
         where TCommandHandler : CommandHandler<TState, TCommand, TEvent>
-    {
-        if (s_instances.TryGetValue(id, out object value))
-        {
-            return (Aggregate<TCommand, TEvent>)value;
-        }
+            => Create<TState, TCommandHandler>(id, new ExistingVersion(0));
         
-        Aggregate<TCommand, TEvent> aggregate = Create<TState, TCommandHandler>(id, new ExistingVersion(0));
-        using ICacheEntry cacheEntry = s_instances.CreateEntry(id);
-        cacheEntry.Value = aggregate;
-        return aggregate;
-    }
 
     public Aggregate<TCommand, TEvent> Create<TState, TCommandHandler>()
         where TState : new()
@@ -121,8 +114,9 @@ public interface Context<TCommand, TEvent, TFormat>
                 }
             }
         }, cancellationToken);
+              
 
-        static Radix.Domain.Control.Aggregate<TCommand, TEvent> New(Aggregate.Id id, Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel)
+        static Aggregate<TCommand, TEvent> New(Aggregate.Id id, Channel<(TransientCommandDescriptor<TCommand>, TaskCompletionSource<Result<CommandResult<TEvent>, Error[]>>)> channel)
                 => async validatedCommand
                     =>
                     {
@@ -142,7 +136,6 @@ public interface Context<TCommand, TEvent, TFormat>
                     };
 
         var aggregate = New(id, channel);
-        s_instances.Set(id, aggregate);
         return aggregate;
     }
 }

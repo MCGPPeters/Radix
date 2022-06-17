@@ -10,6 +10,8 @@ namespace Radix.Domain.Data;
 ///     The existingVersion the event stream is expected to be at when adding the new events. For the
 ///     purpose of optimistic concurrency
 /// </param>
+/// <param name="eventStreamDescriptor"></param>
+/// <param name="transientEventDescriptors"></param>
 /// <typeparam name="TFormat">The format of events</typeparam>
 /// <returns>
 ///     Either a next expected existing version of the event stream when the action succeeded or an error. The

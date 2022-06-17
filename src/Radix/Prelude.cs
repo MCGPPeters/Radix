@@ -40,12 +40,7 @@ namespace Radix
                 yield return seed;
                 seed = unaryOperator(seed);
             }
-        }        
-    }
-
-    public static class Prelude<T>
-    {
-        public static Func<T, T> Id => x => x;
+        }
 
         public static Func<A, B> Memoize<A, B>(Func<A, B> f) where A : notnull
         {
@@ -61,6 +56,13 @@ namespace Radix
                 return cache[x];
             };
         }
+    }
+
+    public static class Prelude<T>
+    {
+        public static Func<T, T> Id => x => x;
+
+        
            
     }
 }
