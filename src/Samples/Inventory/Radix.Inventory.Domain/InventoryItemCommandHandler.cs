@@ -1,10 +1,15 @@
-﻿using static Radix.Control.Result.Extensions;
+﻿using Radix.Domain.Control;
+using Radix.Domain.Data;
+using Radix.Inventory.Domain.Data;
+using Radix.Inventory.Domain.Data.Commands;
+using Radix.Inventory.Domain.Data.Events;
+using static Radix.Control.Result.Extensions;
 
 namespace Radix.Inventory.Domain;
 
-public class InventoryItemCommandHandler : CommandHandler<InventoryItem, InventoryItemCommand, InventoryItemEvent>
+public class InventoryItemCommandHandler : CommandHandler<Item, ItemCommand, ItemEvent>
 {
-    public static Update<InventoryItem, InventoryItemEvent> Update
+    public static Update<Item, ItemEvent> Update
     {
         get => (state, events) =>
         {
@@ -14,40 +19,40 @@ public class InventoryItemCommandHandler : CommandHandler<InventoryItem, Invento
                 {
                     return @event switch
                     {
-                        InventoryItemCreated inventoryItemCreated => state with { Name = inventoryItemCreated.Name },
-                        InventoryItemDeactivated inventoryItemDeactivated => state with { Activated = false, ReasonForDeactivation = inventoryItemDeactivated.Reason },
+                        ItemCreated inventoryItemCreated => state with { Name = inventoryItemCreated.Name },
+                        ItemDeactivated inventoryItemDeactivated => state with { Activated = false, ReasonForDeactivation = inventoryItemDeactivated.Reason },
                         ItemsCheckedInToInventory itemsCheckedInToInventory => state with { Count = state.Count + itemsCheckedInToInventory.Amount },
                         ItemsRemovedFromInventory itemsRemovedFromInventory => state with { Count = state.Count - itemsRemovedFromInventory.Amount },
-                        InventoryItemRenamed inventoryItemRenamed => state with { Name = inventoryItemRenamed.Name },
+                        ItemRenamed inventoryItemRenamed => state with { Name = inventoryItemRenamed.Name },
                         _ => throw new NotSupportedException("Unknown event")
                     };
                 });
         };
     }
 
-    public static Decide<InventoryItem, InventoryItemCommand, InventoryItemEvent> Decide
+    public static Decide<Item, ItemCommand, ItemEvent> Decide
     {
         get => (_, command) =>
         {
             return command switch
             {
-                DeactivateInventoryItem deactivateInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(new InventoryItemEvent[] { new InventoryItemDeactivated(deactivateInventoryItem.Reason) })),
-                CreateInventoryItem createInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(
-                        new InventoryItemEvent[]
+                DeactivateItem deactivateInventoryItem => Task.FromResult(
+                    Ok<ItemEvent[], CommandDecisionError>(new ItemEvent[] { new ItemDeactivated(deactivateInventoryItem.Reason) })),
+                CreateItem createInventoryItem => Task.FromResult(
+                    Ok<ItemEvent[], CommandDecisionError>(
+                        new ItemEvent[]
                         {
-                                new InventoryItemCreated(createInventoryItem.Id, createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count)
+                                new ItemCreated(createInventoryItem.Id, createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count)
                         })),
-                RenameInventoryItem renameInventoryItem => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(
-                        new InventoryItemEvent[] { new InventoryItemRenamed { Id = renameInventoryItem.Id, Name = renameInventoryItem.Name } })),
+                RenameItem renameInventoryItem => Task.FromResult(
+                    Ok<ItemEvent[], CommandDecisionError>(
+                        new ItemEvent[] { new ItemRenamed { Id = renameInventoryItem.Id, Name = renameInventoryItem.Name } })),
                 CheckInItemsToInventory checkInItemsToInventory => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(
-                        new InventoryItemEvent[] { new ItemsCheckedInToInventory { Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id } })),
+                    Ok<ItemEvent[], CommandDecisionError>(
+                        new ItemEvent[] { new ItemsCheckedInToInventory { Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id } })),
                 RemoveItemsFromInventory removeItemsFromInventory => Task.FromResult(
-                    Ok<InventoryItemEvent[], CommandDecisionError>(
-                        new InventoryItemEvent[] { new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, removeItemsFromInventory.Id) })),
+                    Ok<ItemEvent[], CommandDecisionError>(
+                        new ItemEvent[] { new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, removeItemsFromInventory.Id) })),
                 _ => throw new NotSupportedException("Unknown transientCommand")
             };
         };

@@ -1,13 +1,14 @@
 ﻿using System.Text.Json;
 using Radix.Control.Nullable;
+using Radix.Domain.Data;
 using SqlStreamStore;
 
 namespace Radix.Inventory.Pages;
 
-public class CounterBoundedContext : BoundedContext<IncrementCommand, CounterIncremented, Json>
+public class CounterContext : Context<IncrementCommand, CounterIncremented, Json>
 {
     public static readonly InMemoryStreamStore StreamStore = new();
-    public readonly SqlStreamStore SqlStreamStore = new(StreamStore);
+    public readonly Radix.Domain.Data.SqlStreamStore SqlStreamStore = new(StreamStore);
 
     public AppendEvents<Json> AppendEvents => SqlStreamStore.AppendEvents;
 

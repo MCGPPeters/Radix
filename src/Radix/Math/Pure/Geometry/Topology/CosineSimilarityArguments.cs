@@ -1,6 +1,4 @@
-﻿using Radix.Data;
-
-using static Radix.Control.Validated.Extensions;
+﻿using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Math.Pure.Geometry.Topology;
 

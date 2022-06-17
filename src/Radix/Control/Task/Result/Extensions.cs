@@ -53,34 +53,34 @@ public static class Extensions
 
     public static Task<Func<Result<T2, TError>, Result<R, TError>>> Apply<T1, T2, R, TError>
          (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<R, TError>>> f, Task<Result<T1, TError>> arg)
-         => f.Map(_.Curry).Apply(arg);
+         => f.Map(Prelude.Curry).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<R, TError>>> Apply<T1, T2, T3, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<R, TError>>> Apply<T1, T2, T3, T4, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<R, TError>>> Apply<T1, T2, T3, T4, T5, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<R, TError>>> Apply<T1, T2, T3, T4, T5, T6, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<T7, TError>, Result<R, TError>>> Apply<T1, T2, T3, T4, T5, T6, T7, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<T7, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<T7, TError>, Result<T8, TError>, Result<R, TError>>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<T7, TError>, Result<T8, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<T7, TError>, Result<T8, TError>, Result<T9, TError>, Result<R, TError>>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, R, TError>
        (this Task<Func<Result<T1, TError>, Result<T2, TError>, Result<T3, TError>, Result<T4, TError>, Result<T5, TError>, Result<T6, TError>, Result<T7, TError>, Result<T8, TError>, Result<T9, TError>, Result<R, TError>>> @this, Task<Result<T1, TError>> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 }
 

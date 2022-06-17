@@ -6,12 +6,13 @@
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <DebugType>full</DebugType>
     <Nullable>enable</Nullable>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Deterministic>true</Deterministic>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ProjectUrl>https://github.com/MCGPPeters/tsheap</ProjectUrl>

@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Data;
+using Radix.Domain.Data;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
 
@@ -10,7 +11,7 @@ namespace Radix.Inventory.Pages;
 [Route("/counter")]
 public class CounterComponent : Component<CounterModel, Validated<IncrementCommand>>
 {
-    [Inject] BoundedContext<IncrementCommand, CounterIncremented, Json> BoundedContext { get; set; } = null!;
+    [Inject] Context<IncrementCommand, CounterIncremented, Json> BoundedContext { get; set; } = null!;
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
@@ -18,7 +19,7 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
         async (model, command) =>
         {
             var counter = BoundedContext.Create<Counter, CounterCommandHandler>();
-            Result<CommandResult<CounterIncremented>, Error[]> result = await counter.Accept(command);
+            Result<CommandResult<CounterIncremented>, Error[]> result = await counter(command);
             switch (result)
             {
                 case Error<CommandResult<CounterIncremented>, Error[]>(var errors):

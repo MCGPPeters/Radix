@@ -278,8 +278,9 @@ public partial struct referrerpolicy: AttributeName { }
 [Literal]
 public partial struct rel: AttributeName { }
 
-[Literal]
-public partial struct required: AttributeName { }
+//[Literal(StringRepresentation = "required")]
+//public partial struct @required : AttributeName { }
+
 
 [Literal]
 public partial struct reversed: AttributeName { }

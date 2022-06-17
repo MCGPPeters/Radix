@@ -115,35 +115,35 @@ public static class Extensions
 
     public static Task<Func<T2, R>> Apply<T1, T2, R>
          (this Task<Func<T1, T2, R>> f, Task<T1> arg)
-         => f.Map(_.Curry).Apply(arg);
+         => f.Map(Prelude.Curry).Apply(arg);
 
     public static Task<Func<T2, T3, R>> Apply<T1, T2, T3, R>
        (this Task<Func<T1, T2, T3, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<T2, T3, T4, R>> Apply<T1, T2, T3, T4, R>
        (this Task<Func<T1, T2, T3, T4, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<T2, T3, T4, T5, R>> Apply<T1, T2, T3, T4, T5, R>
        (this Task<Func<T1, T2, T3, T4, T5, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<T2, T3, T4, T5, T6, R>> Apply<T1, T2, T3, T4, T5, T6, R>
        (this Task<Func<T1, T2, T3, T4, T5, T6, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<T2, T3, T4, T5, T6, T7, R>> Apply<T1, T2, T3, T4, T5, T6, T7, R>
        (this Task<Func<T1, T2, T3, T4, T5, T6, T7, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<T2, T3, T4, T5, T6, T7, T8, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, R>
        (this Task<Func<T1, T2, T3, T4, T5, T6, T7, T8, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
     public static Task<Func<T2, T3, T4, T5, T6, T7, T8, T9, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
        (this Task<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>> @this, Task<T1> arg)
-       => @this.Map(_.CurryFirst).Apply(arg);
+       => @this.Map(Prelude.CurryFirst).Apply(arg);
 
 
     /// <summary>

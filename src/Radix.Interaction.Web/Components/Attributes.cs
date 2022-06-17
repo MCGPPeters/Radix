@@ -229,8 +229,8 @@ public static class Attributes
     public static attribute rel => (id, values) 
         => attribute<rel>(id, values);
 
-    public static attribute required => (id, values) 
-        => attribute<required>(id, values);
+    //public static attribute @required => (id, values) 
+    //    => attribute<@required>(id, values);
 
     public static attribute reversed => (id, values) 
         => attribute<reversed>(id, values);

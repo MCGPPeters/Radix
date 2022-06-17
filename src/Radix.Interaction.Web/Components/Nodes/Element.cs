@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Interaction.Data;
-using Radix.Web.Html.Data.Names;
 
 namespace Radix.Interaction.Web.Components.Nodes;
 

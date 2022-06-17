@@ -92,26 +92,26 @@ public static class Extensions
     }
 
     public static Validated<Func<T2, R>> Apply<T1, T2, R>
-        (this Validated<Func<T1, T2, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.Curry), arg);
+        (this Validated<Func<T1, T2, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.Curry), arg);
 
     public static Validated<Func<T2, T3, R>> Apply<T1, T2, T3, R>
-        (this Validated<Func<T1, T2, T3, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Validated<Func<T2, T3, T4, R>> Apply<T1, T2, T3, T4, R>
-        (this Validated<Func<T1, T2, T3, T4, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, T4, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Validated<Func<T2, T3, T4, T5, R>> Apply<T1, T2, T3, T4, T5, R>
-        (this Validated<Func<T1, T2, T3, T4, T5, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, T4, T5, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Validated<Func<T2, T3, T4, T5, T6, R>> Apply<T1, T2, T3, T4, T5, T6, R>
-        (this Validated<Func<T1, T2, T3, T4, T5, T6, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, T4, T5, T6, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Validated<Func<T2, T3, T4, T5, T6, T7, R>> Apply<T1, T2, T3, T4, T5, T6, T7, R>
-        (this Validated<Func<T1, T2, T3, T4, T5, T6, T7, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, T4, T5, T6, T7, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Validated<Func<T2, T3, T4, T5, T6, T7, T8, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, R>
-        (this Validated<Func<T1, T2, T3, T4, T5, T6, T7, T8, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, T4, T5, T6, T7, T8, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Validated<Func<T2, T3, T4, T5, T6, T7, T8, T9, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
-        (this Validated<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>> @this, Validated<T1> arg) => Apply(@this.Map(_.CurryFirst), arg);
+        (this Validated<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>> @this, Validated<T1> arg) => Apply(@this.Map(Prelude.CurryFirst), arg);
 }

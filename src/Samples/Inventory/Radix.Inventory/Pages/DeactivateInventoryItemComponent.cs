@@ -3,35 +3,39 @@ using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radix.Data;
+using Radix.Domain.Data;
 using Radix.Interaction;
 using Radix.Interaction.Components;
 using Radix.Interaction.Components.Nodes;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
 using Radix.Inventory.Domain;
+using Radix.Inventory.Domain.Data;
+using Radix.Inventory.Domain.Data.Commands;
+using Radix.Inventory.Domain.Data.Events;
 using static Radix.Interaction.Web.Components.Components;
 
 namespace Radix.Inventory.Pages;
 
 [Route("/Deactivate/{Id:guid}")]
-public class DeactivateInventoryItemComponent : Component<DeactivateInventoryItemModel, Validated<InventoryItemCommand>>
+public class DeactivateInventoryItemComponent : Component<DeactivateInventoryItemModel, Validated<ItemCommand>>
 {
     [Parameter] public Guid Id { get; set; }
 
-    [Inject] BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> BoundedContext { get; set; } = null!;
+    [Inject] Context<ItemCommand, ItemEvent, Json> BoundedContext { get; set; } = null!;
 
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override Interaction.Update<DeactivateInventoryItemModel, Validated<InventoryItemCommand>> Update =>
+    protected override Interaction.Update<DeactivateInventoryItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = BoundedContext.Get<InventoryItem, InventoryItemCommandHandler>(Id);
-            Result<CommandResult<InventoryItemEvent>, Error[]> result = await inventoryItem.Accept(command);
+            var inventoryItem = BoundedContext.Get<Item, InventoryItemCommandHandler>((Radix.Domain.Data.Aggregate.Id)Id);
+            Result<CommandResult<ItemEvent>, Error[]> result = await inventoryItem(command);
             switch (result)
             {
-                case Error<CommandResult<InventoryItemEvent>, Error[]>(var errors):
+                case Error<CommandResult<ItemEvent>, Error[]>(var errors):
                     model.Errors = errors;
                     if (JSRuntime is not null)
                     {
@@ -39,7 +43,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                     }
 
                     break;
-                case Ok<CommandResult<InventoryItemEvent>, Error[]>:
+                case Ok<CommandResult<ItemEvent>, Error[]>:
                     NavigationManager.NavigateTo("/");
                     break;
             }
@@ -49,7 +53,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
 
 
-protected override View<DeactivateInventoryItemModel, Validated<InventoryItemCommand>> View =>
+protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> View =>
         async (model, dispatch) =>
             concat
             (
@@ -95,7 +99,7 @@ protected override View<DeactivateInventoryItemModel, Validated<InventoryItemCom
                                     (AttributeId)7,
                                     async args =>
                                     {
-                                        Validated<InventoryItemCommand> validCommand = DeactivateInventoryItem.Create(model.Reason);
+                                        Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);
                                         dispatch(validCommand);
                                     }
                                 )

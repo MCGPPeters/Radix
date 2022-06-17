@@ -1,4 +1,7 @@
-﻿namespace Radix.Inventory.Pages;
+﻿using Radix.Domain.Control;
+using Radix.Domain.Data;
+
+namespace Radix.Inventory.Pages;
 
 public class CounterCommandHandler : CommandHandler<Counter, IncrementCommand, CounterIncremented>
 {

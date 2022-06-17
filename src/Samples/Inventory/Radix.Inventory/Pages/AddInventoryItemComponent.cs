@@ -9,26 +9,30 @@ using Radix.Interaction;
 using Radix.Interaction.Components;
 using Microsoft.JSInterop;
 using Radix.Interaction.Web.Components;
+using Radix.Domain.Data;
+using Radix.Inventory.Domain.Data.Commands;
+using Radix.Inventory.Domain.Data.Events;
+using Radix.Inventory.Domain.Data;
 
 namespace Radix.Inventory.Pages;
 
 [Route("/Add")]
-public class AddInventoryItemComponent : Component<AddInventoryItemModel, Validated<InventoryItemCommand>>
+public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemCommand>>
 {
-    [Inject] BoundedContext<InventoryItemCommand, InventoryItemEvent, Json> BoundedContext { get; set; } = null!;
+    [Inject] Context<ItemCommand, ItemEvent, Json> BoundedContext { get; set; } = null!;
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
 
-    protected override Interaction.Update<AddInventoryItemModel, Validated<InventoryItemCommand>> Update =>
+    protected override Interaction.Update<AddItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = BoundedContext.Create<InventoryItem, InventoryItemCommandHandler>();
-            Result<CommandResult<InventoryItemEvent>, Error[]> result = await inventoryItem.Accept(command);
+            var inventoryItem = BoundedContext.Create<Item, InventoryItemCommandHandler>();
+            Result<CommandResult<ItemEvent>, Error[]> result = await inventoryItem(command);
             switch (result)
             {
-                case Error<CommandResult<InventoryItemEvent>, Error[]> (var errors):
+                case Error<CommandResult<ItemEvent>, Error[]> (var errors):
                     model.Errors = errors;
                     if (JSRuntime is not null)
                     {
@@ -36,14 +40,14 @@ public class AddInventoryItemComponent : Component<AddInventoryItemModel, Valida
                     }
 
                     break;
-                case Ok<CommandResult<InventoryItemEvent>, Error[]>:
+                case Ok<CommandResult<ItemEvent>, Error[]>:
                     NavigationManager.NavigateTo("/");
                     break;
             }
             return model;
         };
 
-    protected override View<AddInventoryItemModel, Validated<InventoryItemCommand>> View =>
+    protected override View<AddItemModel, Validated<ItemCommand>> View =>
         async (model, dispatch) =>
             concat
             (
@@ -98,7 +102,7 @@ public class AddInventoryItemComponent : Component<AddInventoryItemModel, Valida
                     label
                     (
                         (NodeId)8,
-                        @for((AttributeId)9, "countInput"),
+                        @for((AttributeId)50, "countInput"),
                         text
                         (
                             (NodeId)9,
@@ -124,7 +128,7 @@ public class AddInventoryItemComponent : Component<AddInventoryItemModel, Valida
                                 (AttributeId)14,
                                 args =>
                                 {
-                                    Validated<InventoryItemCommand> validatedCommand = CreateInventoryItem.Create(
+                                    Validated<ItemCommand> validatedCommand = CreateItem.Create(
                                         model.InventoryItemId,
                                         model.InventoryItemName,
                                         true,

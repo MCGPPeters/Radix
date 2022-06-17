@@ -9,6 +9,9 @@ using Radix.Inventory.Shared;
 using Radix.Data;
 using Radix.Inventory.Pages;
 using SqlStreamStore;
+using Radix.Domain.Data;
+using Radix.Inventory.Domain.Data.Commands;
+using Radix.Inventory.Domain.Data.Events;
 
 namespace Radix.Inventory;
 
@@ -19,7 +22,7 @@ public class Startup
 
     public IConfiguration Configuration { get; }
 
-    public static List<InventoryItemModel> InventoryItems { get; set; }
+    public static List<ItemModel> InventoryItems { get; set; }
         = new();
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -27,35 +30,35 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
 
-        IndexModel indexViewModel = new(InventoryItems);
-        InventoryBoundedContext inventoryBoundedContext = new InventoryBoundedContext();
+        IndexModel indexViewModel = new IndexModel { InventoryItems = InventoryItems };
+        Context context = new();
 
-        IAllStreamSubscription? _ = InventoryBoundedContext.StreamStore.SubscribeToAll(
+        IAllStreamSubscription? _ = Context.StreamStore.SubscribeToAll(
             0,
             async (subscription, message, token) =>
             {
-                Id? aggregateId = EventStreamDescriptor.FromString(message.StreamId).AggregateId;
+                Radix.Domain.Data.Aggregate.Id? aggregateId = EventStreamDescriptor.FromString(message.StreamId).AggregateId;
                 string jsonData = await message.GetJsonData();
                 string streamMessageType = message.Type;
                 EventType
                     .Create(streamMessageType)
                     .Map(eventType => new EventDescriptor<Json>(new Json(jsonData), message.StreamVersion, eventType))
-                    .Map(eventDescriptor => inventoryBoundedContext.FromEventDescriptor(eventDescriptor))
+                    .Map(eventDescriptor => context.FromEventDescriptor(eventDescriptor))
                     .Map(
                         optionalInventoryItemEvent =>
                         {
                             switch (optionalInventoryItemEvent)
                             {
-                                case Some<InventoryItemCreated>(var inventoryItemCreated):
-                                    indexViewModel.InventoryItems.Add(new InventoryItemModel(aggregateId, inventoryItemCreated.Name, inventoryItemCreated.Activated));
+                                case Some<ItemCreated>(var inventoryItemCreated):
+                                    indexViewModel.InventoryItems.Add(new ItemModel { Id = aggregateId, Name = inventoryItemCreated.Name, Activated = inventoryItemCreated.Activated });
                                     break;
-                                case Some<InventoryItemDeactivated>(_):
+                                case Some<ItemDeactivated>(_):
                                     indexViewModel.InventoryItems =
                                         indexViewModel.InventoryItems
                                             .Select(x =>
                                             {
-                                                if (aggregateId == x.id)
-                                                    x.activated = false;
+                                                if (aggregateId == x.Id)
+                                                    x.Activated = false;
                                                 return x;
                                             }
                                             ).ToList();
@@ -63,17 +66,17 @@ public class Startup
                                 case Some<ItemsCheckedInToInventory> _:
                                     break;
                                 case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
-                                    InventoryItemModel item =
-                                        indexViewModel.InventoryItems.Find(tuple => Equals(tuple.id, inventoryItemsRemovedFromInventory.Id));
+                                    ItemModel item =
+                                        indexViewModel.InventoryItems.Find(tuple => Equals(tuple.Id, inventoryItemsRemovedFromInventory.Id));
                                     indexViewModel.InventoryItems.Remove(item);
                                     break;
-                                case Some<InventoryItemRenamed>(var inventoryItemRenamed):
+                                case Some<ItemRenamed>(var inventoryItemRenamed):
                                     indexViewModel.InventoryItems =
                                         indexViewModel.InventoryItems
                                             .Select(item =>
                                             {
-                                                if (aggregateId == item.id)
-                                                    item.name = inventoryItemRenamed.Name;
+                                                if (aggregateId == item.Id)
+                                                    item.Name = inventoryItemRenamed.Name;
                                                 return item;
                                             }).ToList();
                                     break;
@@ -86,11 +89,11 @@ public class Startup
 
         services.AddRazorPages();
         services.AddServerSideBlazor();
-        services.AddSingleton<BoundedContext<IncrementCommand, CounterIncremented, Json>>(_ => new CounterBoundedContext());
-        services.AddSingleton<BoundedContext<InventoryItemCommand, InventoryItemEvent, Json>>(_ => inventoryBoundedContext);
+        services.AddSingleton<Context<IncrementCommand, CounterIncremented, Json>>(_ => new CounterContext());
+        services.AddSingleton<Context<ItemCommand, ItemEvent, Json>>(_ => context);
         services.AddSingleton(indexViewModel);
         services.AddSingleton(_ => new NavMenuModel());
-        services.AddTransient(_ => new AddInventoryItemModel());
+        services.AddTransient(_ => new AddItemModel());
         services.AddSingleton(new CounterModel());
         services.AddTransient(_ => new DeactivateInventoryItemModel());
 

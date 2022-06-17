@@ -94,7 +94,7 @@ public record Distribution<T>
                     default:
                         double incr = 1.0 / xs.Count() - 1.0;
                         IEnumerable<Probability>? probabilities =
-                            _
+                            Prelude
                                 .Iterate(0.0, x => incr + x)
                                 .Select(f)
                                 .Select(p => (Probability)p);

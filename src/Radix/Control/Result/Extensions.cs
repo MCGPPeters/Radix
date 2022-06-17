@@ -62,33 +62,33 @@ public static class Extensions
 
     public static Result<Func<T2, R>, TError> Apply<TError, T1, T2, R>
        (this Result<Func<T1, T2, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.Curry), arg);
+       => Apply(@this.Map(Prelude.Curry), arg);
 
     public static Result<Func<T2, T3, R>, TError> Apply<TError, T1, T2, T3, R>
        (this Result<Func<T1, T2, T3, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Result<Func<T2, T3, T4, R>, TError> Apply<TError, T1, T2, T3, T4, R>
        (this Result<Func<T1, T2, T3, T4, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Result<Func<T2, T3, T4, T5, R>, TError> Apply<TError, T1, T2, T3, T4, T5, R>
        (this Result<Func<T1, T2, T3, T4, T5, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Result<Func<T2, T3, T4, T5, T6, R>, TError> Apply<TError, T1, T2, T3, T4, T5, T6, R>
        (this Result<Func<T1, T2, T3, T4, T5, T6, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Result<Func<T2, T3, T4, T5, T6, T7, R>, TError> Apply<TError, T1, T2, T3, T4, T5, T6, T7, R>
        (this Result<Func<T1, T2, T3, T4, T5, T6, T7, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Result<Func<T2, T3, T4, T5, T6, T7, T8, R>, TError> Apply<TError, T1, T2, T3, T4, T5, T6, T7, T8, R>
        (this Result<Func<T1, T2, T3, T4, T5, T6, T7, T8, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 
     public static Result<Func<T2, T3, T4, T5, T6, T7, T8, T9, R>, TError> Apply<TError, T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
        (this Result<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>, TError> @this, Result<T1, TError> arg)
-       => Apply(@this.Map(_.CurryFirst), arg);
+       => Apply(@this.Map(Prelude.CurryFirst), arg);
 }
