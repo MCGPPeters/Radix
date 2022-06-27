@@ -83,7 +83,7 @@ public class Startup
                                     // ignore others like the metadatastream
                             }
 
-                            return Unit.Instance;
+                            return new Unit();
                         });
             });
 

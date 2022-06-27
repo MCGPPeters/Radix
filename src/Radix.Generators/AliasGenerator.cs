@@ -86,7 +86,7 @@ public class AliasGenerator : ISourceGenerator
                 {{
                     if (ReferenceEquals(null, other)) return false;
                     if (ReferenceEquals(this, other)) return true;
-                    return {propertyName} == other.{propertyName};
+                    return {propertyName}.Equals(other.{propertyName});
                 }}",
             SyntaxKind.RecordStructDeclaration => "",
             _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")

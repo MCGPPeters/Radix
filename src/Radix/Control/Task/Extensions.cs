@@ -1,5 +1,3 @@
-using Radix.Data;
-
 namespace Radix.Control.Task;
 
 public static class Extensions
@@ -7,7 +5,7 @@ public static class Extensions
     public static async Task<Unit> Return(this System.Threading.Tasks.Task task)
     {
         await task;
-        return Unit.Instance;
+        return new();
     }
 
     public static Task<T> Return<T>(T t) =>
@@ -33,8 +31,8 @@ public static class Extensions
         (this System.Threading.Tasks.Task task, Func<Unit, Task<T>> bind, Func<Unit, T, TResult> project)
     {
         await task;
-        T r = await bind(Unit.Instance);
-        return project(Unit.Instance, r);
+        T r = await bind(new());
+        return project(new(), r);
     }
 
     public static async Task<TProjected> SelectMany<T, TResult, TProjected>

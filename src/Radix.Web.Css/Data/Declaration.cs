@@ -2,7 +2,7 @@
 
 public interface Declaration { }
 
-public record Declaration<T, U> : Declaration
+public abstract record Declaration<T, U> : Declaration
     where T : Property, new()
     where U : Value
 {
