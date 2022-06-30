@@ -13,7 +13,7 @@ namespace Radix.Inventory.Pages;
 [Route("/")]
 public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
 {
-    protected override Interaction.Update<IndexModel, Validated<ItemCommand>> Update => (model, _) => Task.FromResult(model);
+    protected override Update<IndexModel, Validated<ItemCommand>> Update => (model, _) => Task.FromResult(model);
 
     protected override View<IndexModel, Validated<ItemCommand>> View =>
         async (model, dispatch) =>

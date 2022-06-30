@@ -6,7 +6,7 @@ namespace Radix.Interaction.Web.Components.Nodes;
 
 public static class Elements
 {
-    public static Element element(NodeId nodeId, string name, Attribute[] attributes, params Node[] children) =>
+    public  static Element element(NodeId nodeId, string name, Attribute[] attributes, params Node[] children) =>
         new(nodeId, name, attributes, children);
 
     public static Element<a> a(NodeId nodeId, params Node[] children) =>

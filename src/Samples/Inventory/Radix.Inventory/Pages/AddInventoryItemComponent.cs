@@ -25,7 +25,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
 
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
 
-    protected override Interaction.Update<AddItemModel, Validated<ItemCommand>> Update =>
+    protected override Update<AddItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
             var inventoryItem = BoundedContext.Create<Item, InventoryItemCommandHandler>();
