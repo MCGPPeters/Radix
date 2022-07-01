@@ -30,4 +30,8 @@
     <None Include="C:\dev\Radix\src\Radix.Domain\Data\.editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="SqlStreamStore" Version="1.2.0" />
+  </ItemGroup>
+
 </Project>
