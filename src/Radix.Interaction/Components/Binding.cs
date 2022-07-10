@@ -11,18 +11,18 @@ public static class bind
     private const string InputEventName = "input";
     private const string ChangeEventName = "change";
 
-    private static Attribute binder<T>(AttributeId attributeId, string name, T currentValue, Action<T> callback, CultureInfo cultureInfo) => new ExplicitAttribute(
-        attributeId,
+    private static Attribute binder<T>(NodeId nodeId, string name, T currentValue, Action<T> callback, CultureInfo cultureInfo) => new ExplicitAttribute(
+        nodeId,
         name,
         (builder, sequence, receiver) =>
         {
             builder.AddAttribute(sequence, "on" + name, EventCallback.Factory.CreateBinder(receiver, callback, currentValue, cultureInfo));
-            return attributeId + 1;
+            return nodeId + 1;
         });
 
-    public static Attribute input<T>(AttributeId attributeId, T value, Action<T> callback, CultureInfo cultureInfo = default) =>
-        binder(attributeId, InputEventName, value, callback, cultureInfo);
+    public static Attribute input<T>(NodeId nodeId, T value, Action<T> callback, CultureInfo cultureInfo = default) =>
+        binder(nodeId, InputEventName, value, callback, cultureInfo);
 
-    public static Attribute change<T>(AttributeId attributeId, T value, Action<T> callback, CultureInfo cultureInfo = default) =>
-        binder(attributeId, ChangeEventName, value, callback, cultureInfo);
+    public static Attribute change<T>(NodeId nodeId, T value, Action<T> callback, CultureInfo cultureInfo = default) =>
+        binder(nodeId, ChangeEventName, value, callback, cultureInfo);
 }

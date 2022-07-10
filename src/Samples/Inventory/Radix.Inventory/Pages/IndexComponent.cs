@@ -16,8 +16,8 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
     protected override Update<IndexModel, Validated<ItemCommand>> Update => (model, _) => Task.FromResult(model);
 
     protected override View<IndexModel, Validated<ItemCommand>> View =>
-        async (model, dispatch) =>
-            concat
+         static (model, dispatch) =>
+            Task.FromResult<Node>(concat
             (
                 (NodeId)1,
                 navLinkMatchAll
@@ -25,51 +25,51 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                     (NodeId)2,
                     new[]
                     {
-                        @class((AttributeId)1, "btn", "btn-primary"),
-                        href((AttributeId)2, "Add")
+                        @class((NodeId)3, "btn", "btn-primary"),
+                        href((NodeId)4, "Add")
                     },
                     text
                     (
-                        (NodeId)3,
+                        (NodeId)5,
                         "Add"
                     )
                 ),
                 h1
                 (
-                    (NodeId)4,
+                    (NodeId)6,
                     text
                     (
-                        (NodeId)5,
+                        (NodeId)7,
                         "All items"
                     )
                 ),
                 table
                 (
-                    (NodeId)6,
+                    (NodeId)8,
                     GetInventoryItemNodes(model.InventoryItems)
                 )
-            );   
+            ));   
 
 
     private static Node[] GetInventoryItemNodes(IEnumerable<ItemModel>? inventoryItems) =>
         inventoryItems?
-            .Select(inventoryItem =>
+            .Select(static inventoryItem =>
                 tr
                 (
-                    (NodeId)7,
+                    (NodeId)10,
                     td
                     (
                         (NodeId)8,
                         navLinkMatchAll
                         (
-                            (NodeId)9,      
+                            (NodeId)11,      
                             new[]
                             {
-                                href((AttributeId)3, $"/Details/{inventoryItem.Id}")
+                                href((NodeId)12, $"/Details/{inventoryItem.Id}")
                             },
                             text
                             (
-                                (NodeId)10,
+                                (NodeId)13,
                                 inventoryItem.Name ?? string.Empty
                             )
                         )
@@ -79,17 +79,17 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                     ?
                         td
                         (
-                            (NodeId)11,
+                            (NodeId)14,
                             navLinkMatchAll
                             (
-                                (NodeId)12,
+                                (NodeId)15,
                                 new[]
                                 {
-                                    href((AttributeId)4, $"/Deactivate/{inventoryItem.Id}")
+                                    href((NodeId)16, $"/Deactivate/{inventoryItem.Id}")
                                 },
                                 text
                                 (
-                                    (NodeId)13,
+                                    (NodeId)17,
                                     "Deactivate"
                                 )
                             )
@@ -100,14 +100,14 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                             (NodeId)14,
                             navLinkMatchAll
                             (
-                                (NodeId)15,
+                                (NodeId)18,
                                 new[]
                                 {
-                                    href((AttributeId)5, $"/Activate/{inventoryItem.Id}")
+                                    href((NodeId)19, $"/Activate/{inventoryItem.Id}")
                                 },
                                 text
                                 (
-                                    (NodeId)16,
+                                    (NodeId)20,
                                     "Activate"
                                 )
                             )

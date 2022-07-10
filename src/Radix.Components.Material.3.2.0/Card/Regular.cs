@@ -46,16 +46,16 @@ namespace Radix.Components.Material._3._2._0.Card
                         (NodeId)1,
                         new[]
                         {
-                            @class((AttributeId)1, $"{CardCssClassName}"),
-                            id((AttributeId)2, model.Id ?? "")
+                            @class((NodeId)2, $"{CardCssClassName}"),
+                            id((NodeId)3, model.Id ?? "")
                         },
                         div
                         (
-                            (NodeId)2,
+                            (NodeId)4,
                             new[]
                             {
-                                @class((AttributeId)3, PrimaryActionCssClassName),
-                                tabindex((AttributeId)3, $"{model.TabIndex}")
+                                @class((NodeId)5, PrimaryActionCssClassName),
+                                tabindex((NodeId)6, $"{model.TabIndex}")
                             }
                         )
                     );

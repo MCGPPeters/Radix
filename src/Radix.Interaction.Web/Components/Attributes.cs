@@ -5,7 +5,7 @@ using Radix.Web.Html.Data;
 
 namespace Radix.Interaction.Web.Components;
 
-public delegate Data.Attribute<string> attribute(AttributeId attributeId, params string[] values);
+public delegate Data.Attribute<string> attribute(NodeId nodeId, params string[] values);
 
 public static class Attributes
 {
@@ -310,10 +310,10 @@ public static class Attributes
     public static attribute wrap => (id, values)
         => attribute<wrap>(id, values);
 
-    public static Data.Attribute<string> attribute<T>(AttributeId id, params string[] values)
+    public static Data.Attribute<string> attribute<T>(NodeId id, params string[] values)
         where T : AttributeName, Literal<T> =>
         new Attribute<T>(id, values);
 
-    public static Attribute attribute(AttributeId id, string name, params string[] values) =>
+    public static Attribute attribute(NodeId id, string name, params string[] values) =>
         new Data.Attribute<string>(id, name, values);
 }

@@ -2,4 +2,4 @@
 
 namespace Radix.Interaction.Components;
 
-public record ComponentAttribute(AttributeId Id, string Name, object Value) : Attribute<object>(Id, Name, Value);
+public record ComponentAttribute(NodeId Id, string Name, object Value) : Attribute<object>(Id, Name, Value);

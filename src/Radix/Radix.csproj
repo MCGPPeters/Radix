@@ -5,7 +5,6 @@
 
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <RuntimeFrameworkVersion>7.0.0-preview.6.22315.1</RuntimeFrameworkVersion>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>

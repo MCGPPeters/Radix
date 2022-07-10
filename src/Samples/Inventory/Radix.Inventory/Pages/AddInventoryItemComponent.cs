@@ -63,69 +63,69 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                 ),
                 div
                 (
-                    (NodeId)2,
-                    @class((AttributeId)1, "form-group"),
+                    (NodeId)3,
+                    @class((NodeId)4, "form-group"),
                     label
                     (
-                        (NodeId)3,
-                        @for((AttributeId)2, "idInput"),
+                        (NodeId)5,
+                        @for((NodeId)6, "idInput"),
                         text
                         (
-                            (NodeId)4,
+                            (NodeId)7,
                             "Id"
                         )
                     ),
                     input
                     (
-                        (NodeId)4,
-                        @class((AttributeId)4, "form-control"),
-                        id((AttributeId)5, "idInput") ,
-                        bind.input((AttributeId)6, model.InventoryItemId, id => model.InventoryItemId = id)
+                        (NodeId)8,
+                        @class((NodeId)9, "form-control"),
+                        id((NodeId)10, "idInput") ,
+                        bind.input((NodeId)11, model.InventoryItemId, id => model.InventoryItemId = id)
                     ),
                     label
                     (
-                        (NodeId)5,
-                        @for((AttributeId)6, "nameInput"),
+                        (NodeId)12,
+                        @for((NodeId)13, "nameInput"),
                         text
                         (
-                            (NodeId)6,
+                            (NodeId)14,
                             "Name"
                         )
                     ),
                     input
                     (
-                        (NodeId)7,
-                        @class((AttributeId)7, "form-control"),
-                        id((AttributeId)8, "nameInput"),
-                        bind.input((AttributeId)9, model.InventoryItemName, name => model.InventoryItemName = name)
+                        (NodeId)15,
+                        @class((NodeId)16, "form-control"),
+                        id((NodeId)17, "nameInput"),
+                        bind.input((NodeId)18, model.InventoryItemName, name => model.InventoryItemName = name)
                     ),
                     label
                     (
-                        (NodeId)8,
-                        @for((AttributeId)50, "countInput"),
+                        (NodeId)19,
+                        @for((NodeId)20, "countInput"),
                         text
                         (
-                            (NodeId)9,
+                            (NodeId)21,
                             "Count"
                         )
                     ),
                     input
                     (
-                        (NodeId)10, 
-                        @class((AttributeId)10, "form-control"),
-                        id((AttributeId)11, "countInput"),
-                        bind.input((AttributeId)12, model.InventoryItemCount, count => model.InventoryItemCount = count)
+                        (NodeId)22, 
+                        @class((NodeId)23, "form-control"),
+                        id((NodeId)24, "countInput"),
+                        bind.input((NodeId)25, model.InventoryItemCount, count => model.InventoryItemCount = count)
                     )
                 ),
                 button
                 (
-                    (NodeId)11,
+                    (NodeId)26,
                     new[]
                     {
-                            @class((AttributeId)13, "btn", "btn-primary"),
+                            @class((NodeId)27, "btn", "btn-primary"),
                             on.click
                             (
-                                (AttributeId)14,
+                                (NodeId)28,
                                 args =>
                                 {
                                     Validated<ItemCommand> validatedCommand = CreateItem.Create(
@@ -141,76 +141,76 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                     },
                     text
                     (
-                        (NodeId)12,
+                        (NodeId)29,
                         "Ok"
                     )
                 ),
                 Components.navLinkMatchAll
                 (
-                    (NodeId)13,
+                    (NodeId)30,
                     new[]
                     {
-                        @class((AttributeId)14, "btn", "btn-secondary"),
-                        href((AttributeId)15, "/")
+                        @class((NodeId)31, "btn", "btn-secondary"),
+                        href((NodeId)32, "/")
                     },
                     text
                     (
-                        (NodeId)14,
+                        (NodeId)33,
                         "Cancel"
                     )
                 ),
                 div
                 (
-                    (NodeId)15,
+                    (NodeId)34,
                     div
                     (
-                        (NodeId)16,
+                        (NodeId)35,
                         new[]
                         {
-                            @class((AttributeId)16, "toast"),
-                            attribute((AttributeId)17, "data-autohide", "false")
+                            @class((NodeId)36, "toast"),
+                            attribute((NodeId)37, "data-autohide", "false")
                         },
                         div
                         (
-                            (NodeId)17,
-                            @class((AttributeId)18, "toast-header"),
+                            (NodeId)38,
+                            @class((NodeId)39, "toast-header"),
                             strong
                             (
-                                (NodeId)18,
+                                (NodeId)40,
                                 new[]
                                 {
-                                    @class((AttributeId)19, "mr-auto")
+                                    @class((NodeId)41, "mr-auto")
                                 },
                                 text
                                 (
-                                    (NodeId)19,
+                                    (NodeId)42,
                                     "Invalid input"
                                 )
                             ),
                             small
                             (
-                                (NodeId)20,
+                                (NodeId)43,
                                 text
                                 (
-                                    (NodeId)21,
+                                    (NodeId)44,
                                     DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
                                 )
                             ),
                             button
                             (
-                                (NodeId)23,
+                                (NodeId)45,
                                 new[]
                                 {
-                                    type((AttributeId)20, "button"),
-                                    @class((AttributeId)21, "ml-2", "mb-1", "close"),
-                                    attribute((AttributeId)22, "data-dismiss", "toast")
+                                    type((NodeId)46, "button"),
+                                    @class((NodeId)47, "ml-2", "mb-1", "close"),
+                                    attribute((NodeId)48, "data-dismiss", "toast")
                                 },
                                 span
                                 (
-                                    (NodeId)22,
+                                    (NodeId)49,
                                     text
                                     (
-                                        (NodeId)23,
+                                        (NodeId)50,
                                         "🗙"
                                     )
                                 )
@@ -218,8 +218,8 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         ),
                         div
                         (
-                            (NodeId)24,
-                            @class((AttributeId)23, "toast-body"),
+                            (NodeId)51,
+                            @class((NodeId)52, "toast-body"),
                             FormatErrorMessages(model.Errors)
                         )
                     )
@@ -228,20 +228,20 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
 
     private static Node FormatErrorMessages(IEnumerable<Error> errors)
     {
-        Node node = new Empty((NodeId)25);
+        Node node = new Empty((NodeId)53);
         if (errors is not null)
         {
             node =
                 ul
                 (
-                    (NodeId)26,
+                    (NodeId)54,
                     errors.Select(error =>
                         li
                         (
-                            (NodeId)27,
+                            (NodeId)55,
                             text
                             (
-                                (NodeId)28,
+                                (NodeId)56,
                                 error.ToString()
                             )
                         )

@@ -22,14 +22,14 @@ public class NavMenu : Component<NavMenuModel, object>
                 div
                 (
                     (NodeId)2,
-                    @class((AttributeId)1, "top-row", "pl-4", "navbar", "navbar-dark"),
+                    @class((NodeId)1, "top-row", "pl-4", "navbar", "navbar-dark"),
                     a
                     (
                         (NodeId)3,
                         new[]
                         {
-                            @class((AttributeId)2, "navbar-brand"),
-                            href((AttributeId)3, "")
+                            @class((NodeId)2, "navbar-brand"),
+                            href((NodeId)3, "")
                         },
                         text
                         (
@@ -42,13 +42,13 @@ public class NavMenu : Component<NavMenuModel, object>
                         (NodeId)5,
                         new[]
                         {
-                            @class((AttributeId)4, "navbar-toggler"),
-                            on.click((AttributeId)5, _ => ToggleNavMenu())
+                            @class((NodeId)4, "navbar-toggler"),
+                            on.click((NodeId)5, _ => ToggleNavMenu())
                         },
                         span
                         (
                             (NodeId)6,
-                            @class((AttributeId)6, "navbar-toggler-icon")
+                            @class((NodeId)6, "navbar-toggler-icon")
                         )
                     )
                 ),
@@ -57,32 +57,32 @@ public class NavMenu : Component<NavMenuModel, object>
                     (NodeId)7,
                     new[]
                     {
-                        @class((AttributeId)7, NavMenuCssClass),
-                        on.click((AttributeId)8, _ => ToggleNavMenu())
+                        @class((NodeId)7, NavMenuCssClass),
+                        on.click((NodeId)8, _ => ToggleNavMenu())
                     },
                     ul
                     (
                         (NodeId)8,
-                        @class((AttributeId)9, "nav", "flex-column"),
+                        @class((NodeId)9, "nav", "flex-column"),
                         li
                         (
                             (NodeId)9,
-                            @class((AttributeId)10, "nav-item", "px-3"),
+                            @class((NodeId)10, "nav-item", "px-3"),
                             navLinkMatchAll
                             (
                                 (NodeId)10,
                                 new[]
                                 {
-                                    @class((AttributeId)11, "nav-link"),
-                                    href((AttributeId)12, "")
+                                    @class((NodeId)11, "nav-link"),
+                                    href((NodeId)12, "")
                                 },
                                 span
                                 (
                                     (NodeId)11,
                                     new[]
                                     {
-                                        @class((AttributeId)13, "oi", "oi-home"),
-                                        attribute((AttributeId)14, "aria-hidden", "true")
+                                        @class((NodeId)13, "oi", "oi-home"),
+                                        attribute((NodeId)14, "aria-hidden", "true")
                                     }
                                 ),
                                 text
@@ -95,22 +95,22 @@ public class NavMenu : Component<NavMenuModel, object>
                         li
                         (
                             (NodeId)13,
-                            @class((AttributeId)15, "nav-item", "px-3"),
+                            @class((NodeId)15, "nav-item", "px-3"),
                             navLinkMatchAll
                             (
                                 (NodeId)14,
                                 new[]
                                 {
-                                    @class((AttributeId)15, "nav-link"),
-                                    href((AttributeId)16, "counter")
+                                    @class((NodeId)15, "nav-link"),
+                                    href((NodeId)16, "counter")
                                 },
                                 span
                                 (
                                     (NodeId)15,
                                     new[]
                                     {
-                                        @class((AttributeId)17, "oi", "oi-plus"),
-                                        attribute((AttributeId)18, "aria-hidden", "true")
+                                        @class((NodeId)17, "oi", "oi-plus"),
+                                        attribute((NodeId)18, "aria-hidden", "true")
                                     }
                                 ),
                                 text
@@ -123,22 +123,22 @@ public class NavMenu : Component<NavMenuModel, object>
                         li
                         (
                             (NodeId)17,
-                            @class((AttributeId)19, "nav-item", "px-3"),
+                            @class((NodeId)19, "nav-item", "px-3"),
                             navLinkMatchAll
                             (
                                 (NodeId)18,
                                 new[]
                                 {
-                                    @class((AttributeId)20, "nav-link"),
-                                    href((AttributeId)21, "fetchdata")
+                                    @class((NodeId)20, "nav-link"),
+                                    href((NodeId)21, "fetchdata")
                                 },
                                 span
                                 (
                                     (NodeId)19,
                                     new[]
                                     {
-                                        @class((AttributeId)22, "oi", "oi-list-rich"),
-                                        attribute((AttributeId)22, "aria-hidden", "true")
+                                        @class((NodeId)22, "oi", "oi-list-rich"),
+                                        attribute((NodeId)22, "aria-hidden", "true")
                                     }
                                 ),
                                 text

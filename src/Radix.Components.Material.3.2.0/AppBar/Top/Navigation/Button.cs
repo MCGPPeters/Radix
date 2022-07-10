@@ -14,20 +14,20 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
 {
 
     protected override View<TModel, TCommand> View =>
-            async (model, dispatch) =>
+            static async (model, dispatch) =>
             {
                 return button
                 (
                     (NodeId)1,
                     new[]
                     {
-                        @class((AttributeId)1, "material-icons", "mdc-top-app-bar__navigation-icon", "mdc-icon-button"),
-                        attribute((AttributeId)2, "aria-label", model.AriaLabel),
-                        on.click((AttributeId)3, mouseEventArgs => dispatch(TCommand.Create()))
+                        @class((NodeId)1, "material-icons", "mdc-top-app-bar__navigation-icon", "mdc-icon-button"),
+                        attribute((NodeId)2, "aria-label", model.AriaLabel),
+                        on.click((NodeId)3, mouseEventArgs => dispatch(TCommand.Create()))
                     },
                     text
                     (
-                        (NodeId)2,
+                        (NodeId)4,
                         model.Name
                     )
                 );

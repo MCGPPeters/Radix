@@ -13,7 +13,7 @@ public static class Components
     public static component navLinkMatchPrefix => (nodeId, attributes, children) => navLink(NavLinkMatch.Prefix)(nodeId, attributes, children);
 
     public static component navLink(NavLinkMatch navLinkMatch) => (nodeId, attributes, children) =>
-        component<NavLink>(nodeId, attributes.Prepend(new ComponentAttribute((AttributeId)1, "Match", navLinkMatch)), children);
+        component<NavLink>(nodeId, attributes.Prepend(new ComponentAttribute(nodeId, "Match", navLinkMatch)), children);
 
     public static Component component<T>(NodeId nodeId, IEnumerable<Data.Attribute> attributes, params Node[] children)
         where T : IComponent => new(nodeId, typeof(T), attributes, children);

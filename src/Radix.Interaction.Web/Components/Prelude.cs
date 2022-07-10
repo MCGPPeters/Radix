@@ -81,12 +81,12 @@ public static class Prelude
                     builder.AddAttribute(id, name, value);
                     break;
                 case ExplicitAttribute explicitAttribute:
-                    explicitAttribute.Factory(builder, explicitAttribute.AttributeId, currentComponent);
+                    explicitAttribute.Factory(builder, explicitAttribute.NodeId, currentComponent);
                     break;
                 case Data.Attribute<string> htmlAttribute:
                     if (htmlAttribute.Values.Any())
                     {
-                        builder.AddAttribute(htmlAttribute.AttributeId, htmlAttribute.Name, htmlAttribute.Values.Aggregate((current, next) => $"{current} {next}"));
+                        builder.AddAttribute(htmlAttribute.NodeId, htmlAttribute.Name, htmlAttribute.Values.Aggregate((current, next) => $"{current} {next}"));
                     }
 
                     break;

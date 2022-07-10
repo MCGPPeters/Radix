@@ -65,10 +65,10 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
                 (NodeId)6,
                 new[]
                 {
-                        @class((AttributeId)7, "btn", "btn-primary"),
+                        @class((NodeId)7, "btn", "btn-primary"),
                         on.click
                         (
-                            (AttributeId)8,
+                            (NodeId)8,
                             args =>
                             {
                                 Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());

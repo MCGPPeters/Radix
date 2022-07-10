@@ -70,33 +70,33 @@ protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> Vi
                 div
                 (
                     (NodeId)4,
-                    @class((AttributeId)1, "form-group"),
+                    @class((NodeId)5, "form-group"),
                     label
                     (
-                        (NodeId)5,
-                        @for((AttributeId)2, "reasonInput"),
+                        (NodeId)6,
+                        @for((NodeId)7, "reasonInput"),
                         text
                         (
-                            (NodeId)6,
+                            (NodeId)8,
                             "Reason"
                         )
                     ),
                     input
                     (
-                        (NodeId)7,
-                        @class((AttributeId)3, "form-control"),
-                        id((AttributeId)4, "reasonInput"),
-                        bind.input((AttributeId)5, model.Reason, reason => model.Reason = reason)
+                        (NodeId)9,
+                        @class((NodeId)10, "form-control"),
+                        id((NodeId)11, "reasonInput"),
+                        bind.input((NodeId)12, model.Reason, reason => model.Reason = reason)
                     ),
                     button
                     (
-                        (NodeId)8,
+                        (NodeId)13,
                         new[]
                         {
-                                @class((AttributeId)6, "btn btn-primary"),
+                                @class((NodeId)14, "btn btn-primary"),
                                 on.click
                                 (
-                                    (AttributeId)7,
+                                    (NodeId)15,
                                     async args =>
                                     {
                                         Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);
@@ -106,69 +106,69 @@ protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> Vi
                         },
                         text
                         (
-                            (NodeId)9,
+                            (NodeId)16,
                             "Ok"
                         )
                     ),
                     navLinkMatchAll
                     (
-                        (NodeId)10,
+                        (NodeId)17,
                         new[]
                         {
-                            @class((AttributeId)8, "btn btn-secondary"),
-                            href((AttributeId)9, "/")
+                            @class((NodeId)18, "btn btn-secondary"),
+                            href((NodeId)19, "/")
                         },
                         text
                         (
-                            (NodeId)50,
+                            (NodeId)20,
                             "Cancel"
                         )
                     ),
                     div
                     (
-                        (NodeId)11,
+                        (NodeId)21,
                         div
                         (
-                            (NodeId)12,
+                            (NodeId)22,
                             new[]
                             {
-                                @class((AttributeId)10, "toast"),
-                                attribute((AttributeId)11, "data-autohide", "false")
+                                @class((NodeId)23, "toast"),
+                                attribute((NodeId)24, "data-autohide", "false")
                             },
                             div
                             (
-                                (NodeId)13,
-                                @class((AttributeId)12, "toast-header"),
+                                (NodeId)25,
+                                @class((NodeId)26, "toast-header"),
                                 strong
                                 (
-                                    (NodeId)14,
-                                    @class((AttributeId)13, "mr-auto"),
-                                    text((NodeId)99, "Invalid input")
+                                    (NodeId)27,
+                                    @class((NodeId)28, "mr-auto"),
+                                    text((NodeId)29, "Invalid input")
                                 ),
                                 small
                                 (
-                                    (NodeId)15,
+                                    (NodeId)30,
                                     text
                                     (
-                                        (NodeId)16,
+                                        (NodeId)31,
                                         DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
                                     )
                                 ),
                                 button
                                 (
-                                    (NodeId)17,
+                                    (NodeId)32,
                                     new[]
                                     {
-                                        type((AttributeId)13, "button"),
-                                        @class((AttributeId)14, "ml-2", "mb-1", "close"),
-                                        attribute((AttributeId)15, "data-dismiss", "toast")
+                                        type((NodeId)33, "button"),
+                                        @class((NodeId)34, "ml-2", "mb-1", "close"),
+                                        attribute((NodeId)35, "data-dismiss", "toast")
                                     },
                                     span
                                     (
-                                        (NodeId)18,
+                                        (NodeId)38,
                                         text
                                         (
-                                            (NodeId)19,
+                                            (NodeId)39,
                                             "🗙"
                                         )
                                     )
@@ -176,8 +176,8 @@ protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> Vi
                             ),
                             div
                             (
-                                (NodeId)20,
-                                @class((AttributeId)16, "toast-body"),
+                                (NodeId)40,
+                                @class((NodeId)41, "toast-body"),
                                 FormatErrorMessages(model.Errors)
                             )
                         )
@@ -187,20 +187,20 @@ protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> Vi
 
     private static Node FormatErrorMessages(IEnumerable<Error> errors)
     {
-        Node node = new Empty((NodeId)1);
+        Node node = new Empty((NodeId)42);
         if (errors is not null)
         {
             node =
                 ul
                 (
-                    (NodeId)1,
+                    (NodeId)43,
                     errors.Select(error =>
                     li
                     (
-                        (NodeId)2,
+                        (NodeId)44,
                         text
                         (
-                            (NodeId)3,
+                            (NodeId)45,
                             error.ToString()
                         )
                     )

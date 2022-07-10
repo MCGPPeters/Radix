@@ -37,15 +37,15 @@ public class Regular : Component<RegularModel, RegularCommand>
                         (NodeId)1,
                         new[]
                         {
-                            @class((AttributeId)1, AppBarCssClassName, "show"),
-                            id((AttributeId)2,model.Id ?? "")
+                            @class((NodeId)2, AppBarCssClassName, "show"),
+                            id((NodeId)3,model.Id ?? "")
                         },
                         script
                         (
-                            (NodeId)2,
+                            (NodeId)4,
                             text
                             (
-                                (NodeId)3,
+                                (NodeId)5,
                                 $@"
                                     function showSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.add('search-show'); document.querySelector('.{SearchSearchInputCssClassName}').focus();  }}
                                     function hideSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }}                            
@@ -55,61 +55,61 @@ public class Regular : Component<RegularModel, RegularCommand>
                         Styles(),
                         div
                         (
-                            (NodeId)4,
+                            (NodeId)6,
                             new[]
                             {
-                                @class((AttributeId)3, "mdc-top-app-bar__row")
+                                @class((NodeId)7, "mdc-top-app-bar__row")
                             },
                             hasSearch
                                 ? SearchBar(model)
-                                : new Empty((NodeId)30)
+                                : new Empty((NodeId)8)
                             ,
                             section
                             (
-                                (NodeId)5,
+                                (NodeId)9,
                                 new[]
                                 {
-                                    @class((AttributeId)4, "mdc-top-app-bar__section", "mdc-top-app-bar__section--align-start")
+                                    @class((NodeId)10, "mdc-top-app-bar__section", "mdc-top-app-bar__section--align-start")
                                 },
                                 model.NavigationButton is not null
-                                    ? new Interaction.Components.Nodes.Component((NodeId)20, model.NavigationButton.GetType(), Enumerable.Empty<Interaction.Data.Attribute<object>>())
-                                    : new Empty((NodeId)20),
+                                    ? new Interaction.Components.Nodes.Component((NodeId)11, model.NavigationButton.GetType(), Enumerable.Empty<Interaction.Data.Attribute<object>>())
+                                    : new Empty((NodeId)12),
                                 span
                                 (
                                     (NodeId)6,
                                     new[]
                                     {
-                                        @class((AttributeId)5, "mdc-top-app-bar__title")
+                                        @class((NodeId)13, "mdc-top-app-bar__title")
                                     },
                                     text
                                     (
-                                        (NodeId)7,
+                                        (NodeId)14,
                                         model.PageTitle ?? ""
                                     )
                                 )
                             ),
                             section
                             (
-                                (NodeId)8,
+                                (NodeId)15,
                                 new[]
                                 {
-                                    @class((AttributeId)6,"mdc-top-app-bar__section mdc-top-app-bar__section--align-end"),
-                                    attribute((AttributeId)7, "role", "toolbar")
+                                    @class((NodeId)16,"mdc-top-app-bar__section mdc-top-app-bar__section--align-end"),
+                                    attribute((NodeId)17, "role", "toolbar")
                                 },
                                 concat
                                 (
-                                    (NodeId)9,
+                                    (NodeId)18,
                                     model.ActionButtons.Select(button =>
-                                        new Component((NodeId)20, button.GetType(), Enumerable.Empty<Interaction.Data.Attribute<object>>())).ToArray()
+                                        new Component((NodeId)19, button.GetType(), Enumerable.Empty<Interaction.Data.Attribute<object>>())).ToArray()
                                 )
                             )
                         ),
                         script
                         (
-                            (NodeId)10,
+                            (NodeId)20,
                             text
                             (
-                                (NodeId)11,
+                                (NodeId)21,
                                 "mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('.mdc-top-app-bar'));"
                             )
                         )
@@ -121,40 +121,40 @@ public class Regular : Component<RegularModel, RegularCommand>
     private Node SearchBar(RegularModel model) =>
         form
         (
-            (NodeId)11,
+            (NodeId)22,
             @class
             (
-                (AttributeId)1,
+                (NodeId)23,
                 $"{SearchFormCssClassName} form"
             ),
             button
             (
-                (NodeId)12,
+                (NodeId)24,
                 new[]
                 {
-                    type((AttributeId)2, "button"),
-                    @class((AttributeId)3, $"{SearchBackButtonCssClassName} material-icons"),
-                    aria_label((AttributeId)4, "Exit search results"),
-                    on.click((AttributeId)5, async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
+                    type((NodeId)25, "button"),
+                    @class((NodeId)26, $"{SearchBackButtonCssClassName} material-icons"),
+                    aria_label((NodeId)27, "Exit search results"),
+                    on.click((NodeId)28, async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
                 },
                 text
                 (
-                    (NodeId)13,
+                    (NodeId)30,
                     "arrow_back"
                 )
             ),
             input
             (
-                (NodeId)14,
+                (NodeId)31,
                 new[]
                 {
-                    type((AttributeId)6, "text"),
-                    @class((AttributeId)7, SearchSearchInputCssClassName),
-                    placeholder((AttributeId)8, "Search"),
-                    aria_label((AttributeId)9, "Type what you want to search and press enter"),
-                    autocomplete((AttributeId)10, "off"),
-                    bind.input((AttributeId)11, model.SearchTerm, searchTerm => model.SearchTerm = searchTerm),
-                    on.keydown((AttributeId)12, async args =>
+                    type((NodeId)32, "text"),
+                    @class((NodeId)33, SearchSearchInputCssClassName),
+                    placeholder((NodeId)34, "Search"),
+                    aria_label((NodeId)35, "Type what you want to search and press enter"),
+                    autocomplete((NodeId)36, "off"),
+                    bind.input((NodeId)37, model.SearchTerm, searchTerm => model.SearchTerm = searchTerm),
+                    on.keydown((NodeId)38, async args =>
                     {
                         if (args.Key == "Enter")
                         {
@@ -169,11 +169,11 @@ public class Regular : Component<RegularModel, RegularCommand>
     private Node Styles() =>
         style
         (
-            (NodeId)15,
+            (NodeId)39,
             // todo : figure out media query in style element for search box font-size
             text
             (
-                (NodeId)16,
+                (NodeId)40,
                 $@"
                     header.{AppBarCssClassName} .{SearchBackButtonCssClassName} {{
                         width: 72px;

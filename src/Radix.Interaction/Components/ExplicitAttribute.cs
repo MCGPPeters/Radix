@@ -6,13 +6,13 @@ namespace Radix.Interaction.Components;
 
 public record ExplicitAttribute : Attribute
 {
-    public ExplicitAttribute(AttributeId attributeId, string name, Func<RenderTreeBuilder, int, object, int> factory) : base(name)
+    public ExplicitAttribute(NodeId nodeId, string name, Func<RenderTreeBuilder, int, object, int> factory) : base(name)
     {
-        AttributeId = attributeId;
+        NodeId = nodeId;
         Factory = factory;
     }
 
-    public AttributeId AttributeId { get; }
+    public NodeId NodeId { get; }
     public Func<RenderTreeBuilder, int, object, int> Factory { get; }
 
 }
