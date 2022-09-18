@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Radix.Components.Material.3.2.0\Radix.Components.Material.3.2.0.csproj" />
     <ProjectReference Include="..\Radix\Radix.csproj" />
   </ItemGroup>
 
@@ -32,13 +33,6 @@
 
   <ItemGroup>
     <PackageReference Include="SqlStreamStore" Version="1.2.1-alpha.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="MinVer" Version="4.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>

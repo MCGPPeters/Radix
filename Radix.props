@@ -13,19 +13,19 @@
     <Deterministic>true</Deterministic>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>preview</LangVersion>
-    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <ProjectUrl>https://github.com/MCGPPeters/tsheap</ProjectUrl>
+    <ProjectUrl>https://github.com/MCGPPeters/radix</ProjectUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
     <BUILD_NUMBER Condition="'$(BUILD_NUMBER)' == ''">0</BUILD_NUMBER>
     <MinVerBuildMetadata>build.$(BUILD_NUMBER)</MinVerBuildMetadata>
     <NoWarn>CS1591</NoWarn>
     <IsTestProject>false</IsTestProject>
-    <RepositoryUrl>https://github.com/MCGPPeters/tsheap.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/MCGPPeters/radix.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MinVer" Version="4.0.0">
+    <PackageReference Include="MinVer" Version="4.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -38,5 +38,8 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0'">
     <FrameworkVersion>7.0.0</FrameworkVersion>
   </PropertyGroup>
-
+  
+  <ItemGroup>
+    <Compile Include="$(SolutionDir)/Using.cs" Link="Using.cs" Visible="false" />
+  </ItemGroup>
 </Project>
