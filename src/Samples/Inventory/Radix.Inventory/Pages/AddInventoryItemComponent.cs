@@ -145,7 +145,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         "Ok"
                     )
                 ),
-                Components.navLinkMatchAll
+                 Radix.Interaction.Web.Components.Components.navLinkMatchAll
                 (
                     (NodeId)30,
                     new[]
