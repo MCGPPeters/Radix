@@ -1,4 +1,5 @@
-﻿using Radix.Interaction;
+﻿using Microsoft.AspNetCore.Components;
+using Radix.Interaction;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
 
@@ -10,6 +11,8 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
     where TModel : ButtonModel
     where TCommand : ButtonCommand<TCommand>
 {
+    [Parameter] public EventCallback<string> OnClick { get; set; }
+
     protected override View<TModel, TCommand> View =>
             static async (model, dispatch) =>
             {

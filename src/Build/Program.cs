@@ -68,7 +68,7 @@ internal class Program
 
         Target(PushToGitHub, () =>
         {
-            var apiKey = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+            var apiKey = Environment.GetEnvironmentVariable("PACKAGE_PUSH_TOKEN");
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 Console.WriteLine("GITHUB_TOKEN not available. No packages will be pushed.");
