@@ -14,7 +14,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
     [Parameter] public EventCallback<string> OnClick { get; set; }
 
     protected override View<TModel, TCommand> View =>
-            async (model, dispatch) =>
+            static async (model, dispatch) =>
             {
                 return button
                         (
@@ -23,7 +23,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
                             {
                                 @class((NodeId)2, "material-icons", "mdc-top-app-bar__action-item", "mdc-icon-button"),
                                 attribute((NodeId)3, "aria-label", model.AriaLabel),
-                                on.click((NodeId)4, async _ => await OnClick.InvokeAsync())
+                                on.click((NodeId)4, _ => dispatch(TCommand.Create()))
                             },
                             text
                             (

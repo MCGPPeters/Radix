@@ -26,6 +26,8 @@ public class Regular : Component<RegularModel, RegularCommand>
 
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+    [Parameter] public EventCallback<string> OnSearchTermEntered { get; set; }
+
     protected override View<RegularModel, RegularCommand> View =>
             async (model, dispatch) =>
             {
@@ -61,7 +63,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                                 @class((NodeId)7, "mdc-top-app-bar__row")
                             },
                             hasSearch
-                                ? SearchBar(model)
+                                ? SearchBar(model, dispatch)
                                 : new Empty((NodeId)8)
                             ,
                             section
@@ -118,7 +120,7 @@ public class Regular : Component<RegularModel, RegularCommand>
 
     protected override Interaction.Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);
 
-    private Node SearchBar(RegularModel model) =>
+    private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
         form
         (
             (NodeId)22,
@@ -158,7 +160,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                     {
                         if (args.Key == "Enter")
                         {
-                            await model.Search(model.SearchTerm);
+                            await OnSearchTermEntered.InvokeAsync(model.SearchTerm);
                             StateHasChanged();
                         }
                     })
