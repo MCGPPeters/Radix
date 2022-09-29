@@ -39,7 +39,7 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
 
     protected override Interaction.View<CounterModel, Validated<IncrementCommand>> View =>
         async (model, dispatch) =>
-        concat
+        await Task.FromResult(concat
         (
             (NodeId)1,
             h1
@@ -82,5 +82,5 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
                     "Click me"
                 )
             )
-        );
+        ));
 }

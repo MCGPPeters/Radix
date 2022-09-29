@@ -11,6 +11,6 @@ public record Length<T, U> : Declaration<Length<U>>
     where U : Literal<U>, Units.Length.Unit<U>
     where T : Literal<Property>
 {
-    public Properties.PaddingTop.Value<Length<U>> Value { get; init; }
+    public new Properties.PaddingTop.Value<Length<U>>? Value { get; init; }
 }
 

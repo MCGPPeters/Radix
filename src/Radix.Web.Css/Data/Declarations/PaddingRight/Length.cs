@@ -9,6 +9,6 @@ namespace Radix.Web.Css.Data.Declarations.PaddingRight;
 
 public record Length : Declaration<Dimensions.Length>
 {
-    public Dimensions.Length Value { get; init; }
+    public new Dimensions.Length? Value { get; init; }
 }
 

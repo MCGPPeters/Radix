@@ -13,7 +13,9 @@ public static class Extensions
                 faulted =>
                     Error<IResponse, Error>($"Could not navigate to '{url}' because of {faulted.InnerException}"),
                 succeeded =>
-                    Ok<IResponse, Error>(succeeded));
+                    succeeded is not null
+                    ? Ok<IResponse, Error>(succeeded)
+                    : Error<IResponse, Error>($"The response was null while navigating to {url}"));
 
     public static Task<Result<IElementHandle, Error>> QuerySelector(this IPage page, string selector) =>
         from result in page.QuerySelectorAsync(selector)

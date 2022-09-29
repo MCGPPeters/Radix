@@ -3,5 +3,5 @@
 public record CounterModel
 {
     public int Count { get; set; }
-    public Error[] Errors { get; set; }
+    public Error[]? Errors { get; set; }
 }

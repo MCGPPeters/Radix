@@ -2,5 +2,5 @@
 
 public record unset : Declaration<Keywords.unset>
 {
-    public Properties.Height.Value<Keywords.unset> Value { get; init; }
+    public new Properties.Height.Value<Keywords.unset>? Value { get; init; }
 }

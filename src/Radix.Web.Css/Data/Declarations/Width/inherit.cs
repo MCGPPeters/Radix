@@ -2,5 +2,5 @@
 
 public record inherit : Declaration<Keywords.inherit>
 {
-    public Properties.Width.Value<Keywords.inherit> Value { get; init; }
+    public new Properties.Width.Value<Keywords.inherit>? Value { get; init; }
 }

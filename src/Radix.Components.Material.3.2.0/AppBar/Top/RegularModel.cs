@@ -9,7 +9,7 @@ public record RegularModel
 
     public List<Action.Button> ActionButtons { get; set; } = new List<Action.Button>();
     public string? Id { get; set; }
-    public string SearchTerm { get; internal set; }
+    public string? SearchTerm { get; internal set; }
 
     internal Task Search(string searchTerm) => throw new NotImplementedException();
 }

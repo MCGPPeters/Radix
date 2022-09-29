@@ -5,7 +5,7 @@ namespace Radix.Math.Applied.Probability;
 
 using static Radix.Control.Validated.Extensions;
 
-public record Distribution<T>
+public record Distribution<T> where T : notnull
 {
     public (Event<T> @event, Probability probability)[] EventProbabilities { get; }
 
@@ -26,7 +26,7 @@ public record Distribution<T>
     public static Distribution<T> Impossible
         => Return(Array.Empty<T>());
 
-    public static Spread<T> Uniform => Shape(_ => 1.0);
+    public static Spread<T> Uniform   => Shape(_ => 1.0);
 
     public static Spread<T> Normal => Shape(x => NormalCurve(0.5, 0.5, x));
 

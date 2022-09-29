@@ -2,5 +2,5 @@
 
 public record initial : Declaration<Keywords.initial>
 {
-    public Properties.Height.Value<Keywords.initial> Value { get; init; }
+    public new Properties.Height.Value<Keywords.initial>? Value { get; init; }
 }

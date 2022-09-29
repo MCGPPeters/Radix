@@ -2,5 +2,5 @@
 
 public record revert : Declaration<Keywords.revert>
 {
-    public Properties.Height.Value<Keywords.revert> Value { get; init; }
+    public new Properties.Height.Value<Keywords.revert>? Value { get; init; }
 }

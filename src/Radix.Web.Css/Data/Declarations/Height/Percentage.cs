@@ -2,5 +2,5 @@
 
 public record Percentage : Declaration<Data.Percentage>
 {
-    public Properties.Height.Value<Data.Percentage> Value { get; init; }
+    public new Properties.Height.Value<Data.Percentage>? Value { get; init; }
 }

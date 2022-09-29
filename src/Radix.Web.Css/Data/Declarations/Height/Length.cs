@@ -9,6 +9,6 @@ namespace Radix.Web.Css.Data.Declarations.Height;
 
 public record Length : Declaration<Properties.Height.Values.Length>
 {
-    public Radix.Web.Css.Data.Properties.Height.Values.Length Value { get; init; }
+    public new Properties.Height.Values.Length? Value { get; init; }
 }
 

@@ -49,7 +49,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
 
     protected override View<AddItemModel, Validated<ItemCommand>> View =>
         async (model, dispatch) =>
-            concat
+            await Task.FromResult(concat
             (
                 (NodeId)101,
                 h1
@@ -224,9 +224,9 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         )
                     )
                 )
-            );
+            ));
 
-    private static Node FormatErrorMessages(IEnumerable<Error> errors)
+    private static Node FormatErrorMessages(IEnumerable<Error>? errors)
     {
         Node node = new Empty((NodeId)53);
         if (errors is not null)

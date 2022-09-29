@@ -41,7 +41,7 @@ namespace Radix.Components.Material._3._2._0.Card
                 };
 
                 return
-                    div
+                    await Task.FromResult(div
                     (
                         (NodeId)1,
                         new[]
@@ -58,7 +58,7 @@ namespace Radix.Components.Material._3._2._0.Card
                                 tabindex((NodeId)6, $"{model.TabIndex}")
                             }
                         )
-                    );
+                    ));
             };
     }
 

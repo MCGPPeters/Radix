@@ -2,5 +2,5 @@
 
 public partial record unset : Declaration<Keywords.unset>
 {
-    public Properties.Width.Value<Keywords.unset> Value { get; init; }
+    public new Properties.Width.Value<Keywords.unset>? Value { get; init; }
 }

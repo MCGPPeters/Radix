@@ -3,5 +3,5 @@
 public record Percentage : Declaration<Data.Percentage>
 {
 
-    public Properties.PaddingBottom.Value<Data.Percentage> Value { get; init; }
+    public new Properties.PaddingBottom.Value<Data.Percentage>? Value { get; init; }
 }

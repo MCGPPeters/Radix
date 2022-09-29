@@ -50,7 +50,7 @@ public class Startup
                             switch (optionalInventoryItemEvent)
                             {
                                 case Some<ItemCreated>(var inventoryItemCreated):
-                                    indexViewModel.InventoryItems.Add(new ItemModel { Id = aggregateId, Name = inventoryItemCreated.Name, Activated = inventoryItemCreated.Activated });
+                                    indexViewModel.InventoryItems.Add(new ItemModel { Id = aggregateId, Name = inventoryItemCreated.Name ?? "", Activated = inventoryItemCreated.Activated });
                                     break;
                                 case Some<ItemDeactivated>(_):
                                     indexViewModel.InventoryItems =
@@ -66,9 +66,9 @@ public class Startup
                                 case Some<ItemsCheckedInToInventory> _:
                                     break;
                                 case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
-                                    ItemModel item =
+                                    ItemModel? item =
                                         indexViewModel.InventoryItems.Find(tuple => Equals(tuple.Id, inventoryItemsRemovedFromInventory.Id));
-                                    indexViewModel.InventoryItems.Remove(item);
+                                    indexViewModel.InventoryItems.Remove(item!);
                                     break;
                                 case Some<ItemRenamed>(var inventoryItemRenamed):
                                     indexViewModel.InventoryItems =

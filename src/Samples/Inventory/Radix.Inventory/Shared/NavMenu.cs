@@ -16,7 +16,7 @@ public class NavMenu : Component<NavMenuModel, object>
     protected override View<NavMenuModel, object> View =>
         async (model, _)
             =>
-            concat
+            await Task.FromResult(concat
             (
                 (NodeId)1,
                 div
@@ -151,7 +151,7 @@ public class NavMenu : Component<NavMenuModel, object>
                     )
                     
                 )
-            );
+            ));
 
     private void ToggleNavMenu()
     {

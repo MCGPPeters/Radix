@@ -55,7 +55,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
 protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> View =>
         async (model, dispatch) =>
-            concat
+            await Task.FromResult(concat
             (
                 (NodeId)1,
                 h1
@@ -97,10 +97,10 @@ protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> Vi
                                 on.click
                                 (
                                     (NodeId)15,
-                                    async args =>
+                                    _ =>
                                     {
                                         Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);
-                                        dispatch(validCommand);
+                                        dispatch(validCommand);                                       
                                     }
                                 )
                         },
@@ -183,9 +183,9 @@ protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> Vi
                         )
                     )
                 )
-            );
+            ));
 
-    private static Node FormatErrorMessages(IEnumerable<Error> errors)
+    private static Node FormatErrorMessages(IEnumerable<Error>? errors)
     {
         Node node = new Empty((NodeId)42);
         if (errors is not null)

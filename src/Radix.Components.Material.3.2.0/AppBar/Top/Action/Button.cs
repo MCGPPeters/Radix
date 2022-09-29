@@ -16,7 +16,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
     protected override View<TModel, TCommand> View =>
             static async (model, dispatch) =>
             {
-                return button
+                return await Task.FromResult(button
                         (
                             (NodeId)1,
                             new[]
@@ -30,7 +30,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
                                 (NodeId)5,
                                 model.Name
                             )
-                        );
+                        ));
             };
 }
 

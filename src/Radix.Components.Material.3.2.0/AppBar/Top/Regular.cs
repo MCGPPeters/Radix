@@ -33,7 +33,7 @@ public class Regular : Component<RegularModel, RegularCommand>
             {
                 var hasSearch = model.ActionButtons.Any(button => button is Search);
 
-                return
+                return await Task.FromResult(
                     header
                     (
                         (NodeId)1,
@@ -115,7 +115,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                                 "mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('.mdc-top-app-bar'));"
                             )
                         )
-                    );
+                    ));
             };
 
     protected override Interaction.Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);

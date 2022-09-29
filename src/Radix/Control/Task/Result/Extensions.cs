@@ -7,16 +7,20 @@ namespace Radix.Control.Task.Result;
 public static class Extensions
 {
 
-    public static Task<Result<T, TError>> Return<T, TError>(T result) =>
+    public static Task<Result<T, TError>> Return<T, TError>(T result)
+        where T : notnull =>
         System.Threading.Tasks.Task.FromResult(Ok<T, TError>(result));
 
     public static Task<Result<TResult, TError>> Select<T, TResult, TError>
        (this Task<Result<T, TError>> result
        , Func<T, TResult> mapper)
+        where T : notnull
+        where TResult : notnull
        => result.Map(x => x.Map(mapper));
 
     public static Task<Result<TResult, TError>> Traverse<T, TResult, TError>
       (this Task<Result<T, TError>> task, Func<T, Task<TResult>> f)
+        where T : notnull
       => task switch
       {
           Error<T, TError>(var reasons) => System.Threading.Tasks.Task.FromResult(Error<TResult, TError>(reasons)),
@@ -26,6 +30,7 @@ public static class Extensions
 
     public static Task<Result<TResult, TError>> TraverseBind<T, TResult, TError>(this Result<T, TError> result
        , Func<T, Task<Result<TResult, TError>>> f)
+        where T : notnull
        => result switch
        {
            Error<T, TError>(var reasons) => System.Threading.Tasks.Task.FromResult(Error<TResult, TError>(reasons)),
@@ -36,12 +41,16 @@ public static class Extensions
     public static Task<Result<TResult, TError>> SelectMany<T, TResult, TError>
        (this Task<Result<T, TError>> task
        , Func<T, Task<Result<TResult, TError>>> bind)
+        where T : notnull
        => task.Bind(vt => vt.TraverseBind(bind));
 
     public static Task<Result<TProjected, TError>> SelectMany<T, TResult, TProjected, TError>
        (this Task<Result<T, TError>> task
        , Func<T, Task<Result<TResult, TError>>> bind
        , Func<T, TResult, TProjected> project)
+        where T : notnull
+        where TResult : notnull
+        where TProjected : notnull
        => task
           .Map(vt => vt.TraverseBind(t => bind(t).Map(vr => vr.Map(r => project(t, r)))))
           .Unwrap();

@@ -2,5 +2,5 @@
 
 public record auto : Declaration<Properties.Width.auto>
 {
-    public Properties.Width.Value<Properties.Width.auto> Value { get; init; }
+    public new Properties.Width.Value<Properties.Width.auto>? Value { get; init; }
 }

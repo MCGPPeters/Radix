@@ -24,6 +24,8 @@ public static class Extensions
 
     public static Task<Option<TResult>> Traverse<T, TResult>
          (this Option<T> @this, Func<T, Task<TResult>> f)
+        where TResult : notnull
+        where T : notnull
          =>
             @this switch
             {
@@ -52,6 +54,7 @@ public static class Extensions
      (this Option<T> option, Func<T, Option<TIntermediate>> bind, Func<T, TIntermediate, TResult> project)
         where T : notnull
         where TResult : notnull
+        where TIntermediate : notnull
      => option switch
      {
          None<T> => None<TResult>(),

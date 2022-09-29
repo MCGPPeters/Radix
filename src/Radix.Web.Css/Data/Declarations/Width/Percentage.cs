@@ -2,6 +2,6 @@
 
 public record Percentage : Declaration<Data.Percentage>
 {
-    public Properties.Values.Width Property { get; init; }
-    public Properties.Width.Value<Data.Percentage> Value { get; init; }
+    public new Properties.Values.Width Property { get; init; }
+    public new Properties.Width.Value<Data.Percentage>? Value { get; init; }
 }

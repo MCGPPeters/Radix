@@ -80,18 +80,16 @@ public class ValidatedGenerator : ISourceGenerator
         {
             SyntaxKind.ClassDeclaration => $@"
                 {equalsOperatorsSource}
-                public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
+                public override bool Equals(object? obj) => obj is {typeSymbol.Name} other && Equals(other);
                 public override int GetHashCode() => {propertyName}.GetHashCode();
                 public bool Equals({typeSymbol.Name} other){{ return {propertyName} == other.{propertyName}; }}",
             SyntaxKind.RecordDeclaration => "",
             SyntaxKind.StructDeclaration => $@"
                 {equalsOperatorsSource}
-                public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is {typeSymbol.Name} other && Equals(other);
+                public override bool Equals(object? obj) => obj is {typeSymbol.Name} other && Equals(other);
                 public override int GetHashCode() => {propertyName}.GetHashCode();
                 public bool Equals({typeSymbol.Name} other)
                 {{
-                    if (ReferenceEquals(null, other)) return false;
-                    if (ReferenceEquals(this, other)) return true;
                     return {propertyName} == other.{propertyName};
                 }}",
             SyntaxKind.RecordStructDeclaration => "",

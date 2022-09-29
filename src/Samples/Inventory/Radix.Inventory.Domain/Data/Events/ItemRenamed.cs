@@ -3,6 +3,6 @@ namespace Radix.Inventory.Domain.Data.Events;
 public record ItemRenamed : ItemEvent
 {
 
-    public long Id { get; init; }
-    public string? Name { get; init; }
+    public required long Id { get; init; }
+    public required string Name { get; init; }
 }

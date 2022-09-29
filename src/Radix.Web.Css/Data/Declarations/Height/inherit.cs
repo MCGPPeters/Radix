@@ -2,5 +2,5 @@
 
 public partial record inherit : Declaration<Keywords.inherit>
 {
-    public Properties.Height.Value<Keywords.inherit> Value { get; init; }
+    public new Properties.Height.Value<Keywords.inherit>? Value { get; init; }
 }

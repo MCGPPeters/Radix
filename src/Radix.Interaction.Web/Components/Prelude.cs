@@ -29,7 +29,7 @@ public static class Prelude
                     case Concat nodes:
                         foreach (Node n in nodes)
                         {
-                            Render(currentComponent, builder)(n);
+                            if(Render is not null) Render(currentComponent, builder)(n);
                         }
                         break;
                     case Element element:
@@ -39,7 +39,7 @@ public static class Prelude
                         Attributes(currentComponent, builder, element.Attributes);
                         foreach (Node child in element.Children)
                         {
-                            Render(currentComponent, builder)(child);
+                            if (Render is not null) Render(currentComponent, builder)(child);
                         }
 
                         builder.AddElementReferenceCapture(int.MaxValue, __elementReference => element.ElementReference = __elementReference);
@@ -59,7 +59,7 @@ public static class Prelude
                                 {
                                     foreach (Node elementChild in component.Children)
                                     {
-                                        Render(currentComponent, renderTreeBuilder)(elementChild);
+                                        if (Render is not null) Render(currentComponent, renderTreeBuilder)(elementChild);
                                     }
                                 });
                             builder.AddAttribute(1, "ChildContent", fragment);

@@ -7,8 +7,9 @@ namespace Radix.Control.Task.Option;
 public static class Extensions
 {
     public static Task<Option<TResult>> Select<T, TResult>
-       (this Task<Option<T>> task
-       , Func<T, TResult> mapper)
+       (this Task<Option<T>> task, Func<T, TResult> mapper)
+        where T : notnull
+        where TResult : notnull
        => task.Map(x => x.Map(mapper));
 
     public static Task<Option<TResult>> Traverse<T, TResult>
@@ -38,6 +39,8 @@ public static class Extensions
        (this Task<Option<T>> task
        , Func<T, Task<Option<R>>> bind
        , Func<T, R, RR> project)
+        where R : notnull
+        where RR : notnull
        => task
           .Map(vt => vt.TraverseBind(t => bind(t).Map(vr => vr.Map(r => project(t, r)))))
           .Unwrap();

@@ -18,11 +18,14 @@ public static class Policy
     /// </summary>
     /// <typeparam name="S"></typeparam>
     /// <typeparam name="A"></typeparam>
+    /// <param name="π"></param>
     /// <param name="mdp"></param>
     /// <param name="stateValues"></param>
     /// <param name="θ"></param>
     /// <returns></returns>
-    public static Dictionary<S, double> Evaluate<S, A>(this Policy<S, A> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ) where S : notnull where A : notnull
+    public static Dictionary<S, double> Evaluate<S, A>(this Policy<S, A> π, Environment<S, A> mdp, Dictionary<S, double> stateValues, double θ)
+        where S : notnull
+        where A : notnull
     {
         double Δ = 0.0;
         do
@@ -53,10 +56,8 @@ public static class Policy
     /// </summary>
     /// <typeparam name="S"></typeparam>
     /// <typeparam name="A"></typeparam>
-    /// <param name="π"></param>
     /// <param name="mdp"></param>
     /// <param name="stateValues"></param>
-    /// <param name="θ"></param>
     /// <returns></returns>
     public static Policy<S, A> Improve<S, A>(Environment<S, A> mdp, Dictionary<S, double> stateValues) where S : notnull where A : notnull
     {

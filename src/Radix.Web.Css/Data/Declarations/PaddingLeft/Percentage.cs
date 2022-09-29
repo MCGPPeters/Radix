@@ -2,5 +2,5 @@
 
 public record Percentage : Declaration<Data.Percentage>, Declaration
 {
-    public Data.Percentage Value { get; init; }
+    public new Data.Percentage Value { get; init; }
 }
