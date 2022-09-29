@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.0-preview.6.22324.4" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0-rc.1.22426.10" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="MinVer" Version="4.1.0">
+    <PackageReference Update="MinVer" Version="4.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
