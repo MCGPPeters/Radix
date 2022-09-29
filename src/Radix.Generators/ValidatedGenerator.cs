@@ -27,13 +27,16 @@ public class ValidatedGenerator : ISourceGenerator
                 foreach (var attributeClass in attributes.Select(attribute => attribute.AttributeClass))
                 {
                     Console.WriteLine($"{attributeClass?.TypeArguments[1].ContainingNamespace.Name}.{attributeClass?.TypeArguments[1].Name}");
-                    var classSource = ProcessType(attributeClass?.TypeArguments[0].Name, $"{attributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
-                    // fix text formating according to default ruleset
-                    var normalizedSourceCodeText
-                        = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
-                    context.AddSource(
-                        $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
-                       normalizedSourceCodeText);
+                    if (typeSymbol is not null)
+                    {
+                        var classSource = ProcessType(attributeClass!.TypeArguments[0].Name, $"{attributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
+                        // fix text formating according to default ruleset
+                        var normalizedSourceCodeText
+                            = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
+                        context.AddSource(
+                            $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
+                           normalizedSourceCodeText);
+                    }
                 }
             }
         }
@@ -54,7 +57,7 @@ public class ValidatedGenerator : ISourceGenerator
     internal static string ProcessType(string valueType, string validityType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
-            return null;
+            return "";
 
         var propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();

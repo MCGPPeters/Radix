@@ -21,10 +21,10 @@ public class AliasGenerator : ISourceGenerator
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.AliasAttribute`1");
-            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
+            var attributes = typeSymbol!.GetAttributes().Where(attribute => attribute.AttributeClass!.Name.Equals(attributeSymbol!.Name));
             foreach (var attribute in attributes)
             {
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments.First().Name, typeSymbol, candidate);
+                var classSource = ProcessType(attribute.AttributeClass!.TypeArguments.First().Name, typeSymbol, candidate);
                 // fix text formating according to default ruleset
                 var normalizedSourceCodeText
                     = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
@@ -51,7 +51,7 @@ public class AliasGenerator : ISourceGenerator
     internal static string ProcessType(string valueType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
-            return null;
+            return "";
 
         var propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();

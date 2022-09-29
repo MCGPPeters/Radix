@@ -21,10 +21,10 @@ public class ParsedGenerator : ISourceGenerator
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ParsedAttribute`2");
-            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass.Name.Equals(attributeSymbol.Name));
+            var attributes = typeSymbol!.GetAttributes().Where(attribute => attribute.AttributeClass!.Name.Equals(attributeSymbol!.Name));
             foreach (var attribute in attributes)
             {
-                Console.WriteLine($"{attribute.AttributeClass.TypeArguments[1].ContainingNamespace.Name}.{attribute.AttributeClass.TypeArguments[1].Name}");
+                Console.WriteLine($"{attribute.AttributeClass!.TypeArguments[1].ContainingNamespace.Name}.{attribute.AttributeClass.TypeArguments[1].Name}");
                 var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
                 // fix text formating according to default ruleset
                 var normalizedSourceCodeText
@@ -51,7 +51,7 @@ public class ParsedGenerator : ISourceGenerator
     internal static string ProcessType(string valueType, string validityType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
-            return null;
+            return "";
 
         var propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();
