@@ -22,25 +22,27 @@ public class ValidatedGenerator : ISourceGenerator
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ValidatedAttribute`2");
             var attributes = typeSymbol?.GetAttributes().Where(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.Name.Equals(attributeSymbol?.Name));
-            if (attributes is not null)
+
+
+            if (attributes.Any())
             {
-                foreach (var attributeClass in attributes.Select(attribute => attribute.AttributeClass))
+                var validityTypes = attributes.Select(attribute => $"{attribute.AttributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}");
+
+                if (typeSymbol is not null && validityTypes.Any())
                 {
-                    Console.WriteLine($"{attributeClass?.TypeArguments[1].ContainingNamespace.Name}.{attributeClass?.TypeArguments[1].Name}");
-                    if (typeSymbol is not null)
-                    {
-                        var classSource = ProcessType(attributeClass!.TypeArguments[0].Name, $"{attributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
-                        // fix text formating according to default ruleset
-                        var normalizedSourceCodeText
-                            = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
-                        context.AddSource(
-                            $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
-                           normalizedSourceCodeText);
-                    }
+                    var classSource = ProcessType(attributes.FirstOrDefault().AttributeClass!.TypeArguments[0].Name, validityTypes, typeSymbol, candidate);
+                    // fix text formating according to default ruleset
+                    var normalizedSourceCodeText
+                        = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
+                    Trace.WriteLine(normalizedSourceCodeText);
+                    context.AddSource(
+                        $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
+                       normalizedSourceCodeText);
                 }
             }
         }
     }
+
 
 
     public void Initialize(GeneratorInitializationContext context)
@@ -51,10 +53,10 @@ public class ValidatedGenerator : ISourceGenerator
         //{
         //    Debugger.Launch();
         //}
-        Debug.WriteLine("Initalize code generator");
+        //Debug.WriteLine("Initalize code generator");
     }
 
-    internal static string ProcessType(string valueType, string validityType, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
+    internal static string ProcessType(string valueType, IEnumerable<string> validityTypes, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return "";
@@ -96,6 +98,9 @@ public class ValidatedGenerator : ISourceGenerator
             _ => throw new NotSupportedException("Unsupported type kind for generating Validated code")
         };
 
+        var i = 0;
+        var validations = validityTypes.Select(validityType => $"from validated{++i} in " + validityType + ".Validate(\"" + typeSymbol.Name + "\", value)").Aggregate((current, next) => current + Environment.NewLine + next);
+
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
@@ -106,8 +111,8 @@ namespace {namespaceName}
     {{
         public static Validated<{typeSymbol.Name}> Create({valueType} value)
         {{
-            var result = from validated in {validityType}.Validate(""{typeSymbol.Name}"", value)
-                         select new {typeSymbol.Name}(validated);
+            var result = {validations}
+                         select new {typeSymbol.Name}(validated{i});
             return result;
         }}
         

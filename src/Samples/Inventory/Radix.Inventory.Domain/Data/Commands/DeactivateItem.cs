@@ -9,5 +9,8 @@ public record DeactivateItem(string Reason) : ItemCommand
         new DeactivateItem(reason);
 
     public static Validated<ItemCommand> Create(string? reason) => Valid(New)
-        .Apply(!string.IsNullOrEmpty(reason) ? Valid(reason) : Invalid<string>("A reason for deactivation must be provided"));
+        .Apply(!string
+        .IsNullOrEmpty(reason)
+        ? Valid(reason)
+        : Invalid<string>("A reason for deactivation must be provided"));
 }

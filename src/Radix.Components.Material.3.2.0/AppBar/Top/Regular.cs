@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
 using Radix.Data;
@@ -8,6 +9,7 @@ using Radix.Interaction.Components;
 using Radix.Interaction.Components.Nodes;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
+using Radix.Interaction.Web.Components.Nodes;
 using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top;
@@ -33,7 +35,7 @@ public class Regular : Component<RegularModel, RegularCommand>
             {
                 var hasSearch = model.ActionButtons.Any(button => button is Search);
 
-                return await Task.FromResult(
+                return 
                     header
                     (
                         (NodeId)1,
@@ -45,13 +47,13 @@ public class Regular : Component<RegularModel, RegularCommand>
                         script
                         (
                             (NodeId)4,
-                            text
+                            new HtmlString
                             (
                                 (NodeId)5,
-                                $@"
-                                    function showSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.add('search-show'); document.querySelector('.{SearchSearchInputCssClassName}').focus();  }}
-                                    function hideSearchBar() {{ document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }}                            
-                                "
+                                $$"""
+                                    function showSearchBar() { document.querySelector('.mdc-top-app-bar').classList.add('search-show'); document.querySelector('.{{SearchSearchInputCssClassName}}').focus(); alert();  }
+                                    function hideSearchBar() { document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }                           
+                                """
                             )
                         ),
                         Styles(),
@@ -109,13 +111,13 @@ public class Regular : Component<RegularModel, RegularCommand>
                         script
                         (
                             (NodeId)20,
-                            text
+                            new HtmlString
                             (
                                 (NodeId)21,
                                 "mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('.mdc-top-app-bar'));"
                             )
                         )
-                    ));
+                );
             };
 
     protected override Interaction.Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);
@@ -173,7 +175,7 @@ public class Regular : Component<RegularModel, RegularCommand>
         (
             (NodeId)39,
             // todo : figure out media query in style element for search box font-size
-            text
+            new HtmlString
             (
                 (NodeId)40,
                 $@"

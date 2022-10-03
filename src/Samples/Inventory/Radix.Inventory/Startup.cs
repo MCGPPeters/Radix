@@ -12,6 +12,9 @@ using SqlStreamStore;
 using Radix.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
+using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
+using Radix.Components.Material._3._2._0.AppBar.Top.Navigation.Buttons;
+using Radix.Components.Material._3._2._0.AppBar.Top;
 
 namespace Radix.Inventory;
 
@@ -86,6 +89,21 @@ public class Startup
                             return new Unit();
                         });
             });
+
+        var regularAppBarModel = new RegularModel
+        {
+            ActionButtons = new()
+        {
+            new ShoppingCart(),
+            new Search()
+        },
+            NavigationButton = new Menu(),
+            PageTitle = "Foo!",
+        };
+        services.AddSingleton(_ => regularAppBarModel);
+        services.AddSingleton(_ => new MenuButtonModel());
+        services.AddSingleton(_ => new ShoppingCartButtonModel());
+        services.AddSingleton(_ => new SearchButtonModel());
 
         services.AddRazorPages();
         services.AddServerSideBlazor();
