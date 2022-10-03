@@ -23,7 +23,7 @@ public record CreateItem : ItemCommand
 
     public static Validated<ItemCommand> Create(long id, string? name, bool activated, int count) => Valid(New)
         .Apply(Id.Create(id))
-        .Apply(IsNotNullOrEmpty.Validate("Name", name))
+        .Apply(IsNotNullOrEmpty.Validate("Name")(name))
         .Apply(Valid(activated))
         .Apply(
             count > 0

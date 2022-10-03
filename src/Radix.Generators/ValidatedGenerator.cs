@@ -98,8 +98,7 @@ public class ValidatedGenerator : ISourceGenerator
             _ => throw new NotSupportedException("Unsupported type kind for generating Validated code")
         };
 
-        var i = 0;
-        var validations = validityTypes.Select(validityType => $"from validated{++i} in " + validityType + ".Validate(\"" + typeSymbol.Name + "\", value)").Aggregate((current, next) => current + Environment.NewLine + next);
+        var validations = $"new []{{{ validityTypes.Select(validityType => $"{validityType}.Validate(\"{typeSymbol.Name}\")").Aggregate((current, next) => current + "," + next)} }}";
 
         var source = new StringBuilder($@"
 namespace {namespaceName}
@@ -111,9 +110,7 @@ namespace {namespaceName}
     {{
         public static Validated<{typeSymbol.Name}> Create({valueType} value)
         {{
-            var result = {validations}
-                         select new {typeSymbol.Name}(validated{i});
-            return result;
+            return value.Validate({validations}).Map(d => new {typeSymbol.Name}(d));
         }}
         
 

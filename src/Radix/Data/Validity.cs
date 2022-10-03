@@ -2,7 +2,5 @@
 
 public interface Validity<T>
 {
-    public static abstract Validated<T> Validate(T value);
-
-    public static abstract Validated<T> Validate(string name, T value);
+    public static abstract Func<string, Func<T, Validated<T>>> Validate { get; }
 }

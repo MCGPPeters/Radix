@@ -55,6 +55,21 @@ public static class Extensions
             _ => throw new NotSupportedException("Unlikely")
         };
 
+
+    private static Func<IEnumerable<T>, T, IEnumerable<T>> Append<T>() => (ts, t) => ts.Append(t);
+
+    public static Validated<IEnumerable<TResult>> Traverse<T, TResult>(this IEnumerable<T> values, Func<T, Validated<TResult>> func) =>
+        values.
+        Aggregate(
+            Valid(Enumerable.Empty<TResult>()),
+            (rs, t) =>
+                Valid(Append<TResult>())
+                .Apply(rs)
+                .Apply(func(t)));
+
+    public static Validated<T> Validate<T>(this T t, params Func<T, Validated<T>>[] validators)
+        => validators.Traverse(validate => validate(t)).Map(_ => t);
+
     public static IEnumerable<T> WhereValid<T>(this IEnumerable<Validated<T>> xs)
     {
         foreach (Validated<T> validated in xs)
