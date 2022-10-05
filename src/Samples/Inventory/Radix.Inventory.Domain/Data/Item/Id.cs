@@ -2,7 +2,7 @@
 
 namespace Radix.Inventory.Domain;
 
-[Validated<long, IsGreaterThanZero>]
+[Validated<long, IsGreaterThanZero<long>>]
 public partial record Id
 {
 
