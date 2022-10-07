@@ -56,15 +56,20 @@ public static class Extensions
         };
 
 
+    /// <summary>
+    /// Convenience for helping the compiler with type inference
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     private static Func<IEnumerable<T>, T, IEnumerable<T>> Append<T>() => (ts, t) => ts.Append(t);
 
     public static Validated<IEnumerable<TResult>> Traverse<T, TResult>(this IEnumerable<T> values, Func<T, Validated<TResult>> func) =>
         values.
         Aggregate(
             Valid(Enumerable.Empty<TResult>()),
-            (rs, t) =>
+            (emptyList, t) =>
                 Valid(Append<TResult>())
-                .Apply(rs)
+                .Apply(emptyList)
                 .Apply(func(t)));
 
     public static Validated<T> Validate<T>(this T t, params Func<T, Validated<T>>[] validators)

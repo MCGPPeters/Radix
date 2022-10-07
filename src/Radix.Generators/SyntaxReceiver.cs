@@ -12,10 +12,6 @@ internal class SyntaxReceiver : ISyntaxReceiver
 
     public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
     {
-       
-
-        //syntaxNode is 
-        //var linenumber = syntaxNode.SyntaxTree.GetLineSpan(syntaxNode.Span).StartLinePosition.Line;
         if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax
             && classDeclarationSyntax.AttributeLists.Count > 0)
             CandidateTypes.Add(classDeclarationSyntax);

@@ -1,4 +1,4 @@
-﻿namespace Radix.Data.Long.Validity;
+﻿namespace Radix.Data.Number.Validity;
 
 using System;
 using System.Numerics;

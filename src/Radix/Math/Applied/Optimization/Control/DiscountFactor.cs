@@ -1,5 +1,4 @@
 ﻿using Radix.Data.Double.Validity;
-using Radix.Data.Long.Validity;
 
 namespace Radix.Math.Applied.Optimization.Control;
 

@@ -1,4 +1,5 @@
-﻿using Radix.Data.Long.Validity;
+﻿
+using Radix.Data.Number.Validity;
 
 namespace Radix.Inventory.Domain;
 

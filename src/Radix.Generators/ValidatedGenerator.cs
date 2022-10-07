@@ -1,11 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Radix.Generators;
 
@@ -16,25 +13,32 @@ public class ValidatedGenerator : ISourceGenerator
     {
         if (context.SyntaxReceiver is not SyntaxReceiver receiver) return;
 
+        // the syntax receiver is used to find all types that have attributes
         foreach (var candidate in receiver.CandidateTypes)
         {
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ValidatedAttribute`2");
+            // check if the candidate had Validated<T, V> attributes
+            // get the metadata for all attributes that are Validated attributes
             var attributes = typeSymbol?.GetAttributes().Where(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.Name.Equals(attributeSymbol?.Name));
-
 
             if (attributes.Any())
             {
-                var validityTypes = attributes.Select(attribute => $"{attribute.AttributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}");
+                // get the Validity<T> subtype which holds the validator function (which is the second type argument of the Validated<T, V> attributes)
+                var validityTypes =
+                    attributes
+                        .Select(attribute => $"{attribute.AttributeClass?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}");
 
                 if (typeSymbol is not null && validityTypes.Any())
                 {
-                    var classSource = ProcessType(attributes.FirstOrDefault().AttributeClass!.TypeArguments[0].Name, validityTypes, typeSymbol, candidate);
+                    // get the type we are "aliasing" (which is the first type argument of the Validated<t, V> attributes)
+                    string valueType = attributes.FirstOrDefault().AttributeClass!.TypeArguments[0].Name;
+                    // create the required source code
+                    var sourceCode = ProcessType(valueType, validityTypes, typeSymbol, candidate);
                     // fix text formating according to default ruleset
                     var normalizedSourceCodeText
-                        = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
-                    Trace.WriteLine(normalizedSourceCodeText);
+                        = CSharpSyntaxTree.ParseText(sourceCode).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
                     context.AddSource(
                         $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
                        normalizedSourceCodeText);
@@ -56,12 +60,21 @@ public class ValidatedGenerator : ISourceGenerator
         //Debug.WriteLine("Initalize code generator");
     }
 
-    internal static string ProcessType(string valueType, IEnumerable<string> validityTypes, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="valueTypeName">The typename of the value to validate (the aliased type)</param>
+    /// <param name="validityTypeNames">The type names of the validity instances holding the validator functions</param>
+    /// <param name="typeSymbol">The symbol of the type to which the Validated attributes were added
+    /// <param name="typeDeclarationSyntax">The declaration syntax of the type to which the Validated attributes were added</param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
+    internal static string ProcessType(string valueTypeName, IEnumerable<string> validityTypeNames, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return "";
 
-        var propertyName = "Value";
+        const string propertyName = "Value";
         var namespaceName = typeSymbol.ContainingNamespace.ToDisplayString();
 
         var kindSource = typeDeclarationSyntax.Kind() switch
@@ -70,7 +83,7 @@ public class ValidatedGenerator : ISourceGenerator
             SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbol.Name}",
             SyntaxKind.StructDeclaration => $"public partial struct {typeSymbol.Name}  : System.IEquatable<{typeSymbol.Name}>",
             SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbol.Name} ",
-            _ => throw new NotSupportedException("Unsupported type kind for generating Alias code")
+            _ => throw new NotSupportedException("Unsupported type kind for generating Validated code")
         };
 
         var equalsOperatorsSource = $@"
@@ -85,6 +98,7 @@ public class ValidatedGenerator : ISourceGenerator
                 public override bool Equals(object? obj) => obj is {typeSymbol.Name} other && Equals(other);
                 public override int GetHashCode() => {propertyName}.GetHashCode();
                 public bool Equals({typeSymbol.Name} other){{ return {propertyName} == other.{propertyName}; }}",
+            // records have implicit value equality
             SyntaxKind.RecordDeclaration => "",
             SyntaxKind.StructDeclaration => $@"
                 {equalsOperatorsSource}
@@ -94,11 +108,19 @@ public class ValidatedGenerator : ISourceGenerator
                 {{
                     return {propertyName} == other.{propertyName};
                 }}",
+            // records struct have implicit value equality
             SyntaxKind.RecordStructDeclaration => "",
             _ => throw new NotSupportedException("Unsupported type kind for generating Validated code")
         };
 
-        var validations = $"new []{{{ validityTypes.Select(validityType => $"{validityType}.Validate(\"{typeSymbol.Name}\")").Aggregate((current, next) => current + "," + next)} }}";
+        // create a string representation of a list of validator functions
+        string validatorFunctions =
+            validityTypeNames
+            .Select(validityType => $"{validityType}.Validate(\"{typeSymbol.Name}\")")
+            .Aggregate((current, next) => $"{current},{Environment.NewLine}{next}");
+
+        // build an array initializer from the comma seperated list
+        var validations = $"new []{{ {validatorFunctions} }}";
 
         var source = new StringBuilder($@"
 namespace {namespaceName}
@@ -108,15 +130,15 @@ namespace {namespaceName}
 
     {kindSource}
     {{
-        public static Validated<{typeSymbol.Name}> Create({valueType} value)
+        public static Validated<{typeSymbol.Name}> Create({valueTypeName} value)
         {{
             return value.Validate({validations}).Map(d => new {typeSymbol.Name}(d));
         }}
         
 
-        public {valueType} {propertyName} {{ get; }}
+        public {valueTypeName} {propertyName} {{ get; }}
 
-        private {typeSymbol.Name}({valueType} value)
+        private {typeSymbol.Name}({valueTypeName} value)
         {{
             {propertyName} = value;
         }}
@@ -125,7 +147,7 @@ namespace {namespaceName}
 
         {equalsSource}
 
-        public static implicit operator {valueType}({typeSymbol.Name} value) => value.{propertyName};
+        public static implicit operator {valueTypeName}({typeSymbol.Name} value) => value.{propertyName};
     }}
 }}");
         return source.ToString();

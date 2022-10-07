@@ -1,6 +1,4 @@
-﻿using Radix.Data;
-using Radix.Data.Long.Validity;
-using static Radix.Control.Validated.Extensions;
+﻿using Radix.Data.Number.Validity;
 
 namespace Radix;
 
@@ -12,7 +10,3 @@ public class ValidatedAttribute<T, V> : Attribute where V : Validity<T>
 {
 
 }
-
-[Validated<long, IsGreaterThanZero<long>>]
-public partial record struct ProductQuantity;
-
