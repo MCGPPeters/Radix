@@ -3,6 +3,8 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Radix.Generators;
 
@@ -69,7 +71,7 @@ public class ValidatedGenerator : ISourceGenerator
     /// <param name="typeDeclarationSyntax">The declaration syntax of the type to which the Validated attributes were added</param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException"></exception>
-    internal static string ProcessType(string valueTypeName, System.Collections.Generic.IEnumerable<string> validityTypeNames, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
+    internal static string ProcessType(string valueTypeName, IEnumerable<string> validityTypeNames, ISymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (!typeSymbol.ContainingSymbol.Equals(typeSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             return "";
