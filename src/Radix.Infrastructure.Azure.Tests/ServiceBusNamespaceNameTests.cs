@@ -12,7 +12,7 @@ namespace Radix.Infrastructure.Azure.Tests
             this.output = output;
         }
 
-        [Fact(DisplayName = "An invalid name for a namspace should not be accepted")]
+        [Fact(DisplayName = "An invalid name for a namespace should not be accepted")]
         public void Test1()
         {
             var serviceBusNamespace = Data.Names.ServiceBus.Namespace.Create("s&");
