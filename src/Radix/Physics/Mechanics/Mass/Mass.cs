@@ -2,4 +2,4 @@
 
 namespace Radix.Physics.Mechanics.Mass;
 
-public record Dimension(Number Quantity) : Quantity<Mass.Kg>;
+public record Quantity(Number Value) : Quantity<Mass.Kg>;
