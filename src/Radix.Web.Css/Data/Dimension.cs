@@ -7,5 +7,5 @@
 public interface Dimension<out T> : Value
     where T : Unit<T>, Literal<T>
 {
-    Number Number { get; init; }
+    Number Quantity { get; init; }
 };

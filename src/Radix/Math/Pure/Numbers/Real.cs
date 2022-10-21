@@ -1,7 +1,7 @@
 ﻿namespace Radix.Math.Pure.Numbers;
 
 [Alias<double>]
-public partial struct Real : Order<Real>
+public partial struct Real : Order<Real>, Number
 {
     public static Func<Real, Real, Ordering> Compare => (x, y) =>
         Comparer<double>.Default.Compare(x, y) switch

@@ -8,6 +8,7 @@ internal class Program
     const string ArtifactsDir = "artifacts";
     const string Clean = "clean";
     const string Build = "build";
+    const string Test = "test";
     const string PushToGitHub = "push-github";
     const string PushToNugetOrg = "push-to-nuget-org";
     const string Solution = "Radix.sln";
@@ -46,9 +47,11 @@ internal class Program
 
         Target(Build, () => Run("dotnet", $"build {Solution} -c Release"));
 
+        Target(Test, () => Run("dotnet", $"test {Solution} -c Release"));
+
         var targets = new List<string>
         {
-            Clean, Build
+            Clean, Build, Test
         };
 
         var ignore = new[] { ".github", "Build" };

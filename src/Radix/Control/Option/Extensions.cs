@@ -44,6 +44,7 @@ public static class Extensions
             _ => throw new NotSupportedException()
         };
 
+
     public static Option<TResult> Select<T, TResult>
          (this Option<T> option, Func<T, TResult> f)
         where T : notnull

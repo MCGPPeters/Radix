@@ -86,7 +86,7 @@ public class Startup
                                     // ignore others like the metadatastream
                             }
 
-                            return new Unit();
+                            return new T();
                         });
             });
 

@@ -4,7 +4,7 @@ using static Radix.Control.Result.Extensions;
 
 namespace Radix.Math.Pure.Numbers;
 
-public record Rational
+public record Rational : Number
 {
 
     internal Rational(int numerator, int denominator)

@@ -2,7 +2,7 @@
 
 namespace Radix.Math.Pure.Numbers;
 
-public abstract record Natural
+public abstract record Natural : Number
 {
     public static Natural operator +(Natural x, Natural y) => Addition.Combine(x, y);
 

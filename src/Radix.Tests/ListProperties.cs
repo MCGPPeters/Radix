@@ -61,5 +61,17 @@ public class ListProperties
 
         Xunit.Assert.Equal(list.Get.Length, nonEmpty.Count);
     }
+
+    [Property(
+            DisplayName =
+                "The content of an non empty list is correct", Verbose = true)]
+    public void Test5(NonEmptyArray<int> list)
+    {
+
+        var nonEmpty = Data.Collections.Generic.List<int>.Create(list.Get);
+
+
+        Xunit.Assert.Equal(list.Get.ToList(), nonEmpty.ToList());
+    }
 }
 

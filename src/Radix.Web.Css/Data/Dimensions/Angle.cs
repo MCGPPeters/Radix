@@ -2,5 +2,5 @@
 
 public record Angle<T> : Dimension<T> where T : Literal<T>, Units.Angle.Unit<T>
 {
-    public Number Number { get; init; }
+    public Number Quantity { get; init; }
 }

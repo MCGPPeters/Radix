@@ -5,8 +5,8 @@ public record RelativeLength<T> : Length<T>
 {
     public RelativeLength(Number number)
     {
-        Number = number;
+        Quantity = number;
     }
 
-    public Number Number { get; init; }
+    public Number Quantity { get; init; }
 }

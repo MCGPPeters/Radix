@@ -3,5 +3,5 @@
 public record Time<T> : Dimension<T>
     where T : Literal<T>, Units.Time.Unit<T>
 {
-    public Number Number { get; init; }
+    public Number Quantity { get; init; }
 }
