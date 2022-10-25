@@ -24,7 +24,7 @@ public class AliasGenerator : ISourceGenerator
             var attributes = typeSymbol!.GetAttributes().Where(attribute => attribute.AttributeClass!.Name.Equals(attributeSymbol!.Name));
             foreach (var attribute in attributes)
             {
-                var classSource = ProcessType(attribute.AttributeClass!.TypeArguments.First().Name, typeSymbol, candidate);
+                var classSource = ProcessType(attribute.AttributeClass!.TypeArguments.First().ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), typeSymbol, candidate);
                 // fix text formating according to default ruleset
                 var normalizedSourceCodeText
                     = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
