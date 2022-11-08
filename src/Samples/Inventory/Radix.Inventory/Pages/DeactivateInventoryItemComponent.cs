@@ -31,7 +31,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
     protected override Interaction.Update<DeactivateInventoryItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = BoundedContext.Get<Item, InventoryItemCommandHandler>((Radix.Domain.Data.Aggregate.Id)Id);
+            var inventoryItem = BoundedContext.Get<Item, ItemCommandHandler>((Radix.Domain.Data.Aggregate.Id)Id);
             Result<CommandResult<ItemEvent>, Error[]> result = await inventoryItem(command);
             switch (result)
             {

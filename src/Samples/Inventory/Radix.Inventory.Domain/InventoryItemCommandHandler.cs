@@ -7,7 +7,7 @@ using static Radix.Control.Result.Extensions;
 
 namespace Radix.Inventory.Domain;
 
-public class InventoryItemCommandHandler : CommandHandler<Item, ItemCommand, ItemEvent>
+public class ItemCommandHandler : CommandHandler<Item, ItemCommand, ItemEvent>
 {
     public static Update<Item, ItemEvent> Update
     {

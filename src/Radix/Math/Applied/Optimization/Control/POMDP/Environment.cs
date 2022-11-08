@@ -12,6 +12,6 @@ public delegate Observation Reset<Observation>();
 
 public delegate Observation Step<State, Observation, Action>(Environment<State, Action, Observation> environment, State state, Action action);
 
-public delegate T Render<State, Action, Observation>(Environment<State, Action, Observation> environment);
+public delegate Unit Render<State, Action, Observation>(Environment<State, Action, Observation> environment);
 
 

@@ -28,7 +28,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
     protected override Update<AddItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = BoundedContext.Create<Item, InventoryItemCommandHandler>();
+            var inventoryItem = BoundedContext.Create<Item, ItemCommandHandler>();
             Result<CommandResult<ItemEvent>, Error[]> result = await inventoryItem(command);
             switch (result)
             {

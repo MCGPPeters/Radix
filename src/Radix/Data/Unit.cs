@@ -1,4 +1,4 @@
 namespace Radix.Data;
 
 [Alias<ValueTuple>]
-public readonly partial struct T { };
+public readonly partial struct Unit { };

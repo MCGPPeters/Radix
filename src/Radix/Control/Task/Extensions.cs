@@ -2,7 +2,7 @@ namespace Radix.Control.Task;
 
 public static class Extensions
 {
-    public static async Task<T> Return(this System.Threading.Tasks.Task task)
+    public static async Task<Unit> Return(this System.Threading.Tasks.Task task)
     {
         await task;
         return new();
@@ -28,7 +28,7 @@ public static class Extensions
         (this Task<T> task, Func<T, Task<TResult>> f) => task.Bind(f);
 
     public static async Task<TResult> SelectMany<T, TResult>
-        (this System.Threading.Tasks.Task task, Func<Data.T, Task<T>> bind, Func<Data.T, T, TResult> project)
+        (this System.Threading.Tasks.Task task, Func<Unit, Task<T>> bind, Func<Unit, T, TResult> project)
     {
         await task;
         T r = await bind(new());
