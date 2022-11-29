@@ -6,7 +6,7 @@
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <DebugType>full</DebugType>
     <Nullable>enable</Nullable>
-    <EnablePreviewFeatures>false</EnablePreviewFeatures>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>

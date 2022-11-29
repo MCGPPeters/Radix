@@ -132,7 +132,7 @@ namespace {namespaceName}
 
     {kindSource}
     {{
-        {((typeDeclarationSyntax.Kind() is SyntaxKind.StructDeclaration || typeDeclarationSyntax.Kind() is SyntaxKind.RecordStructDeclaration) ? "[Obsolete(\"Calling a constructor on a Validated type is not allowed.\", true)]public " + typeSymbol.Name + "(){}" : "")}
+        {((typeDeclarationSyntax.Kind() is SyntaxKind.StructDeclaration || typeDeclarationSyntax.Kind() is SyntaxKind.RecordStructDeclaration) ? "[System.Obsolete(\"Calling a constructor on a Validated type is not allowed.\", true)]public " + typeSymbol.Name + "(){}" : "")}
 
         public static Validated<{typeSymbol.Name}> Create({valueTypeName} value)
         {{
