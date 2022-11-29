@@ -4,7 +4,6 @@
     <TargetFramework>net7.0</TargetFramework>
 
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
-    <RuntimeFrameworkVersion>7.0.0-preview.6.22315.1</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
