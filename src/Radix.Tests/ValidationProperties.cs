@@ -1,11 +1,26 @@
 ﻿using FluentAssertions;
 using Radix.Data;
+using Radix.Math.Applied.Probability;
 using Xunit;
 
 namespace Radix.Tests
 {
+    [Validated<Distribution<int>, DV>]
+    public partial class Foo { }
+
+    internal class DV : Validity<Distribution<int>>
+    {
+        public static Func<string, Func<Distribution<int>, Validated<Distribution<int>>>> Validate => throw new NotImplementedException();
+    }
+
     public class ValidationProperties
     {
+        [Fact(DisplayName = "Can generate validated types for generics")]
+        public void Test5()
+        {
+
+        }
+
         [Fact(
             DisplayName =
                 "Check will aggregate all failed validations")]

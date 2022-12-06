@@ -31,4 +31,8 @@
     <ProjectReference Include="..\..\src\Radix\Radix.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Radix.Generators\Radix.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
 </Project>

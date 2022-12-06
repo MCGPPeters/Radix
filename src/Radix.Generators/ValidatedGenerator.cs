@@ -35,7 +35,7 @@ public class ValidatedGenerator : ISourceGenerator
                 if (typeSymbol is not null && validityTypes.Any())
                 {
                     // get the type we are "aliasing" (which is the first type argument of the Validated<t, V> attributes)
-                    string valueType = attributes.FirstOrDefault().AttributeClass!.TypeArguments[0].Name;
+                    string valueType = attributes.FirstOrDefault().AttributeClass!.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                     // create the required source code
                     var sourceCode = ProcessType(valueType, validityTypes, typeSymbol, candidate);
                     // fix text formating according to default ruleset

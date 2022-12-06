@@ -24,11 +24,10 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
     public partial record Deck 
     {
         public Deck() => Value = Distribution<int>.Uniform(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 });
-        public Distribution<int> Value { get; init; }
     }
 
     [Alias<Random<int>>]
-    public partial record Card(Random<int> Value);
+    public partial record Card;
 
     public record Hand(List<Card> Cards);
 
@@ -78,8 +77,8 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                 from γ in DiscountFactor.Create(1.0)
                 select new Environment<State, Action, Observation>(Dynamics(new Deck()), Reward, γ);
             Deck deck = new Deck();
-            Hand dealerHand = new Hand(new List<Card> { new Card(deck.Value.Choose()), new Card(deck.Value.Choose()) });
-            Hand playerHand = new Hand(new List<Card> { new Card(deck.Value.Choose()), new Card(deck.Value.Choose()) });
+            Hand dealerHand = new Hand(new List<Card> { (Card)(deck.Value.Choose()), (Card)(deck.Value.Choose()) });
+            Hand playerHand = new Hand(new List<Card> { (Card)(deck.Value.Choose()), (Card)(deck.Value.Choose()) });
             var playerSum = playerHand.Cards.Sum(x => x.Value);
 
             State initialState = new State
@@ -125,13 +124,13 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
         };
 
         private static Func<Hand, bool> ContainsUsableAce =>
-            hand => hand.Cards.Contains(new Card(new Random<int>(1))) && hand.Cards.Sum(x => x.Value) + 10 <= 21;
+            hand => hand.Cards.Contains((Card)(new Random<int>(1))) && hand.Cards.Sum(x => x.Value) + 10 <= 21;
 
         private static Func<Hand, bool> IsBust => hand => Sum(hand) > 21;
 
         private static Func<Deck, Hand, Hand> Draw => (deck, hand) =>
         {
-            hand.Cards.Add(new Card(deck.Value.Choose()));
+            hand.Cards.Add((Card)(deck.Value.Choose()));
             return hand;
         };
 
@@ -291,7 +290,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                     State stateWithUsableAce =
                         new State
                         {
-                            DealerShowing = new Card(new Random<int>(i)),
+                            DealerShowing = (Card)(new Random<int>(i)),
                             PlayerSum = j,
                             PlayerHasUsableAce = true
                         };
@@ -300,7 +299,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                     State stateWithoutUsableAce =
                         new State
                         {
-                            DealerShowing = new Card(new Random<int>(i)),
+                            DealerShowing = (Card)(new Random<int>(i)),
                             PlayerSum = j,
                             PlayerHasUsableAce = false
                         };
