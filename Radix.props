@@ -23,6 +23,7 @@
     <IsTestProject>false</IsTestProject>
     <RepositoryUrl>https://github.com/MCGPPeters/radix.git</RepositoryUrl>
     <ImplicitUsings>true</ImplicitUsings>
+    <WarningsAsErrors>8600;8601;8602;8604;8625;8618</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

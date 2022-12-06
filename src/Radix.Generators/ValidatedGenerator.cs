@@ -132,7 +132,9 @@ namespace {namespaceName}
 
     {kindSource}
     {{
-        {((typeDeclarationSyntax.Kind() is SyntaxKind.StructDeclaration || typeDeclarationSyntax.Kind() is SyntaxKind.RecordStructDeclaration) ? "[System.Obsolete(\"Calling a constructor on a Validated type is not allowed.\", true)]public " + typeSymbol.Name + "(){}" : "")}
+        {((typeDeclarationSyntax.Kind() is SyntaxKind.StructDeclaration || typeDeclarationSyntax.Kind() is SyntaxKind.RecordStructDeclaration)
+            ? $"#pragma warning disable CS8618 {Environment.NewLine} [System.Obsolete(\"Calling a constructor on a Validated type is not allowed.\", true)]public " + typeSymbol.Name + "(){}" + Environment.NewLine + "#pragma warning restore CS8618"
+            : "")}
 
         public static Validated<{typeSymbol.Name}> Create({valueTypeName} value)
         {{
@@ -151,7 +153,7 @@ namespace {namespaceName}
 
         {equalsSource}
 
-        public static implicit operator {valueTypeName}({typeSymbol.Name} value) => value.{propertyName};
+        public static implicit operator {valueTypeName} ({typeSymbol.Name} value) => value.{propertyName};
     }}
 }}");
         return source.ToString();

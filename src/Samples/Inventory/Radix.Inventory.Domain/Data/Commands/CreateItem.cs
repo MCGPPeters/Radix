@@ -21,7 +21,7 @@ public record CreateItem : ItemCommand
     public bool Activated { get; }
     public int Count { get; }
 
-    public static Validated<ItemCommand> Create(long id, string? name, bool activated, int count) => Valid(New)
+    public static Validated<ItemCommand> Create(long id, string name, bool activated, int count) => Valid(New)
         .Apply(Id.Create(id))
         .Apply(IsNotNullOrEmpty.Validate("Name")(name))
         .Apply(Valid(activated))
