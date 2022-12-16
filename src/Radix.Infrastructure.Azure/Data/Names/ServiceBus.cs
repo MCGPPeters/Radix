@@ -6,4 +6,4 @@ namespace Radix.Infrastructure.Azure.Data.Names.ServiceBus;
 [Validated<string, EndsWithALetterOrNumber>]
 [Validated<string, IsNotNullOrEmpty>]
 [Validated<string, ContainsOnlyAlphaNumericsAndHyphens>]
-public partial record struct Namespace { };
+public readonly partial record struct Namespace { };
