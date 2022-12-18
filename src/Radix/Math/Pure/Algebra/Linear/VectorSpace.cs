@@ -6,6 +6,7 @@ namespace Radix.Math.Pure.Algebra.Linear;
 
 
 public interface VectorSpace<T, FAdd, FMul>
+    where T : Field<T>
     where FAdd : Field<T>, Addition
     where FMul : Field<T>, Multiplication
 {
@@ -14,6 +15,7 @@ public interface VectorSpace<T, FAdd, FMul>
 
 
 public class Basis<T, FAdd, FMul>
+    where T : Field<T>
     where FAdd : Field<T>, Addition
     where FMul : Field<T>, Multiplication
 {

@@ -50,13 +50,13 @@ public static class Extensions
     }
 
 
-    public static T Aggregate<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate(M.Identity, M.Combine);
+    public static T Aggregate<T>(this IEnumerable<T> xs) where T : Monoid<T> => xs.Aggregate(T.Identity, T.Combine);
 
-    public static T Fold<T, M>(this IEnumerable<T> xs) where M : Monoid<T> => xs.Aggregate<T, M>();
+    public static T Fold<T>(this IEnumerable<T> xs) where T: Monoid<T> => xs.Aggregate<T>();
 
-    public static T Sum<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Addition => Aggregate<T, M>(values);
-    public static T Σ<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Addition => Sum<T, M>(values);
+    public static T Sum<T>(this IEnumerable<T> values) where T: Monoid<T>, Addition => Aggregate<T>(values);
+    public static T Σ<T>(this IEnumerable<T> values) where T : Monoid<T>, Addition => Sum<T>(values);
 
-    public static T Product<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Multiplication => Aggregate<T, M>(values);
-    public static T Π<T, M>(this IEnumerable<T> values) where M : Monoid<T>, Multiplication => Product<T, M>(values);
+    public static T Product<T>(this IEnumerable<T> values) where T : Monoid<T>, Multiplication => Aggregate<T>(values);
+    public static T Π<T>(this IEnumerable<T> values) where T : Monoid<T>, Multiplication => Product<T>(values);
 }

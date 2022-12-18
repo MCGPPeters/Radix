@@ -12,7 +12,7 @@ public delegate Task Next<TModel, TCommand>(TModel model, View<TModel, TCommand>
 
 public static class Prelude<TModel, TCommand>
 {
-    public static Next<TModel, TCommand> Next { get; } =
+     public static Next<TModel, TCommand> Next { get; } =
             async (model, view, update, render, stateHasChanged) =>
             {
                 // process the command and render the output

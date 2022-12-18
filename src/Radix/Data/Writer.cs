@@ -2,4 +2,4 @@
 
 namespace Radix.Data;
 
-public record struct Writer<T, TOutput, Monoid>(T value, TOutput output) where Monoid : Monoid<TOutput>;
+public record struct Writer<T, TOutput>(T value, TOutput output) where TOutput : Monoid<TOutput>;

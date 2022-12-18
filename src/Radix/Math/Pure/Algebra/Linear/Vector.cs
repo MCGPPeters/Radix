@@ -5,6 +5,7 @@ using Radix.Math.Pure.Algebra.Structure;
 namespace Radix.Math.Pure.Algebra.Linear;
 
 public interface Vector<T, FAdd, FMul>
+    where T : Field<T>
     where FAdd : Field<T>, Addition
     where FMul : Field<T>, Multiplication
 {

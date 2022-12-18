@@ -61,10 +61,10 @@ public class LiteralGenerator : ISourceGenerator
 
         var kindSource = typeDeclarationSyntax.Kind() switch
         {
-            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbolName} : Literal<{typeSymbolName}>, System.IEquatable<{typeSymbolName}>",
-            SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbolName} : Literal<{typeSymbolName}>",
-            SyntaxKind.StructDeclaration => $"public partial struct {typeSymbolName}  : Literal<{typeSymbolName}>, System.IEquatable<{typeSymbolName}>",
-            SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbolName} : Literal<{typeSymbolName}>",
+            SyntaxKind.ClassDeclaration => $"public sealed partial class {typeSymbolName} : Radix.Literal<{typeSymbolName}>, System.IEquatable<{typeSymbolName}>",
+            SyntaxKind.RecordDeclaration => $"public sealed partial record {typeSymbolName} : Radix.Literal<{typeSymbolName}>",
+            SyntaxKind.StructDeclaration => $"public partial struct {typeSymbolName}  : Radix.Literal<{typeSymbolName}>, System.IEquatable<{typeSymbolName}>",
+            SyntaxKind.RecordStructDeclaration => $"public partial record struct {typeSymbolName} : Radix.Literal<{typeSymbolName}>",
             _ => throw new NotSupportedException("Unsupported type kind for generating Literal code")
         };
 
