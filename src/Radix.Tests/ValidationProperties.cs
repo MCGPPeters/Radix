@@ -46,7 +46,8 @@ namespace Radix.Tests
                     Fail();
                     break;
                 case Invalid<Person> error:
-                    error.Reasons.Should().Contain("Must have a valid age", "Must have a valid first name");
+                    error.Reasons.Select(x => x.Descriptions).Aggregate((current, next) => current.Concat(next).ToArray()).Should().Contain(new[] { "Must have a valid age" });
+                    error.Reasons.Select(x => x.Descriptions).Aggregate((current, next) => current.Concat(next).ToArray()).Should().Contain("Must have a valid first name");
                     break;
             }
         }

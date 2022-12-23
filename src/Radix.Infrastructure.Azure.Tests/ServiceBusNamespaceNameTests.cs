@@ -21,7 +21,7 @@ namespace Radix.Infrastructure.Azure.Tests
 
             if (serviceBusNamespace is Invalid<Data.Names.ServiceBus.Namespace> invalidServiceBusNamespace)
             {
-                output.WriteLine(invalidServiceBusNamespace.Reasons.Aggregate((current, next) => $"{current}{Environment.NewLine}{next}"));
+                output.WriteLine(invalidServiceBusNamespace.Reasons.Select(x => x.Descriptions.Aggregate((current, next) => $"{current}{Environment.NewLine}{next}")).Aggregate((current, next) => $"{current}{Environment.NewLine}{next}"));
                 Assert.Equal(2, invalidServiceBusNamespace.Reasons.Length);
             }
 

@@ -10,5 +10,5 @@ public class Read : Read<decimal>
     public static Validated<decimal> Parse(string s, string validationErrorMessage) =>
         decimal.TryParse(s, out decimal i)
             ? Valid(i)
-            : Invalid<decimal>(validationErrorMessage);
+            : Invalid<decimal>(new Reason (s, validationErrorMessage));
 }

@@ -71,7 +71,7 @@ public static class Prelude
                 }
             };
 
-    private static void Attributes(object currentComponent, RenderTreeBuilder builder, IEnumerable<Data.Attribute> attributes)
+    private static void Attributes(object currentComponent, RenderTreeBuilder builder, IEnumerable<Attribute> attributes)
     {
         foreach (Attribute attribute in attributes)
         {

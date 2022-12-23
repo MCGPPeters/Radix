@@ -129,8 +129,8 @@ public interface Context<TCommand, TEvent, TFormat>
 
                                 return await taskCompletionSource.Task;
 
-                            case Invalid<TCommand>(var messages):
-                                return Error<CommandResult<TEvent>, Error[]>(messages.Select(s => new Error { Message = s }).ToArray());
+                            case Invalid<TCommand>(var reasons):
+                                return Error<CommandResult<TEvent>, Error[]>(reasons.Select(s => new Error { Message = s.Descriptions.Aggregate((current, next) => current + Environment.NewLine + next) }).ToArray());
                             default: throw new InvalidOperationException();
                         }
                     };

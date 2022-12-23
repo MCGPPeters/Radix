@@ -1,11 +1,10 @@
-using Radix.Data;
-
 namespace Radix.Control.Validated;
 
 public static class Extensions
 {
     public static Validated<T> Valid<T>(T t) => new Valid<T>(t);
 
+    public static Validated<T> Invalid<T>(params Reason[] reasons) => new Invalid<T>(reasons);
     public static Validated<T> Invalid<T>(params string[] reasons) => new Invalid<T>(reasons);
 
     public static Validated<TResult> Bind<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function) => result switch
@@ -51,7 +50,7 @@ public static class Extensions
             (Valid<Func<T, TResult>>(var f), Valid<T>(var x)) => Valid(f(x)),
             (Invalid<Func<T, TResult>>(var error), Valid<T>(_)) => Invalid<TResult>(error),
             (Valid<Func<T, TResult>>(_), Invalid<T>(var error)) => Invalid<TResult>(error),
-            (Invalid<Func<T, TResult>>(var error), Invalid<T>(var otherError)) => Invalid<TResult>(error.Concat(otherError).ToArray()),
+            (Invalid<Func<T, TResult>>(Reason[] reasons), Invalid<T>(Reason[] otherReasons)) => Invalid<TResult>(reasons.Concat(otherReasons).ToArray()),
             _ => throw new NotSupportedException("Unlikely")
         };
 
@@ -94,14 +93,14 @@ public static class Extensions
 
     }
 
-    public static IEnumerable<string[]> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)
+    public static IEnumerable<Reason[]> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)
     {
         foreach (Validated<T> validated in xs)
         {
             switch (validated)
             {
-                case Invalid<T>(var errorMessages):
-                    yield return errorMessages;
+                case Invalid<T>(var reasons):
+                    yield return reasons;
                     break;
                 default:
                     continue;
