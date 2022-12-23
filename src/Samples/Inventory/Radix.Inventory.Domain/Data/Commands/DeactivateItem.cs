@@ -12,5 +12,5 @@ public record DeactivateItem(string Reason) : ItemCommand
         .Apply(!string
         .IsNullOrEmpty(reason)
         ? Valid(reason)
-        : Invalid<string>("A reason for deactivation must be provided"));
+        : Invalid<string>("Reason", "A reason for deactivation must be provided"));
 }

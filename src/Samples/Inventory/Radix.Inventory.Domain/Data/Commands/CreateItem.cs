@@ -28,5 +28,5 @@ public record CreateItem : ItemCommand
         .Apply(
             count > 0
                 ? Valid(count)
-                : Invalid<int>("A new inventory item should have at least 1 instance"));
+                : Invalid<int>("Count", "A new inventory item should have at least 1 instance"));
 }

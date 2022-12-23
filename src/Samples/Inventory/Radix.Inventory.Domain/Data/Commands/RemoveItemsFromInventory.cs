@@ -13,9 +13,9 @@ public record RemoveItemsFromInventory(long Id, int Amount) : ItemCommand
         .Apply(
             id > 0
                 ? Valid(id)
-                : Invalid<long>(""))
+                : Invalid<long>("Id", ""))
         .Apply(
             amount > 0
                 ? Valid(amount)
-                : Invalid<int>(""));
+                : Invalid<int>("Amount", ""));
 }

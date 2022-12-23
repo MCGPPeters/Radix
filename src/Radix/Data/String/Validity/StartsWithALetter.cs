@@ -10,5 +10,5 @@ public class StartsWithALetter : Validity<string>
             value =>
                 value.Length > 0 && Char.IsLetter(value[0])
                 ? Valid(value)
-                : Invalid<string>($"The first character of '{name}' must be a letter. Actual value '{value}'");
+                : Invalid<string>(name, $"The first character of '{name}' must be a letter. Actual value '{value}'");
 }

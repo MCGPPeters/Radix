@@ -10,5 +10,5 @@ public class ContainsOnlyAlphaNumericsHyphensAndDots : Validity<string>
             value =>
                 value.Length > 0 && value.All(s => Char.IsLetterOrDigit(s) || Char.Equals(s, '-') || Char.Equals(s, '.'))
                 ? Valid(value)
-                : Invalid<string>($"The value of '{name}' may only container alphanumeric characters, hyphens and dots. Actual value '{value}'");
+                : Invalid<string>(name, $"The value of '{name}' may only container alphanumeric characters, hyphens and dots. Actual value '{value}'");
 }

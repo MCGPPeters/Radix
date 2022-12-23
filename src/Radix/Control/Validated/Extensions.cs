@@ -6,6 +6,8 @@ public static class Extensions
 
     public static Validated<T> Invalid<T>(params Reason[] reasons) => new Invalid<T>(reasons);
     public static Validated<T> Invalid<T>(params string[] reasons) => new Invalid<T>(reasons);
+    public static Validated<T> Invalid<T>(params (string title, string description)[] reasons) => new Invalid<T>(reasons.Select(reason => new Reason(reason.title, reason.description)).ToArray());
+    public static Validated<T> Invalid<T>(string title, string description) => new Invalid<T>(new Reason(title, description));
 
     public static Validated<TResult> Bind<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function) => result switch
     {

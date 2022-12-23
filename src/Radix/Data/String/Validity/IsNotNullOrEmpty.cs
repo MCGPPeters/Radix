@@ -10,6 +10,6 @@ public class IsNotNullOrEmpty : Validity<string>
         name =>
             value => 
                 string.IsNullOrEmpty(value)
-                    ? Invalid<string>($"'{name}' must have a value")
+                    ? Invalid<string>(name, $"'{name}' must have a value")
                     : Valid(value);
 }

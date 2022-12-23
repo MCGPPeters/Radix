@@ -9,6 +9,6 @@ public class IsNotNullEmptyOrWhiteSpace : Validity<string>
         name =>
             value =>
                 string.IsNullOrWhiteSpace(value)
-                ? Invalid<string>($"The value for '{name}' may not be null, empty or whitespace.")
+                ? Invalid<string>(name, $"The value for '{name}' may not be null, empty or whitespace.")
                 : Valid(value);
 }

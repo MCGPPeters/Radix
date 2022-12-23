@@ -10,5 +10,5 @@ public class StartsWithALetterOrNumber : Validity<string>
             value =>
                 value.Length > 0 && (Char.IsLetter(value[0]) || Char.IsNumber(value[0]))
                 ? Valid(value)
-                : Invalid<string>($"The last character of '{name}' must be a letter or a number. Actual value '{value}'");
+                : Invalid<string>(name, $"The last character of '{name}' must be a letter or a number. Actual value '{value}'");
 }

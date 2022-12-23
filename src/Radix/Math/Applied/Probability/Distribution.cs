@@ -20,7 +20,7 @@ public record Distribution<T> where T : notnull
         =>
             distribution.Sum(x => x.probability) == 1.0
             ? Valid(new Distribution<T>(distribution) { Max = distribution.Max(x => x.probability) })
-            : Invalid<Distribution<T>>("The sum of probabilities in a distribution must add up to 1.0");
+            : Invalid<Distribution<T>>(nameof(Distribution), "The sum of probabilities in a distribution must add up to 1.0");
 
 
     public static Distribution<T> Impossible

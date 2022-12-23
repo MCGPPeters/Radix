@@ -13,7 +13,7 @@ public readonly partial record struct Probability : IComparable<Probability>
             value switch
             {
                 >= 0.0 and <= 1.0 => Valid(new Probability(value)),
-                _ => Invalid<Probability>("The value of a probability should be in the interval [0.0, 1.0]")
+                _ => Invalid<Probability>(nameof(Probability), "The value of a probability should be in the interval [0.0, 1.0]")
             };
 
     public static Probability operator +(Probability p, Probability q) => new(p.Value + q.Value);

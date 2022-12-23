@@ -12,9 +12,9 @@ public record CheckInItemsToInventory(long Id, int Amount) : ItemCommand
         .Apply(
             id > 0
                 ? Valid(id)
-                : Invalid<long>($"The id of the inventory item must be greater than 0 but is '{id}'"))
+                : Invalid<long>("Inventory item id", $"The id of the inventory item must be greater than 0 but is '{id}'"))
         .Apply(
             amount > 0
                 ? Valid(amount)
-                : Invalid<int>($"The amount of the inventory item must be greater than 0 but is '{amount}'"));
+                : Invalid<int>("Amount", $"The amount of the inventory item must be greater than 0 but is '{amount}'"));
 }

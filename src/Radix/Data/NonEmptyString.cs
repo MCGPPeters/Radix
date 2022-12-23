@@ -17,6 +17,6 @@ public record struct NonEmptyString
             switch
             {
                 false => Valid(new NonEmptyString(value)),
-                _ => Invalid<NonEmptyString>(errorMessage)
+                _ => Invalid<NonEmptyString>(nameof(NonEmptyString), errorMessage)
             };
 }

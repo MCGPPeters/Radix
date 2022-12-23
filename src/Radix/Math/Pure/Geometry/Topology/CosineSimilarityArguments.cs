@@ -17,5 +17,5 @@ public record CosineSimilarityArguments : SimilarityArguments<double[]>
         => first.Length == second.Length
             ? Valid(new CosineSimilarityArguments(first, second))
             : Invalid<CosineSimilarityArguments>(
-                $"The operands {nameof(first)} and {nameof(second)} MUST have the same length");
+                nameof(CosineSimilarityArguments), $"The operands {nameof(first)} and {nameof(second)} MUST have the same length");
 }

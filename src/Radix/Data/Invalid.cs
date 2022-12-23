@@ -9,5 +9,21 @@ public sealed record Invalid<T>(params Reason[] Reasons) : Validated<T>
 
     public static implicit operator Invalid<T>(Reason[] reasons) => new(reasons);
 
-    public static implicit operator Reason[] (Invalid<T> invalid) => invalid.Reasons;
+    public static implicit operator Reason[](Invalid<T> invalid) => invalid.Reasons;
+
+    public override string ToString()
+    {
+        var output =
+            $"""
+            Invalid {typeof(T).Name} because : {Environment.NewLine}
+            """;
+        foreach (var reason in Reasons)
+        {
+            output +=
+            $"""            
+                {reason}{Environment.NewLine}
+            """;
+        }
+        return output;
+    }
 }

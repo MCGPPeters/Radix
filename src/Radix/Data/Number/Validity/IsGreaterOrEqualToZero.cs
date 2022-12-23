@@ -10,7 +10,7 @@ public class IsGreaterOrEqualToZero<T> : Validity<T>
         name =>
             value =>
                 value < T.Zero
-                ? Invalid<T>($"The value for '{name}' must be greater or equal to 0 (zero)")
+                ? Invalid<T>(name, $"The value for '{name}' must be greater or equal to 0 (zero)")
                 : Valid(value);
 
 }

@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
 using Radix.Data;
+using Radix.Math.Applied.Optimization.Control.POMDP;
 using Radix.Math.Applied.Probability;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Radix.Tests
 {
@@ -15,6 +17,13 @@ namespace Radix.Tests
 
     public class ValidationProperties
     {
+        private ITestOutputHelper _output;
+
+        public ValidationProperties(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact(DisplayName = "Can generate validated types for generics")]
         public void Test5()
         {
@@ -29,15 +38,16 @@ namespace Radix.Tests
             Validated<Person> validationResult =
                 Valid(Person.Create)
                     .Apply(
-                        Invalid<int>("Must have a valid age"))
+                        Invalid<int>("Age", "Must have a valid age"))
                     .Apply(
                         !string.IsNullOrWhiteSpace("")
                             ? Valid("")
-                            : Invalid<string>("Must have a valid first name"))
+                            : Invalid<string>("First name", "Must have a valid first name"))
                     .Apply(
                         !string.IsNullOrWhiteSpace("Doe")
                             ? Valid("")
-                            : Invalid<string>("Must have a valid last name"));
+                            : Invalid<string>("Last name", "Must have a valid last name"));
+
 
 
             switch (validationResult)
@@ -48,6 +58,7 @@ namespace Radix.Tests
                 case Invalid<Person> error:
                     error.Reasons.Select(x => x.Descriptions).Aggregate((current, next) => current.Concat(next).ToArray()).Should().Contain(new[] { "Must have a valid age" });
                     error.Reasons.Select(x => x.Descriptions).Aggregate((current, next) => current.Concat(next).ToArray()).Should().Contain("Must have a valid first name");
+                    _output.WriteLine(error.ToString());
                     break;
             }
         }
