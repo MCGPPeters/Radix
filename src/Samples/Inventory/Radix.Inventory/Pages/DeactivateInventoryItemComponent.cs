@@ -76,7 +76,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                     (
                         new Attribute[]
                         {
-                            @class((NodeId)5, "form-group")
+                            @class(new []{"form-group"})
                         },
                         new Node[]
                         {
@@ -84,7 +84,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                             (
                                 new Attribute[]
                                 {
-                                    @for((NodeId)7, "reasonInput")
+                                    @for(new []{"reasonInput"})
                                 },
                                 new []
                                 {
@@ -99,8 +99,8 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                             (
                                 new []
                                 {
-                                    @class((NodeId)10, "form-control"),
-                                    id((NodeId)11, "reasonInput"),
+                                    @class(new []{"form-control"}),
+                                    id(new []{"reasonInput"}),
                                     bind.input((NodeId)12, model.Reason, reason => model.Reason = reason)
                                 },
                                 Array.Empty<Node>()
@@ -109,7 +109,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                             (
                                 new[]
                                 {
-                                        @class((NodeId)14, "btn btn-primary"),
+                                        @class(new []{ "btn btn-primary"}),
                                         on.click
                                         (
                                             (NodeId)15,
@@ -133,8 +133,8 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                             (
                                 new[]
                                 {
-                                    @class((NodeId)18, "btn btn-secondary"),
-                                    href((NodeId)19, "/")
+                                    @class(new []{"btn btn-secondary"}),
+                                    href(new []{ "/"})
                                 },
                                 new []
                                 {
@@ -155,8 +155,8 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                     (
                                         new[]
                                         {
-                                            @class((NodeId)23, "toast"),
-                                            attribute((NodeId)24, "data-autohide", "false")
+                                            @class(new []{"toast"}),
+                                            attribute("data-autohide", new []{"false"})
                                         },
                                         new Node[]
                                         {
@@ -164,7 +164,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                             (
                                                 new Attribute[]
                                                 {
-                                                    @class((NodeId)26, "toast-header")
+                                                    @class(new []{ "toast-header"})
                                                 },
                                                 new Node[]
                                                 {
@@ -172,7 +172,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                                     (
                                                         new Attribute[]
                                                         {
-                                                            @class((NodeId)28, "mr-auto")
+                                                            @class(new []{"mr-auto"})
                                                         },
                                                         new []
                                                         {
@@ -197,11 +197,12 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                                     ),
                                                     button
                                                     (
-                                                        new[]
+                                                        new Attribute[]
                                                         {
-                                                            type((NodeId)33, "button"),
-                                                            @class((NodeId)34, "ml-2", "mb-1", "close"),
-                                                            attribute((NodeId)35, "data-dismiss", "toast")
+                                                            type(new[] { "button" }),
+                                                            @class(new[]{"ml-2", "mb-1", "close"}),
+                                                            attribute("data-dismiss", new []{"toast"})
+
                                                         },
                                                         new Node[]
                                                         {
@@ -216,9 +217,9 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                                                     )
                                                                 }
                                                             )
-                                                        }
+                                                        })
 
-                                                    )
+                                                        
                                                 }
 
                                             )
@@ -228,7 +229,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                     (
                                         new Attribute[]
                                         {
-                                            @class((NodeId)41, "toast-body")
+                                            @class(new[] { "toast-body" })
                                         },
                                         new Node[]
                                         {

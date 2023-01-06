@@ -46,7 +46,7 @@ namespace Radix.Components.Material._3._2._0.Card
                     (
                         new[]
                         {
-                            @class((NodeId)2, $"{CardCssClassName}"), id((NodeId)3, model.Id ?? "")
+                            @class(new []{$"{CardCssClassName}"}), id(new[] { model.Id ?? "" })
                         },
 
                         new Node[]
@@ -55,8 +55,8 @@ namespace Radix.Components.Material._3._2._0.Card
                             (
                                 new Attribute[]
                                 {
-                                    @class((NodeId)5, PrimaryActionCssClassName),
-                                    tabindex((NodeId)6, $"{model.TabIndex}")
+                                    @class(new[] { PrimaryActionCssClassName }),
+                                    tabindex(new[] { $"{model.TabIndex}" })
                                 },
                                 Array.Empty<Node>()
                             )

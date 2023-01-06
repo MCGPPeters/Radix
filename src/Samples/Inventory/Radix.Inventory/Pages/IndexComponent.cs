@@ -27,8 +27,8 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                     (
                         new[]
                         {
-                            @class((NodeId)3, "btn", "btn-primary"),
-                            href((NodeId)4, "Add")
+                            @class(new []{ "btn", "btn-primary"}),
+                            href(new[] { "Add" })
                         },
                         new[]
                         {
@@ -75,7 +75,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                             (
                                 new Attribute[]
                                 {
-                                    href((NodeId)12, $"/Details/{inventoryItem.Id}")
+                                    href(new[] { $"/Details/{inventoryItem.Id}" })
                                 },
                                 new[]
                                 {
@@ -102,7 +102,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
 
                                     new Attribute[]
                                     {
-                                        href((NodeId)16, $"/Deactivate/{inventoryItem.Id}")
+                                        href(new[] { $"/Deactivate/{inventoryItem.Id}" })
                                     },
 
                                     new Node[]
@@ -126,7 +126,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                                 (
                                     new Attribute[]
                                     {
-                                        href((NodeId)19, $"/Activate/{inventoryItem.Id}")
+                                        href(new[] { $"/Activate/{inventoryItem.Id}" })
                                     },
                                     new Node[]
                                     {

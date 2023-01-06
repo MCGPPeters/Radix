@@ -39,7 +39,11 @@ public class Regular : Component<RegularModel, RegularCommand>
             return
                 header
                 (
-                    new Attribute[] {@class((NodeId)2, AppBarCssClassName, "show"), id((NodeId)3, model.Id ?? "")},
+                    new Attribute[]
+                    {
+                        @class(new []{AppBarCssClassName, "show"}),
+                        id(new []{model.Id})
+                    },
                     new[]
                     {
                         script
@@ -58,7 +62,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                         ),
                         Styles(), div
                         (
-                            new Attribute[] {@class((NodeId)7, "mdc-top-app-bar__row")},
+                            new Attribute[] {@class(new[] {"mdc-top-app-bar__row"})},
 
                             new Node[]
                             {
@@ -69,8 +73,8 @@ public class Regular : Component<RegularModel, RegularCommand>
                                 (
                                     new Attribute[]
                                     {
-                                        @class((NodeId)10, "mdc-top-app-bar__section",
-                                            "mdc-top-app-bar__section--align-start")
+                                        @class(new []{"mdc-top-app-bar__section",
+                                            "mdc-top-app-bar__section--align-start"})
                                     },
                                     new Node[]
                                     {
@@ -80,7 +84,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                                             : new Empty(),
                                         span
                                         (
-                                            new[] {@class((NodeId)13, "mdc-top-app-bar__title")},
+                                            new[] {@class(new[] { "mdc-top-app-bar__title" })},
                                             new[]
                                             {
                                                 text
@@ -95,9 +99,8 @@ public class Regular : Component<RegularModel, RegularCommand>
                                 (
                                     new[]
                                     {
-                                        @class((NodeId)16,
-                                            "mdc-top-app-bar__section mdc-top-app-bar__section--align-end"),
-                                        attribute((NodeId)17, "role", "toolbar")
+                                        @class(new[] { "mdc-top-app-bar__section mdc-top-app-bar__section--align-end" }),
+                                        attribute("role", new[] { "toolbar" })
                                     },
                                     concat
                                     (
@@ -132,8 +135,7 @@ public class Regular : Component<RegularModel, RegularCommand>
             {
                 @class
                 (
-                    (NodeId)23,
-                    $"{SearchFormCssClassName} form"
+                    new []{$"{SearchFormCssClassName} form"}
                 )
             },
             new Node[]
@@ -142,9 +144,9 @@ public class Regular : Component<RegularModel, RegularCommand>
                 (
                     new[]
                     {
-                        type((NodeId)25, "button"),
-                        @class((NodeId)26, $"{SearchBackButtonCssClassName} material-icons"),
-                        aria_label((NodeId)27, "Exit search results"),
+                        type(new[] { "button" }),
+                        @class(new[] { $"{SearchBackButtonCssClassName} material-icons" }),
+                        aria_label(new[] { "Exit search results" }),
                         on.click((NodeId)28, async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
                     },
                     new []
@@ -159,11 +161,11 @@ public class Regular : Component<RegularModel, RegularCommand>
                 (
                     new[]
                     {
-                        type((NodeId)32, "text"),
-                        @class((NodeId)33, SearchSearchInputCssClassName),
-                        placeholder((NodeId)34, "Search"),
-                        aria_label((NodeId)35, "Type what you want to search and press enter"),
-                        autocomplete((NodeId)36, "off"),
+                        type(new[] { "text" }),
+                        @class(new[] { SearchSearchInputCssClassName }),
+                        placeholder(new[] { "Search" }),
+                        aria_label(new[] { "Type what you want to search and press enter" }),
+                        autocomplete(new[] { "off" }),
                         bind.input((NodeId)37, model.SearchTerm, searchTerm => model.SearchTerm = searchTerm),
                         on.keydown((NodeId)38, async args =>
                         {

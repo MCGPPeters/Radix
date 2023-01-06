@@ -26,7 +26,10 @@ public class NavMenu : Component<NavMenuModel, object>
                     (
                         new Attribute[]
                         {
-                            @class((NodeId)1, "top-row", "pl-4", "navbar", "navbar-dark"),
+                            @class(new[]
+                            {
+                                "top-row", "pl-4", "navbar", "navbar-dark"
+                            }),
                         },
                         new Node[]
                             {
@@ -34,8 +37,11 @@ public class NavMenu : Component<NavMenuModel, object>
                         (
                             new Attribute[]
                             {
-                                @class((NodeId)2, "navbar-brand"),
-                                href((NodeId)3, "")
+                                @class(new[]
+                                {
+                                    "navbar-brand"
+                                }),
+                                href(new []{""})
                             },
                             new[]
                             {
@@ -49,7 +55,7 @@ public class NavMenu : Component<NavMenuModel, object>
                         (
                             new[]
                             {
-                                @class((NodeId)4, "navbar-toggler"),
+                                @class( new[] { "navbar-toggler" }),
                                 on.click((NodeId)5, _ => ToggleNavMenu())
                             },
                             new Node[]
@@ -58,22 +64,22 @@ public class NavMenu : Component<NavMenuModel, object>
                                 (
                                     new Attribute[]
                                     {
-                                        @class((NodeId)6, "navbar-toggler-icon")
+                                        @class(new[] { "navbar-toggler-icon" })
                                     },
                                     Empty<Node>()
-                                    
+
                                 )
                             }
-                            
+
                         )
                         }
                     ),
-                
+
                     div
                     (
                         new Attribute[]
                         {
-                            @class((NodeId)7, NavMenuCssClass),
+                            @class(new []{ NavMenuCssClass}),
                             on.click((NodeId)8, _ => ToggleNavMenu())
                         },
                         new Node[]
@@ -82,7 +88,10 @@ public class NavMenu : Component<NavMenuModel, object>
                             (
                                 new Attribute[]
                                 {
-                                    @class((NodeId)9, "nav", "flex-column")
+                                    @class(new[]
+                                    {
+                                        "nav", "flex-column"
+                                    })
                                 },
                                 new Node[]
                                 {
@@ -90,16 +99,22 @@ public class NavMenu : Component<NavMenuModel, object>
                                     (
                                         new Attribute[]
                                         {
-                                            @class((NodeId)10, "nav-item", "px-3"),
+                                            @class(new []{"nav-item", "px-3"}),
                                         },
                                         new Node[]
                                         {
                                             navLinkMatchAll
                                             (
-                                                new[]
+                                                new Attribute[]
                                                 {
-                                                    @class((NodeId)11, "nav-link"),
-                                                    href((NodeId)12, "")
+                                                    @class(new[]
+                                                    {
+                                                        "nav-link"
+                                                    }),
+                                                    href(new []
+                                                    {
+                                                        ""
+                                                    })
                                                 },
                                                 new Node[]
                                                 {
@@ -107,8 +122,14 @@ public class NavMenu : Component<NavMenuModel, object>
                                                     (
                                                         new Attribute[]
                                                         {
-                                                            @class((NodeId)13, "oi", "oi-home"),
-                                                            attribute((NodeId)14, "aria-hidden", "true")
+                                                            @class(new[]
+                                                            {
+                                                                "oi", "oi-home"
+                                                            }),
+                                                            attribute("aria-hidden", new[]
+                                                            {
+                                                                "true"
+                                                            } )
                                                         },
                                                         Empty<Node>()
                                                     ),
@@ -117,16 +138,19 @@ public class NavMenu : Component<NavMenuModel, object>
                                                         "Home"
                                                     )
                                                 }
-                                            
+
                                             )
                                         }
-                                    
+
                                     ),
                                     li
                                     (
                                         new Attribute[]
                                         {
-                                            @class((NodeId)15, "nav-item", "px-3")
+                                            @class(new []
+                                            {
+                                                "nav-item", "px-3"
+                                            })
                                         },
                                         new Node[]
                                         {
@@ -134,8 +158,11 @@ public class NavMenu : Component<NavMenuModel, object>
                                             (
                                                 new Attribute[]
                                                 {
-                                                    @class((NodeId)15, "nav-link"),
-                                                    href((NodeId)16, "counter")
+                                                    @class(new[]
+                                                    {
+                                                        "nav-link"
+                                                    }),
+                                                    href( new[] { "counter" })
                                                 },
                                                 new Node[]
                                                 {
@@ -143,8 +170,8 @@ public class NavMenu : Component<NavMenuModel, object>
                                                     (
                                                         new[]
                                                         {
-                                                            @class((NodeId)17, "oi", "oi-plus"),
-                                                            attribute((NodeId)18, "aria-hidden", "true")
+                                                            @class( new[] { "oi" , "oi-plus"}),
+                                                            attribute("aria-hidden", new[] { "true" })
                                                         },
                                                         Empty<Node>()
                                                     ),
@@ -153,16 +180,16 @@ public class NavMenu : Component<NavMenuModel, object>
                                                         "Counter"
                                                     )
                                                 }
-                                    
+
                                             )
                                         }
-                            
+
                                     ),
                                     li
                                     (
                                         new Attribute[]
                                         {
-                                            @class((NodeId)19, "nav-item", "px-3")
+                                            @class(new[] { "nav-item", "px-3" })
                                         },
                                         new Node[]
                                         {
@@ -170,8 +197,8 @@ public class NavMenu : Component<NavMenuModel, object>
                                             (
                                                 new[]
                                                 {
-                                                    @class((NodeId)20, "nav-link"),
-                                                    href((NodeId)21, "fetchdata")
+                                                    @class(new[] { "nav-link" }),
+                                                    href(new[] { "fetchdata" })
                                                 },
                                                 new Node[]
                                                 {
@@ -179,8 +206,8 @@ public class NavMenu : Component<NavMenuModel, object>
                                                     (
                                                         new[]
                                                         {
-                                                            @class((NodeId)22, "oi", "oi-list-rich"),
-                                                            attribute((NodeId)22, "aria-hidden", "true")
+                                                            @class(new[] { "oi", "oi-list-rich" }),
+                                                            attribute("aria-hidden", new[] { "true" })
                                                         },
                                                         Empty<Node>()
                                                     ),

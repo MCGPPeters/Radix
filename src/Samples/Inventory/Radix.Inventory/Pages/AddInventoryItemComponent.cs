@@ -71,12 +71,12 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         ),
                         div
                         (
-                            new Attribute[] {@class((NodeId)4, "form-group")},
+                            new Attribute[] {@class(new[] { "form-group" })},
                             new Node[]
                             {
                                 label
                                 (
-                                    new Attribute[] {@for((NodeId)6, "idInput"),},
+                                    new Attribute[] {@for(new[] { "idInput" }),},
                                     new[]
                                     {
                                         text
@@ -89,7 +89,9 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                 (
                                     new[]
                                     {
-                                        @class((NodeId)9, "form-control"), id((NodeId)10, "idInput"), bind.input(
+                                        @class(new[] { "form-control" }),
+                                        id(new[] { "idInput" }),
+                                        bind.input(
                                             (NodeId)11, model.InventoryItemId,
                                             id => model.InventoryItemId = id)
                                     },
@@ -97,7 +99,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                 ),
                                 label
                                 (
-                                    new Attribute[] {@for((NodeId)13, "nameInput")},
+                                    new Attribute[] {@for(new[] { "nameInput" })},
                                     new[]
                                     {
                                         text
@@ -111,7 +113,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                 (
                                     new[]
                                     {
-                                        @class((NodeId)16, "form-control"), id((NodeId)17, "nameInput"), bind.input(
+                                        @class(new[] { "form-control" }), id(new[] { "nameInput" }), bind.input(
                                             (NodeId)18, model.InventoryItemName,
                                             name => model.InventoryItemName = name)
                                     },
@@ -119,14 +121,14 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                 ),
                                 label
                                 (
-                                    new Attribute[] {@for((NodeId)20, "countInput")},
+                                    new Attribute[] {@for(new[] { "countInput" })},
                                     new[] {text("Count")}
                                 ),
                                 input
                                 (
                                     new Attribute[]
                                     {
-                                        @class((NodeId)23, "form-control"), id((NodeId)24, "countInput"), bind.input(
+                                        @class(new[] { "form-control" }), id(new[] { "countInput" }), bind.input(
                                             (NodeId)25, model.InventoryItemCount,
                                             count => model.InventoryItemCount = count)
                                     },
@@ -138,7 +140,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         (
                             new[]
                             {
-                                @class((NodeId)27, "btn", "btn-primary"), on.click
+                                @class(new []{"btn", "btn-primary"}), on.click
                                 (
                                     (NodeId)28,
                                     args =>
@@ -164,7 +166,11 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         ),
                         Radix.Interaction.Web.Components.Components.navLinkMatchAll
                         (
-                            new[] {@class((NodeId)31, "btn", "btn-secondary"), href((NodeId)32, "/")},
+                            new[]
+                            {
+                                @class(new[]{"btn", "btn-secondary"}),
+                                href(new []{ "/"})
+                            },
                             new[]
                             {
                                 text
@@ -182,18 +188,18 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                 (
                                     new[]
                                     {
-                                        @class((NodeId)36, "toast"), attribute((NodeId)37, "data-autohide", "false")
+                                        @class(new[] { "toast" }), attribute("data-autohide", new []{"false"})
                                     },
                                     new Node[]
                                     {
                                         div
                                         (
-                                            new Attribute[] {@class((NodeId)39, "toast-header")},
+                                            new Attribute[] {@class(new[] { "toast-header" })},
                                             new Node[]
                                             {
                                                 strong
                                                 (
-                                                    new Attribute[] {@class((NodeId)41, "mr-auto")},
+                                                    new Attribute[] {@class(new[] { "mr-auto" })},
                                                     new[]
                                                     {
                                                         text
@@ -217,9 +223,9 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                                 (
                                                     new[]
                                                     {
-                                                        type((NodeId)46, "button"),
-                                                        @class((NodeId)47, "ml-2", "mb-1", "close"),
-                                                        attribute((NodeId)48, "data-dismiss", "toast")
+                                                        type(new[] { "button" }),
+                                                        @class(new[]{ "ml-2", "mb-1", "close"}),
+                                                        attribute("data-dismiss", new []{"toast"})
                                                     },
                                                     new Node[]
                                                     {
@@ -241,7 +247,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                         ),
                                         div
                                         (
-                                            new Attribute[] {@class((NodeId)52, "toast-body")},
+                                            new Attribute[] {@class(new[] { "toast-body" })},
                                             new[] {FormatErrorMessages(model.Errors)}
                                         )
                                     })

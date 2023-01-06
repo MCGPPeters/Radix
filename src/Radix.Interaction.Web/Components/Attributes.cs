@@ -1,319 +1,318 @@
-﻿using Radix.Web.Html.Data.Names.Attributes;
+﻿using System.Runtime.CompilerServices;
+using Radix.Web.Html.Data.Names.Attributes;
 using Radix.Interaction.Data;
 using Attribute = Radix.Interaction.Data.Attribute;
 using Radix.Web.Html.Data;
 
 namespace Radix.Interaction.Web.Components;
 
-public delegate Data.Attribute<string> attribute(NodeId nodeId, params string[] values);
-
 public static class Attributes
 {
-    public static attribute accept => (id, values) 
-        => attribute<accept>(id, values);
+    public static Data.Attribute<string> accept(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<accept>(values, nodeId);
 
-    public static attribute acceptCharset => (id, values) 
-        => attribute<acceptCharset>(id, values);
+    public static Data.Attribute<string> acceptCharset(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<acceptCharset>(values, nodeId);
 
-    public static attribute accesskey => (id, values) 
-        => attribute<accesskey>(id, values);
+    public static Data.Attribute<string> accesskey(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<accesskey>(values, nodeId);
 
-    public static attribute action => (id, values) 
-        => attribute<action>(id, values);
+    public static Data.Attribute<string> action(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<action>(values, nodeId);
 
-    public static attribute allow => (id, values) 
-        => attribute<allow>(id, values);
+    public static Data.Attribute<string> allow(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<allow>(values, nodeId);
 
-    public static attribute alt => (id, values) 
-        => attribute<alt>(id, values);
+    public static Data.Attribute<string> alt(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<alt>(values, nodeId);
 
-    public static attribute aria_label => (id, values) 
-        => attribute<ariaLabel>(id, values);
+    public static Data.Attribute<string> aria_label(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<ariaLabel>(values, nodeId);
 
-    public static attribute async => (id, values) 
-        => attribute<async>(id, values);
+    public static Data.Attribute<string> async(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<async>(values, nodeId);
 
-    public static attribute autocapitalize => (id, values) 
-        => attribute<autocapitalize>(id, values);
+    public static Data.Attribute<string> autocapitalize(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<autocapitalize>(values, nodeId);
 
-    public static attribute autocomplete => (id, values) 
-        => attribute<autocomplete>(id, values);
+    public static Data.Attribute<string> autocomplete(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<autocomplete>(values, nodeId);
 
-    public static attribute autofocus => (id, values) 
-        => attribute<autofocus>(id, values);
+    public static Data.Attribute<string> autofocus(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<autofocus>(values, nodeId);
 
-    public static attribute autoplay => (id, values) 
-        => attribute<autoplay>(id, values);
+    public static Data.Attribute<string> autoplay(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<autoplay>(values, nodeId);
 
-    public static attribute @class => (id, values) 
-        => attribute<@class>(id, values);
+    public static Data.Attribute<string> @class(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<@class>(values, nodeId);
 
-    public static attribute charset => (id, values) 
-        => attribute<charset>(id, values);
+    public static Data.Attribute<string> charset(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<charset>(values, nodeId);
 
-    public static attribute @checked => (id, values) 
-        => attribute<@checked>(id, values);
+    public static Data.Attribute<string> @checked(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<@checked>(values, nodeId);
 
-    public static attribute cite => (id, values) 
-        => attribute<cite>(id, values);
+    public static Data.Attribute<string> cite(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<cite>(values, nodeId);
 
-    public static attribute color => (id, values) 
-        => attribute<color>(id, values);
+    public static Data.Attribute<string> color(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<color>(values, nodeId);
 
-    public static attribute cols => (id, values) 
-        => attribute<cols>(id, values);
+    public static Data.Attribute<string> cols(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<cols>(values, nodeId);
 
-    public static attribute colspan => (id, values) 
-        => attribute<colspan>(id, values);
+    public static Data.Attribute<string> colspan(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<colspan>(values, nodeId);
 
-    public static attribute content => (id, values) 
-        => attribute<content>(id, values);
+    public static Data.Attribute<string> content(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<content>(values, nodeId);
 
-    public static attribute contenteditable => (id, values) 
-        => attribute<contenteditable>(id, values);
+    public static Data.Attribute<string> contenteditable(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<contenteditable>(values, nodeId);
 
-    public static attribute controls => (id, values) 
-        => attribute<controls>(id, values);
+    public static Data.Attribute<string> controls(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<controls>(values, nodeId);
 
-    public static attribute coords => (id, values) 
-        => attribute<coords>(id, values);
+    public static Data.Attribute<string> coords(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<coords>(values, nodeId);
 
-    public static attribute crossorigin => (id, values) 
-        => attribute<crossorigin>(id, values);
+    public static Data.Attribute<string> crossorigin(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<crossorigin>(values, nodeId);
 
-    public static attribute data => (id, values) 
-        => attribute<data>(id, values);
+    public static Data.Attribute<string> data(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<data>(values, nodeId);
 
-    public static attribute datetime => (id, values) 
-        => attribute<datetime>(id, values);
+    public static Data.Attribute<string> datetime(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<datetime>(values, nodeId);
 
-    public static attribute decoding => (id, values) 
-        => attribute<decoding>(id, values);
+    public static Data.Attribute<string> decoding(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<decoding>(values, nodeId);
 
-    public static attribute @default => (id, values) 
-        => attribute<@default>(id, values);
+    public static Data.Attribute<string> @default(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<@default>(values, nodeId);
 
-    public static attribute defer => (id, values) 
-        => attribute<defer>(id, values);
+    public static Data.Attribute<string> defer(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<defer>(values, nodeId);
 
-    public static attribute dir => (id, values) 
-        => attribute<dir>(id, values);
+    public static Data.Attribute<string> dir(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<dir>(values, nodeId);
 
-    public static attribute dirname => (id, values) 
-        => attribute<dirname>(id, values);
+    public static Data.Attribute<string> dirname(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<dirname>(values, nodeId);
 
-    public static attribute disabled => (id, values) 
-        => attribute<disabled>(id, values);
+    public static Data.Attribute<string> disabled(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<disabled>(values, nodeId);
 
-    public static attribute download => (id, values) 
-        => attribute<download>(id, values);
+    public static Data.Attribute<string> download(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<download>(values, nodeId);
 
-    public static attribute draggable => (id, values) 
-        => attribute<draggable>(id, values);
+    public static Data.Attribute<string> draggable(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<draggable>(values, nodeId);
 
-    public static attribute enctype => (id, values) 
-        => attribute<enctype>(id, values);
+    public static Data.Attribute<string> enctype(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<enctype>(values, nodeId);
 
-    public static attribute @for => (id, values) 
-        => attribute<@for>(id, values);
+    public static Data.Attribute<string> @for(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<@for>(values, nodeId);
 
-    public static attribute form => (id, values) 
-        => attribute<form>(id, values);
+    public static Data.Attribute<string> form(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<form>(values, nodeId);
 
-    public static attribute formaction => (id, values) 
-        => attribute<formaction>(id, values);
+    public static Data.Attribute<string> formaction(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<formaction>(values, nodeId);
 
-    public static attribute headers => (id, values) 
-        => attribute<headers>(id, values);
+    public static Data.Attribute<string> headers(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<headers>(values, nodeId);
 
-    public static attribute height => (id, values) 
-        => attribute<height>(id, values);
+    public static Data.Attribute<string> height(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<height>(values, nodeId);
 
-    public static attribute hidden => (id, values) 
-        => attribute<hidden>(id, values);
+    public static Data.Attribute<string> hidden(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<hidden>(values, nodeId);
 
-    public static attribute high => (id, values) 
-        => attribute<high>(id, values);
+    public static Data.Attribute<string> high(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<high>(values, nodeId);
 
-    public static attribute href => (id, values) 
-        => attribute<href>(id, values);
+    public static Data.Attribute<string> href(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<href>(values, nodeId);
 
-    public static attribute hreflang => (id, values) 
-        => attribute<hreflang>(id, values);
+    public static Data.Attribute<string> hreflang(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<hreflang>(values, nodeId);
 
-    public static attribute httpequiv => (id, values) 
-        => attribute<httpEquiv>(id, values);
+    public static Data.Attribute<string> httpequiv(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<httpEquiv>(values, nodeId);
 
 
-    public static attribute id => (id, values) 
-        => attribute<id>(id, values);
+    public static Data.Attribute<string> id(string?[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<id>(values, nodeId);
 
-    public static attribute ismap => (id, values) 
-        => attribute<ismap>(id, values);
+    public static Data.Attribute<string> ismap(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<ismap>(values, nodeId);
 
-    public static attribute itemprop => (id, values) 
-        => attribute<itemprop>(id, values);
+    public static Data.Attribute<string> itemprop(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<itemprop>(values, nodeId);
 
-    public static attribute kind => (id, values) 
-        => attribute<kind>(id, values);
+    public static Data.Attribute<string> kind(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<kind>(values, nodeId);
 
-    public static attribute label => (id, values) 
-        => attribute<label>(id, values);
+    public static Data.Attribute<string> label(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<label>(values, nodeId);
 
-    public static attribute lang => (id, values) 
-        => attribute<lang>(id, values);
+    public static Data.Attribute<string> lang(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<lang>(values, nodeId);
 
-    public static attribute list => (id, values) 
-        => attribute<list>(id, values);
+    public static Data.Attribute<string> list(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<list>(values, nodeId);
 
-    public static attribute loop => (id, values) 
-        => attribute<loop>(id, values);
+    public static Data.Attribute<string> loop(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<loop>(values, nodeId);
 
-    public static attribute low => (id, values) 
-        => attribute<low>(id, values);
+    public static Data.Attribute<string> low(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<low>(values, nodeId);
 
-    public static attribute max => (id, values) 
-        => attribute<max>(id, values);
+    public static Data.Attribute<string> max(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<max>(values, nodeId);
 
-    public static attribute maxlength => (id, values) 
-        => attribute<maxlength>(id, values);
+    public static Data.Attribute<string> maxlength(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<maxlength>(values, nodeId);
 
-    public static attribute media => (id, values) 
-        => attribute<media>(id, values);
+    public static Data.Attribute<string> media(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<media>(values, nodeId);
 
-    public static attribute method => (id, values) 
-        => attribute<method>(id, values);
+    public static Data.Attribute<string> method(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<method>(values, nodeId);
 
-    public static attribute min => (id, values) 
-        => attribute<min>(id, values);
+    public static Data.Attribute<string> min(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<min>(values, nodeId);
 
-    public static attribute minlength => (id, values) 
-        => attribute<minlength>(id, values);
+    public static Data.Attribute<string> minlength(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<minlength>(values, nodeId);
 
-    public static attribute multiple => (id, values) 
-        => attribute<multiple>(id, values);
+    public static Data.Attribute<string> multiple(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<multiple>(values, nodeId);
 
-    public static attribute muted => (id, values) 
-        => attribute<muted>(id, values);
+    public static Data.Attribute<string> muted(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<muted>(values, nodeId);
 
-    public static attribute name => (id, values) 
-        => attribute<name>(id, values);
+    public static Data.Attribute<string> name(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<name>(values, nodeId);
 
-    public static attribute novalidate => (id, values) 
-        => attribute<novalidate>(id, values);
+    public static Data.Attribute<string> novalidate(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<novalidate>(values, nodeId);
 
-    public static attribute open => (id, values) 
-        => attribute<open>(id, values);
+    public static Data.Attribute<string> open(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<open>(values, nodeId);
 
-    public static attribute optimum => (id, values) 
-        => attribute<optimum>(id, values);
+    public static Data.Attribute<string> optimum(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<optimum>(values, nodeId);
 
-    public static attribute pattern => (id, values) 
-        => attribute<pattern>(id, values);
+    public static Data.Attribute<string> pattern(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<pattern>(values, nodeId);
 
-    public static attribute ping => (id, values) 
-        => attribute<ping>(id, values);
+    public static Data.Attribute<string> ping(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<ping>(values, nodeId);
 
-    public static attribute placeholder => (id, values) 
-        => attribute<placeholder>(id, values);
+    public static Data.Attribute<string> placeholder(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<placeholder>(values, nodeId);
 
-    public static attribute poster => (id, values) 
-        => attribute<poster>(id, values);
+    public static Data.Attribute<string> poster(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<poster>(values, nodeId);
 
-    public static attribute preload => (id, values) 
-        => attribute<preload>(id, values);
+    public static Data.Attribute<string> preload(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<preload>(values, nodeId);
 
-    public static attribute @readonly => (id, values) 
-        => attribute<@readonly>(id, values);
+    public static Data.Attribute<string> @readonly(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<@readonly>(values, nodeId);
 
-    public static attribute rel => (id, values) 
-        => attribute<rel>(id, values);
+    public static Data.Attribute<string> rel(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<rel>(values, nodeId);
 
-    //public static attribute @required => (id, values) 
-    //    => attribute<@required>(id, values);
+    //public static Data.Attribute<string> @required(string[] values, [CallerLineNumber] int nodeId = 0) 
+    //    => attribute<@required>(values, nodeId);
 
-    public static attribute reversed => (id, values) 
-        => attribute<reversed>(id, values);
+    public static Data.Attribute<string> reversed(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<reversed>(values, nodeId);
 
-    public static attribute rows => (id, values) 
-        => attribute<rows>(id, values);
+    public static Data.Attribute<string> rows(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<rows>(values, nodeId);
 
-    public static attribute rowspan => (id, values) 
-        => attribute<rowspan>(id, values);
+    public static Data.Attribute<string> rowspan(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<rowspan>(values, nodeId);
 
-    public static attribute sandbox => (id, values) 
-        => attribute<sandbox>(id, values);
+    public static Data.Attribute<string> sandbox(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<sandbox>(values, nodeId);
 
-    public static attribute scope => (id, values) 
-        => attribute<scope>(id, values);
+    public static Data.Attribute<string> scope(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<scope>(values, nodeId);
 
-    public static attribute shape => (id, values) 
-        => attribute<shape>(id, values);
+    public static Data.Attribute<string> shape(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<shape>(values, nodeId);
 
-    public static attribute size => (id, values) 
-        => attribute<size>(id, values);
+    public static Data.Attribute<string> size(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<size>(values, nodeId);
 
-    public static attribute sizes => (id, values) 
-        => attribute<sizes>(id, values);
+    public static Data.Attribute<string> sizes(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<sizes>(values, nodeId);
 
-    public static attribute slot => (id, values) 
-        => attribute<slot>(id, values);
+    public static Data.Attribute<string> slot(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<slot>(values, nodeId);
 
-    public static attribute span => (id, values) 
-        => attribute<span>(id, values);
+    public static Data.Attribute<string> span(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<span>(values, nodeId);
 
-    public static attribute spellcheck => (id, values) 
-        => attribute<spellcheck>(id, values);
+    public static Data.Attribute<string> spellcheck(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<spellcheck>(values, nodeId);
 
-    public static attribute src => (id, values) 
-        => attribute<src>(id, values);
+    public static Data.Attribute<string> src(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<src>(values, nodeId);
 
-    public static attribute srcdoc => (id, values) 
-        => attribute<srcdoc>(id, values);
+    public static Data.Attribute<string> srcdoc(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<srcdoc>(values, nodeId);
 
-    public static attribute srclang => (id, values) 
-        => attribute<srclang>(id, values);
+    public static Data.Attribute<string> srclang(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<srclang>(values, nodeId);
 
-    public static attribute srcset => (id, values) 
-        => attribute<srcset>(id, values);
+    public static Data.Attribute<string> srcset(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<srcset>(values, nodeId);
 
-    public static attribute start => (id, values) 
-        => attribute<start>(id, values);
+    public static Data.Attribute<string> start(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<start>(values, nodeId);
 
-    public static attribute step => (id, values) 
-        => attribute<step>(id, values);
+    public static Data.Attribute<string> step(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<step>(values, nodeId);
 
-    public static attribute tabindex => (id, values) 
-        => attribute<tabindex>(id, values);
+    public static Data.Attribute<string> tabindex(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<tabindex>(values, nodeId);
 
-    public static attribute target => (id, values) 
-        => attribute<target>(id, values);
+    public static Data.Attribute<string> target(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<target>(values, nodeId);
 
-    public static attribute title => (id, values) 
-        => attribute<title>(id, values);
+    public static Data.Attribute<string> title(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<title>(values, nodeId);
 
-    public static attribute translate => (id, values) 
-        => attribute<translate>(id, values);
+    public static Data.Attribute<string> translate(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<translate>(values, nodeId);
 
-    public static attribute type => (id, values) 
-        => attribute<type>(id, values);
+    public static Data.Attribute<string> type(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<type>(values, nodeId);
 
-    public static attribute usemap => (id, values) 
-        => attribute<usemap>(id, values);
+    public static Data.Attribute<string> usemap(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<usemap>(values, nodeId);
 
-    public static attribute value => (id, values) 
-        => attribute<value>(id, values);
+    public static Data.Attribute<string> value(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<value>(values, nodeId);
 
-    public static attribute width => (id, values) 
-        => attribute<width>(id, values);
+    public static Data.Attribute<string> width(string[] values, [CallerLineNumber] int nodeId = 0) 
+        => attribute<width>(values, nodeId);
 
-    public static attribute wrap => (id, values)
-        => attribute<wrap>(id, values);
+    public static Data.Attribute<string> wrap(string[] values, [CallerLineNumber] int nodeId = 0)
+        => attribute<wrap>(values, nodeId);
 
-    public static Data.Attribute<string> attribute<T>(NodeId id, params string[] values)
+    public static Data.Attribute<string> attribute<T>(string[] values, [CallerLineNumber]int id = 0)
         where T : AttributeName, Literal<T> =>
-        new Attribute<T>(id, values);
+        new Attribute<T>((NodeId)id, values);
 
-    public static Attribute attribute(NodeId id, string name, params string[] values) =>
-        new Data.Attribute<string>(id, name, values);
+    public static Attribute attribute(string name, string[] values, [CallerLineNumber] int id = 0) =>
+        new Data.Attribute<string>((NodeId)id, name, values);
 }

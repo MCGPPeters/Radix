@@ -72,7 +72,7 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
 
                     new[]
                     {
-                            @class((NodeId)7, "btn", "btn-primary"),
+                            @class(new []{"btn", "btn-primary"}),
                             on.click
                             (
                                 (NodeId)8,
