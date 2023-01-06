@@ -1,4 +1,5 @@
 using Radix.Data;
+using Radix.Infrastructure.Azure.Data.Names;
 using Xunit.Abstractions;
 
 namespace Radix.Infrastructure.Azure.Tests;
@@ -15,11 +16,11 @@ public class ServiceBusNamespaceNameTests
     [Fact(DisplayName = "An invalid name for a namespace should not be accepted")]
     public void Test1()
     {
-        var serviceBusNamespace = Data.Names.ServiceBus.Namespace.Create("s&");
+        var serviceBusNamespace = Namespace.Create("s&");
 
-        Assert.IsType<Invalid<Data.Names.ServiceBus.Namespace>>(serviceBusNamespace);
+        Assert.IsType<Invalid<Namespace>>(serviceBusNamespace);
 
-        if (serviceBusNamespace is Invalid<Data.Names.ServiceBus.Namespace> invalidServiceBusNamespace)
+        if (serviceBusNamespace is Invalid<Namespace> invalidServiceBusNamespace)
         {
             output.WriteLine(invalidServiceBusNamespace.ToString());
             Assert.Equal(2, invalidServiceBusNamespace.Reasons.Length);
@@ -27,14 +28,14 @@ public class ServiceBusNamespaceNameTests
 
     }
 
-    [Fact(DisplayName = "An valid name for a namspace should be accepted")]
+    [Fact(DisplayName = "An valid name for a namespace should be accepted")]
     public void Test2()
     {
-        var serviceBusNamespace = Data.Names.ServiceBus.Namespace.Create("rg-radix");
+        var serviceBusNamespace = Namespace.Create("rg-radix");
 
-        Assert.IsType<Valid<Data.Names.ServiceBus.Namespace>>(serviceBusNamespace);
+        Assert.IsType<Valid<Namespace>>(serviceBusNamespace);
 
-        if (serviceBusNamespace is Valid<Data.Names.ServiceBus.Namespace> (var validServiceBusNamespace))
+        if (serviceBusNamespace is Valid<Namespace> (var validServiceBusNamespace))
         {
             string ns = validServiceBusNamespace;
             output.WriteLine($"{validServiceBusNamespace} is a valid name for a servicebus namespace" );

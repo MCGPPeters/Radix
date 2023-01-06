@@ -1,13 +1,10 @@
 ﻿using Radix.Data.String.Validity;
 
-namespace Radix.Infrastructure.Azure.Data.Names;
+namespace Radix.Generators.Console;
 
-/// <summary>
-/// 
-/// </summary>
-[StringLength(6, 50)]
 [Validated<string, ContainsOnlyAlphaNumericsAndHyphens>]
 [Validated<string, StartsWithALetter>]
 [Validated<string, EndsWithALetterOrNumber>]
 [Validated<string, IsNotNullOrEmpty>]
+[StringLength(6, 50)]
 public readonly partial record struct Namespace { };

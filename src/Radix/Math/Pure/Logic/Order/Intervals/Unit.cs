@@ -2,7 +2,7 @@
 
 namespace Radix.Math.Pure.Logic.Order.Intervals;
 
-public record Unit : Closed<Real, Unit>
+public record Unit : Closed<Real>
 {
     private static readonly Unit _instance = new Unit();
 

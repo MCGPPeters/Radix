@@ -7,6 +7,7 @@ using Radix.Interaction;
 using Radix.Interaction.Data;
 using Node = Radix.Interaction.Data.Node;
 using Radix.Inventory.Domain.Data.Commands;
+using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Inventory.Pages;
 
@@ -17,38 +18,44 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
 
     protected override View<IndexModel, Validated<ItemCommand>> View =>
          static (model, dispatch) =>
-            Task.FromResult<Node>(concat
+            Task.FromResult<Node>(
+            concat
             (
-                (NodeId)1,
-                navLinkMatchAll
-                (
-                    (NodeId)2,
-                    new[]
-                    {
-                        @class((NodeId)3, "btn", "btn-primary"),
-                        href((NodeId)4, "Add")
-                    },
-                    text
+                new Node[]
+                {
+                    navLinkMatchAll
                     (
-                        (NodeId)5,
-                        "Add"
-                    )
-                ),
-                h1
-                (
-                    (NodeId)6,
-                    text
+                        new[]
+                        {
+                            @class((NodeId)3, "btn", "btn-primary"),
+                            href((NodeId)4, "Add")
+                        },
+                        new[]
+                        {
+                            text
+                            (
+                                "Add"
+                            )
+                        }
+                    ),
+                    h1
                     (
-                        (NodeId)7,
-                        "All items"
+                        Array.Empty<Attribute>(),
+                        new []
+                        {
+                            text
+                            (
+                                "All items"
+                            )
+                        }
+                    ),
+                    table
+                    (
+                        Array.Empty<Attribute>(),
+                        GetInventoryItemNodes(model.InventoryItems)
                     )
-                ),
-                table
-                (
-                    (NodeId)8,
-                    GetInventoryItemNodes(model.InventoryItems)
-                )
-            ));   
+                })
+            );
 
 
     private static Node[] GetInventoryItemNodes(IEnumerable<ItemModel>? inventoryItems) =>
@@ -56,64 +63,87 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
             .Select(static inventoryItem =>
                 tr
                 (
-                    (NodeId)10,
-                    td
+                    Array.Empty<Attribute>(),
+                    new Node[]
+                    {
+                        td
                     (
-                        (NodeId)8,
-                        navLinkMatchAll
-                        (
-                            (NodeId)11,      
-                            new[]
-                            {
-                                href((NodeId)12, $"/Details/{inventoryItem.Id}")
-                            },
-                            text
+                        Array.Empty<Attribute>(),
+                        new Node[]
+                        {
+                            navLinkMatchAll
                             (
-                                (NodeId)13,
-                                inventoryItem.Name ?? string.Empty
+                                new Attribute[]
+                                {
+                                    href((NodeId)12, $"/Details/{inventoryItem.Id}")
+                                },
+                                new[]
+                                {
+                                    text
+                                    (
+                                        inventoryItem.Name ?? string.Empty
+                                    )
+                                }
+
                             )
-                        )
+                        }
+
                     ),
                     // conditional output
                     inventoryItem.Activated
                     ?
                         td
                         (
-                            (NodeId)14,
-                            navLinkMatchAll
-                            (
-                                (NodeId)15,
-                                new[]
-                                {
-                                    href((NodeId)16, $"/Deactivate/{inventoryItem.Id}")
-                                },
-                                text
+                            Array.Empty<Attribute>(),
+                            new Node[]
+                            {
+                                navLinkMatchAll
                                 (
-                                    (NodeId)17,
-                                    "Deactivate"
+
+                                    new Attribute[]
+                                    {
+                                        href((NodeId)16, $"/Deactivate/{inventoryItem.Id}")
+                                    },
+
+                                    new Node[]
+                                    {
+                                        text
+                                        (
+                                            "Deactivate"
+                                        )
+                                    }
                                 )
-                            )
+                            }
+
                         )
                     :
                         td
                         (
-                            (NodeId)14,
-                            navLinkMatchAll
-                            (
-                                (NodeId)18,
-                                new[]
-                                {
-                                    href((NodeId)19, $"/Activate/{inventoryItem.Id}")
-                                },
-                                text
+                            Array.Empty<Attribute>(),
+                            new Node[]
+                            {
+                                navLinkMatchAll
                                 (
-                                    (NodeId)20,
-                                    "Activate"
+                                    new Attribute[]
+                                    {
+                                        href((NodeId)19, $"/Activate/{inventoryItem.Id}")
+                                    },
+                                    new Node[]
+                                    {
+                                        text
+                                        (
+                                            "Activate"
+                                        )
+                                    }
                                 )
-                            )
+                            }
+
+
                         )
-                    )
+                    })
             ).ToArray()
         ??
             Array.Empty<Node>();
+
 }
+                    

@@ -41,12 +41,6 @@ public class LiteralGenerator : ISourceGenerator
     public void Initialize(GeneratorInitializationContext context)
     {
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-#if DEBUG
-        if (!Debugger.IsAttached)
-        {
-            Debugger.Launch();
-        }
-#endif
         Debug.WriteLine("Initialize code generator");
     }
 

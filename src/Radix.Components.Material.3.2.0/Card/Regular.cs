@@ -6,6 +6,7 @@ using Radix.Web.Css.Data;
 using Radix.Web.Css.Data.Dimensions;
 using Radix.Web.Css.Data.Units.Length.Absolute;
 using Radix.Web.Css.Data.Units.Length.Relative;
+using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Components.Material._3._2._0.Card
 {
@@ -43,21 +44,23 @@ namespace Radix.Components.Material._3._2._0.Card
                 return
                     await Task.FromResult(div
                     (
-                        (NodeId)1,
                         new[]
                         {
-                            @class((NodeId)2, $"{CardCssClassName}"),
-                            id((NodeId)3, model.Id ?? "")
+                            @class((NodeId)2, $"{CardCssClassName}"), id((NodeId)3, model.Id ?? "")
                         },
-                        div
-                        (
-                            (NodeId)4,
-                            new[]
-                            {
-                                @class((NodeId)5, PrimaryActionCssClassName),
-                                tabindex((NodeId)6, $"{model.TabIndex}")
-                            }
-                        )
+
+                        new Node[]
+                        { 
+                            div
+                            (
+                                new Attribute[]
+                                {
+                                    @class((NodeId)5, PrimaryActionCssClassName),
+                                    tabindex((NodeId)6, $"{model.TabIndex}")
+                                },
+                                Array.Empty<Node>()
+                            )
+                        }
                     ));
             };
     }

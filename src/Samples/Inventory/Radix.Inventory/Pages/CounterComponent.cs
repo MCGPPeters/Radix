@@ -5,6 +5,7 @@ using Radix.Data;
 using Radix.Domain.Data;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
+using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Inventory.Pages;
 
@@ -41,46 +42,58 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
         async (model, dispatch) =>
         await Task.FromResult(concat
         (
-            (NodeId)1,
-            h1
-            (
-                (NodeId)2,
-                text
+            new Node[]
+            {
+                h1
                 (
-                    (NodeId)3,
-                    "Counter"
-                )
-            ),
-            p
-            (
-                (NodeId)4,
-                text
-                (
-                    (NodeId)5,
-                    model.Count.ToString()
-                )
-            ),
-            button
-            (
-                (NodeId)6,
-                new[]
-                {
-                        @class((NodeId)7, "btn", "btn-primary"),
-                        on.click
+                    Array.Empty<Attribute>(),
+                    new[]
+                    {
+                        text
                         (
-                            (NodeId)8,
-                            args =>
-                            {
-                                Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());
-                                dispatch(validCommand);
-                            }
+                            "Counter"
                         )
-                },
-                text
+                    }
+
+                ),
+                p
                 (
-                    (NodeId)9,
-                    "Click me"
+                    Array.Empty<Attribute>(),
+                    new []
+                    {
+                        text
+                        (
+                            model.Count.ToString()
+                        )
+                    }
+                ),
+                button
+                (
+
+                    new[]
+                    {
+                            @class((NodeId)7, "btn", "btn-primary"),
+                            on.click
+                            (
+                                (NodeId)8,
+                                args =>
+                                {
+                                    Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());
+                                    dispatch(validCommand);
+                                }
+                            )
+
+
+                    },
+                    new []
+                    {
+                        text
+                        (
+                            "Click me"
+                        )
+                    }
+
                 )
-            )
+            }
         ));
 }

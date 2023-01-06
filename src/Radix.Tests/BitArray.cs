@@ -12,10 +12,10 @@ public record SDR
         Capacity = n! / (w! * (n - w)!);
     }
 
-    public SDR(int length, Element<Real, Math.Pure.Logic.Order.Intervals.Unit> sparsity)
+    public SDR(int length, Real sparsity)
     {
         Length = length;
-        Population = (int)System.Math.Ceiling(length * sparsity.Value);
+        Population = (int)System.Math.Ceiling(length * sparsity);
     }
 
     public int Length { get; }

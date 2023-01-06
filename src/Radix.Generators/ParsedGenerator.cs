@@ -41,10 +41,6 @@ public class ParsedGenerator : ISourceGenerator
     {
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
 
-        //if (!Debugger.IsAttached)
-        //{
-        //    Debugger.Launch();
-        //}
         Debug.WriteLine("Initalize code generator");
     }
 

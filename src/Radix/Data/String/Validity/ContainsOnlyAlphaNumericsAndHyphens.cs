@@ -1,6 +1,7 @@
 ﻿namespace Radix.Data.String.Validity;
 
 using System;
+using System.Net.Http.Headers;
 using static Radix.Control.Validated.Extensions;
 
 public class ContainsOnlyAlphaNumericsAndHyphens : Validity<string>

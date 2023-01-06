@@ -23,7 +23,7 @@ public static class Prelude
                     case Text(var id, var text):
                         builder.AddContent(id, text);
                         break;
-                    case HtmlString(var id, var html):
+                    case HtmlString(var html, var id):
                         builder.AddMarkupContent(id, html);
                         break;
                     case Concat nodes:

@@ -20,18 +20,20 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
             {
                 return await Task.FromResult(button
                 (
-                    (NodeId)1,
                     new[]
                     {
                         @class((NodeId)1, "material-icons", "mdc-top-app-bar__navigation-icon", "mdc-icon-button"),
                         attribute((NodeId)2, "aria-label", model.AriaLabel),
                         on.click((NodeId)3, _ => dispatch(TCommand.Create()))
                     },
-                    text
-                    (
-                        (NodeId)4,
-                        model.Name
-                    )
+                    new[]
+                    {
+                        text
+                        (
+                            model.Name
+                        )
+                    }
+
                 ));
             };
 

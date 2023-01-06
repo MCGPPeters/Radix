@@ -1,10 +1,9 @@
 ﻿namespace Radix.Math.Pure.Logic.Order.Intervals;
 
-public record Closed<T, TInterval>(T LowerBound, T UpperBound) : Interval<T, TInterval>
+public record Closed<T>(T LowerBound, T UpperBound) : Interval<T>
     where T : Order<T>
-    where TInterval : Interval<T, TInterval>
 {
-    public Func<T, bool> Builder =>
+    public Func<T, bool> Contains =>
         x =>
             x >= LowerBound && x <= UpperBound;
 }

@@ -14,6 +14,7 @@ using Radix.Inventory.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
 using static Radix.Interaction.Web.Components.Components;
+using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Inventory.Pages;
 
@@ -53,156 +54,220 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
 
 
-protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> View =>
-        async (model, dispatch) =>
-            await Task.FromResult(concat
-            (
-                (NodeId)1,
-                h1
+    protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> View =>
+            async (model, dispatch) =>
+                await Task.FromResult(concat
                 (
-                    (NodeId)2,
-                    text
+                    new Node[]
+                    {
+                    h1
                     (
-                        (NodeId)3,
-                        $"Deactivate item : {model.InventoryItemName}"
-                    )
-                ),
-                div
-                (
-                    (NodeId)4,
-                    @class((NodeId)5, "form-group"),
-                    label
-                    (
-                        (NodeId)6,
-                        @for((NodeId)7, "reasonInput"),
-                        text
-                        (
-                            (NodeId)8,
-                            "Reason"
-                        )
-                    ),
-                    input
-                    (
-                        (NodeId)9,
-                        @class((NodeId)10, "form-control"),
-                        id((NodeId)11, "reasonInput"),
-                        bind.input((NodeId)12, model.Reason, reason => model.Reason = reason)
-                    ),
-                    button
-                    (
-                        (NodeId)13,
-                        new[]
+                        Array.Empty<Attribute>(),
+                        new []
                         {
-                                @class((NodeId)14, "btn btn-primary"),
-                                on.click
-                                (
-                                    (NodeId)15,
-                                    _ =>
-                                    {
-                                        Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);
-                                        dispatch(validCommand);                                       
-                                    }
-                                )
-                        },
-                        text
-                        (
-                            (NodeId)16,
-                            "Ok"
-                        )
-                    ),
-                    navLinkMatchAll
-                    (
-                        (NodeId)17,
-                        new[]
-                        {
-                            @class((NodeId)18, "btn btn-secondary"),
-                            href((NodeId)19, "/")
-                        },
-                        text
-                        (
-                            (NodeId)20,
-                            "Cancel"
-                        )
+                            text
+                            (
+                                $"Deactivate item : {model.InventoryItemName}"
+                            )
+                        }
+
                     ),
                     div
                     (
-                        (NodeId)21,
-                        div
-                        (
-                            (NodeId)22,
-                            new[]
-                            {
-                                @class((NodeId)23, "toast"),
-                                attribute((NodeId)24, "data-autohide", "false")
-                            },
-                            div
+                        new Attribute[]
+                        {
+                            @class((NodeId)5, "form-group")
+                        },
+                        new Node[]
+                        {
+                            label
                             (
-                                (NodeId)25,
-                                @class((NodeId)26, "toast-header"),
-                                strong
-                                (
-                                    (NodeId)27,
-                                    @class((NodeId)28, "mr-auto"),
-                                    text((NodeId)29, "Invalid input")
-                                ),
-                                small
-                                (
-                                    (NodeId)30,
+                                new Attribute[]
+                                {
+                                    @for((NodeId)7, "reasonInput")
+                                },
+                                new []
+                                {
                                     text
                                     (
-                                        (NodeId)31,
-                                        DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
+                                        "Reason"
                                     )
-                                ),
-                                button
-                                (
-                                    (NodeId)32,
-                                    new[]
-                                    {
-                                        type((NodeId)33, "button"),
-                                        @class((NodeId)34, "ml-2", "mb-1", "close"),
-                                        attribute((NodeId)35, "data-dismiss", "toast")
-                                    },
-                                    span
-                                    (
-                                        (NodeId)38,
-                                        text
+                                }
+
+                            ),
+                            input
+                            (
+                                new []
+                                {
+                                    @class((NodeId)10, "form-control"),
+                                    id((NodeId)11, "reasonInput"),
+                                    bind.input((NodeId)12, model.Reason, reason => model.Reason = reason)
+                                },
+                                Array.Empty<Node>()
+                            ),
+                            button
+                            (
+                                new[]
+                                {
+                                        @class((NodeId)14, "btn btn-primary"),
+                                        on.click
                                         (
-                                            (NodeId)39,
-                                            "🗙"
+                                            (NodeId)15,
+                                            _ =>
+                                            {
+                                                Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);
+                                                dispatch(validCommand);
+                                            }
                                         )
+                                },
+                                new []
+                                {
+                                    text
+                                    (
+                                        "Ok"
                                     )
-                                )
+                                }
+
+                            ),
+                            navLinkMatchAll
+                            (
+                                new[]
+                                {
+                                    @class((NodeId)18, "btn btn-secondary"),
+                                    href((NodeId)19, "/")
+                                },
+                                new []
+                                {
+                                    text
+                                    (
+
+                                        "Cancel"
+                                    )
+                                }
+
                             ),
                             div
                             (
-                                (NodeId)40,
-                                @class((NodeId)41, "toast-body"),
-                                FormatErrorMessages(model.Errors)
+                                Array.Empty<Attribute>(),
+                                new Node[]
+                                {
+                                    div
+                                    (
+                                        new[]
+                                        {
+                                            @class((NodeId)23, "toast"),
+                                            attribute((NodeId)24, "data-autohide", "false")
+                                        },
+                                        new Node[]
+                                        {
+                                            div
+                                            (
+                                                new Attribute[]
+                                                {
+                                                    @class((NodeId)26, "toast-header")
+                                                },
+                                                new Node[]
+                                                {
+                                                    strong
+                                                    (
+                                                        new Attribute[]
+                                                        {
+                                                            @class((NodeId)28, "mr-auto")
+                                                        },
+                                                        new []
+                                                        {
+                                                            text
+                                                            (
+                                                                "Invalid input"
+                                                            )
+                                                        }
+
+                                                    ),
+                                                    small
+                                                    (
+                                                        Array.Empty<Attribute>(),
+                                                        new []
+                                                        {
+                                                            text
+                                                            (
+                                                                DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
+                                                            )
+                                                        }
+
+                                                    ),
+                                                    button
+                                                    (
+                                                        new[]
+                                                        {
+                                                            type((NodeId)33, "button"),
+                                                            @class((NodeId)34, "ml-2", "mb-1", "close"),
+                                                            attribute((NodeId)35, "data-dismiss", "toast")
+                                                        },
+                                                        new Node[]
+                                                        {
+                                                            span
+                                                            (
+                                                                Array.Empty<Attribute>(),
+                                                                new []
+                                                                {
+                                                                    text
+                                                                    (
+                                                                        "🗙"
+                                                                    )
+                                                                }
+                                                            )
+                                                        }
+
+                                                    )
+                                                }
+
+                                            )
+                                        })
+                                    ,
+                                    div
+                                    (
+                                        new Attribute[]
+                                        {
+                                            @class((NodeId)41, "toast-body")
+                                        },
+                                        new Node[]
+                                        {
+                                            FormatErrorMessages(model.Errors)
+                                        }
+
+                                    )
+
+                                }
+
+
                             )
-                        )
+
+                        }
                     )
-                )
-            ));
+                        }
+                ));
 
     private static Node FormatErrorMessages(IEnumerable<Error>? errors)
     {
-        Node node = new Empty((NodeId)42);
+        Node node = new Empty();
         if (errors is not null)
         {
             node =
                 ul
                 (
-                    (NodeId)43,
+                    Array.Empty<Attribute>(),
                     errors.Select(error =>
-                    li
+                    (Node)li
                     (
-                        (NodeId)44,
-                        text
-                        (
-                            (NodeId)45,
-                            error.ToString()
-                        )
+                        Array.Empty<Attribute>(),
+                        new []
+                        {
+                            text
+                            (
+                                error.ToString()
+                            )
+                        }
+                        
                     )
                 ).ToArray()
             );

@@ -1,7 +1,6 @@
 ﻿namespace Radix.Math.Pure.Logic.Order;
 
-public interface Interval<T, TInterval> : Set<T, TInterval>
+public interface Interval<T> : Set<T>
     where T : Order<T>
-    where TInterval : Set<T, TInterval>
 {
 }

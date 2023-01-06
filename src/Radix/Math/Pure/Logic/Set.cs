@@ -1,9 +1,8 @@
 ﻿namespace Radix.Math.Pure.Logic;
 
 
-public interface Set<T, TSet>
+public interface Set<T>
     where T : Order<T>
-    where TSet : Set<T, TSet>
 {
-    public Func<T, bool> Builder { get; }
+    public Func<T, bool> Contains { get; }
 }

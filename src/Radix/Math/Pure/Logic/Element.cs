@@ -1,8 +1,7 @@
 ﻿namespace Radix.Math.Pure.Logic;
 
-public sealed record Element<T, TSet>
+public sealed record Element<T>
     where T : Order<T>
-    where TSet : Set<T, TSet>
 {
     private Element(T value)
     {
@@ -11,9 +10,9 @@ public sealed record Element<T, TSet>
 
     public T Value { get; }
 
-    public static Option<Element<T, TSet>> Get(T candidate, Set<T, TSet> set) =>
-        set.Builder(candidate)
-        ? Some(new Element<T, TSet>(candidate))
-        : None<Element<T, TSet>>();
+    public static Option<Element<T>> Get(T candidate, Set<T> set) =>
+        set.Contains(candidate)
+        ? Some(new Element<T>(candidate))
+        : None<Element<T>>();
 
 }

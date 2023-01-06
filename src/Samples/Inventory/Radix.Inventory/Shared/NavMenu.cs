@@ -1,7 +1,9 @@
 ﻿using Radix.Interaction;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
+using static System.Array;
 using static Radix.Interaction.Web.Components.Components;
+using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Inventory.Shared;
 
@@ -18,140 +20,185 @@ public class NavMenu : Component<NavMenuModel, object>
             =>
             await Task.FromResult(concat
             (
-                (NodeId)1,
-                div
-                (
-                    (NodeId)2,
-                    @class((NodeId)1, "top-row", "pl-4", "navbar", "navbar-dark"),
-                    a
+                new Node[]
+                {
+                    div
                     (
-                        (NodeId)3,
-                        new[]
+                        new Attribute[]
                         {
-                            @class((NodeId)2, "navbar-brand"),
-                            href((NodeId)3, "")
+                            @class((NodeId)1, "top-row", "pl-4", "navbar", "navbar-dark"),
                         },
-                        text
+                        new Node[]
+                            {
+                        a
                         (
-                            (NodeId)4,
-                            "Radix.Inventory"
+                            new Attribute[]
+                            {
+                                @class((NodeId)2, "navbar-brand"),
+                                href((NodeId)3, "")
+                            },
+                            new[]
+                            {
+                                text
+                                (
+                                    "Radix.Inventory"
+                                )
+                            }
+                        ),
+                        button
+                        (
+                            new[]
+                            {
+                                @class((NodeId)4, "navbar-toggler"),
+                                on.click((NodeId)5, _ => ToggleNavMenu())
+                            },
+                            new Node[]
+                            {
+                                span
+                                (
+                                    new Attribute[]
+                                    {
+                                        @class((NodeId)6, "navbar-toggler-icon")
+                                    },
+                                    Empty<Node>()
+                                    
+                                )
+                            }
+                            
                         )
+                        }
                     ),
-                    button
+                
+                    div
                     (
-                        (NodeId)5,
-                        new[]
+                        new Attribute[]
                         {
-                            @class((NodeId)4, "navbar-toggler"),
-                            on.click((NodeId)5, _ => ToggleNavMenu())
+                            @class((NodeId)7, NavMenuCssClass),
+                            on.click((NodeId)8, _ => ToggleNavMenu())
                         },
-                        span
-                        (
-                            (NodeId)6,
-                            @class((NodeId)6, "navbar-toggler-icon")
-                        )
+                        new Node[]
+                        {
+                            ul
+                            (
+                                new Attribute[]
+                                {
+                                    @class((NodeId)9, "nav", "flex-column")
+                                },
+                                new Node[]
+                                {
+                                    li
+                                    (
+                                        new Attribute[]
+                                        {
+                                            @class((NodeId)10, "nav-item", "px-3"),
+                                        },
+                                        new Node[]
+                                        {
+                                            navLinkMatchAll
+                                            (
+                                                new[]
+                                                {
+                                                    @class((NodeId)11, "nav-link"),
+                                                    href((NodeId)12, "")
+                                                },
+                                                new Node[]
+                                                {
+                                                    span
+                                                    (
+                                                        new Attribute[]
+                                                        {
+                                                            @class((NodeId)13, "oi", "oi-home"),
+                                                            attribute((NodeId)14, "aria-hidden", "true")
+                                                        },
+                                                        Empty<Node>()
+                                                    ),
+                                                    text
+                                                    (
+                                                        "Home"
+                                                    )
+                                                }
+                                            
+                                            )
+                                        }
+                                    
+                                    ),
+                                    li
+                                    (
+                                        new Attribute[]
+                                        {
+                                            @class((NodeId)15, "nav-item", "px-3")
+                                        },
+                                        new Node[]
+                                        {
+                                            navLinkMatchAll
+                                            (
+                                                new Attribute[]
+                                                {
+                                                    @class((NodeId)15, "nav-link"),
+                                                    href((NodeId)16, "counter")
+                                                },
+                                                new Node[]
+                                                {
+                                                    span
+                                                    (
+                                                        new[]
+                                                        {
+                                                            @class((NodeId)17, "oi", "oi-plus"),
+                                                            attribute((NodeId)18, "aria-hidden", "true")
+                                                        },
+                                                        Empty<Node>()
+                                                    ),
+                                                    text
+                                                    (
+                                                        "Counter"
+                                                    )
+                                                }
+                                    
+                                            )
+                                        }
+                            
+                                    ),
+                                    li
+                                    (
+                                        new Attribute[]
+                                        {
+                                            @class((NodeId)19, "nav-item", "px-3")
+                                        },
+                                        new Node[]
+                                        {
+                                            navLinkMatchAll
+                                            (
+                                                new[]
+                                                {
+                                                    @class((NodeId)20, "nav-link"),
+                                                    href((NodeId)21, "fetchdata")
+                                                },
+                                                new Node[]
+                                                {
+                                                    span
+                                                    (
+                                                        new[]
+                                                        {
+                                                            @class((NodeId)22, "oi", "oi-list-rich"),
+                                                            attribute((NodeId)22, "aria-hidden", "true")
+                                                        },
+                                                        Empty<Node>()
+                                                    ),
+                                                    text
+                                                    (
+                                                        "Fetch data"
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
                     )
-                ),
-                div
-                (
-                    (NodeId)7,
-                    new[]
-                    {
-                        @class((NodeId)7, NavMenuCssClass),
-                        on.click((NodeId)8, _ => ToggleNavMenu())
-                    },
-                    ul
-                    (
-                        (NodeId)8,
-                        @class((NodeId)9, "nav", "flex-column"),
-                        li
-                        (
-                            (NodeId)9,
-                            @class((NodeId)10, "nav-item", "px-3"),
-                            navLinkMatchAll
-                            (
-                                (NodeId)10,
-                                new[]
-                                {
-                                    @class((NodeId)11, "nav-link"),
-                                    href((NodeId)12, "")
-                                },
-                                span
-                                (
-                                    (NodeId)11,
-                                    new[]
-                                    {
-                                        @class((NodeId)13, "oi", "oi-home"),
-                                        attribute((NodeId)14, "aria-hidden", "true")
-                                    }
-                                ),
-                                text
-                                (
-                                    (NodeId)12,
-                                    "Home"
-                                )
-                            )
-                        ),
-                        li
-                        (
-                            (NodeId)13,
-                            @class((NodeId)15, "nav-item", "px-3"),
-                            navLinkMatchAll
-                            (
-                                (NodeId)14,
-                                new[]
-                                {
-                                    @class((NodeId)15, "nav-link"),
-                                    href((NodeId)16, "counter")
-                                },
-                                span
-                                (
-                                    (NodeId)15,
-                                    new[]
-                                    {
-                                        @class((NodeId)17, "oi", "oi-plus"),
-                                        attribute((NodeId)18, "aria-hidden", "true")
-                                    }
-                                ),
-                                text
-                                (
-                                    (NodeId)16,
-                                    "Counter"
-                                )
-                            )
-                        ),
-                        li
-                        (
-                            (NodeId)17,
-                            @class((NodeId)19, "nav-item", "px-3"),
-                            navLinkMatchAll
-                            (
-                                (NodeId)18,
-                                new[]
-                                {
-                                    @class((NodeId)20, "nav-link"),
-                                    href((NodeId)21, "fetchdata")
-                                },
-                                span
-                                (
-                                    (NodeId)19,
-                                    new[]
-                                    {
-                                        @class((NodeId)22, "oi", "oi-list-rich"),
-                                        attribute((NodeId)22, "aria-hidden", "true")
-                                    }
-                                ),
-                                text
-                                (
-                                    (NodeId)20,
-                                    "Fetch data"
-                                )
-                            )
-                        )
-                    )
-                    
-                )
-            ));
+                }
+            )
+        );
 
     private void ToggleNavMenu()
     {
