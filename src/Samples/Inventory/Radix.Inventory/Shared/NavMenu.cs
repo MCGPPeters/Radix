@@ -56,7 +56,7 @@ public class NavMenu : Component<NavMenuModel, object>
                             new[]
                             {
                                 @class( new[] { "navbar-toggler" }),
-                                on.click((NodeId)5, _ => ToggleNavMenu())
+                                on.click(_ => ToggleNavMenu())
                             },
                             new Node[]
                             {
@@ -80,7 +80,7 @@ public class NavMenu : Component<NavMenuModel, object>
                         new Attribute[]
                         {
                             @class(new []{ NavMenuCssClass}),
-                            on.click((NodeId)8, _ => ToggleNavMenu())
+                            on.click(_ => ToggleNavMenu())
                         },
                         new Node[]
                         {

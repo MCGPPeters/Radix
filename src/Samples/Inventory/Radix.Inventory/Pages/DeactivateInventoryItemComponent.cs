@@ -112,7 +112,6 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                         @class(new []{ "btn btn-primary"}),
                                         on.click
                                         (
-                                            (NodeId)15,
                                             _ =>
                                             {
                                                 Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);

@@ -22,7 +22,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
                             {
                                 @class(new []{"material-icons", "mdc-top-app-bar__action-item", "mdc-icon-button"}),
                                 attribute("aria-label", new []{model.AriaLabel}),
-                                on.click((NodeId)4, async _ => await OnClick.InvokeAsync())
+                                on.click(async _ => await OnClick.InvokeAsync())
                             },
                             new[]
                             {

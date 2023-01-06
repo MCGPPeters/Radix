@@ -140,9 +140,9 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                         (
                             new[]
                             {
-                                @class(new []{"btn", "btn-primary"}), on.click
+                                @class(new []{"btn", "btn-primary"}),
+                                on.click
                                 (
-                                    (NodeId)28,
                                     args =>
                                     {
                                         Validated<ItemCommand> validatedCommand = CreateItem.Create(

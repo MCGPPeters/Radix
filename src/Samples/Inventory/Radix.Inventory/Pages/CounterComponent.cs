@@ -75,7 +75,6 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
                             @class(new []{"btn", "btn-primary"}),
                             on.click
                             (
-                                (NodeId)8,
                                 args =>
                                 {
                                     Validated<IncrementCommand> validCommand = Valid(new IncrementCommand());

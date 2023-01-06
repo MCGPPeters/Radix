@@ -147,7 +147,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                         type(new[] { "button" }),
                         @class(new[] { $"{SearchBackButtonCssClassName} material-icons" }),
                         aria_label(new[] { "Exit search results" }),
-                        on.click((NodeId)28, async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
+                        on.click(async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
                     },
                     new []
                     {

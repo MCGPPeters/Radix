@@ -24,7 +24,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
                     {
                         @class(new[]{"material-icons", "mdc-top-app-bar__navigation-icon", "mdc-icon-button"}),
                         attribute("aria-label", new[] { model.AriaLabel }),
-                        on.click((NodeId)3, _ => dispatch(TCommand.Create()))
+                        on.click( _ => dispatch(TCommand.Create()))
                     },
                     new[]
                     {
