@@ -12,7 +12,6 @@ public interface Context<TCommand, TEvent, TFormat>
 {
     AppendEvents<TFormat> AppendEvents { get; }
     GetEventsSince<TEvent> GetEventsSince { get; }
-    FromEventDescriptor<TEvent, TFormat> FromEventDescriptor { get; }
     Serialize<TEvent, TFormat> Serialize { get; }
     Serialize<EventMetaData, TFormat> SerializeMetaData { get; }
     
