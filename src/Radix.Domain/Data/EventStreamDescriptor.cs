@@ -27,6 +27,3 @@ public class EventStreamDescriptor
     private string? AggregateType { get; init; }
     public Aggregate.Id? AggregateId { get; init; }
 }
-
-//[Parsed<EventStreamDescriptor, Radix.Data.Int.Read>]
-//public partial record PriceFraction { }

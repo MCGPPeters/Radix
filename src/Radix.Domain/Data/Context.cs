@@ -29,7 +29,7 @@ public interface Context<TCommand, TEvent, TFormat>
     public Aggregate<TCommand, TEvent> Create<TState, TCommandHandler>()
         where TState : new()
         where TCommandHandler : CommandHandler<TState, TCommand, TEvent> =>
-            Create<TState, TCommandHandler>((Aggregate.Id)Guid.NewGuid(), new NoneExistentVersion());
+            Create<TState, TCommandHandler>((Aggregate.Id)Guid.NewGuid(), new MinimumVersion());
 
 
     private Aggregate<TCommand, TEvent> Create<TState, TCommandHandler>(Aggregate.Id id, Version expectedVersion)

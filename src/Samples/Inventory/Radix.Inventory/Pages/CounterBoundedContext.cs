@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Radix.Control.Nullable;
+using Radix.Data;
 using Radix.Domain.Data;
 using SqlStreamStore;
 
@@ -12,23 +13,14 @@ public class CounterContext : Context<IncrementCommand, CounterIncremented, Json
 
     public AppendEvents<Json> AppendEvents => SqlStreamStore.AppendEvents;
 
-    public GetEventsSince<CounterIncremented> GetEventsSince => SqlStreamStore.CreateGetEventsSince(
-            (json, type) =>
-            {
-                if (string.Equals(type.Value, nameof(CounterIncremented), StringComparison.Ordinal))
-                {
-                    CounterIncremented? counterIncremented = JsonSerializer.Deserialize<CounterIncremented>(json.Value);
-                    return counterIncremented.AsOption();
-                }
+    
+    public GetEventsSince<CounterIncremented> GetEventsSince => SqlStreamStore.CreateGetEventsSince();
 
-
-                return None<CounterIncremented>();
-            },
-            input =>
-            {
-                EventMetaData? eventMetaData = JsonSerializer.Deserialize<EventMetaData>(input.Value);
-                return eventMetaData.AsOption();
-            });
+    private static Option<EventMetaData> ParseMetaData(Json input)
+    {
+        EventMetaData? eventMetaData = JsonSerializer.Deserialize<EventMetaData>(input.Value);
+        return eventMetaData.AsOption();
+    }
 
     public FromEventDescriptor<CounterIncremented, Json> FromEventDescriptor => descriptor => Some(new CounterIncremented());
     public Serialize<CounterIncremented, Json> Serialize => input => new Json(JsonSerializer.Serialize(input));

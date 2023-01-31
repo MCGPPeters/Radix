@@ -14,35 +14,7 @@ public class Context : Context<ItemCommand, ItemEvent, Json>
 
     public AppendEvents<Json> AppendEvents => SqlStreamStore.AppendEvents;
 
-    public GetEventsSince<ItemEvent> GetEventsSince => SqlStreamStore.CreateGetEventsSince(
-            (json, type) =>
-            {
-                if (string.Equals(type.Value, nameof(ItemCreated), StringComparison.Ordinal))
-                {
-                    ItemCreated? inventoryItemCreated = JsonSerializer.Deserialize<ItemCreated>(json.Value);
-                    return inventoryItemCreated.AsOption();
-                }
-
-                if (string.Equals(type.Value, nameof(ItemDeactivated), StringComparison.Ordinal))
-                {
-                    ItemDeactivated? inventoryItemDeactivated = JsonSerializer.Deserialize<ItemDeactivated>(json.Value);
-                    return inventoryItemDeactivated.AsOption();
-                }
-
-
-                if (string.Equals(type.Value, nameof(ItemRenamed), StringComparison.Ordinal))
-                {
-                    ItemRenamed? inventoryItemRenamed = JsonSerializer.Deserialize<ItemRenamed>(json.Value);
-                    return inventoryItemRenamed.AsOption();
-                }
-
-                return None<ItemEvent>();
-            },
-            input =>
-            {
-                EventMetaData? eventMetaData = JsonSerializer.Deserialize<EventMetaData>(input.Value);
-                return eventMetaData.AsOption();
-            });
+    public GetEventsSince<ItemEvent> GetEventsSince => SqlStreamStore.CreateGetEventsSince();
 
     public FromEventDescriptor<ItemEvent, Json> FromEventDescriptor => descriptor =>
     {

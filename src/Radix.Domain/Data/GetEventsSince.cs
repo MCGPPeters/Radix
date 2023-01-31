@@ -8,4 +8,4 @@ namespace Radix.Domain.Data;
 /// <param name="streamId"></param>
 /// <typeparam name="TEvent"></typeparam>
 /// <returns></returns>
-public delegate IAsyncEnumerable<EventDescriptor<TEvent>> GetEventsSince<TEvent>(Aggregate.Id id, Version version, string streamId) where TEvent : notnull;
+public delegate IAsyncEnumerable<EventDescriptor<TEvent>> GetEventsSince<TEvent>(Aggregate.Id id, Version version, string streamId);

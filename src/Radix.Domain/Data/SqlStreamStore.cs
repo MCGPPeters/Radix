@@ -1,9 +1,12 @@
-﻿using System.Text.Json;
+﻿using Radix.Control.Nullable;
+using System.Text.Json;
 using Radix.Control.Task;
 using Radix.Data;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using static Radix.Control.Result.Extensions;
+using System;
+using static Radix.Control.Option.Extensions;
 
 namespace Radix.Domain.Data;
 
@@ -35,7 +38,7 @@ public class SqlStreamStore
                         .AppendToStream(eventStreamDescriptor.StreamIdentifier, ExpectedVersion.Any, newStreamMessages)
                         .Retry(Backoff.Exponentially());
                     return Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(result.CurrentVersion));
-                case NoneExistentVersion _:
+                case MinimumVersion _:
                     await _streamStore.SetStreamMetadata(eventStreamDescriptor.StreamIdentifier, metadataJson: JsonSerializer.Serialize(eventStreamDescriptor));
                     expectedVersion = ExpectedVersion.NoStream;
                     result = await _streamStore
@@ -53,7 +56,20 @@ public class SqlStreamStore
             }
         };
 
-    public GetEventsSince<TEvent> CreateGetEventsSince<TEvent>(Func<Json, EventType, Option<TEvent>> parseEvent, Parse<EventMetaData, Json> parseMetaData)
+    public static Option<TEvent> ParseEvent<TEvent>(Json json, EventType eventType)
+    {
+        if (string.Equals(eventType.Value, nameof(TEvent), StringComparison.Ordinal))
+        {
+            var counterIncremented = JsonSerializer.Deserialize<TEvent>(json.Value);
+            return counterIncremented.AsOption();
+        }
+
+
+        return None<TEvent>();
+    }
+
+
+    public GetEventsSince<TEvent> CreateGetEventsSince<TEvent>()
         where TEvent : notnull
     {
 
@@ -73,7 +89,7 @@ public class SqlStreamStore
                         switch (eventType)
                         {
                             case Valid<EventType>(var et):
-                                Option<TEvent> optionalInventoryItemEvent = parseEvent(new Json(jsonData), et);
+                                Option<TEvent> optionalInventoryItemEvent = ParseEvent<TEvent>(new Json(jsonData), et);
                                 switch (optionalInventoryItemEvent)
                                 {
                                     case None<TEvent> _:
@@ -93,7 +109,7 @@ public class SqlStreamStore
                     }
 
                     break;
-                case NoneExistentVersion _:
+                case MinimumVersion _:
                     break;
                 default:
                     throw new NotSupportedException("Unknown type of version");
