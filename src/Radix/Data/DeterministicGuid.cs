@@ -4,9 +4,10 @@ using System.Text;
 namespace Radix.Data;
 
 [Alias<System.Guid>]
-public partial class DeterministicGuid : ParsableRead<DeterministicGuid>, IParsable<DeterministicGuid>
+public partial class DeterministicGuid
 {
-    public static DeterministicGuid Parse(string s, IFormatProvider? formatProviderprovider)
+    
+    public static DeterministicGuid Create(string s)
     {
         if (string.IsNullOrEmpty(s))
         {
@@ -24,18 +25,5 @@ public partial class DeterministicGuid : ParsableRead<DeterministicGuid>, IParsa
         var hashGuid = (DeterministicGuid)new System.Guid(hashedBytes);
 
         return hashGuid;
-    }
-
-
-    public static bool TryParse(string? s, IFormatProvider? provider, out DeterministicGuid result)
-    {
-        result = (DeterministicGuid)System.Guid.Empty;
-        if (s is null)
-        {
-            return false;
-        }
-
-        result = CreateHashGuid(s);
-        return true;
     }
 }

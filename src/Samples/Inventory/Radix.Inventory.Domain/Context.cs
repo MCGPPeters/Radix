@@ -14,7 +14,7 @@ public class Context : Context<ItemCommand, ItemEvent, Json>
 
     public AppendEvents<Json> AppendEvents => SqlStreamStore.AppendEvents;
 
-    public GetEventsSince<ItemEvent> GetEventsSince => SqlStreamStore.CreateGetEventsSince();
+    public GetEventsSince<ItemEvent> GetEventsSince => SqlStreamStore.CreateGetEventsSince<ItemEvent>();
 
     public FromEventDescriptor<ItemEvent, Json> FromEventDescriptor => descriptor =>
     {

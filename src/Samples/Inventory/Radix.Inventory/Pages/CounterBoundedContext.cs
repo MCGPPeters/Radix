@@ -14,7 +14,7 @@ public class CounterContext : Context<IncrementCommand, CounterIncremented, Json
     public AppendEvents<Json> AppendEvents => SqlStreamStore.AppendEvents;
 
     
-    public GetEventsSince<CounterIncremented> GetEventsSince => SqlStreamStore.CreateGetEventsSince();
+    public GetEventsSince<CounterIncremented> GetEventsSince => SqlStreamStore.CreateGetEventsSince<CounterIncremented>();
 
     private static Option<EventMetaData> ParseMetaData(Json input)
     {

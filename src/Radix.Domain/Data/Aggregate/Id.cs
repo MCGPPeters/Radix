@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Radix.Domain.Data.Aggregate
 {
-    [Alias<DeterministicGuid>]
+    [Alias<Guid>]
     public partial struct Id { }
 
     

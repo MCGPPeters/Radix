@@ -26,11 +26,12 @@ using static Radix.Control.Result.Extensions;
 namespace Radix.Tests
 {
     public interface Aggregate<TState, in TCommand, TEvent>
-        where TCommand : Command<TCommand>
         where TState : Aggregate<TState, TCommand, TEvent>, new()
     {
         static abstract string Id { get; }
+
         static abstract TState Apply(TState state, TEvent @event);
+
         static abstract IOrderedEnumerable<TEvent> Decide(TState state, TCommand command);
 
         /// <summary>
@@ -44,75 +45,21 @@ namespace Radix.Tests
         /// <param name="theirEvents"></param>
         /// <returns></returns>
         static abstract Task<Result<TEvent[], Error[]>> ResolveConflicts(TState state, IOrderedEnumerable<TEvent> ourEvents, IOrderedAsyncEnumerable<Event<TEvent>> theirEvents);
-             
 
-        static virtual TState Handle(TState state, TCommand command)
-            => TState
-                .Decide(state, command)
-                .Aggregate(state, TState.Apply);
     }
 
-    public static class Instance
-    {
-        public static async Task<Instance<TState>> Create<TEventStore, TState, TCommand, TEvent>()
-            where TCommand : Command<TCommand>
-            where TState : Aggregate<TState, TCommand, TEvent>, new()
-            where TEventStore : EventStore<TEventStore> =>
-                await Get<TEventStore, TState, TCommand, TEvent>(new Id(), new MinimumVersion());
-
-        public static async Task<Instance<TState>> Get<TEventStore, TState, TCommand, TEvent>(Id instanceId, Version version)
-            where TCommand : Command<TCommand>
-            where TState : Aggregate<TState, TCommand, TEvent>, new()
-            where TEventStore : EventStore<TEventStore>
-        {
-            var state = new TState();
-            var stream = new Stream { Id = (StreamId) instanceId.Value, Name = (StreamName) TState.Id };
-            var events = TEventStore.GetEvents<TEvent>(stream, new Closed<Version>(new MinimumVersion(), version));
-            state = await events.AggregateAsync(state, (current, @event) => TState.Apply(current, @event.Value));
-
-            return new Instance<TState>() {Id = instanceId, State = state, Version = version};
-        }
-
-        public static async Task<Result<Instance<TState>, Error[]>> Handle<TEventStore, TState, TCommand, TEvent>(this Instance<TState> instance, TCommand command)
-            where TCommand : Command<TCommand>
-            where TState : Aggregate<TState, TCommand, TEvent>, new()
-            where TEventStore : EventStore<TEventStore>
-        {
-            var stream = new Stream { Id = (StreamId)instance.Id.Value, Name = (StreamName)TState.Id };
-            var ourEvents = TState.Decide(instance.State, command);
-            var theirEvents = TEventStore.GetEvents<TEvent>(stream, new Closed<Version>(instance.Version, new MaximumVersion())).OrderBy(@event => @event.Version);
-            var eventsToAppend = await TState.ResolveConflicts(instance.State, ourEvents, theirEvents);
-            var actualState = await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
-            var result = eventsToAppend.Select(async events =>
-                from version in await TEventStore.AppendEvents(stream, new AnyVersion(), events)
-                let newState = events.Aggregate(actualState, TState.Apply)
-                select instance with { State = newState, Version = version });
-
-            return result switch
-            {
-                Error<Task<Result<Instance<TState>, AppendEventsError>>, Error[]> (var error) =>
-                    Error<Instance<TState>, Error[]>(error),
-                Ok<Task<Result<Instance<TState>, AppendEventsError>>, Error[]> (var ok) =>
-                    (await ok).MapError(e => new Error[]{ e.Message}),
-                _ => throw new ArgumentOutOfRangeException(nameof(result))
-            };
-        }
-    }
-
-
-
-    [Alias<DeterministicGuid>]
+    [Alias<Guid>]
     public partial struct StreamId : Read<StreamId>
     {
         public static Validated<StreamId> Parse(string s) =>
-            DeterministicGuid
-                .Parse(s)
-                .Map(streamId => (StreamId)streamId);
+            Guid
+                .TryParse(s, out var guid)
+                .Map(succeeded => succeeded ? Valid((StreamId)guid) : Invalid<StreamId>($"The string '{s}' is not a valid Guid"))!;
 
         public static Validated<StreamId> Parse(string s, string validationErrorMessage) =>
-            DeterministicGuid
-                .Parse(s, validationErrorMessage)
-                .Map(streamId => (StreamId)streamId);
+            Guid
+                .TryParse(s, out var guid)
+                .Map(succeeded => succeeded ? Valid((StreamId)guid) : Invalid<StreamId>(validationErrorMessage))!;
     }
 
     [Alias<string>]
@@ -135,7 +82,7 @@ namespace Radix.Tests
             select Format(t, f, p);
     }
 
-    public abstract record ItemCommand : Command<ItemCommand>, InventoryCommand
+    public abstract record ItemCommand : InventoryCommand
     {
     }
 
@@ -157,11 +104,68 @@ namespace Radix.Tests
         static abstract IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(Stream eventStream, Closed<Version> interval);
     }
 
-    public record Instance<TState>
+    public record Instance<TState, TCommand, TEvent, TEventStore>
+        where TEventStore : EventStore<TEventStore>
+        where TState : Aggregate<TState, TCommand, TEvent>, new()
     {
+        private Instance()
+        {
+            
+        }
+
         public required Id Id { get; init; }
         public required TState State { get; init; }
         public required Version Version { get; init; }
+
+        public static async Task<Instance<TState, TCommand, TEvent, TEventStore>> Create()
+            =>
+               await Get<TEventStore, TState, TCommand, TEvent>(new Id(), new MinimumVersion());
+
+        public static async Task<Instance<TState, TCommand, TEvent, TEventStore>> Get<TEventStore, TState, TCommand, TEvent>(Id instanceId, Version version)
+            where TState : Aggregate<TState, TCommand, TEvent>, new()
+            where TEventStore : EventStore<TEventStore>
+        {
+            var state = new TState();
+            var stream = new Stream { Id = (StreamId)instanceId.Value, Name = (StreamName)TState.Id };
+            var events = TEventStore.GetEvents<TEvent>(stream, new Closed<Version>(new MinimumVersion(), version));
+            state = await events.AggregateAsync(state, (current, @event) => TState.Apply(current, @event.Value));
+
+            return new Instance<TState, TCommand, TEvent, TEventStore> { Id = instanceId, State = state, Version = version };
+        }
+
+        public async Task<Result<Instance<TState, TCommand, TEvent, TEventStore>, Error[]>> Handle(
+            Validated<TCommand> command)
+        {
+            return command.Select(Handle) switch
+            {
+                Invalid<Task<Result<Instance<TState, TCommand, TEvent, TEventStore>, Error[]>>>(var invalid) => Error<Instance<TState, TCommand, TEvent, TEventStore>, Error[]>(invalid.SelectMany(reason => reason.Descriptions.Select(description => new Error() { Message = description })).ToArray()),
+                Valid<Task<Result<Instance<TState, TCommand, TEvent, TEventStore>, Error[]>>>(var valid) => await valid,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+        }
+
+        private async Task<Result<Instance<TState, TCommand, TEvent, TEventStore>, Error[]>> Handle(TCommand command)
+        {
+            var stream = new Stream { Id = (StreamId)Id.Value, Name = (StreamName)TState.Id };
+            var ourEvents = TState.Decide(State, command);
+            var theirEvents = TEventStore.GetEvents<TEvent>(stream, new Closed<Version>(Version, new MaximumVersion())).OrderBy(@event => @event.Version);
+            var eventsToAppend = await TState.ResolveConflicts(State, ourEvents, theirEvents);
+            var actualState = await theirEvents.AggregateAsync(State, (state, @event) => TState.Apply(state, @event.Value));
+            var result = eventsToAppend.Select(async events =>
+                from version in await TEventStore.AppendEvents(stream, new AnyVersion(), events)
+                let newState = events.Aggregate(actualState, TState.Apply)
+                select this with { State = newState, Version = version });
+
+            return result switch
+            {
+                Error<Task<Result<Instance<TState, TCommand, TEvent, TEventStore>, AppendEventsError>>, Error[]>(var error) =>
+                    Error<Instance<TState, TCommand, TEvent, TEventStore>, Error[]>(error),
+                Ok<Task<Result<Instance<TState, TCommand, TEvent, TEventStore>, AppendEventsError>>, Error[]>(var ok) =>
+                    (await ok).MapError(e => new Error[] { e.Message }),
+                _ => throw new ArgumentOutOfRangeException(nameof(result))
+            };
+        }
     }
 
     public record Event<TEvent>
@@ -181,7 +185,7 @@ namespace Radix.Tests
         public abstract Task<Validated<Command<TCommand>>> Create(TCommand command);
     }
 
-    public record Item : Aggregate<Item>
+    public record Item : Aggregate<Item, ItemCommand, ItemEvent>
     {
         public Item()
         {
@@ -203,6 +207,39 @@ namespace Radix.Tests
         public string? Name { get; init; }
         public bool Activated { get; init; }
         public int Count { get; init; }
+        public static string Id { get; }
+        public static Item Apply(Item state, ItemEvent @event) => throw new NotImplementedException();
+
+        public static IOrderedEnumerable<ItemEvent> Decide(Item state, ItemCommand command) => throw new NotImplementedException();
+
+        public static Task<Result<ItemEvent[], Error[]>> ResolveConflicts(Item state, IOrderedEnumerable<ItemEvent> ourEvents, IOrderedAsyncEnumerable<Event<ItemEvent>> theirEvents) => throw new NotImplementedException();
+    }
+
+    public record RemoveItemsFromInventory : ItemCommand
+    {
+        public long Id { get; }
+        public int Amount { get; }
+
+        private RemoveItemsFromInventory(long id, int amount)
+
+        {
+            Id = id;
+            Amount = amount;
+        }
+
+        private static Func<long, int, ItemCommand> New => (id, amount) =>
+            new RemoveItemsFromInventory(id, amount);
+
+
+        public static Validated<ItemCommand> Create(long id, int amount) => Valid(New)
+            .Apply(
+                id > 0
+                    ? Valid(id)
+                    : Invalid<long>("Id", ""))
+            .Apply(
+                amount > 0
+                    ? Valid(amount)
+                    : Invalid<int>("Amount", ""));
     }
 
     public class RuntimeProperties
@@ -214,41 +251,30 @@ namespace Radix.Tests
         public async Task Test1()
         {
 
-            Context<InventoryCommand, InventoryEvent, Json> context = new TestInventoryBoundedContext();
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = context.Create<Item, ItemCommandHandler>();
+            var inventoryItem = await Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>.Create();
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            Validated<InventoryCommand> validatedRemoveItems = RemoveItemsFromInventory.Create(1, 1);
-            var result = validatedRemoveItems.Select(async removeItems =>
-            {
-                 var x = await inventoryItem(removeItems);
-                 switch (x)
-                 {
-                     case Ok<CommandResult<ItemEvent>, Error>(var commandResult):
-                         commandResult.Events.Should().BeEquivalentTo(new[] { new ItemsRemovedFromInventory(1, 1) });
-                         commandResult.ExpectedVersion.Should().Be(new ExistingVersion(4L));
-                         break;
-                     case Error<CommandResult<ItemEvent>, Error>(var error):
-                         error.Should().BeNull();
-                         break;
-                 }
-            });
-        }
+            Validated<ItemCommand> validatedRemoveItems = RemoveItemsFromInventory.Create(1, 1);
+            var result = await inventoryItem.Handle(validatedRemoveItems);
 
-        [Fact(DisplayName = "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
-        public async Task Test2()
-        {
-            var create = Aggregate.Create<InMemoryEventStore, Item, ItemCommand, ItemEvent>()(getEventsSince)();
+            switch (result)
+            {
+                case Ok<Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>, Error[]>(var instance):
+                    instance.State.Should().BeEquivalentTo(new[] { new ItemsRemovedFromInventory(1, 1) });
+                    instance.Version.Should().Be(new ExistingVersion(1L));
+                    break;
+                case Error<Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>, Error[]>(var error):
+                    error.Should().BeNull();
+                    break;
+            }
         }
     }
 
     public class InMemoryEventStore : EventStore<InMemoryEventStore>
     {
-        public Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TFormat>(Stream eventStream, Version expectedVersion,
-            params TransientEventDescriptor<TFormat>[] transientEventDescriptors) =>
-            throw new NotImplementedException();
+        public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(Stream eventStream, Version expectedVersion, params TEvent[] events) => Task.FromResult(Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(1L)));
 
-        public IAsyncEnumerable<Stream> GetEventsSince(Stream eventStream, Version version) => throw new NotImplementedException();
+        public static IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(Stream eventStream, Closed<Version> interval) => AsyncEnumerable.Empty<Event<TEvent>>();
     }
 }

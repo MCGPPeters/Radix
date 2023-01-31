@@ -3,14 +3,9 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Runtime.Experimental" Version="7.0.0-preview.2.22152.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FsCheck.XUnit" Version="3.0.0-beta1" />
