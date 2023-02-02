@@ -1,5 +1,4 @@
 ﻿using Radix.Data;
-using Radix.Tests;
 
 namespace Radix.Inventory.Domain.Data.Commands;
 
