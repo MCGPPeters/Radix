@@ -14,15 +14,15 @@ using Radix.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
 using Radix.Inventory.Domain.Data;
+using Radix.Tests;
 using Attribute = Radix.Interaction.Data.Attribute;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Radix.Inventory.Pages;
 
 [Route("/Add")]
 public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemCommand>>
 {
-    [Inject] Context<ItemCommand, ItemEvent, Json> BoundedContext { get; set; } = null!;
-
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
@@ -30,22 +30,19 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
     protected override Update<AddItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = BoundedContext.Create<Item, ItemCommandHandler>();
-            Result<CommandResult<ItemEvent>, Error[]> result = await inventoryItem(command);
-            switch (result)
-            {
-                case Error<CommandResult<ItemEvent>, Error[]>(var errors):
-                    model.Errors = errors;
-                    if (JSRuntime is not null)
-                    {
-                        await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
-                    }
+            var inventoryItem = await Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>.Create();
 
-                    break;
-                case Ok<CommandResult<ItemEvent>, Error[]>:
-                    NavigationManager.NavigateTo("/");
-                    break;
+            try
+            {
+                var result = await inventoryItem.Handle(command);
             }
+            catch (ValidationErrorException e)
+            {
+                model.Errors = e.Reasons.Select(r => new Error{Message = r.ToString() });
+                await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+            }
+
+            NavigationManager.NavigateTo("/");
 
             return model;
         };

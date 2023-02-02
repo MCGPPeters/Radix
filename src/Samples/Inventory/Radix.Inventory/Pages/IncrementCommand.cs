@@ -1,5 +1,6 @@
 ﻿namespace Radix.Inventory.Pages;
 
+
 public class IncrementCommand : IComparable, IComparable<IncrementCommand>, IEquatable<IncrementCommand>
 {
     public int CompareTo(object? obj) => throw new NotImplementedException();

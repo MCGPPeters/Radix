@@ -5,6 +5,8 @@ using Radix.Data;
 using Radix.Domain.Data;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
+using Radix.Inventory.Domain;
+using Radix.Tests;
 using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Inventory.Pages;
@@ -12,30 +14,25 @@ namespace Radix.Inventory.Pages;
 [Route("/counter")]
 public class CounterComponent : Component<CounterModel, Validated<IncrementCommand>>
 {
-    [Inject] Context<IncrementCommand, CounterIncremented, Json> BoundedContext { get; set; } = null!;
-
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
     protected override Interaction.Update<CounterModel, Validated<IncrementCommand>> Update =>
         async (model, command) =>
         {
-            var counter = BoundedContext.Create<Counter, CounterCommandHandler>();
-            Result<CommandResult<CounterIncremented>, Error[]> result = await counter(command);
-            switch (result)
-            {
-                case Error<CommandResult<CounterIncremented>, Error[]>(var errors):
-                    model.Errors = errors;
-                    if (JSRuntime is not null)
-                    {
-                        await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
-                    }
 
-                    break;
-                case Ok<CommandResult<CounterIncremented>, Error[]>:
-                    model.Count++;
-                    break;
+            var counter = await Instance<Counter, IncrementCommand, CounterIncremented, InMemoryEventStore >.Create();
+            try
+            {
+                var result = counter.Handle(command);
             }
+            catch (ValidationErrorException e)
+            {
+                model.Errors = e.Reasons.Select(r => new Error { Message = r.ToString() });
+                await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+            }
+
             return model;
+
         };
 
     protected override Interaction.View<CounterModel, Validated<IncrementCommand>> View =>

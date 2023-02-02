@@ -1,9 +1,19 @@
-using Radix.Data;
+﻿using Radix.Data;
+using Radix.Tests;
 
 namespace Radix.Inventory.Domain.Data.Commands;
 
-public record RemoveItemsFromInventory(long Id, int Amount) : ItemCommand
+public record RemoveItemsFromInventory : ItemCommand
 {
+    public long Id { get; }
+    public int Amount { get; }
+
+    private RemoveItemsFromInventory(long id, int amount)
+
+    {
+        Id = id;
+        Amount = amount;
+    }
 
     private static Func<long, int, ItemCommand> New => (id, amount) =>
         new RemoveItemsFromInventory(id, amount);

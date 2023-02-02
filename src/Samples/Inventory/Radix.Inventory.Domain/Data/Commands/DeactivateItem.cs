@@ -1,4 +1,5 @@
-using Radix.Data;
+﻿using Radix.Data;
+using Radix.Tests;
 
 namespace Radix.Inventory.Domain.Data.Commands;
 
@@ -10,7 +11,7 @@ public record DeactivateItem(string Reason) : ItemCommand
 
     public static Validated<ItemCommand> Create(string? reason) => Valid(New)
         .Apply(!string
-        .IsNullOrEmpty(reason)
-        ? Valid(reason)
-        : Invalid<string>("Reason", "A reason for deactivation must be provided"));
+            .IsNullOrEmpty(reason)
+            ? Valid(reason)
+            : Invalid<string>("Reason", "A reason for deactivation must be provided"));
 }

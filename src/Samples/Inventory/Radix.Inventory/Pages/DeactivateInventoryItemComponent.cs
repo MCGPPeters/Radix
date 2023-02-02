@@ -13,6 +13,7 @@ using Radix.Inventory.Domain;
 using Radix.Inventory.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
+using Radix.Tests;
 using static Radix.Interaction.Web.Components.Components;
 using Attribute = Radix.Interaction.Data.Attribute;
 
@@ -23,8 +24,6 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 {
     [Parameter] public Guid Id { get; set; }
 
-    [Inject] Context<ItemCommand, ItemEvent, Json> BoundedContext { get; set; } = null!;
-
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
@@ -32,22 +31,20 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
     protected override Interaction.Update<DeactivateInventoryItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = BoundedContext.Get<Item, ItemCommandHandler>((Radix.Domain.Data.Aggregate.Id)Id);
-            Result<CommandResult<ItemEvent>, Error[]> result = await inventoryItem(command);
-            switch (result)
-            {
-                case Error<CommandResult<ItemEvent>, Error[]>(var errors):
-                    model.Errors = errors;
-                    if (JSRuntime is not null)
-                    {
-                        await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
-                    }
+            var inventoryItem = await Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>.Get((Radix.Domain.Data.Aggregate.Id)Id);
 
-                    break;
-                case Ok<CommandResult<ItemEvent>, Error[]>:
-                    NavigationManager.NavigateTo("/");
-                    break;
+            try
+            {
+                var result = inventoryItem.Handle(command);
             }
+            catch (ValidationErrorException e)
+            {
+                model.Errors = e.Reasons.Select(r => new Error{Message = r.ToString()});
+                await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+            }
+
+            NavigationManager.NavigateTo("/");
+
             return model;
 
         };

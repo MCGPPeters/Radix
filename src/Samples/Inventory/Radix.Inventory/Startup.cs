@@ -34,62 +34,8 @@ public class Startup
     {
 
         IndexModel indexViewModel = new IndexModel { InventoryItems = InventoryItems };
-        Context context = new();
-
-        IAllStreamSubscription? _ = Context.StreamStore.SubscribeToAll(
-            0,
-            async (subscription, message, token) =>
-            {
-                Radix.Domain.Data.Aggregate.Id? aggregateId = EventStreamDescriptor.FromString(message.StreamId).AggregateId;
-                string jsonData = await message.GetJsonData();
-                string streamMessageType = message.Type;
-                EventType
-                    .Create(streamMessageType)
-                    .Map(eventType => new EventDescriptor<Json>(new Json(jsonData), message.StreamVersion, eventType))
-                    .Map(eventDescriptor => context.FromEventDescriptor(eventDescriptor))
-                    .Map(
-                        optionalInventoryItemEvent =>
-                        {
-                            switch (optionalInventoryItemEvent)
-                            {
-                                case Some<ItemCreated>(var inventoryItemCreated):
-                                    indexViewModel.InventoryItems.Add(new ItemModel { Id = aggregateId, Name = inventoryItemCreated.Name ?? "", Activated = inventoryItemCreated.Activated });
-                                    break;
-                                case Some<ItemDeactivated>(_):
-                                    indexViewModel.InventoryItems =
-                                        indexViewModel.InventoryItems
-                                            .Select(x =>
-                                            {
-                                                if (aggregateId == x.Id)
-                                                    x.Activated = false;
-                                                return x;
-                                            }
-                                            ).ToList();
-                                    break;
-                                case Some<ItemsCheckedInToInventory> _:
-                                    break;
-                                case Some<ItemsRemovedFromInventory>(var inventoryItemsRemovedFromInventory):
-                                    ItemModel? item =
-                                        indexViewModel.InventoryItems.Find(tuple => Equals(tuple.Id, inventoryItemsRemovedFromInventory.Id));
-                                    indexViewModel.InventoryItems.Remove(item!);
-                                    break;
-                                case Some<ItemRenamed>(var inventoryItemRenamed):
-                                    indexViewModel.InventoryItems =
-                                        indexViewModel.InventoryItems
-                                            .Select(item =>
-                                            {
-                                                if (aggregateId == item.Id)
-                                                    item.Name = inventoryItemRenamed.Name;
-                                                return item;
-                                            }).ToList();
-                                    break;
-                                    // ignore others like the metadatastream
-                            }
-
-                            return new Unit();
-                        });
-            });
-
+    
+       
         var regularAppBarModel = new RegularModel
         {
             ActionButtons = new()
@@ -107,11 +53,10 @@ public class Startup
 
         services.AddRazorPages();
         services.AddServerSideBlazor();
-        services.AddSingleton<Context<IncrementCommand, CounterIncremented, Json>>(_ => new CounterContext());
-        services.AddSingleton<Context<ItemCommand, ItemEvent, Json>>(_ => context);
         services.AddSingleton(indexViewModel);
         services.AddSingleton(_ => new NavMenuModel());
         services.AddTransient(_ => new AddItemModel());
+        services.AddTransient(_ => indexViewModel);
         services.AddSingleton(new CounterModel());
         services.AddTransient(_ => new DeactivateInventoryItemModel());
 

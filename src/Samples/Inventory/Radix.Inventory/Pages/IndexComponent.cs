@@ -17,7 +17,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
     protected override Update<IndexModel, Validated<ItemCommand>> Update => (model, _) => Task.FromResult(model);
 
     protected override View<IndexModel, Validated<ItemCommand>> View =>
-         static (model, dispatch) =>
+         static (model, _) =>
             Task.FromResult<Node>(
             concat
             (
@@ -25,7 +25,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                 {
                     navLinkMatchAll
                     (
-                        new[]
+                        new Attribute[]
                         {
                             @class(new []{ "btn", "btn-primary"}),
                             href(new[] { "Add" })
@@ -61,7 +61,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
     private static Node[] GetInventoryItemNodes(IEnumerable<ItemModel>? inventoryItems) =>
         inventoryItems?
             .Select(static inventoryItem =>
-                tr
+                (Node)tr
                 (
                     Array.Empty<Attribute>(),
                     new Node[]

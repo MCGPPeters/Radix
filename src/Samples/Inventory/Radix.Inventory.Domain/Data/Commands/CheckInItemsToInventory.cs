@@ -1,4 +1,5 @@
-using Radix.Data;
+﻿using Radix.Data;
+using Radix.Tests;
 
 namespace Radix.Inventory.Domain.Data.Commands;
 
@@ -9,12 +10,12 @@ public record CheckInItemsToInventory(long Id, int Amount) : ItemCommand
 
     public static Validated<ItemCommand> Create(long id, int amount) =>
         Valid(New)
-        .Apply(
-            id > 0
-                ? Valid(id)
-                : Invalid<long>("Inventory item id", $"The id of the inventory item must be greater than 0 but is '{id}'"))
-        .Apply(
-            amount > 0
-                ? Valid(amount)
-                : Invalid<int>("Amount", $"The amount of the inventory item must be greater than 0 but is '{amount}'"));
+            .Apply(
+                id > 0
+                    ? Valid(id)
+                    : Invalid<long>("Inventory item id", $"The id of the inventory item must be greater than 0 but is '{id}'"))
+            .Apply(
+                amount > 0
+                    ? Valid(amount)
+                    : Invalid<int>("Amount", $"The amount of the inventory item must be greater than 0 but is '{amount}'"));
 }
