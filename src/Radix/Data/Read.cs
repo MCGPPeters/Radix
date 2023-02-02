@@ -1,6 +1,6 @@
 ﻿namespace Radix.Data;
 
-public interface Read<out T>
+public interface Read<T>
 {
     /// <summary>
     /// Parse the string <param name="s"></param>
