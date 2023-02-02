@@ -5,7 +5,6 @@ namespace Radix.Infrastructure.Azure.Data.Names;
 /// <summary>
 /// 
 /// </summary>
-[StringLength(6, 50)]
 [Validated<string, ContainsOnlyAlphaNumericsAndHyphens>]
 [Validated<string, StartsWithALetter>]
 [Validated<string, EndsWithALetterOrNumber>]

@@ -10,6 +10,11 @@ using Version = Radix.Domain.Data.Version;
 using Radix.Data.String.Validity;
 using Radix.Data.Number.Validity;
 using static Radix.Control.Task.Extensions;
+using a = Radix.Web.Html.Data.Names.Elements.a;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
 
 namespace Radix.Tests
 {
@@ -86,7 +91,7 @@ namespace Radix.Tests
     public interface EventStore<TEventStore>
         where TEventStore : EventStore<TEventStore>
     {
-        static abstract Task<ExistingVersion> AppendEvents<TEvent>(Stream eventStream, Version expectedVersion,
+        static abstract Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(Stream eventStream, Version expectedVersion,
             params TEvent[] events);
 
         static abstract IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(Stream eventStream, Closed<Version> interval);
@@ -148,9 +153,25 @@ namespace Radix.Tests
                     var theirEvents = TEventStore.GetEvents<TEvent>(stream, new Closed<Version>(instance.Version, new MaximumVersion())).OrderBy(@event => @event.Version);
                     var eventsToAppend = await TState.ResolveConflicts(instance.State, ourEvents, theirEvents).ToArrayAsync();
                     var actualState = await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
-                    var version = await TEventStore.AppendEvents(stream, new AnyVersion(), eventsToAppend);
-                    var newState = eventsToAppend.Aggregate(actualState, TState.Apply);
-                    return instance with { State = newState, Version = version, History = instance.History.Concat(eventsToAppend) };
+                    var appendEventsResult = await TEventStore.AppendEvents(stream, await theirEvents.MaxAsync(@event => @event.Version), eventsToAppend);
+                    switch (appendEventsResult)
+                    {
+                        case Error<ExistingVersion, AppendEventsError> (var error):
+                            return error switch
+                            {
+                                OptimisticConcurrencyError _ =>
+                                    // just retry, the conflict handling shall deal with this
+                                    await Handle(instance, command),
+                                _ => throw new NotSupportedException()
+                            };
+                        case Ok<ExistingVersion, AppendEventsError>(var version):
+                            {
+                                var newState = eventsToAppend.Aggregate(actualState, TState.Apply);
+                                return instance with { State = newState, Version = version, History = instance.History.Concat(eventsToAppend) };
+                            }
+                        default:
+                            throw new NotSupportedException();
+                    }
                 }) switch
                 {
                     Invalid<Task<Instance<TState, TCommand, TEvent, TEventStore>>> (var reasons) => Task.FromException<Instance<TState, TCommand, TEvent, TEventStore>>(new ValidationErrorException(reasons)),
@@ -384,7 +405,7 @@ namespace Radix.Tests
 
         public static JsonSerializerOptions options = new() { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryEvent>() } };
 
-        public static Task<ExistingVersion> AppendEvents<TEvent>(Stream eventStream,
+        public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(Stream eventStream,
             Version expectedVersion, params TEvent[] events)
         {
             foreach (TEvent @event in events)
@@ -393,7 +414,7 @@ namespace Radix.Tests
                 currentVersion++;
             }
             
-            return Task.FromResult(new ExistingVersion(currentVersion));
+            return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(currentVersion)));
         }
 
         public static TEvent Deserialize<TEvent>(string json)=> JsonSerializer.Deserialize<TEvent>(json, options);

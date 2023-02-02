@@ -13,7 +13,7 @@ public class ServiceBusNamespaceNameTests
         this.output = output;
     }
 
-    [Fact(DisplayName = "An invalid name for a namespace should not be accepted", Skip = "true")]
+    [Fact(DisplayName = "An invalid name for a namespace should not be accepted")]
     public void Test1()
     {
         var serviceBusNamespace = Namespace.Create("s&");
@@ -28,7 +28,7 @@ public class ServiceBusNamespaceNameTests
 
     }
 
-    [Fact(DisplayName = "An valid name for a namespace should be accepted", Skip = "true")]
+    [Fact(DisplayName = "An valid name for a namespace should be accepted")]
     public void Test2()
     {
         var serviceBusNamespace = Namespace.Create("rg-radix");
