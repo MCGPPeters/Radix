@@ -6,6 +6,8 @@ using Radix.Domain.Data;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
 using Radix.Inventory.Domain;
+using Radix.Inventory.Domain.Data.Commands;
+using Radix.Inventory.Domain.Data.Events;
 using Radix.Tests;
 using Attribute = Radix.Interaction.Data.Attribute;
 
@@ -19,8 +21,8 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
     protected override Interaction.Update<CounterModel, Validated<IncrementCommand>> Update =>
         async (model, command) =>
         {
-
-            var counter = await Instance<Counter, IncrementCommand, CounterIncremented, InMemoryEventStore >.Create();
+            Context<IncrementCommand, CounterIncremented, InMemoryEventStore> context = new();
+            var counter = await context.Create<Counter, IncrementCommand, CounterIncremented>();
             try
             {
                 var result = counter.Handle(command);

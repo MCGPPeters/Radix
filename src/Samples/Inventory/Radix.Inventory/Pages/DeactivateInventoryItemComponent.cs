@@ -31,7 +31,10 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
     protected override Interaction.Update<DeactivateInventoryItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            var inventoryItem = await Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>.Get((Radix.Domain.Data.Aggregate.Id)Id);
+            Context<InventoryCommand, InventoryEvent, InMemoryEventStore> context = new();
+
+            // for testing purposes make the aggregate block the current thread while processing
+            var inventoryItem = await context.Get<Item, ItemCommand, ItemEvent>((Radix.Domain.Data.Aggregate.Id)Id);
 
             try
             {

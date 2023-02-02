@@ -17,9 +17,11 @@ public class RuntimeProperties
             "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
     public async Task Test1()
     {
+        Context<InventoryCommand, InventoryEvent, InMemoryEventStore> context = new();
 
         // for testing purposes make the aggregate block the current thread while processing
-        var inventoryItem = await Instance<Item, ItemCommand, ItemEvent, InMemoryEventStore>.Create();
+        var inventoryItem = await context.Create<Item, ItemCommand, ItemEvent>();
+
         await Task.Delay(TimeSpan.FromSeconds(1));
 
         var validatedCreateItem = CreateItem.Create(1, "Product 1", true, 5);
@@ -34,6 +36,7 @@ public class RuntimeProperties
             select i3.Handle(validatedRemoveItems);
 
         var instance = await handle;
+
         instance.History.Should().BeEquivalentTo(new List<ItemEvent>
         {
             new ItemCreated(1, "Product 1", true, 5),
