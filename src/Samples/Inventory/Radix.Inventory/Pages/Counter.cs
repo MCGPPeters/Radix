@@ -4,11 +4,9 @@ namespace Radix.Inventory.Pages;
 
 public record Counter: Aggregate<Counter, IncrementCommand, CounterIncremented>
 {
-    public Counter()
-    {
-        
-    }
     public int Count { get; init; }
+
+    public static Counter Create() => new();
 
     public static Counter Apply(Counter state, CounterIncremented @event) => new Counter {Count = state.Count + 1};
 

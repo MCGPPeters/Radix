@@ -1,8 +1,10 @@
 ﻿namespace Radix.Domain.Data;
 
 public interface Aggregate<TState, in TCommand, TEvent>
-    where TState : Aggregate<TState, TCommand, TEvent>, new()
+    where TState : Aggregate<TState, TCommand, TEvent>
 {
+    static abstract TState Create();
+
     static virtual string Id => nameof(TState);
 
     static abstract TState Apply(TState state, TEvent @event);

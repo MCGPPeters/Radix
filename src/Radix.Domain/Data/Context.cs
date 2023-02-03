@@ -1,9 +1,11 @@
-﻿using Radix.Control.Validated;
+﻿using Radix.Control.Nullable;
+using Radix.Control.Validated;
 using Radix.Data;
 using Radix.Domain.Data.Aggregate;
 using Radix.Math.Pure.Logic.Order.Intervals;
 using Radix.Tests;
 using System.Diagnostics.Contracts;
+using static Radix.Control.Result.Extensions;
 
 namespace Radix.Domain.Data;
 
@@ -25,7 +27,7 @@ public record Context<TCommand, TEvent, TEventStore>
     /// <typeparam name="TAggregateEvent">The specialized aggregate command type</typeparam>
     /// <returns></returns>
     public async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Create<TState, TAggregateCommand, TAggregateEvent>(Id aggregateId = new())
-        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>, new()
+        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
         =>
@@ -38,24 +40,24 @@ public record Context<TCommand, TEvent, TEventStore>
     /// <typeparam name="TState">The aggregate type</typeparam>
     /// <returns></returns>
     public async Task<Instance<TState, TCommand, TCommand, TEvent, TEvent, TEventStore>> Create<TState>(Id aggregateId = new())
-        where TState : Aggregate<TState, TCommand, TEvent>, new()
+        where TState : Aggregate<TState, TCommand, TEvent>
         =>
             await Get<TState, TCommand, TEvent>(this, aggregateId, new MinimumVersion());
 
     public Task<Instance<TState, TCommand, TAggregateCommand, TEvent,  TAggregateEvent, TEventStore>> Get<TState, TAggregateCommand, TAggregateEvent>(Aggregate.Id instanceId)
-        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>, new()
+        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
         => Get<TState, TAggregateCommand, TAggregateEvent>(this, instanceId, new AnyVersion());
 
     public async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Get<TState, TAggregateCommand, TAggregateEvent>(
         Context<TCommand, TEvent, TEventStore> context, Id instanceId, Version version)
-        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>, new()
+        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
 
     {
-        var state = new TState();
+        var state = TState.Create();
         var stream = new Stream { Id = (StreamId)instanceId.Value, Name = (StreamName)TState.Id };
         var events = TEventStore.GetEvents<TAggregateEvent>(stream, new Closed<Version>(new MinimumVersion(), version));
         List<TAggregateEvent> history = new();
@@ -69,12 +71,12 @@ public record Context<TCommand, TEvent, TEventStore>
     }
 
     [Pure]
-    internal Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent,  TEventStore>> Handle<TState, TAggregateCommand, TAggregateEvent>(Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance, Validated<TAggregateCommand> command)
-        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>, new()
+    internal Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent,  TEventStore>, Error>> Handle<TState, TAggregateCommand, TAggregateEvent>(Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance, Validated<TAggregateCommand> command)
+        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
     {
-        return command.Select(async cmd =>
+        return (command.Select(async cmd =>
             {
                 var stream = new Stream { Id = (StreamId)instance.Id.Value, Name = (StreamName)TState.Id };
                 var ourEvents = TState.Decide(instance.State, cmd);
@@ -95,17 +97,17 @@ public record Context<TCommand, TEvent, TEventStore>
                     case Ok<ExistingVersion, AppendEventsError>(var version):
                         {
                             var newState = eventsToAppend.Aggregate(actualState, TState.Apply);
-                            return instance with { State = newState, Version = version, History = instance.History.Concat(eventsToAppend) };
+                            return Ok<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error > (instance with { State = newState, Version = version, History = instance.History.Concat(eventsToAppend) });
                         }
                     default:
                         throw new NotSupportedException();
                 }
             }) switch
             {
-                Invalid<Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>>>(var reasons) => Task.FromException<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>>(new ValidationErrorException(reasons)),
-                Valid<Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>>>(var valid) => valid,
+                Invalid<Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>>>(var reasons) => Task.FromResult(Error<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>(new Error{Message = reasons.Select(reason => reason.ToString()).Aggregate((current, next) => $"{current} and {next}") })),
+                Valid<Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>>>(var valid) => valid,
                 _ => throw new ArgumentOutOfRangeException()
-            };
+            });
     }
 
 }

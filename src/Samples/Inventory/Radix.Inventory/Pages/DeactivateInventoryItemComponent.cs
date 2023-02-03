@@ -35,18 +35,19 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = await context.Get<Item, ItemCommand, ItemEvent>((Radix.Domain.Data.Aggregate.Id)Id);
+            var result = await inventoryItem.Handle(command);
 
-            try
+            async void HandleError(Error error)
             {
-                var result = inventoryItem.Handle(command);
-            }
-            catch (ValidationErrorException e)
-            {
-                model.Errors = e.Reasons.Select(r => new Error{Message = r.ToString()});
+                model.Errors = new[] {error};
                 await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
             }
 
-            NavigationManager.NavigateTo("/");
+            result
+                .Match(_ =>
+                {
+                    NavigationManager.NavigateTo("/");
+                },HandleError);
 
             return model;
 

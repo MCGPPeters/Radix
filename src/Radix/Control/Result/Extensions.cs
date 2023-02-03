@@ -1,6 +1,8 @@
 using Radix.Data;
+using static Radix.Prelude;
 
 namespace Radix.Control.Result;
+
 
 public static class Extensions
 {
@@ -71,6 +73,15 @@ public static class Extensions
         (Error<Func<T, TResult>, TError>(var error), Error<T, TError> _) => Error<TResult, TError>(error),
         _ => throw new NotSupportedException("Unlikely")
     };
+
+    public static Unit Match<T, TError>(this Result<T, TError> result, Action<T> handleOk, Action<TError> handleError)
+        where T : notnull
+        => result switch
+        {
+            Error<T, TError> (var error) => handleError.AsFunction()(error),
+            Ok<T, TError> (var ok) => handleOk.AsFunction()(ok),
+            _ => throw new ArgumentOutOfRangeException(nameof(result))
+        };
 
     public static Result<Func<T2, R>, TError> Apply<TError, T1, T2, R>
        (this Result<Func<T1, T2, R>, TError> @this, Result<T1, TError> arg)

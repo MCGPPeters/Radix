@@ -4,7 +4,7 @@ namespace Radix.Domain.Data;
 
 public record Instance<TState, TCommand, TAggregateCommand, TEvent,  TAggregateEvent, TEventStore>
     where TEventStore : EventStore<TEventStore>
-    where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>, new()
+    where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
     where TAggregateCommand : TCommand
     where TAggregateEvent : TEvent
 {
