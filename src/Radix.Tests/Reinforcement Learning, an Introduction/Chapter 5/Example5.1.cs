@@ -1,4 +1,5 @@
-﻿using Radix.Math.Applied.Optimization.Control;
+﻿using Radix.Control.Validated;
+using Radix.Math.Applied.Optimization.Control;
 using Radix.Math.Applied.Optimization.Control.POMDP;
 using Radix.Math.Applied.Probability;
 using Xunit;

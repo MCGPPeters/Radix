@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Radix.Control.Task.Result;
 using Radix.Data;
 using Radix.Domain.Data;
 using Radix.Inventory.Domain.Data.Events;
@@ -23,7 +24,7 @@ public class InMemoryEventStore : EventStore<InMemoryEventStore>
             CurrentVersion++;
         }
 
-        return Task.FromResult(Ok<ExistingVersion, AppendEventsError>(new ExistingVersion(CurrentVersion)));
+        return new ExistingVersion(CurrentVersion).Return<ExistingVersion, AppendEventsError>();
     }
 
     public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json, Options);

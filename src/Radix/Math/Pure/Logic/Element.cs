@@ -1,4 +1,6 @@
-﻿namespace Radix.Math.Pure.Logic;
+﻿using static Radix.Control.Option.Extensions;
+
+namespace Radix.Math.Pure.Logic;
 
 public sealed record Element<T>
     where T : Order<T>

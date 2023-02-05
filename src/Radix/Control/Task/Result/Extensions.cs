@@ -4,58 +4,98 @@ using Radix.Data;
 
 namespace Radix.Control.Task.Result;
 
+public class TaskResult<T, TError> : Task<Result<T, TError>>
+{
+    public TaskResult(Func<object?, Result<T, TError>> function, object? state) : base(function, state)
+    {
+    }
+
+    public TaskResult(Func<object?, Result<T, TError>> function, object? state, CancellationToken cancellationToken) : base(function, state, cancellationToken)
+    {
+    }
+
+    public TaskResult(Func<object?, Result<T, TError>> function, object? state, CancellationToken cancellationToken, TaskCreationOptions creationOptions) : base(function, state, cancellationToken, creationOptions)
+    {
+    }
+
+    public TaskResult(Func<object?, Result<T, TError>> function, object? state, TaskCreationOptions creationOptions) : base(function, state, creationOptions)
+    {
+    }
+
+    public TaskResult(Func<Result<T, TError>> function) : base(function)
+    {
+    }
+
+    public TaskResult(Func<Result<T, TError>> function, CancellationToken cancellationToken) : base(function, cancellationToken)
+    {
+    }
+
+    public TaskResult(Func<Result<T, TError>> function, CancellationToken cancellationToken, TaskCreationOptions creationOptions) : base(function, cancellationToken, creationOptions)
+    {
+    }
+
+    public TaskResult(Func<Result<T, TError>> function, TaskCreationOptions creationOptions) : base(function, creationOptions)
+    {
+    }
+}
+
 public static class Extensions
 {
 
-    public static Task<Result<T, TError>> Return<T, TError>(T result)
+    public static Task<Result<T, TError>> Return<T, TError>(this T result)
         where T : notnull =>
         System.Threading.Tasks.Task.FromResult(Ok<T, TError>(result));
 
-    public static Task<Result<TResult, TError>> Select<T, TResult, TError>
-       (this Task<Result<T, TError>> result
+    public static TaskResult<T, TError> ReturnError<T, TError>(this TError error)
+        where T : notnull =>
+        (TaskResult<T, TError>)System.Threading.Tasks.Task.FromResult(Error<T, TError>(error));
+
+    public static TaskResult<TResult, TError> Select<T, TResult, TError>
+       (this TaskResult<T, TError> result
        , Func<T, TResult> mapper)
         where T : notnull
         where TResult : notnull
-       => result.Map(x => x.Map(mapper));
+       => (TaskResult<TResult, TError>)result.Map(x => x.Map(mapper));
 
-    public static Task<Result<TResult, TError>> Traverse<T, TResult, TError>
-      (this Task<Result<T, TError>> task, Func<T, Task<TResult>> f)
+    public static TaskResult<TResult, TError> Traverse<T, TResult, TError>
+      (this TaskResult<T, TError> task, Func<T, TaskResult<TResult, TError>> f)
         where T : notnull
-      => task switch
+      => task.GetAwaiter().GetResult() switch
       {
-          Error<T, TError>(var reasons) => System.Threading.Tasks.Task.FromResult(Error<TResult, TError>(reasons)),
-          Ok<T, TError>(var ok) => f(ok).Map(Ok<TResult, TError>),
+          Error<T, TError>(var reasons) => (TaskResult<TResult, TError>)System.Threading.Tasks.Task.FromResult(Error<TResult, TError>(reasons)),
+          Ok<T, TError>(var ok) => f(ok),
           _ => throw new NotImplementedException()
       };
 
-    public static Task<Result<TResult, TError>> TraverseBind<T, TResult, TError>(this Result<T, TError> result
-       , Func<T, Task<Result<TResult, TError>>> f)
+    public static TaskResult<TResult, TError> TraverseBind<T, TResult, TError>(this Result<T, TError> result
+       , Func<T, TaskResult<TResult, TError>> f)
         where T : notnull
        => result switch
        {
-           Error<T, TError>(var reasons) => System.Threading.Tasks.Task.FromResult(Error<TResult, TError>(reasons)),
+           Error<T, TError>(var reasons) => (TaskResult<TResult, TError>)System.Threading.Tasks.Task.FromResult(Error<TResult, TError>(reasons)),
            Ok<T, TError>(var ok) => f(ok),
            _ => throw new NotImplementedException()
        };
 
-    public static Task<Result<TResult, TError>> SelectMany<T, TResult, TError>
-       (this Task<Result<T, TError>> task
-       , Func<T, Task<Result<TResult, TError>>> bind)
+    public static TaskResult<TResult, TError> SelectMany<T, TResult, TError>
+       (this TaskResult<T, TError> task
+       , Func<T, TaskResult<TResult, TError>> bind)
         where T : notnull
-       => task.Bind(vt => vt.TraverseBind(bind));
+       => (TaskResult<TResult, TError>)task.Bind(vt => vt.TraverseBind(bind));
 
-    public static Task<Result<TProjected, TError>> SelectMany<T, TResult, TProjected, TError>
-       (this Task<Result<T, TError>> task
-       , Func<T, Task<Result<TResult, TError>>> bind
-       , Func<T, TResult, TProjected> project)
+    public static TaskResult<TProjected, TError> SelectMany<T, TResult, TProjected, TError>
+    (this TaskResult<T, TError> task
+        , Func<T, TaskResult<TResult, TError>> bind
+        , Func<T, TResult, TProjected> project)
         where T : notnull
         where TResult : notnull
         where TProjected : notnull
-       => task
-          .Map(vt => vt.TraverseBind(t => bind(t).Map(vr => vr.Map(r => project(t, r)))))
-          .Unwrap();
+        => task
+            .Select(vt => vt.TraverseBind(t =>
+                (TaskResult<TProjected, TError>)bind(t).Select(vr => vr.Select(r => project(t, r))))).GetAwaiter()
+            .GetResult();
 
-    public async static Task<Result<TResult, TError>> Apply<T, TResult, TError>
+    public  static async Task<Result<TResult, TError>> Apply<T, TResult, TError>
          (this Task<Func<Result<T, TError>, Result<TResult, TError>>> f, Task<Result<T, TError>> task)
          => (await f.ConfigureAwait(false))(await task.ConfigureAwait(false));
 

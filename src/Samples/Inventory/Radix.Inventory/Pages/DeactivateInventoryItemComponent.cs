@@ -37,9 +37,9 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
             var inventoryItem = await context.Get<Item, ItemCommand, ItemEvent>((Radix.Domain.Data.Aggregate.Id)Id);
             var result = await inventoryItem.Handle(command);
 
-            async void HandleError(Error error)
+            async void HandleReasons(Reason[] reasons)
             {
-                model.Errors = new[] {error};
+                model.Errors = reasons.Select(reason => new Error(){Message = reason.ToString()});
                 await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
             }
 
@@ -47,7 +47,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                 .Match(_ =>
                 {
                     NavigationManager.NavigateTo("/");
-                },HandleError);
+                },HandleReasons);
 
             return model;
 

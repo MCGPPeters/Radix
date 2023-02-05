@@ -4,4 +4,3 @@ global using System.Linq;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using Radix.Data;
-global using static Radix.Control.Option.Extensions;

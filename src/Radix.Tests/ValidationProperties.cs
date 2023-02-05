@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using Radix.Data;
-using Radix.Math.Applied.Optimization.Control.POMDP;
+using static Radix.Control.Validated.Extensions;
 using Radix.Math.Applied.Probability;
 using Xunit;
 using Xunit.Abstractions;

@@ -1,3 +1,5 @@
+using static Radix.Control.Task.Extensions;
+
 namespace Radix.Control.Validated;
 
 public static class Extensions
@@ -9,12 +11,13 @@ public static class Extensions
     public static Validated<T> Invalid<T>(params (string title, string description)[] reasons) => new Invalid<T>(reasons.Select(reason => new Reason(reason.title, reason.description)).ToArray());
     public static Validated<T> Invalid<T>(string title, string description) => new Invalid<T>(new Reason(title, description));
 
-    public static Validated<TResult> Bind<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function) => result switch
-    {
-        Valid<T>(var valid) => function(valid),
-        Invalid<T>(var reasons) => Invalid<TResult>(reasons),
-        _ => throw new NotSupportedException("Unlikely")
-    };
+    public static Validated<TResult> Bind<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function) =>
+        result switch
+        {
+            Valid<T>(var valid) => function(valid),
+            Invalid<T>(var reasons) => Invalid<TResult>(reasons),
+            _ => throw new NotSupportedException("Unlikely")
+        };
 
     /// <summary>
     ///     For linq syntax support
@@ -24,7 +27,8 @@ public static class Extensions
     /// <param name="result"></param>
     /// <param name="function"></param>
     /// <returns></returns>
-    public static Validated<TResult> SelectMany<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function) => result.Bind(function);
+    public static Validated<TResult> SelectMany<T, TResult>(this Validated<T> result, Func<T, Validated<TResult>> function) =>
+        result.Bind(function);
 
     public static Validated<TProjection> SelectMany<T, TResult, TProjection>(this Validated<T> result, Func<T, Validated<TResult>> function,
         Func<T, TResult, TProjection> project) => result switch
@@ -34,17 +38,18 @@ public static class Extensions
             _ => throw new NotSupportedException("Unlikely")
         };
 
-    public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function) => result.Bind(x => Valid(function(x)));
+    public static Validated<TResult> Map<T, TResult>(this Validated<T> result, Func<T, TResult> function) =>
+        result.Bind(x => Valid(function(x)));
 
     /// <summary>
     ///     For linq syntax support
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    /// <param name="result"></param>
+    /// <param name="this"></param>
     /// <param name="function"></param>
     /// <returns></returns>
-    public static Validated<TResult> Select<T, TResult>(this Validated<T> result, Func<T, TResult> function) => result.Map(function);
+    public static Validated<TResult> Select<T, TResult>(this Validated<T> @this, Func<T, TResult> function) => @this.Map(function);
 
     public static Validated<TResult> Apply<T, TResult>(this Validated<Func<T, TResult>> fValidated, Validated<T> xValidated) =>
         (fValidated, xValidated) switch
@@ -64,6 +69,14 @@ public static class Extensions
     /// <returns></returns>
     private static Func<IEnumerable<T>, T, IEnumerable<T>> Append<T>() => (ts, t) => ts.Append(t);
 
+    public static Task<Validated<R>> Traverse<T, R>(this Validated<T> @this, Func<T, Task<R>> f)
+        => @this switch
+        {
+            Valid<T> (var valid) => f(valid).Map(Valid),
+            Invalid<T> (var invalid) => System.Threading.Tasks.Task.FromResult(Invalid<R>(invalid)),
+            _ => throw new ArgumentOutOfRangeException(nameof(@this))
+        };
+
     public static Validated<IEnumerable<TResult>> Traverse<T, TResult>(this IEnumerable<T> values, Func<T, Validated<TResult>> func) =>
         values.
         Aggregate(
@@ -75,6 +88,15 @@ public static class Extensions
 
     public static Validated<T> Validate<T>(this T t, params Func<T, Validated<T>>[] validators)
         => validators.Traverse(validate => validate(t)).Map(_ => t);
+
+    public static Unit Match<T>(this Validated<T> validated, Action<T> handleOk, Action<Reason[]> handleReasons)
+        where T : notnull
+        => validated switch
+        {
+            Valid<T>(var ok) => handleOk.AsFunction()(ok),
+            Invalid<T>(var reasons) => handleReasons.AsFunction()(reasons),
+            _ => throw new ArgumentOutOfRangeException(nameof(validated))
+        };
 
     public static IEnumerable<T> WhereValid<T>(this IEnumerable<Validated<T>> xs)
     {
@@ -91,8 +113,6 @@ public static class Extensions
 
             ;
         }
-
-
     }
 
     public static IEnumerable<Reason[]> WhereNotValid<T>(this IEnumerable<Validated<T>> xs)

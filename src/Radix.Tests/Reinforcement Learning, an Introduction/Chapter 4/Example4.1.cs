@@ -1,4 +1,5 @@
-﻿using Radix.Math.Applied.Optimization;
+﻿using Radix.Control.Validated;
+using Radix.Math.Applied.Optimization;
 using Radix.Math.Applied.Optimization.Control;
 using Radix.Math.Applied.Optimization.Control.MDP;
 using Radix.Math.Applied.Optimization.Control.Deterministic;

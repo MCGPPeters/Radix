@@ -70,7 +70,9 @@ namespace Radix
             {
                 a(arg);
                 return new();
-            }; 
+            };
+
+        public static Func<T, T> Id<T>() => id => id;
 
     }
 }

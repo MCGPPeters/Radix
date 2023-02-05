@@ -7,7 +7,7 @@ namespace Radix.Data;
 /// Represents a type that can be parsed a produces a validated outcome
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class ParsableRead<T> : Read<T> where T : IParsable<T>
+public abstract record ParsableRead<T> : Read<T> where T : IParsable<T>
 {
     /// <summary>
     /// Parse the string <param name="s"></param>
@@ -31,5 +31,6 @@ public class ParsableRead<T> : Read<T> where T : IParsable<T>
         => T.TryParse(s: s, provider: CultureInfo.InvariantCulture, result: out var result)
             ? Extensions.Valid(result)
             : Extensions.Invalid<T>(new Reason(Title: s, validationErrorMessage));
+
 }
 

@@ -1,13 +1,12 @@
 ﻿using FluentAssertions;
-using Radix.Control.Task;
+using Radix.Data;
 using Radix.Domain.Data;
 using Radix.Inventory.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
-using XPlot.Plotly;
 using Xunit;
-using static Radix.Control.Task.Result.Extensions;
-using static Radix.Control.Result.Extensions;
+using static Radix.Control.Task.Validated.Extensions;
+using static Radix.Control.Validated.Extensions;
 
 
 namespace Radix.Tests;
@@ -32,30 +31,37 @@ public class RuntimeProperties
         var validatedRenameItem = Valid((ItemCommand)new RenameItem(1, "Product 2"));
         var validatedRemoveItems = RemoveItemsFromInventory.Create(1, 1);
 
-        var handle =
-            await from i1 in inventoryItem.Handle(validatedCreateItem)
-                from i2 in i1.Handle(validatedCheckinItems)
-                from i3 in i2.Handle(validatedRenameItem)
-                select i3.Handle(validatedRemoveItems);
+        var x = await from instance in inventoryItem.Handle(validatedCreateItem)
+            from i2 in instance.Handle(validatedCheckinItems)
+            from i3 in i2.Handle(validatedRenameItem)
+            from i4 in i3.Handle(validatedRemoveItems)
+            select i4;
 
-        handle.Match(async ok =>
+        switch (x)
         {
-            var x = await ok;
-            x.Match(ok =>
-            {
-                ok.History.Should().BeEquivalentTo(
-                    new List<ItemEvent>
-                    {
-                        new ItemCreated(1, "Product 1", true, 5),
-                        new ItemsCheckedInToInventory {Amount = 19, Id = 1},
-                        new ItemRenamed {Name = "Product 2", Id = 1},
-                        new ItemsRemovedFromInventory(1, 1)
-                    }, options => options.RespectingRuntimeTypes());
-                ok.Version.Should().Be(new ExistingVersion(4L));
-                ok.State.Should().BeEquivalentTo(new Item {Activated = true, Count = 23, Name = "Product 2"});
-            }, error => Xunit.Assert.Fail(error.Message));
-        }, error => Xunit.Assert.Fail(error.Message));
-
+            case Valid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore>>(var
+                instance):
+                {
+                    instance.History.Should().BeEquivalentTo(
+                        new List<ItemEvent>
+                        {
+                            new ItemCreated(1, "Product 1", true, 5),
+                            new ItemsCheckedInToInventory {Amount = 19, Id = 1},
+                            new ItemRenamed {Name = "Product 2", Id = 1},
+                            new ItemsRemovedFromInventory(1, 1)
+                        }, options => options.RespectingRuntimeTypes());
+                    instance.Version.Should().Be(new ExistingVersion(4L));
+                    instance.State.Should().BeEquivalentTo(new Item {Activated = true, Count = 23, Name = "Product 2", ReasonForDeactivation = ""});
+                }
+                ;
+                break;
+            case Invalid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore>>(
+                var invalid):
+                {
+                    Xunit.Assert.Fail("");
+                    break;
+                }
+        }
     }
 }
 

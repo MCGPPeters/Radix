@@ -1,5 +1,8 @@
-﻿using Radix.Data;
+﻿using Radix.Control.Task.Result;
+using Radix.Control.Validated;
+using Radix.Data;
 using System.Diagnostics.Contracts;
+using static Radix.Prelude;
 
 namespace Radix.Domain.Data;
 
@@ -18,13 +21,19 @@ public static class Extensions
     /// <typeparam name="TEventStore"></typeparam>
     /// <returns></returns>
     [Pure]
-    public static Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>>
-        Handle<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>(this Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance,
+    public static Task<Validated<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>>>
+        Handle<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>(
+            this Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance,
             Validated<TAggregateCommand> command)
         where TEventStore : EventStore<TEventStore>
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
-            => instance.Context.Handle(instance, command);
+    {
+        return command
+            .Select(async cmd => (await instance.Context.Handle(instance, cmd)))
+            .Traverse(id => id);
+    }
+            
 
 }

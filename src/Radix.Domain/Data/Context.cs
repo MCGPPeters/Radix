@@ -1,4 +1,5 @@
 ﻿using Radix.Control.Nullable;
+using Radix.Control.Task.Result;
 using Radix.Control.Validated;
 using Radix.Data;
 using Radix.Domain.Data.Aggregate;
@@ -6,6 +7,7 @@ using Radix.Math.Pure.Logic.Order.Intervals;
 using Radix.Tests;
 using System.Diagnostics.Contracts;
 using static Radix.Control.Result.Extensions;
+using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Domain.Data;
 
@@ -44,7 +46,7 @@ public record Context<TCommand, TEvent, TEventStore>
         =>
             await Get<TState, TCommand, TEvent>(this, aggregateId, new MinimumVersion());
 
-    public Task<Instance<TState, TCommand, TAggregateCommand, TEvent,  TAggregateEvent, TEventStore>> Get<TState, TAggregateCommand, TAggregateEvent>(Aggregate.Id instanceId)
+    public Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Get<TState, TAggregateCommand, TAggregateEvent>(Aggregate.Id instanceId)
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
@@ -67,47 +69,50 @@ public record Context<TCommand, TEvent, TEventStore>
             return TState.Apply(current, @event.Value);
         });
 
-        return new Instance<TState, TCommand, TAggregateCommand,TEvent, TAggregateEvent, TEventStore> { Id = instanceId, State = state, Version = version, History = history, Context = context };
+        return new Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> { Id = instanceId, State = state, Version = version, History = history, Context = context };
     }
 
     [Pure]
-    internal Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent,  TEventStore>, Error>> Handle<TState, TAggregateCommand, TAggregateEvent>(Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance, Validated<TAggregateCommand> command)
+    internal async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Handle<TState, TAggregateCommand, TAggregateEvent>(Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance, TAggregateCommand command)
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
     {
-        return (command.Select(async cmd =>
-            {
-                var stream = new Stream { Id = (StreamId)instance.Id.Value, Name = (StreamName)TState.Id };
-                var ourEvents = TState.Decide(instance.State, cmd);
-                var theirEvents = TEventStore.GetEvents<TAggregateEvent>(stream, new Closed<Version>(instance.Version, new MaximumVersion())).OrderBy(@event => @event.Version);
-                var eventsToAppend = await TState.ResolveConflicts(instance.State, ourEvents, theirEvents).ToArrayAsync();
-                var actualState = await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
-                var appendEventsResult = await TEventStore.AppendEvents(stream, await theirEvents.MaxAsync(@event => @event.Version), eventsToAppend);
-                switch (appendEventsResult)
-                {
-                    case Error<ExistingVersion, AppendEventsError>(var error):
-                        return error switch
-                        {
-                            OptimisticConcurrencyError _ =>
-                                // just retry, the conflict handling shall deal with this
-                                await Handle(instance, command),
-                            _ => throw new NotSupportedException()
-                        };
-                    case Ok<ExistingVersion, AppendEventsError>(var version):
-                        {
-                            var newState = eventsToAppend.Aggregate(actualState, TState.Apply);
-                            return Ok<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error > (instance with { State = newState, Version = version, History = instance.History.Concat(eventsToAppend) });
-                        }
-                    default:
-                        throw new NotSupportedException();
-                }
-            }) switch
-            {
-                Invalid<Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>>>(var reasons) => Task.FromResult(Error<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>(new Error{Message = reasons.Select(reason => reason.ToString()).Aggregate((current, next) => $"{current} and {next}") })),
-                Valid<Task<Result<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>, Error>>>(var valid) => valid,
-                _ => throw new ArgumentOutOfRangeException()
-            });
-    }
 
+
+        var stream = new Stream { Id = (StreamId)instance.Id.Value, Name = (StreamName)TState.Id };
+        var ourEvents = TState.Decide(instance.State, command);
+        var theirEvents = TEventStore
+            .GetEvents<TAggregateEvent>(stream, new Closed<Version>(instance.Version, new MaximumVersion()))
+            .OrderBy(@event => @event.Version);
+        var eventsToAppend = await TState.ResolveConflicts(instance.State, ourEvents, theirEvents).ToArrayAsync();
+        var actualState =
+            await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
+        var appendEventsResult = await TEventStore.AppendEvents(stream,
+            await theirEvents.MaxAsync(@event => @event.Version), eventsToAppend);
+        switch (appendEventsResult)
+        {
+            case Error<ExistingVersion, AppendEventsError>(var error):
+                return error switch
+                {
+                    OptimisticConcurrencyError _ =>
+                        // just retry, the conflict handling shall deal with this
+                        await Handle(instance, command),
+                    _ => throw new NotSupportedException()
+                };
+            case Ok<ExistingVersion, AppendEventsError>(var version):
+                {
+                    var newState = eventsToAppend.Aggregate(actualState, TState.Apply);
+                    return instance with
+                    {
+                        State = newState,
+                        Version = version,
+                        History = instance.History.Concat(eventsToAppend)
+                    };
+                }
+            default:
+                throw new NotSupportedException();
+        }
+    }
 }
+
