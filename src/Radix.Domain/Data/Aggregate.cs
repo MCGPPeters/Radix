@@ -5,7 +5,7 @@ public interface Aggregate<TState, in TCommand, TEvent>
 {
     static abstract TState Create();
 
-    static virtual string Id => nameof(TState);
+    static virtual string Id => typeof(TState).Name;
 
     static abstract TState Apply(TState state, TEvent @event);
 

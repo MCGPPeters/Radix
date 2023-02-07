@@ -19,4 +19,6 @@ public record Stream : Show<Stream>
         from f in format
         from p in provider
         select Format(t, f, p);
+
+    public override string ToString() => Format(this);
 }

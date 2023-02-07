@@ -16,7 +16,7 @@ public class InMemoryEventStore: EventStore<InMemoryEventStore>
 
     public static JsonSerializerOptions Options = new() { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryEvent>() } };
 
-    public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(Stream eventStream,
+    public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(string streamName,
         Version expectedVersion, params TEvent[] events)
     {
         foreach (TEvent @event in events)
@@ -29,7 +29,7 @@ public class InMemoryEventStore: EventStore<InMemoryEventStore>
     }
 
     public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json, Options)!;
-    public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(Stream eventStream, Closed<Version> interval)
+    public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(string streamName, Closed<Version> interval)
 
     {
         long version = 0;

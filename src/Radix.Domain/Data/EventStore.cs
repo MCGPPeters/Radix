@@ -8,8 +8,8 @@ namespace Radix.Domain.Data;
 public interface EventStore<TEventStore>
     where TEventStore : EventStore<TEventStore>
 {
-    static abstract Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(Stream eventStream, Version expectedVersion,
+    static abstract Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(string streamName, Version expectedVersion,
         params TEvent[] events);
 
-    static abstract IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(Stream eventStream, Closed<Version> interval);
+    static abstract IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(string streamName, Closed<Version> interval);
 }

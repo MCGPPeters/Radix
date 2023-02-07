@@ -10,17 +10,24 @@ namespace Radix.Tests;
 
 public class InMemoryEventStore : EventStore<InMemoryEventStore>
 {
-    private static readonly List<string> serializedEvents = new() { };
+    private static readonly Dictionary<string, List<string>> serializedEvents = new() { };
     public static long CurrentVersion = 0;
 
     public static JsonSerializerOptions Options = new() { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryEvent>() } };
 
-    public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(Stream eventStream,
+    public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(string streamName,
         Version expectedVersion, params TEvent[] events)
     {
         foreach (TEvent @event in events)
         {
-            serializedEvents.Add(JsonSerializer.Serialize(@event, Options));
+            if (serializedEvents.ContainsKey(streamName))
+            {
+                serializedEvents[streamName].Add(JsonSerializer.Serialize(@event, Options));
+            }
+            else
+            {
+                serializedEvents.Add(streamName, new List<string>(){ JsonSerializer.Serialize(@event, Options) });
+            }
             CurrentVersion++;
         }
 
@@ -28,19 +35,23 @@ public class InMemoryEventStore : EventStore<InMemoryEventStore>
     }
 
     public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json, Options);
-    public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(Stream eventStream, Closed<Version> interval)
+    public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(string streamName, Closed<Version> interval)
 
     {
         long version = 0;
-        foreach (string serializedEvent in serializedEvents)
+        foreach ( (string streamId, List<string> serializedEvents) in serializedEvents.Where(kvp => kvp.Key == streamName))
         {
-            version++;
-            yield return new Event<TEvent>
+            foreach (string serializedEvent in serializedEvents)
             {
-                Value = Deserialize<TEvent>(serializedEvent),
-                EventType = typeof(TEvent).FullName,
-                Version = new ExistingVersion(version)
-            };
+                version++;
+                yield return new Event<TEvent>
+                {
+                    Value = Deserialize<TEvent>(serializedEvent),
+                    EventType = typeof(TEvent).FullName,
+                    Version = new ExistingVersion(version)
+                };
+            }
+            
         }
     }
 }
