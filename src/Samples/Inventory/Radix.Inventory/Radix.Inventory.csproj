@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Radix.Components.Material.3.2.0\Radix.Components.Material.3.2.0.csproj" />
     <ProjectReference Include="..\..\..\Radix.Interaction.Web\Radix.Interaction.Web.csproj" />
     <ProjectReference Include="..\..\..\Radix.Web.Css\Radix.Web.Css.csproj" />
     <ProjectReference Include="..\..\..\Radix.Web.Html\Radix.Web.Html.csproj" />

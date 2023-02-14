@@ -96,6 +96,7 @@ namespace {namespaceName}
         public static implicit operator string({typeSymbolName} value) => ""{toString}"";
         public static implicit operator {typeSymbolName}(string value) => value  == ""{toString}"" ? new() : throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
         public static string Format() => ""{toString}"";
+        public string ToString(string? format, IFormatProvider? formatProvider) => ""{toString}"";
     }}
 }}");
         return source.ToString();
