@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radix.Data;
 using Radix.Domain.Data;
+using Radix.Domain.Data.Aggregate;
 using Radix.Interaction;
 using Radix.Interaction.Components;
 using Radix.Interaction.Components.Nodes;
@@ -31,10 +32,10 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
     protected override Interaction.Update<DeactivateInventoryItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            Context<InventoryCommand, InventoryEvent, InMemoryEventStore> context = new();
+            Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
 
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Get<Item, ItemCommand, ItemEvent>((Radix.Domain.Data.Aggregate.Id)Id);
+            var inventoryItem = await context.Get<Item, ItemCommand, ItemEvent>(new Address(){ Id = (Radix.Domain.Data.Aggregate.Id)Id});
             var result = await inventoryItem.Handle(command);
 
             async void HandleReasons(Reason[] reasons)

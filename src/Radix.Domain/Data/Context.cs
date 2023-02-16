@@ -1,13 +1,8 @@
-﻿using Radix.Control.Nullable;
-using Radix.Control.Task.Result;
-using Radix.Control.Validated;
-using Radix.Data;
+﻿using Radix.Data;
 using Radix.Domain.Data.Aggregate;
 using Radix.Math.Pure.Logic.Order.Intervals;
 using Radix.Tests;
 using System.Diagnostics.Contracts;
-using static Radix.Control.Result.Extensions;
-using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Domain.Data;
 
@@ -17,51 +12,65 @@ namespace Radix.Domain.Data;
 /// <typeparam name="TCommand"></typeparam>
 /// <typeparam name="TEvent"></typeparam>
 /// <typeparam name="TEventStore"></typeparam>
-public record Context<TCommand, TEvent, TEventStore>
-    where TEventStore : EventStore<TEventStore>
+/// <typeparam name="TEventStoreSettings"></typeparam>
+public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
+    where TEventStore : EventStore<TEventStore, TEventStoreSettings>
 {
+    public required TEventStoreSettings EventStoreSettings { get; set; }
+
     /// <summary>
     /// Create a new instance of an aggregate, where the aggregate uses specialized events and commands within the context for the aggregate
     /// </summary>
-    /// <param name="aggregateId">By default an new Id will be generated, but you can pass a predefined one</param>
+    /// <param name="aggregateId">By default an new Address will be generated, but you can pass a predefined one</param>
     /// <typeparam name="TState">The aggregate type</typeparam>
     /// <typeparam name="TAggregateCommand">The specialized aggregate command type</typeparam>
     /// <typeparam name="TAggregateEvent">The specialized aggregate command type</typeparam>
     /// <returns></returns>
-    public async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Create<TState, TAggregateCommand, TAggregateEvent>()
+    public async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>> Create<TState, TAggregateCommand, TAggregateEvent>()
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
         =>
-            await Get<TState, TAggregateCommand, TAggregateEvent>(this, (Id)Guid.NewGuid(), new MinimumVersion());
+            await Get<TState, TAggregateCommand, TAggregateEvent>(this, new Address { Id = (Id)Guid.NewGuid(), TenantId = (TenantId)"" }, new MinimumVersion());
 
     /// <summary>
     /// Create a new instance of an aggregate, where the aggregate uses top level context commands and events
     /// </summary>
-    /// <param name="aggregateId">By default an new Id will be generated, but you can pass a predefined one</param>
+    /// <param name="aggregateId">By default an new Address will be generated, but you can pass a predefined one</param>
     /// <typeparam name="TState">The aggregate type</typeparam>
     /// <returns></returns>
-    public async Task<Instance<TState, TCommand, TCommand, TEvent, TEvent, TEventStore>> Create<TState>()
+    public async Task<Instance<TState, TCommand, TCommand, TEvent, TEvent, TEventStore, TEventStoreSettings>> Create<TState>()
         where TState : Aggregate<TState, TCommand, TEvent>
         =>
-            await Get<TState, TCommand, TEvent>(this, (Id)Guid.NewGuid(), new MinimumVersion());
+            await Create<TState>((TenantId)"");
+    
+    /// <summary>
+    /// Create a new instance of an aggregate, where the aggregate uses top level context commands and events
+    /// </summary>
+    /// <param name="aggregateId">By default an new Address will be generated, but you can pass a predefined one</param>
+    /// <typeparam name="TState">The aggregate type</typeparam>
+    /// <returns></returns>
+    public async Task<Instance<TState, TCommand, TCommand, TEvent, TEvent, TEventStore, TEventStoreSettings>> Create<TState>(TenantId tentantId)
+        where TState : Aggregate<TState, TCommand, TEvent>
+        =>
+            await Get<TState, TCommand, TEvent>(this, new Address{ Id = (Id)Guid.NewGuid(), TenantId = tentantId}, new MinimumVersion());
 
-    public Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Get<TState, TAggregateCommand, TAggregateEvent>(Aggregate.Id instanceId)
+    public Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>> Get<TState, TAggregateCommand, TAggregateEvent>(Address instanceAddress)
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
-        => Get<TState, TAggregateCommand, TAggregateEvent>(this, instanceId, new AnyVersion());
+        => Get<TState, TAggregateCommand, TAggregateEvent>(this, instanceAddress, new AnyVersion());
 
-    public async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Get<TState, TAggregateCommand, TAggregateEvent>(
-        Context<TCommand, TEvent, TEventStore> context, Id instanceId, Version version)
+    public async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>> Get<TState, TAggregateCommand, TAggregateEvent>(
+        Context<TCommand, TEvent, TEventStore, TEventStoreSettings> context, Address instanceAddress, Version version)
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
 
     {
         var state = TState.Create();
-        var stream = new Stream { Id = (StreamId)instanceId.Value, Name = (StreamName)TState.Id };
-        var events = TEventStore.GetEvents<TAggregateEvent>(stream.ToString(), new Closed<Version>(new MinimumVersion(), version));
+        var stream = new Stream { Id = (StreamId)instanceAddress.Id.ToString(), Name = (StreamName)TState.Id };
+        var events = TEventStore.GetEvents<TAggregateEvent>(EventStoreSettings, instanceAddress.TenantId, stream, new Closed<Version>(new MinimumVersion(), version));
         List<TAggregateEvent> history = new();
         state = await events.AggregateAsync(state, (current, @event) =>
         {
@@ -69,24 +78,24 @@ public record Context<TCommand, TEvent, TEventStore>
             return TState.Apply(current, @event.Value);
         });
 
-        return new Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> { Id = instanceId, State = state, Version = version, History = history, Context = context };
+        return new Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings> { Address = instanceAddress, State = state, Version = version, History = history, Context = context };
     }
 
     [Pure]
-    internal async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>> Handle<TState, TAggregateCommand, TAggregateEvent>(Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance, TAggregateCommand command)
+    internal async Task<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>> Handle<TState, TAggregateCommand, TAggregateEvent>(Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings> instance, TAggregateCommand command)
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent
     {
-        var stream = new Stream { Id = (StreamId)instance.Id.Value, Name = (StreamName)TState.Id };
+        var stream = new Stream { Id = (StreamId)instance.Address.Id.ToString(), Name = (StreamName)TState.Id };
         var ourEvents = TState.Decide(instance.State, command);
         var theirEvents = TEventStore
-            .GetEvents<TAggregateEvent>(stream.ToString(), new Closed<Version>(instance.Version, new MaximumVersion()))
+            .GetEvents<TAggregateEvent>(EventStoreSettings, instance.Address.TenantId, stream, new Closed<Version>(instance.Version, new MaximumVersion()))
             .OrderBy(@event => @event.Version);
         var eventsToAppend = await TState.ResolveConflicts(instance.State, ourEvents, theirEvents).ToArrayAsync();
         var actualState =
             await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
-        var appendEventsResult = await TEventStore.AppendEvents(stream.ToString(),
+        var appendEventsResult = await TEventStore.AppendEvents(EventStoreSettings, instance.Address.TenantId, stream,
             await theirEvents.MaxAsync(@event => @event.Version), eventsToAppend);
         switch (appendEventsResult)
         {

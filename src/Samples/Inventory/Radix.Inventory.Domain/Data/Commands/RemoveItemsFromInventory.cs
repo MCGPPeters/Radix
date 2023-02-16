@@ -22,7 +22,7 @@ public record RemoveItemsFromInventory : ItemCommand
         .Apply(
             id > 0
                 ? Valid(id)
-                : Invalid<long>("Id", ""))
+                : Invalid<long>("Address", ""))
         .Apply(
             amount > 0
                 ? Valid(amount)

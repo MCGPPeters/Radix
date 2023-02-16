@@ -1,4 +1,7 @@
-﻿namespace Radix.Domain.Data;
+﻿using Radix.Data;
+using System.Security.Claims;
+
+namespace Radix.Domain.Data;
 
 public interface Aggregate<TState, in TCommand, TEvent>
     where TState : Aggregate<TState, TCommand, TEvent>

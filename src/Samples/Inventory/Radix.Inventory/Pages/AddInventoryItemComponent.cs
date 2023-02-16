@@ -30,7 +30,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
     protected override Update<AddItemModel, Validated<ItemCommand>> Update =>
         async (model, command) =>
         {
-            Context<InventoryCommand, InventoryEvent, InMemoryEventStore> context = new();
+            Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
 
             // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = await context.Create<Item, ItemCommand, ItemEvent>();
@@ -81,7 +81,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                     {
                                         text
                                         (
-                                            "Id"
+                                            "Address"
                                         )
                                     }
                                 ),

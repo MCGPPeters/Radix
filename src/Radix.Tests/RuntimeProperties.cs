@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Radix.Data;
 using Radix.Domain.Data;
+using Radix.Inventory.Domain;
 using Radix.Inventory.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
@@ -19,7 +20,7 @@ public class RuntimeProperties
             "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
     public async Task Test1()
     {
-        Context<InventoryCommand, InventoryEvent, InMemoryEventStore> context = new();
+        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
 
         // for testing purposes make the aggregate block the current thread while processing
         var inventoryItem = await context.Create<Item, ItemCommand, ItemEvent>();
@@ -39,7 +40,7 @@ public class RuntimeProperties
 
         switch (x)
         {
-            case Valid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore>>(var
+            case Valid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore, InMemoryEventStoreSettings>>(var
                 instance):
                 {
                     instance.History.Should().BeEquivalentTo(
@@ -55,7 +56,7 @@ public class RuntimeProperties
                 }
                 ;
                 break;
-            case Invalid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore>>(
+            case Invalid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore, InMemoryEventStoreSettings>>(
                 var invalid):
                 {
                     Xunit.Assert.Fail("");

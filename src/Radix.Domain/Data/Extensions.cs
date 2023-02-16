@@ -21,11 +21,11 @@ public static class Extensions
     /// <typeparam name="TEventStore"></typeparam>
     /// <returns></returns>
     [Pure]
-    public static Task<Validated<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>>>
-        Handle<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore>(
-            this Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore> instance,
+    public static Task<Validated<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>>>
+        Handle<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>(
+            this Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings> instance,
             Validated<TAggregateCommand> command)
-        where TEventStore : EventStore<TEventStore>
+        where TEventStore : EventStore<TEventStore, TEventStoreSettings>
         where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
         where TAggregateCommand : TCommand
         where TAggregateEvent : TEvent

@@ -2,7 +2,7 @@
 
 public record ItemModel
 {
-    public required Domain.Data.Aggregate.Id? Id {get;set;}
+    public required Domain.Data.Aggregate.Address? Id {get;set;}
     public required string Name { get; set; }
     public required bool Activated { get; set; }
 }

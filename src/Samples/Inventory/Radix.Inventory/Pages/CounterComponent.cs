@@ -21,7 +21,7 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
     protected override Interaction.Update<CounterModel, Validated<IncrementCommand>> Update =>
         async (model, command) =>
         {
-            Context<IncrementCommand, CounterIncremented, InMemoryEventStore> context = new();
+            Context<IncrementCommand, CounterIncremented, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
             var counter = await context.Create<Counter, IncrementCommand, CounterIncremented>();
             try
             {

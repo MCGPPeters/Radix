@@ -9,15 +9,19 @@ using Version = Radix.Domain.Data.Version;
 
 namespace Radix.Inventory.Domain;
 
-public class InMemoryEventStore: EventStore<InMemoryEventStore>
+public class InMemoryEventStore: EventStore<InMemoryEventStore, InMemoryEventStoreSettings>
 {
     private static readonly List<string> serializedEvents = new() { };
     public static long CurrentVersion = 0;
 
     public static JsonSerializerOptions Options = new() { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryEvent>() } };
 
-    public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(string streamName,
-        Version expectedVersion, params TEvent[] events)
+    public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json, Options)!;
+
+
+    public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(InMemoryEventStoreSettings eventStoreSettings, TenantId tenantId, Stream stream, Version expectedVersion,
+        params TEvent[] events)
+
     {
         foreach (TEvent @event in events)
         {
@@ -28,9 +32,8 @@ public class InMemoryEventStore: EventStore<InMemoryEventStore>
         return new ExistingVersion(CurrentVersion).Return<ExistingVersion, AppendEventsError>();
     }
 
-    public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json, Options)!;
-    public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(string streamName, Closed<Version> interval)
-
+    public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(InMemoryEventStoreSettings eventStoreSettings, TenantId tenantId,
+        Stream stream, Closed<Version> interval)
     {
         long version = 0;
         foreach (string serializedEvent in serializedEvents)
@@ -44,5 +47,8 @@ public class InMemoryEventStore: EventStore<InMemoryEventStore>
             };
         }
     }
+}
 
+public class InMemoryEventStoreSettings
+{
 }
