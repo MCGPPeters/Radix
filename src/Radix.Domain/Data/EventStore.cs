@@ -5,12 +5,6 @@ using Version = Radix.Domain.Data.Version;
 
 namespace Radix.Domain.Data;
 
-[Alias<string>]
-public partial record TenantId
-{
-    public static TenantId Default = (TenantId)"";
-}
-
 public interface EventStore<in TEventStore, in TEventStoreSettings>
     where TEventStore : EventStore<TEventStore, TEventStoreSettings>
 {
@@ -19,3 +13,4 @@ public interface EventStore<in TEventStore, in TEventStoreSettings>
 
     static abstract IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(TEventStoreSettings eventStoreSettings, TenantId tenantId, Stream stream, Closed<Version> interval);
 }
+
