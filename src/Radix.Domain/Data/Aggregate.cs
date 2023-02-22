@@ -15,14 +15,16 @@ public interface Aggregate<TState, in TCommand, TEvent>
     static abstract IEnumerable<TEvent> Decide(TState state, TCommand command);
 
     /// <summary>
-    /// Decide which events need to be emitted that will resolve the conflicting situation.
+    /// Decide which events need to be emitted that will resolve a conflicting situation in case
+    /// of a optimistic concurrency error
     ///
     /// This could potentially be an entire new sequence of events, a merger of the two sequences, the result of rebasing the new events on the existing events
     /// or even an empty sequence. Think resolving merge conflicts in git.
     /// </summary>
-    /// <param name="state"></param>
-    /// <param name="ourEvents"></param>
-    /// <param name="theirEvents"></param>
+    /// <param name="state">The state of the aggregate when the events were being applied</param>
+    /// <param name="ourEvents">The events created as a response to the command that led to the conflict</param>
+    /// <param name="theirEvents">The events that were added to the event stream that have a greater version
+    /// than the expected version at the moment of applying our events</param>
     /// <returns></returns>
     static abstract IAsyncEnumerable<TEvent> ResolveConflicts(TState state, IEnumerable<TEvent> ourEvents, IOrderedAsyncEnumerable<Event<TEvent>> theirEvents);
 
