@@ -7,13 +7,13 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Playwright" Version="1.28.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.31.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Radix\Radix.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="MinVer" Version="4.2.0">
+    <PackageReference Update="MinVer" Version="4.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
