@@ -5,7 +5,7 @@ using Radix.Tests;
 
 namespace Radix.Inventory.Domain.Data;
 
-public record Item : Aggregate<Item, ItemCommand, ItemEvent>
+public record Item : Aggregate<Item, InventoryCommand, InventoryEvent>
 {
     public static Item Create()
     {
@@ -25,7 +25,7 @@ public record Item : Aggregate<Item, ItemCommand, ItemEvent>
     public required int Count { get; init; }
     public static string Id => "Item";
 
-    public static Item Apply(Item state, ItemEvent @event) =>
+    public static Item Apply(Item state, InventoryEvent @event) =>
         @event switch
         {
             ItemCreated inventoryItemCreated => state with { Name = inventoryItemCreated.Name, Count = inventoryItemCreated.Count },
@@ -36,20 +36,20 @@ public record Item : Aggregate<Item, ItemCommand, ItemEvent>
             _ => throw new NotSupportedException("Unknown event")
         };
 
-    public static IEnumerable<ItemEvent> Decide(Item state, ItemCommand command) =>
+    public static IEnumerable<InventoryEvent> Decide(Item state, InventoryCommand command) =>
         command switch
         {
-            DeactivateItem deactivateInventoryItem => new ItemEvent[] { new ItemDeactivated(deactivateInventoryItem.Reason) },
+            DeactivateItem deactivateInventoryItem => new InventoryEvent[] { new ItemDeactivated(deactivateInventoryItem.Reason) },
             CreateItem createInventoryItem =>
-                new ItemEvent[] { new ItemCreated(createInventoryItem.Id, createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count) },
+                new InventoryEvent[] { new ItemCreated(createInventoryItem.Id, createInventoryItem.Name, createInventoryItem.Activated, createInventoryItem.Count) },
             RenameItem renameInventoryItem =>
-                new ItemEvent[] { new ItemRenamed { Id = renameInventoryItem.Id, Name = renameInventoryItem.Name } },
+                new InventoryEvent[] { new ItemRenamed { Id = renameInventoryItem.Id, Name = renameInventoryItem.Name } },
             CheckInItemsToInventory checkInItemsToInventory =>
-                new ItemEvent[] { new ItemsCheckedInToInventory { Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id } },
+                new InventoryEvent[] { new ItemsCheckedInToInventory { Amount = checkInItemsToInventory.Amount, Id = checkInItemsToInventory.Id } },
             RemoveItemsFromInventory removeItemsFromInventory =>
-                new ItemEvent[] { new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, removeItemsFromInventory.Id) },
+                new InventoryEvent[] { new ItemsRemovedFromInventory(removeItemsFromInventory.Amount, removeItemsFromInventory.Id) },
             _ => throw new NotSupportedException("Unknown transientCommand")
         };
 
-    public static IAsyncEnumerable<ItemEvent> ResolveConflicts(Item state, IEnumerable<ItemEvent> ourEvents, IOrderedAsyncEnumerable<Event<ItemEvent>> theirEvents) => ourEvents.ToAsyncEnumerable();
+    public static IAsyncEnumerable<InventoryEvent> ResolveConflicts(Item state, IEnumerable<InventoryEvent> ourEvents, IOrderedAsyncEnumerable<Event<InventoryEvent>> theirEvents) => ourEvents.ToAsyncEnumerable();
 }

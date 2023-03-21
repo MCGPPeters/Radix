@@ -2,13 +2,13 @@
 
 namespace Radix.Inventory.Domain.Data.Commands;
 
-public record DeactivateItem(string Reason) : ItemCommand
+public record DeactivateItem(string Reason) : InventoryCommand
 {
 
-    private static Func<string, ItemCommand> New => (reason) =>
+    private static Func<string, InventoryCommand> New => (reason) =>
         new DeactivateItem(reason);
 
-    public static Validated<ItemCommand> Create(string? reason) => Valid(New)
+    public static Validated<InventoryCommand> Create(string? reason) => Valid(New)
         .Apply(!string
             .IsNullOrEmpty(reason)
             ? Valid(reason)

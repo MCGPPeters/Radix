@@ -21,19 +21,19 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Radix.Inventory.Pages;
 
 [Route("/Add")]
-public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemCommand>>
+public class AddInventoryItemComponent : Component<AddItemModel, Validated<InventoryCommand>>
 {
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
 
-    protected override Update<AddItemModel, Validated<ItemCommand>> Update =>
+    protected override Update<AddItemModel, Validated<InventoryCommand>> Update =>
         async (model, command) =>
         {
             Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
 
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Create<Item, ItemCommand, ItemEvent>();
+            var inventoryItem = await context.Create<Item>();
 
             try
             {
@@ -50,7 +50,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
             return model;
         };
 
-    protected override View<AddItemModel, Validated<ItemCommand>> View =>
+    protected override View<AddItemModel, Validated<InventoryCommand>> View =>
         async (model, dispatch) =>
             await Task.FromResult(
                 concat
@@ -145,7 +145,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<ItemC
                                 (
                                     args =>
                                     {
-                                        Validated<ItemCommand> validatedCommand = CreateItem.Create(
+                                        Validated<InventoryCommand> validatedCommand = CreateItem.Create(
                                             model.InventoryItemId,
                                             model.InventoryItemName,
                                             true,

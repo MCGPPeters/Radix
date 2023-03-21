@@ -22,7 +22,7 @@ public class CounterComponent : Component<CounterModel, Validated<IncrementComma
         async (model, command) =>
         {
             Context<IncrementCommand, CounterIncremented, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
-            var counter = await context.Create<Counter, IncrementCommand, CounterIncremented>();
+            var counter = await context.Create<Counter>();
             try
             {
                 var result = counter.Handle(command);

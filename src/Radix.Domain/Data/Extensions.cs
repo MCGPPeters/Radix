@@ -19,21 +19,20 @@ public static class Extensions
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TAggregateEvent"></typeparam>
     /// <typeparam name="TEventStore"></typeparam>
+    /// <typeparam name="TEventStoreSettings"></typeparam>
     /// <returns></returns>
-    [Pure]
-    public static Task<Validated<Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>>>
-        Handle<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings>(
-            this Instance<TState, TCommand, TAggregateCommand, TEvent, TAggregateEvent, TEventStore, TEventStoreSettings> instance,
-            Validated<TAggregateCommand> command)
-        where TEventStore : EventStore<TEventStore, TEventStoreSettings>
-        where TState : Aggregate<TState, TAggregateCommand, TAggregateEvent>
-        where TAggregateCommand : TCommand
-        where TAggregateEvent : TEvent
-    {
-        return command
-            .Select(async cmd => (await instance.Context.Handle(instance, cmd)))
-            .Traverse(id => id);
-    }
+    //[Pure]
+    //public static Task<Validated<Instance<TState, TCommand, TEvent, TEventStore, TEventStoreSettings>>>
+    //    Handle<TState, TCommand, TEvent, TEventStore, TEventStoreSettings>(
+    //        this Instance<TState, TCommand, TEvent, TEventStore, TEventStoreSettings> instance,
+    //        Validated<TCommand> command)
+    //    where TEventStore : EventStore<TEventStore, TEventStoreSettings>
+    //    where TState : Aggregate<TState, TCommand, TEvent>
+    //{
+    //    return command
+    //        .Select(async cmd => (await instance.Context.Handle(instance, cmd)))
+    //        .Traverse(id => id);
+    //}
             
 
 }

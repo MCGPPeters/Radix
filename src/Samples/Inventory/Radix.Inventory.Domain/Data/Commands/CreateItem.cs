@@ -3,7 +3,7 @@ using Radix.Data.String.Validity;
 
 namespace Radix.Inventory.Domain.Data.Commands;
 
-public record CreateItem : ItemCommand
+public record CreateItem : InventoryCommand
 {
     private CreateItem(Id id, string name, bool activated, int count)
     {
@@ -13,7 +13,7 @@ public record CreateItem : ItemCommand
         Count = count;
     }
 
-    private static Func<Id, string, bool, int, ItemCommand> New => (id, name, activated, count) =>
+    private static Func<Id, string, bool, int, InventoryCommand> New => (id, name, activated, count) =>
         new CreateItem(id, name, activated, count);
 
     public Id Id { get; }
@@ -21,7 +21,7 @@ public record CreateItem : ItemCommand
     public bool Activated { get; }
     public int Count { get; }
 
-    public static Validated<ItemCommand> Create(long id, string name, bool activated, int count) => Valid(New)
+    public static Validated<InventoryCommand> Create(long id, string name, bool activated, int count) => Valid(New)
         .Apply(Id.Create(id))
         .Apply(IsNotNullOrEmpty.Validate("Name")(name))
         .Apply(Valid(activated))

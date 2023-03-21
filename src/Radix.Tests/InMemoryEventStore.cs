@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 using Radix.Control.Task.Result;
 using Radix.Data;
 using Radix.Domain.Data;
@@ -11,12 +12,10 @@ namespace Radix.Tests;
 
 public class InMemoryEventStore : EventStore<InMemoryEventStore, InMemoryEventStoreSettings>
 {
-    private static readonly Dictionary<string, List<string>> serializedEvents = new() { };
+    private static readonly ConcurrentDictionary<string, List<string>> serializedEvents = new() { };
     public static long CurrentVersion = 0;
 
-    public static JsonSerializerOptions Options = new() { Converters = { new PolymorphicWriteOnlyJsonConverter<InventoryEvent>() } };
-
-    public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json, Options);
+    public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json);
 
     public static Task<Result<ExistingVersion, AppendEventsError>> AppendEvents<TEvent>(InMemoryEventStoreSettings eventStoreSettings, TenantId tenantId, Stream stream,
         Version expectedVersion, params TEvent[] events)
@@ -25,11 +24,11 @@ public class InMemoryEventStore : EventStore<InMemoryEventStore, InMemoryEventSt
         {
             if (serializedEvents.ContainsKey(stream.Name.ToString()))
             {
-                serializedEvents[stream.Name.ToString()].Add(JsonSerializer.Serialize(@event, Options));
+                serializedEvents[stream.Name.ToString()].Add(JsonSerializer.Serialize(@event));
             }
             else
             {
-                serializedEvents.Add(stream.Name.ToString(), new List<string>() { JsonSerializer.Serialize(@event, Options) });
+                serializedEvents.TryAdd(stream.Name.ToString(), new List<string>() { JsonSerializer.Serialize(@event) });
             }
             CurrentVersion++;
         }

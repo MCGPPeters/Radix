@@ -23,13 +23,11 @@ public class RuntimeProperties
         Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
 
         // for testing purposes make the aggregate block the current thread while processing
-        var inventoryItem = await context.Create<Item, ItemCommand, ItemEvent>();
-
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        var inventoryItem = await context.Create<Item>();
 
         var validatedCreateItem = CreateItem.Create(1, "Product 1", true, 5);
         var validatedCheckinItems = CheckInItemsToInventory.Create(1, 19);
-        var validatedRenameItem = Valid((ItemCommand)new RenameItem(1, "Product 2"));
+        var validatedRenameItem = Valid((InventoryCommand)new RenameItem(1, "Product 2"));
         var validatedRemoveItems = RemoveItemsFromInventory.Create(1, 1);
 
         var x = await from instance in inventoryItem.Handle(validatedCreateItem)
@@ -40,11 +38,11 @@ public class RuntimeProperties
 
         switch (x)
         {
-            case Valid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore, InMemoryEventStoreSettings>>(var
+            case Valid<Instance<Item, InventoryCommand,  InventoryEvent>>(var
                 instance):
                 {
                     instance.History.Should().BeEquivalentTo(
-                        new List<ItemEvent>
+                        new List<InventoryEvent>
                         {
                             new ItemCreated(1, "Product 1", true, 5),
                             new ItemsCheckedInToInventory {Amount = 19, Id = 1},
@@ -56,7 +54,7 @@ public class RuntimeProperties
                 }
                 ;
                 break;
-            case Invalid<Instance<Item, InventoryCommand, ItemCommand, InventoryEvent, ItemEvent, InMemoryEventStore, InMemoryEventStoreSettings>>(
+            case Invalid<Instance<Item, InventoryCommand, InventoryEvent>>(
                 var invalid):
                 {
                     Xunit.Assert.Fail("");

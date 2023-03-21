@@ -21,7 +21,7 @@ using Attribute = Radix.Interaction.Data.Attribute;
 namespace Radix.Inventory.Pages;
 
 [Route("/Deactivate/{Id:guid}")]
-public class DeactivateInventoryItemComponent : Component<DeactivateInventoryItemModel, Validated<ItemCommand>>
+public class DeactivateInventoryItemComponent : Component<DeactivateInventoryItemModel, Validated<InventoryCommand>>
 {
     [Parameter] public Guid Id { get; set; }
 
@@ -29,13 +29,13 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override Interaction.Update<DeactivateInventoryItemModel, Validated<ItemCommand>> Update =>
+    protected override Interaction.Update<DeactivateInventoryItemModel, Validated<InventoryCommand>> Update =>
         async (model, command) =>
         {
             Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
 
             // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Get<Item, ItemCommand, ItemEvent>(new Address(){ Id = (Radix.Domain.Data.Aggregate.Id)Id});
+            var inventoryItem = await context.Get<Item>(new Address(){ Id = (Radix.Domain.Data.Aggregate.Id)Id});
             var result = await inventoryItem.Handle(command);
 
             async void HandleReasons(Reason[] reasons)
@@ -56,7 +56,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
 
 
-    protected override View<DeactivateInventoryItemModel, Validated<ItemCommand>> View =>
+    protected override View<DeactivateInventoryItemModel, Validated<InventoryCommand>> View =>
             async (model, dispatch) =>
                 await Task.FromResult(concat
                 (
@@ -116,7 +116,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                         (
                                             _ =>
                                             {
-                                                Validated<ItemCommand> validCommand = DeactivateItem.Create(model.Reason);
+                                                Validated<InventoryCommand> validCommand = DeactivateItem.Create(model.Reason);
                                                 dispatch(validCommand);
                                             }
                                         )

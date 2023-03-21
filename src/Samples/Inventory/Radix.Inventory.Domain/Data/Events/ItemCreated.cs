@@ -1,6 +1,6 @@
 namespace Radix.Inventory.Domain.Data.Events;
 
-public record ItemCreated : ItemEvent
+public record ItemCreated : InventoryEvent
 {
     public ItemCreated()
     {
