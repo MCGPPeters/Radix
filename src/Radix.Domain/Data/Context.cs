@@ -30,7 +30,7 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
     public async Task<Instance<TState, TCommand, TEvent>> Create<TState>()
         where TState : Aggregate<TState, TCommand, TEvent>
         =>
-            await Get<TState>(this, new Address { Id = (Id)Guid.NewGuid(), TenantId = (TenantId)"" }, new MinimumVersion());
+            await Get<TState>(new Address { Id = (Id)Guid.NewGuid(), TenantId = (TenantId)"" }, new MinimumVersion());
 
     
     /// <summary>
@@ -42,14 +42,13 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
     public async Task<Instance<TState, TCommand, TEvent>> Create<TState>(TenantId tentantId)
         where TState : Aggregate<TState, TCommand, TEvent>
         =>
-            await Get<TState>(this, new Address{ Id = (Id)Guid.NewGuid(), TenantId = tentantId}, new MinimumVersion());
+            await Get<TState>(new Address{ Id = (Id)Guid.NewGuid(), TenantId = tentantId}, new MinimumVersion());
 
     public Task<Instance<TState, TCommand, TEvent>> Get<TState>(Address instanceAddress)
         where TState : Aggregate<TState, TCommand, TEvent>
-        => Get<TState>(this, instanceAddress, new AnyVersion());
+        => Get<TState>(instanceAddress, new AnyVersion());
 
-    public async Task<Instance<TState, TCommand,  TEvent>> Get<TState>(
-        Context<TCommand, TEvent, TEventStore, TEventStoreSettings> context, Address instanceAddress, Version version)
+    public async Task<Instance<TState, TCommand,  TEvent>> Get<TState>(Address instanceAddress, Version version)
         where TState : Aggregate<TState, TCommand, TEvent>
 
     {
@@ -85,8 +84,9 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
         var eventsToAppend = await TState.ResolveConflicts(instance.State, ourEvents, theirEvents).ToArrayAsync();
         var actualState =
             await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
+        Version theirVersion = await theirEvents.MaxAsync(@event => @event.Version);
         var appendEventsResult = await TEventStore.AppendEvents(EventStoreSettings, instance.Address.TenantId, stream,
-            await theirEvents.MaxAsync(@event => @event.Version), eventsToAppend);
+            theirVersion ?? new MinimumVersion(), eventsToAppend);
         switch (appendEventsResult)
         {
             case Error<ExistingVersion, AppendEventsError>(var error):

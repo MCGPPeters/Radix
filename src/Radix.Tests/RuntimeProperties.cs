@@ -62,5 +62,43 @@ public class RuntimeProperties
                 }
         }
     }
+
+    [Fact(
+        DisplayName =
+            "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
+    public async Task Test2()
+    {
+        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
+
+        // for testing purposes make the aggregate block the current thread while processing
+        var inventoryItem = await context.Create<Item>();
+
+        var validatedCreateItem = CreateItem.Create(1, "Product 1", true, 5);
+
+        var x = await inventoryItem.Handle(validatedCreateItem);
+
+        switch (x)
+        {
+            case Valid<Instance<Item, InventoryCommand,  InventoryEvent>>(var
+                instance):
+                {
+                    instance.History.Should().BeEquivalentTo(
+                        new List<InventoryEvent>
+                        {
+                            new ItemCreated(1, "Product 1", true, 5),
+                        }, options => options.RespectingRuntimeTypes());
+                    instance.Version.Should().Be(new ExistingVersion(1L));
+                    instance.State.Should().BeEquivalentTo(new Item {Activated = true, Count = 5, Name = "Product 1", ReasonForDeactivation = ""});
+                }
+                ;
+                break;
+            case Invalid<Instance<Item, InventoryCommand, InventoryEvent>>(
+                var invalid):
+                {
+                    Xunit.Assert.Fail("");
+                    break;
+                }
+        }
+    }
 }
 
