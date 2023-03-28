@@ -3,8 +3,11 @@ using Version = Radix.Domain.Data.Version;
 
 namespace Radix.Domain.Data;
 
-public record Instance<TState, TCommand, TEvent>
-    where TState : Aggregate<TState, TCommand, TEvent>
+public interface IInstance<TState, in TCommand, TEvent>
+{
+}
+
+public record Instance<TState, TCommand, TEvent> : IInstance<TState, TCommand, TEvent> where TState : Aggregate<TState, TCommand, TEvent>
 {
     public required Aggregate.Address Address { get; init; }
     public required TState State { get; init; }

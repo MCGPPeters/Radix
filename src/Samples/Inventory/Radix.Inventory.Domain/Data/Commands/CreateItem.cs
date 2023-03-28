@@ -20,7 +20,7 @@ public record CreateItem : InventoryCommand
 
     public static Validated<InventoryCommand> Create(long id, string name, bool activated, int count)
     {
-        var create = (Id i, string __, bool ___, int ____) => (InventoryCommand)new CreateItem(i, name, activated, count);
+        var create = (Id i, string _, bool _, int _) => (InventoryCommand)new CreateItem(i, name, activated, count);
 
         return Valid(create)
             .Apply(Id.Create(id))

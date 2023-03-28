@@ -10,3 +10,15 @@ public partial record CreateNewItem
 {
     public bool Activated { get; init; }
 }
+
+public partial record CreateAnotherItem
+{
+
+    [ValidatedProperty<string, IsNotNullEmptyOrWhiteSpace>]
+    public string Id { get; init; }
+
+    [ValidatedProperty<string, IsNotNullEmptyOrWhiteSpace>]
+    public string Reason { get; init; }
+
+    public bool Activated { get; init; }
+}

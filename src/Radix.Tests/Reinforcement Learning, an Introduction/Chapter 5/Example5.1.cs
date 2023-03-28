@@ -208,13 +208,13 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
                             return (new Transition<State>(state, nextState), (Probability)1);
 
                         case Stick:
-                            Hand newDealerHand;
+                            Hand newDealerHand = state.DealerHand;
                             while (state.DealerHand.Cards.Sum(x => x.Value) < 17)
                                 newDealerHand = Draw(deck, state.DealerHand);
 
                             nextState = new State
                             {
-                                DealerHand = state.DealerHand,
+                                DealerHand = newDealerHand,
                                 PlayerHand = state.PlayerHand,
                                 DealerShowing = state.DealerShowing,
                                 PlayerSum = state.PlayerSum,
@@ -263,7 +263,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
               return rewards;
           };
 
-        [Fact(DisplayName = "First visit monte carlo prediction", Skip = "Will not run in linux container.. TODO")]
+        [Fact(DisplayName = "First visit monte carlo prediction", Skip = "True")]
         public void Test1()
         {
             var blackjack = BlackJack.Create();

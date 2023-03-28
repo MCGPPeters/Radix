@@ -26,7 +26,7 @@ public class RuntimeProperties
         var inventoryItem = await context.Create<Item>();
 
         var validatedCreateItem = CreateItem.Create(1, "Product 1", true, 5);
-        var validatedCheckinItems = CheckInItemsToInventory.Create(1, 19);
+        var validatedCheckinItems = CheckInItemsToInventory.Create(1, 19).Select(inventory => (InventoryCommand)inventory);
         var validatedRenameItem = Valid((InventoryCommand)new RenameItem(1, "Product 2"));
         var validatedRemoveItems = RemoveItemsFromInventory.Create(1, 1);
 

@@ -68,7 +68,7 @@ public sealed class ValidatedMembersGenerator : IIncrementalGenerator
         var newLambdaArguments = validatedMembersContext
             .Select(x
                 => $"{x.memberTypeBeingValidated} {x.memberName.ToString()!.FirstCharacterToLowerCase()}_")
-            .Aggregate((current, next) => $"{current} {next}");
+            .Aggregate((current, next) => $"{current}, {next}");
 
         var constructorParameters = validatedMembersContext
             .Select(x
@@ -77,7 +77,7 @@ public sealed class ValidatedMembersGenerator : IIncrementalGenerator
 
         string applyCallChain = validatedMembersContext
             .Select(x
-                => $".Apply({x.validityType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.Validate(\"{x.memberName.ToString()!.FirstCharacterToLowerCase()}\"))")
+                => $".Apply({x.validityType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.Validate(\"{x.memberName.ToString()!.FirstCharacterToLowerCase()}\")({x.memberName.ToString()!.FirstCharacterToLowerCase()}))")
             .Aggregate((current, next) => $"{current}{Environment.NewLine}{next}");
 
         return
@@ -95,7 +95,7 @@ public sealed class ValidatedMembersGenerator : IIncrementalGenerator
     private static string BuildPrivateConstructor((ITypeSymbol memberTypeBeingValidated, ITypeSymbol validityType, ISymbol validatedType, object memberName)[] validatedMembersContext)
     {
         string validatedTypeName = validatedMembersContext[0].validatedType.Name;
-
+        
         var argumentList = BuildArgumentList(validatedMembersContext); ;
 
         string setProperties = validatedMembersContext
@@ -105,7 +105,7 @@ public sealed class ValidatedMembersGenerator : IIncrementalGenerator
 
         return
             @$"
-            private {validatedTypeName} Create({argumentList})
+            private {validatedTypeName} ({argumentList})
             {{
                 {setProperties}
             }}
@@ -116,7 +116,7 @@ public sealed class ValidatedMembersGenerator : IIncrementalGenerator
         validatedMembersContext
             .Select(x
                 => $"{x.memberTypeBeingValidated} {x.memberName.ToString()!.FirstCharacterToLowerCase()}")
-            .Aggregate((current, next) => $"{current} {next}");
+            .Aggregate((current, next) => $"{current}, {next}");
 
     private static (ITypeSymbol memberTypeBeingValidated, ITypeSymbol validityType, ISymbol validatedType, object memberName)[] SelectValidatedMemberAttributes(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
