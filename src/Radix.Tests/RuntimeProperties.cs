@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Concurrent;
+using FluentAssertions;
 using Radix.Data;
 using Radix.Domain.Data;
 using Radix.Inventory.Domain;
@@ -12,6 +13,10 @@ using static Radix.Control.Validated.Extensions;
 
 namespace Radix.Tests;
 
+//[CollectionDefinition("1", DisableParallelization = true)]
+//public record RuntimeTestCollection;
+
+//[Collection("1")]
 public class RuntimeProperties
 {
 
@@ -20,7 +25,14 @@ public class RuntimeProperties
             "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
     public async Task Test1()
     {
-        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
+        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new()
+        {
+            EventStoreSettings = new InMemoryEventStoreSettings
+            {
+                SerializedEvents = new ConcurrentDictionary<string, List<string>>()
+
+            }
+        };
 
         // for testing purposes make the aggregate block the current thread while processing
         var inventoryItem = await context.Create<Item>();
@@ -68,7 +80,11 @@ public class RuntimeProperties
             "Given an instance of an aggregate is not active, but it does exist, when sending a command it should be restored to the correct state and process the command")]
     public async Task Test2()
     {
-        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
+        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings
+        {
+            SerializedEvents = new ConcurrentDictionary<string, List<string>>()
+
+        }};
 
         // for testing purposes make the aggregate block the current thread while processing
         var inventoryItem = await context.Create<Item>();

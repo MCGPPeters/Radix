@@ -12,7 +12,6 @@ namespace Radix.Inventory.Domain;
 
 public class InMemoryEventStore : EventStore<InMemoryEventStore, InMemoryEventStoreSettings>
 {
-    public static long CurrentVersion = 0;
 
     public static TEvent Deserialize<TEvent>(string json) => JsonSerializer.Deserialize<TEvent>(json)!;
 
@@ -29,10 +28,10 @@ public class InMemoryEventStore : EventStore<InMemoryEventStore, InMemoryEventSt
             {
                 eventStoreSettings.SerializedEvents.TryAdd(key: stream.Name.ToString(), new List<string>() { JsonSerializer.Serialize(value: @event) });
             }
-            CurrentVersion++;
+            eventStoreSettings.CurrentVersion++;
         }
 
-        return new ExistingVersion(CurrentVersion).Return<ExistingVersion, AppendEventsError>();
+        return new ExistingVersion(eventStoreSettings.CurrentVersion).Return<ExistingVersion, AppendEventsError>();
     }
 
     public static async IAsyncEnumerable<Event<TEvent>> GetEvents<TEvent>(InMemoryEventStoreSettings eventStoreSettings,
@@ -60,6 +59,8 @@ public class InMemoryEventStore : EventStore<InMemoryEventStore, InMemoryEventSt
 
 public class InMemoryEventStoreSettings
 {
+
     public ConcurrentDictionary<string, List<string>> SerializedEvents = new() { };
+    public long CurrentVersion {get; set; }}
 }
 
