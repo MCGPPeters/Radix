@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿
+using System.Buffers;
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
@@ -18,6 +19,7 @@ using Radix.Tests;
 using Attribute = Radix.Interaction.Data.Attribute;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
+
 namespace Radix.Inventory.Pages;
 
 [Route("/Add")]
@@ -31,21 +33,22 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
         async (model, command) =>
         {
             Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new(){EventStoreSettings = new InMemoryEventStoreSettings()};
-
-            // for testing purposes make the aggregate block the current thread while processing
             var inventoryItem = await context.Create<Item>();
 
-            try
-            {
-                var result = await inventoryItem.Handle(command);
-            }
-            catch (ValidationErrorException e)
-            {
-                model.Errors = e.Reasons.Select(r => new Error{Message = r.ToString() });
-                await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
-            }
+            var result = await inventoryItem.Handle(command);
 
-            NavigationManager.NavigateTo("/");
+            switch (result)
+            {
+                case Invalid<Instance<Item, InventoryCommand, InventoryEvent>> (var reasons):
+                    model.Errors = reasons.Select(r => new Error { Message = r.ToString() });
+                    await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+                    break;
+                case Valid<Instance<Item, InventoryCommand, InventoryEvent>> valid:
+                    NavigationManager.NavigateTo("/");
+                    return model;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(result));
+            }
 
             return model;
         };
