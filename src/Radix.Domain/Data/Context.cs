@@ -20,29 +20,45 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
     public required TEventStoreSettings EventStoreSettings { get; set; }
 
     /// <summary>
-    /// Create a new instance of an aggregate, where the aggregate uses specialized events and commands within the context for the aggregate
+    /// Create a new instance of an aggregate, where the aggregate id is generated.
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
+    /// <returns></returns>
+    public async Task<Instance<TState, TCommand, TEvent>> Create<TState>()
+        where TState : Aggregate<TState, TCommand, TEvent> =>
+            await Create<TState>(Guid.NewGuid());
+
+    /// <summary>
+    /// Create a new instance of an aggregate, specifying a predefined aggregate id
     /// </summary>
     /// <param name="aggregateId">By default an new Address will be generated, but you can pass a predefined one</param>
     /// <typeparam name="TState">The aggregate type</typeparam>
     /// <typeparam name="">The specialized aggregate command type</typeparam>
     /// <typeparam name="">The specialized aggregate command type</typeparam>
     /// <returns></returns>
-    public async Task<Instance<TState, TCommand, TEvent>> Create<TState>()
+    public async Task<Instance<TState, TCommand, TEvent>> Create<TState>(Guid aggregateId)
         where TState : Aggregate<TState, TCommand, TEvent>
         =>
-            await Get<TState>(new Address { Id = (Id)Guid.NewGuid(), TenantId = (TenantId)"" }, new MinimumVersion());
+            await Get<TState>(new Address { Id = (Id)aggregateId, TenantId = (TenantId)"" }, new MinimumVersion());
+
 
     
+    public async Task<Instance<TState, TCommand, TEvent>> Create<TState>(TenantId tenantId)
+        where TState : Aggregate<TState, TCommand, TEvent>
+        =>
+            await Get<TState>(new Address{ Id = (Id)Guid.NewGuid(), TenantId = tenantId}, new MinimumVersion());
+
     /// <summary>
     /// Create a new instance of an aggregate, where the aggregate uses top level context commands and events
     /// </summary>
     /// <param name="aggregateId">By default an new Address will be generated, but you can pass a predefined one</param>
+    /// <param name="tenantId"></param>
     /// <typeparam name="TState">The aggregate type</typeparam>
     /// <returns></returns>
-    public async Task<Instance<TState, TCommand, TEvent>> Create<TState>(TenantId tentantId)
+    public async Task<Instance<TState, TCommand, TEvent>> Create<TState>(TenantId tenantId, Guid aggregateId)
         where TState : Aggregate<TState, TCommand, TEvent>
         =>
-            await Get<TState>(new Address{ Id = (Id)Guid.NewGuid(), TenantId = tentantId}, new MinimumVersion());
+            await Get<TState>(new Address{ Id = (Id)aggregateId, TenantId = tenantId}, new MinimumVersion());
 
     public Task<Instance<TState, TCommand, TEvent>> Get<TState>(Address instanceAddress)
         where TState : Aggregate<TState, TCommand, TEvent>
