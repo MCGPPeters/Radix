@@ -61,6 +61,6 @@ public class InMemoryEventStoreSettings
 {
 
     public ConcurrentDictionary<string, List<string>> SerializedEvents = new() { };
-    public long CurrentVersion {get; set; }}
-}
+    public long CurrentVersion {get; set; }
 
+}

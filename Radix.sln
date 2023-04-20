@@ -51,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests", "src\Radix.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators.Console", "src\Radix.Generators.Console\Radix.Generators.Console.csproj", "{E5AF1851-528B-4772-A4E0-EFFF9698050B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radix.Domain.EventStoreDB", "src\Radix.Domain.EventStoreDB\Radix.Domain.EventStoreDB.csproj", "{0D7E5C0A-ECD9-456C-9F13-939F0A4E98DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Domain.EventStoreDB", "src\Radix.Domain.EventStoreDB\Radix.Domain.EventStoreDB.csproj", "{0D7E5C0A-ECD9-456C-9F13-939F0A4E98DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
