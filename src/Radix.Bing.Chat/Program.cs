@@ -73,9 +73,18 @@ HubConnection hubConnection = new HubConnectionBuilder()
 
 await hubConnection.StartAsync();
 
+var i = 0;
 hubConnection.On<object>("update", message =>
 {
-    //Console.WriteLine($"Received message: {message}" + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+    switch (i % 4)
+    {
+        case 0: Console.Write("/"); break;
+        case 1: Console.Write("-"); break;
+        case 2: Console.Write("\\"); break;
+        case 3: Console.Write("|"); break;
+    }
+    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+    i++;
 });
 
 Func<string> genRanHex = () =>
