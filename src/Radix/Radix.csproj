@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="System.Reactive" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.1.23110.8" />
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.4.23259.5" />
   </ItemGroup>
 
   <ItemGroup>
