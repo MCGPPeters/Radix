@@ -89,7 +89,7 @@ public class LiteralGenerator : ISourceGenerator
         var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
-    {kindSource}
+    {kindSource}, System.IParsable<{typeSymbolName}>
     {{
         public override string ToString() => ""{toString}"";
         {equalsSource}
@@ -97,6 +97,19 @@ namespace {namespaceName}
         public static implicit operator {typeSymbolName}(string value) => value  == ""{toString}"" ? new() : throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
         public static string Format() => ""{toString}"";
         public string ToString(string? format, IFormatProvider? formatProvider) => ""{toString}"";
+        public static {typeSymbolName} Parse(string s, IFormatProvider? provider)
+        {{
+            if (""{toString}"" == s) return new {typeSymbolName}();
+            throw new ArgumentException(""'value' is not assignable to '{typeSymbol.Name}'"");
+        }}
+
+        public static bool TryParse(string? s, IFormatProvider? provider, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(returnValue: false)] out {typeSymbolName} result)
+        {{
+            result = default;
+            bool success = ""{toString}"" == s;
+            if(success) result = new {typeSymbolName}();
+            return success;
+        }}
     }}
 }}");
         return source.ToString();
