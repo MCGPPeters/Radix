@@ -12,6 +12,7 @@ $GitHubToken=$Env:PACKAGE_PUSH_TOKEN
 $GitHubRunNumber=$Env:GITHUB_RUN_NUMBER
 $NugetOrgApiKey=$Env:NUGETORG_API_KEY
 
+
 if ($GitHubToken -eq $null -or $GitHubToken -eq "") {
 	Write-Warning "PACKAGE_PUSH_TOKEN environment variable empty or missing."
 }
@@ -26,6 +27,8 @@ if ($NugetOrgApiKey -eq $null -or $NugetOrgApiKey -eq "") {
 
 $tag="radix-build"
 $version = nbgv get-version -f json | ConvertFrom-Json
+$nugetVersion = $version.NuGetPackageVersion
+$gitCommitId = $version.GitCommitId
 
 
 # Build the build environment image.
@@ -43,8 +46,8 @@ docker run --rm --name $tag `
  -v $PWD/temp:/temp `
  -e NUGET_PACKAGES=/temp/nuget-packages `
  -e BUILD_NUMBER=$GitHubRunNumber `
- -e NUGET_VERSION=$version.NuGetPackageVersion `
- -e GIT_COMMIT_ID=$version.GitCommitId `
+ -e NUGET_VERSION=$nugetVersion `
+ -e GIT_COMMIT_ID=$gitCommitId `
  --network host `
  $tag `
  dotnet run --project ./src/Build/Build.csproj -c Release -- $args
