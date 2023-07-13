@@ -69,7 +69,7 @@ internal class Program
             var packTarget = $"{project}-pack";
             Target(packTarget, DependsOn(Clean),
                 packableProjects,
-                packableProject => Run("dotnet", $"pack {packableProject} --no-build /p:NuspecProperties=\"version={nugetVersion};RepositoryType=git;RepositoryCommit={gitCommitId}; -c Release -o {ArtifactsDir}"));
+                packableProject => Run("dotnet", $"pack {packableProject} --no-build /p:NuspecProperties=\"version={nugetVersion};RepositoryType=git;RepositoryCommit={gitCommitId};\" -c Release -o {ArtifactsDir}"));
             targets.Add(packTarget);
         }
 
