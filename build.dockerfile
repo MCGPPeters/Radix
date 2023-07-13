@@ -6,6 +6,7 @@ ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 ARG NUGETORG_API_KEY
 ENV NUGETORG_API_KEY=${NUGETORG_API_KEY}
 
+RUN dotnet tool install -g nbgv
 RUN dotnet nuget add source --name mcgppeters-github --username github \
     --password $GITHUB_TOKEN --store-password-in-clear-text \
     https://nuget.pkg.github.com/mcgppeters/index.json

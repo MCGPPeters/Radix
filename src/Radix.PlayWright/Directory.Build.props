@@ -2,9 +2,4 @@
 <Project>
 
   <Import Project="..\..\Radix.props" />
-
-  <PropertyGroup>
-    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-  </PropertyGroup>
-
 </Project>
