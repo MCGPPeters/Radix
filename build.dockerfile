@@ -17,3 +17,5 @@ COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share
 COPY . .
 
 WORKDIR .
+
+RUN dotnet restore
