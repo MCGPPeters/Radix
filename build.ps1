@@ -25,6 +25,8 @@ if ($NugetOrgApiKey -eq $null -or $NugetOrgApiKey -eq "") {
 }
 
 $tag="radix-build"
+$version = nbgv get-version -f json | ConvertFrom-Json
+
 
 # Build the build environment image.
 docker build `
@@ -41,6 +43,8 @@ docker run --rm --name $tag `
  -v $PWD/temp:/temp `
  -e NUGET_PACKAGES=/temp/nuget-packages `
  -e BUILD_NUMBER=$GitHubRunNumber `
+ -e NUGET_VERSION=$version.NuGetPackageVersion `
+ -e GIT_COMMIT_ID=$version.GitCommitId `
  --network host `
  $tag `
  dotnet run --project ./src/Build/Build.csproj -c Release -- $args

@@ -45,6 +45,8 @@ internal class Program
             }
         );
 
+
+
         Target(Build, () => Run("dotnet", $"build {Solution} -c Release"));
 
         Target(Test, () => Run("dotnet", $"test {Solution} -c Release"));
@@ -54,6 +56,8 @@ internal class Program
             Clean, Build, Test
         };
 
+        var nugetVersion = Environment.GetEnvironmentVariable("NUGET_VERSION");
+        var gitCommitId = Environment.GetEnvironmentVariable("GIT_COMMIT_ID");
         var ignore = new[] { ".github", "Build" };
         var projects = Directory.GetDirectories("./src")
             .Where(d => !ignore.Contains(d))
@@ -65,13 +69,14 @@ internal class Program
             var packTarget = $"{project}-pack";
             Target(packTarget, DependsOn(Clean),
                 packableProjects,
-                packableProject => Run("dotnet", $"pack {packableProject} -c Release -o {ArtifactsDir}"));
+                packableProject => Run("dotnet", $"pack {packableProject} --no-build /p:NuspecProperties=\"version={nugetVersion};RepositoryType=git;RepositoryCommit={gitCommitId}; -c Release -o {ArtifactsDir}"));
             targets.Add(packTarget);
         }
 
         Target(PushToGitHub, () =>
         {
             var apiKey = Environment.GetEnvironmentVariable("PACKAGE_PUSH_TOKEN");
+
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 Console.WriteLine("GITHUB_TOKEN not available. No packages will be pushed.");
