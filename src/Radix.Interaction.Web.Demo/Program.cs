@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents();
 builder.Services.AddSingleton<IndexModel>();
+builder.Services.AddSingleton<WeatherModel>();
 
 var app = builder.Build();
 

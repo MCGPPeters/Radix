@@ -1,15 +1,5 @@
-﻿using Radix.Interaction;
-using Radix.Interaction.Components;
-using Radix.Interaction.Components.Nodes;
-using Radix.Interaction.Data;
-using Radix.Interaction.Web.Components;
-using static Radix.Interaction.Web.Components.Components;
-using static Radix.Interaction.Components.Prelude;
-using Attribute = Radix.Interaction.Data.Attribute;
-using static Radix.Interaction.Components.Prelude;
-using static Radix.Interaction.Web.Components.Nodes.Elements;
-using static Radix.Interaction.Web.Components.Attributes;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Radix.Interaction.Web.Demo.Pages;
 
@@ -20,6 +10,13 @@ public class Index : Component<IndexModel, IndexCommand>
         (model, dispatch) =>
             Task.FromResult((Node)concat(
             [
+                component<PageTitle>
+                (
+                    [],
+                    [
+                        text("Home")
+                    ]
+                ),
                 h1
                 (
                     [],
