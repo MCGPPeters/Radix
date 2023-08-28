@@ -14,11 +14,6 @@ public abstract class Component<TModel, TCommand> : ComponentBase
 
 
 
-    protected override void BuildRenderTree(RenderTreeBuilder builder)
-    {
+    protected override void BuildRenderTree(RenderTreeBuilder builder) =>
         Prelude<TModel, TCommand>.Next(Model, View, Update, Prelude.Render(this, builder), StateHasChanged);
-        var foo = (string s) => (string t) => $"You passed the string {s + t}";
-    }
-
-    public Func<string, Func<string, string>> foo = (string s) => (string t) => $"You passed the string {s + t}";
 }
