@@ -14,11 +14,11 @@ namespace Radix.Inventory.Pages;
 [Route("/")]
 public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
 {
-    protected override Update<IndexModel, Validated<ItemCommand>> Update => (model, _) => Task.FromResult(model);
+    protected override Update<IndexModel, Validated<ItemCommand>> Update => async (model, _) => model;
 
     protected override View<IndexModel, Validated<ItemCommand>> View =>
-         static (model, _) =>
-            Task.FromResult<Node>(
+         async static (model, _) =>
+            
             concat
             (
                 new Node[]
@@ -54,7 +54,7 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
                         Array.Empty<Attribute>(),
                         GetInventoryItemNodes(model.InventoryItems)
                     )
-                })
+                }
             );
 
 

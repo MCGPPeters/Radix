@@ -9,7 +9,7 @@ public class Weather : Component<WeatherModel, WeatherCommand>
 {
     protected override View<WeatherModel, WeatherCommand> View =>
         (model, dispatch) =>
-            Task.FromResult((Node)concat(
+            concat(
                 [
                     component<PageTitle>
                     (
@@ -139,10 +139,10 @@ public class Weather : Component<WeatherModel, WeatherCommand>
                             ]
                         )
 
-                ]
-                ));
+                    ]
+                );
 
-    protected override Update<WeatherModel, WeatherCommand> Update => (model, command) => Task.FromResult(model);
+    protected override Update<WeatherModel, WeatherCommand> Update => async (model, command) => model;
 
     private static readonly string[] Summaries = new[]
     {

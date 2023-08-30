@@ -19,7 +19,7 @@ namespace Radix.Components.Material._3._2._0.Card
 
         private const string PrimaryActionCssClassName = "mdc-card__primary-action";
 
-        protected override Interaction.Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);
+        protected override Interaction.Update<RegularModel, RegularCommand> Update => async (model, _) => model;
 
         protected override View<RegularModel, RegularCommand> View =>
             async (model, dispatch) =>

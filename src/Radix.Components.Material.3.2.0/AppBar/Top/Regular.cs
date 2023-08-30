@@ -126,7 +126,7 @@ public class Regular : Component<RegularModel, RegularCommand>
 
 
 
-    protected override Update<RegularModel, RegularCommand> Update => (model, _) => Task.FromResult(model);
+    protected override Update<RegularModel, RegularCommand> Update => async (model, _) => model;
 
     private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
         form

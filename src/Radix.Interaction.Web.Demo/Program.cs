@@ -4,9 +4,10 @@ using Radix.Interaction.Web.Demo.Pages;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents();
+builder.Services.AddRazorComponents().AddServerComponents();
 builder.Services.AddSingleton<IndexModel>();
 builder.Services.AddSingleton<WeatherModel>();
+builder.Services.AddSingleton<CounterModel>();
 
 var app = builder.Build();
 

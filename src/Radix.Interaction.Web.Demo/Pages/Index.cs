@@ -8,7 +8,7 @@ public class Index : Component<IndexModel, IndexCommand>
 {
     protected override View<IndexModel, IndexCommand> View =>
         (model, dispatch) =>
-            Task.FromResult((Node)concat(
+            concat(
             [
                 component<PageTitle>
                 (
@@ -31,9 +31,9 @@ public class Index : Component<IndexModel, IndexCommand>
                 (
                     "Welcome to your new app."
                 )                
-            ]));
+            ]);
 
-    protected override Update<IndexModel, IndexCommand> Update => (model, command) => Task.FromResult(model);
+    protected override Update<IndexModel, IndexCommand> Update => async (model, command) => model;
 }
 
 public record IndexCommand

@@ -4,7 +4,7 @@ namespace Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
 
 public class Favorite : Button<FavoriteButtonModel, FavoriteButtonCommand>
 {
-    protected override Interaction.Update<FavoriteButtonModel, FavoriteButtonCommand> Update => (model, command) => Task.FromResult(model);
+    protected override Interaction.Update<FavoriteButtonModel, FavoriteButtonCommand> Update => async (model, command) => model;
 }
 
 public class FavoriteButtonCommand : ButtonCommand<FavoriteButtonCommand>

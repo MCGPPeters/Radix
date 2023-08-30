@@ -8,5 +8,5 @@ public class Search : Button<SearchButtonModel, SearchButtonCommand>
     {
         // OnClick = async _ => await JSRuntime.InvokeAsync<object>("showSearchBar", Array.Empty<object>());
     }
-    protected override Interaction.Update<SearchButtonModel, SearchButtonCommand> Update => (model, command) => Task.FromResult(model);
+    protected override Interaction.Update<SearchButtonModel, SearchButtonCommand> Update => async (model, command) => model;
 }

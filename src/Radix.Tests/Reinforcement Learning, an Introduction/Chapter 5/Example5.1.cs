@@ -24,7 +24,7 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
 
     public partial record Deck 
     {
-        public Deck() => Value = Distribution<int>.Uniform(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 });
+        public Deck() => Value = Distribution<int>.Uniform([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 ]);
     }
 
     [Alias<Random<int>>]
@@ -281,8 +281,8 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
 
         private static void PlotValueFunction(Expectation<State> stateValue)
         {
-            var zWithUsableAce = new double[12, 22];
-            var zWithoutUsableAce = new double[12, 22];
+            var zWithUsableAce = [12, 22];
+            var zWithoutUsableAce = [12.0, 22.0];
 
             for (int i = 1; i < 12; i++)
             {

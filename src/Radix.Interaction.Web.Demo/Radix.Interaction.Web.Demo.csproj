@@ -3,8 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +14,7 @@
     <ProjectReference Include="..\Radix.Web.Css\Radix.Web.Css.csproj" />
     <ProjectReference Include="..\Radix.Web.Html\Radix.Web.Html.csproj" />
   </ItemGroup>
+
+
 
 </Project>

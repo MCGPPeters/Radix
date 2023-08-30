@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Microsoft.JSInterop;
 
 namespace Radix.Interaction.Web.Components;
 
@@ -15,5 +14,11 @@ public abstract class Component<TModel, TCommand> : ComponentBase
 
 
     protected override void BuildRenderTree(RenderTreeBuilder builder) =>
-        Prelude<TModel, TCommand>.Next(Model, View, Update, Prelude.Render(this, builder), StateHasChanged);
+        Prelude.Render(this, builder)(View(model: Model, dispatch: async command =>
+        {
+            Model = await Update(Model, command);
+            StateHasChanged();
+        }));
 }
+    
+
