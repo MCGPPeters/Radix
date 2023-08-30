@@ -8,10 +8,8 @@ namespace Radix.Interaction.Web.Demo.Pages;
 [RenderModeServer]
 public class Counter : Component<CounterModel, CounterCommand>
 {
-
-    protected override View<CounterModel, CounterCommand> View =>
-        (model, dispatch) =>
-            div([],
+    protected override Node View(CounterModel model, Action<CounterCommand> dispatch) =>
+        div([],
                 [
                     button(
                         [
@@ -30,16 +28,17 @@ public class Counter : Component<CounterModel, CounterCommand>
                         [
                             type(["button"]),
                             @class(["btn", "btn-primary"]),
-                            on.click(_ => {
-                                dispatch(new Decrement()); })
+                            on.click(_ =>
+                            {
+                                dispatch(new Decrement());
+                            })
                         ],
                         [
                             text("-")
                         ])
                 ]);
 
-    protected override Update<CounterModel, CounterCommand> Update =>
-        async (model, command) =>
+    protected override async ValueTask<CounterModel> Update(CounterModel model, CounterCommand command) =>
             command switch
             {
                 Increment => model with { Count = model.Count + 1 },
@@ -48,7 +47,7 @@ public class Counter : Component<CounterModel, CounterCommand>
             };
 }
 
-public interface CounterCommand
+    public interface CounterCommand
 {
 }
 

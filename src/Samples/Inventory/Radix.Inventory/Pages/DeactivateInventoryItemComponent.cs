@@ -29,36 +29,8 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override Interaction.Update<DeactivateInventoryItemModel, Validated<InventoryCommand>> Update =>
-        async (model, command) =>
-        {
-            Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
-
-            // for testing purposes make the aggregate block the current thread while processing
-            var inventoryItem = await context.Get<Item>(new Address(){ Id = (Radix.Domain.Data.Aggregate.Id)Id});
-            var result = await inventoryItem.Handle(command);
-
-            async void HandleReasons(Reason[] reasons)
-            {
-                model.Errors = reasons.Select(reason => new Error(){Message = reason.ToString()});
-                await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
-            }
-
-            result
-                .Match(_ =>
-                {
-                    NavigationManager.NavigateTo("/");
-                },HandleReasons);
-
-            return model;
-
-        };
-
-
-
-    protected override View<DeactivateInventoryItemModel, Validated<InventoryCommand>> View =>
-            async (model, dispatch) =>
-                await Task.FromResult(concat
+    protected override Node View(DeactivateInventoryItemModel model, Action<Validated<InventoryCommand>> dispatch) =>
+        concat
                 (
                     new Node[]
                     {
@@ -220,7 +192,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                                             )
                                                         })
 
-                                                        
+
                                                 }
 
                                             )
@@ -247,7 +219,8 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                         }
                     )
                         }
-                ));
+                );
+    
 
     private static Node FormatErrorMessages(IEnumerable<Error>? errors)
     {
@@ -276,5 +249,30 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
         }
 
         return node;
+    }
+
+
+    protected override async ValueTask<DeactivateInventoryItemModel> Update(DeactivateInventoryItemModel model, Validated<InventoryCommand> command)
+    {
+        Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
+
+        // for testing purposes make the aggregate block the current thread while processing
+        var inventoryItem = await context.Get<Item>(new Address() { Id = (Radix.Domain.Data.Aggregate.Id)Id });
+        var result = await inventoryItem.Handle(command);
+
+        async void HandleReasons(Reason[] reasons)
+        {
+            model.Errors = reasons.Select(reason => new Error() { Message = reason.ToString() });
+            await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+        }
+
+        result
+            .Match(_ =>
+            {
+                NavigationManager.NavigateTo("/");
+            }, HandleReasons);
+
+        return model;
+
     }
 }

@@ -14,10 +14,9 @@ namespace Radix.Inventory.Pages;
 [Route("/")]
 public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
 {
-    protected override Update<IndexModel, Validated<ItemCommand>> Update => async (model, _) => model;
+    protected override async ValueTask<IndexModel> Update(IndexModel model, Validated<ItemCommand> command) => model;
 
-    protected override View<IndexModel, Validated<ItemCommand>> View =>
-         async static (model, _) =>
+    protected override Node View(IndexModel model, Action<Validated<ItemCommand>> dispatch) =>
             
             concat
             (
@@ -145,5 +144,6 @@ public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
         ??
             Array.Empty<Node>();
 
+    
 }
                     

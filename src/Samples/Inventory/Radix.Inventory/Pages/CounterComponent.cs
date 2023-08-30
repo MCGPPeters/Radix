@@ -18,17 +18,15 @@ public class CounterComponent : Component<CounterModel, IncrementCommand>
 {
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override Interaction.Update<CounterModel, IncrementCommand> Update =>
-        async (model, command) =>
+    protected override async ValueTask<CounterModel> Update(CounterModel model, IncrementCommand command)
         {
             model.Count++;
 
             return model;
 
-        };
+        }
 
-    protected override Interaction.View<CounterModel, IncrementCommand> View =>
-        (model, dispatch) =>
+    protected override Node View(CounterModel model, Action<IncrementCommand> dispatch) =>
         concat
         (
             [

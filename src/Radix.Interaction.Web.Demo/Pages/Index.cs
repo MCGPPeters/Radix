@@ -6,9 +6,10 @@ namespace Radix.Interaction.Web.Demo.Pages;
 [Route("/")]
 public class Index : Component<IndexModel, IndexCommand>
 {
-    protected override View<IndexModel, IndexCommand> View =>
-        (model, dispatch) =>
-            concat(
+
+    protected override async ValueTask<IndexModel> Update(IndexModel model, IndexCommand command) => model;
+    protected override Node View(IndexModel model, Action<IndexCommand> dispatch) =>
+        concat(
             [
                 component<PageTitle>
                 (
@@ -30,10 +31,8 @@ public class Index : Component<IndexModel, IndexCommand>
                 text
                 (
                     "Welcome to your new app."
-                )                
+                )
             ]);
-
-    protected override Update<IndexModel, IndexCommand> Update => async (model, command) => model;
 }
 
 public record IndexCommand

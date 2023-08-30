@@ -12,13 +12,16 @@ public class NavMenu : Component<NavMenuModel, object>
 {
     private bool collapseNavMenu = true;
 
-    protected override Interaction.Update<NavMenuModel, object> Update => async (model, _) => model;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : "";
 
-    protected override View<NavMenuModel, object> View =>
-        async (model, _)
-            =>
-            await Task.FromResult(concat
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override Node View(NavMenuModel model, Action<object> dispatch) =>
+        concat
             (
                 new Node[]
                 {
@@ -224,12 +227,6 @@ public class NavMenu : Component<NavMenuModel, object>
                         }
                     )
                 }
-            )
-        );
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-
+            );
+    protected override async ValueTask<NavMenuModel> Update(NavMenuModel model, object command) => model;
 }

@@ -19,38 +19,37 @@ namespace Radix.Components.Material._3._2._0.Card
 
         private const string PrimaryActionCssClassName = "mdc-card__primary-action";
 
-        protected override Interaction.Update<RegularModel, RegularCommand> Update => async (model, _) => model;
+        protected override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand _) => model;
+        
+        protected override Node View(RegularModel model, Action<RegularCommand> dispatch)
+        {
 
-        protected override View<RegularModel, RegularCommand> View =>
-            async (model, dispatch) =>
+            model = model with
             {
-
-                model = model with
+                PaddingLeft = new Web.Css.Data.Declarations.PaddingLeft.Length
                 {
-                    PaddingLeft = new Web.Css.Data.Declarations.PaddingLeft.Length
-                    {
-                        Value = new AbsoluteLength<px>((Number)22)
-                    }
-                };
+                    Value = new AbsoluteLength<px>((Number)22)
+                }
+            };
 
-                model = model with
+            model = model with
+            {
+                PaddingLeft = new Web.Css.Data.Declarations.PaddingLeft.Percentage
                 {
-                    PaddingLeft = new Web.Css.Data.Declarations.PaddingLeft.Percentage
-                    {
-                        Value = new Percentage((Number)5)
-                    }
-                };
+                    Value = new Percentage((Number)5)
+                }
+            };
 
-                return
-                    await Task.FromResult(div
-                    (
-                        new[]
-                        {
+            return
+                div
+                (
+                    new[]
+                    {
                             @class(new []{$"{CardCssClassName}"}), id(new[] { model.Id ?? "" })
-                        },
+                    },
 
-                        new Node[]
-                        { 
+                    new Node[]
+                    {
                             div
                             (
                                 new Attribute[]
@@ -60,9 +59,9 @@ namespace Radix.Components.Material._3._2._0.Card
                                 },
                                 Array.Empty<Node>()
                             )
-                        }
-                    ));
-            };
+                    }
+                );
+        }
     }
 
     public record RegularModel

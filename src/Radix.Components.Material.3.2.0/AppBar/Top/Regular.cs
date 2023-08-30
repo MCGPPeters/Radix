@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using Microsoft.VisualBasic;
 using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
 using Radix.Data;
 using Radix.Interaction;
@@ -31,21 +32,23 @@ public class Regular : Component<RegularModel, RegularCommand>
 
     [Parameter] public EventCallback<string> OnSearchTermEntered { get; set; }
 
-    protected override View<RegularModel, RegularCommand> View =>
-        async (model, dispatch) =>
-        {
-            var hasSearch = model.ActionButtons.Any(button => button is Search);
 
-            return
-                header
-                (
-                    new Attribute[]
-                    {
+
+    protected override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand command) => model;
+    protected override Node View(RegularModel model, Action<RegularCommand> dispatch)
+    {
+        var hasSearch = model.ActionButtons.Any(button => button is Search);
+
+        return
+            header
+            (
+                new Attribute[]
+                {
                         @class(new []{AppBarCssClassName, "show"}),
                         id(new []{model.Id})
-                    },
-                    new[]
-                    {
+                },
+                new[]
+                {
                         script
                         (
                             Array.Empty<Attribute>(),
@@ -121,14 +124,9 @@ public class Regular : Component<RegularModel, RegularCommand>
                                     }
                                 )
                             })
-                    });
-        };
-
-
-
-    protected override Update<RegularModel, RegularCommand> Update => async (model, _) => model;
-
-    private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
+                });
+    }
+private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
         form
         (
             new Attribute []

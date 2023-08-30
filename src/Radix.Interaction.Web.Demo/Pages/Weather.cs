@@ -6,10 +6,30 @@ namespace Radix.Interaction.Web.Demo.Pages;
 [Route("/weather")]
 [StreamRendering(true)]
 public class Weather : Component<WeatherModel, WeatherCommand>
-{
-    protected override View<WeatherModel, WeatherCommand> View =>
-        (model, dispatch) =>
-            concat(
+{        
+
+
+    private static readonly string[] Summaries = new[]
+    {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate retrieving the data asynchronously.
+        await Task.Delay(1000);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        Model.Forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+        }).ToArray();
+    }
+
+    protected override Node View(WeatherModel model, Action<WeatherCommand> dispatch) =>
+        concat(
                 [
                     component<PageTitle>
                     (
@@ -141,27 +161,7 @@ public class Weather : Component<WeatherModel, WeatherCommand>
 
                     ]
                 );
-
-    protected override Update<WeatherModel, WeatherCommand> Update => async (model, command) => model;
-
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Simulate retrieving the data asynchronously.
-        await Task.Delay(1000);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        Model.Forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        }).ToArray();
-    }
+    protected override async ValueTask<WeatherModel> Update(WeatherModel model, WeatherCommand command) => model;
 }
 
 public record WeatherModel

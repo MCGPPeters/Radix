@@ -15,10 +15,8 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
 {
     [Parameter] public EventCallback<string> OnClick { get; set; }
 
-    protected override View<TModel, TCommand> View =>
-            static async (model, dispatch) =>
-            {
-                return await Task.FromResult(button
+    protected override Node View(TModel model, Action<TCommand> dispatch) =>
+            button
                 (
                     new[]
                     {
@@ -34,7 +32,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
                         )
                     }
 
-                ));
+                );
             };
 
-}
+
