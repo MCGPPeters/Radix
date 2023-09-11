@@ -9,34 +9,44 @@ namespace Radix.Interaction.Web.Demo.Pages;
 public class Counter : Component<CounterModel, CounterCommand>
 {
     protected override Node View(CounterModel model, Action<CounterCommand> dispatch) =>
-        div([],
-                [
-                    button(
-                        [
-                            type(["button"]),
-                            @class(["btn", "btn-primary"]),
-                            on.click(_ => dispatch(new Increment()))
-                        ],
-                        [
-                            text("+")
-                        ]),
-                    div([],
-                        [
-                            text(model.Count.ToString())
-                        ]),
-                    button(
-                        [
-                            type(["button"]),
-                            @class(["btn", "btn-primary"]),
-                            on.click(_ =>
-                            {
-                                dispatch(new Decrement());
-                            })
-                        ],
-                        [
-                            text("-")
-                        ])
-                ]);
+        div
+        (
+            [],
+            [
+                button
+                (
+                    [
+                        type(["button"]),
+                        @class(["btn", "btn-primary"]),
+                        on.click(_ => dispatch(new Increment()))
+                    ],
+                    [
+                        "+"
+                    ]
+                ),
+                div
+                (
+                    [],
+                    [
+                       model.Count.ToString()
+                    ]
+                ),
+                button
+                (
+                    [
+                        type(["button"]),
+                        @class(["btn", "btn-primary"]),
+                        on.click
+                        (
+                            _ => dispatch(new Decrement())
+                        )
+                    ],
+                    [
+                        "-"
+                    ]
+                )
+            ]
+        );
 
     protected override async ValueTask<CounterModel> Update(CounterModel model, CounterCommand command) =>
             command switch
@@ -47,7 +57,7 @@ public class Counter : Component<CounterModel, CounterCommand>
             };
 }
 
-    public interface CounterCommand
+public interface CounterCommand
 {
 }
 

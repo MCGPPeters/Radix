@@ -13,12 +13,15 @@ public abstract class Component<TModel, TCommand> : ComponentBase
     protected abstract ValueTask<TModel> Update(TModel model, TCommand command);
 
     /// <inheritdoc />
-    protected override void BuildRenderTree(RenderTreeBuilder builder) =>
-            Prelude.Render(this, builder)(View(model: Model, dispatch: async command =>
-            {
-                Model = await Update(Model, command);
-                StateHasChanged();
-            }));
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        Prelude.Render(this, builder)(View(model: Model, dispatch: async command =>
+        {
+            Model = await Update(Model, command);
+            StateHasChanged();
+        }));
+    }
+            
 }
     
 

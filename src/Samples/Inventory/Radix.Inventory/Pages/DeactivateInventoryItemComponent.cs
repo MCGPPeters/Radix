@@ -75,7 +75,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
                                 {
                                     @class(new []{"form-control"}),
                                     id(new []{"reasonInput"}),
-                                    bind.input((NodeId)12, model.Reason, reason => model.Reason = reason)
+                                    bind.input(model.Reason, reason => model.Reason = reason)
                                 },
                                 Array.Empty<Node>()
                             ),

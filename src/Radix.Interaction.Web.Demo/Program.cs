@@ -1,13 +1,18 @@
+using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Interaction.Web.Demo;
 using Radix.Interaction.Web.Demo.Pages;
+using CounterModel = Radix.Interaction.Web.Demo.Pages.CounterModel;
+using IndexModel = Radix.Interaction.Web.Demo.Pages.IndexModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents().AddServerComponents();
+builder.Services.AddRazorComponents().AddServerComponents().AddWebAssemblyComponents();
 builder.Services.AddSingleton<IndexModel>();
 builder.Services.AddSingleton<WeatherModel>();
 builder.Services.AddSingleton<CounterModel>();
+builder.Services.AddSingleton<InventoryModel>();
+builder.Services.AddSingleton<AddItemModel>();
 
 var app = builder.Build();
 
@@ -23,6 +28,6 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-app.MapRazorComponents<App>();
+app.MapRazorComponents<App>().AddWebAssemblyRenderMode().AddServerRenderMode();
 
 app.Run();

@@ -145,7 +145,7 @@ private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
                         type(new[] { "button" }),
                         @class(new[] { $"{SearchBackButtonCssClassName} material-icons" }),
                         aria_label(new[] { "Exit search results" }),
-                        on.click(async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", Array.Empty<object>()))
+                        on.click(async _ => await JSRuntime.InvokeAsync<object>("hideSearchBar", []))
                     },
                     new []
                     {
@@ -164,8 +164,8 @@ private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
                         placeholder(new[] { "Search" }),
                         aria_label(new[] { "Type what you want to search and press enter" }),
                         autocomplete(new[] { "off" }),
-                        bind.input((NodeId)37, model.SearchTerm, searchTerm => model.SearchTerm = searchTerm),
-                        on.keydown((NodeId)38, async args =>
+                        bind.input(model.SearchTerm, searchTerm => model.SearchTerm = searchTerm),
+                        on.keydown(async args =>
                         {
                             if (args.Key == "Enter")
                             {

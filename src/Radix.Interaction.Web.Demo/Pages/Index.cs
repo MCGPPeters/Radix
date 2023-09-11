@@ -15,23 +15,17 @@ public class Index : Component<IndexModel, IndexCommand>
                 (
                     [],
                     [
-                        text("Home")
+                        "Home"
                     ]
                 ),
                 h1
                 (
                     [],
                     [
-                        text
-                        (
-                            "Home"
-                        )
+                        "Home"
                     ]
                 ),
-                text
-                (
-                    "Welcome to your new app."
-                )
+                "Welcome to your new app."
             ]);
 }
 

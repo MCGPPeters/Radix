@@ -281,8 +281,8 @@ namespace Radix.Tests.Reinforcement_Learning__an_Introduction.Chapter_5
 
         private static void PlotValueFunction(Expectation<State> stateValue)
         {
-            var zWithUsableAce = [12, 22];
-            var zWithoutUsableAce = [12.0, 22.0];
+            var zWithUsableAce = new double[12, 22];
+            var zWithoutUsableAce = new double[12, 22];
 
             for (int i = 1; i < 12; i++)
             {

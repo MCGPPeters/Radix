@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Components;
 using Radix.Interaction.Data;
 using Attribute = Radix.Interaction.Data.Attribute;
@@ -20,9 +21,9 @@ public static class bind
             return nodeId + 1;
         });
 
-    public static Attribute input<T>(NodeId nodeId, T value, Action<T> callback, CultureInfo cultureInfo = default!) =>
-        binder(nodeId, InputEventName, value, callback, cultureInfo);
+    public static Attribute input<T>(T value, Action<T> callback, CultureInfo cultureInfo = default!, [CallerLineNumber] int nodeId = 0) =>
+        binder((NodeId)nodeId, InputEventName, value, callback, cultureInfo);
 
-    public static Attribute change<T>(NodeId nodeId, T value, Action<T> callback, CultureInfo cultureInfo = default!) =>
-        binder(nodeId, ChangeEventName, value, callback, cultureInfo);
+    public static Attribute change<T>(T value, Action<T> callback, CultureInfo cultureInfo = default!, [CallerLineNumber] int nodeId = 0) =>
+        binder((NodeId)nodeId, ChangeEventName, value, callback, cultureInfo);
 }

@@ -47,19 +47,19 @@ public static class on
 
     public static Attribute contextmenu(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(contextmenu), callback);
 
-    public static Attribute drag(NodeId nodeId, Action<DragEventArgs> callback) => @event(nameof(drag), callback);
+    public static Attribute drag(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(drag), callback);
 
-    public static Attribute dragenter(NodeId nodeId, Action<DragEventArgs> callback) => @event(nameof(dragenter), callback);
+    public static Attribute dragenter(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(dragenter), callback);
 
-    public static Attribute dragleave(NodeId nodeId, Action<DragEventArgs> callback) => @event(nameof(dragleave), callback);
+    public static Attribute dragleave(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(dragleave), callback);
 
-    public static Attribute dragover(NodeId nodeId, Action<DragEventArgs> callback) => @event(nameof(dragover), callback);
+    public static Attribute dragover(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(dragover), callback);
 
-    public static Attribute dragstart(NodeId nodeId, Action<DragEventArgs> callback) => @event(nameof(dragstart), callback);
+    public static Attribute dragstart(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(dragstart), callback);
 
-    public static Attribute drop(NodeId nodeId, Action<DragEventArgs> callback) => @event(nameof(drop), callback);
+    public static Attribute drop(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(drop), callback);
 
-    public static Attribute keydown(NodeId nodeId, Action<KeyboardEventArgs> callback) => @event(nameof(keydown), callback);
+    public static Attribute keydown(Action<KeyboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => @event(nameof(keydown), callback);
 
     public static Attribute keyup(NodeId nodeId, Action<KeyboardEventArgs> callback) => @event(nameof(keyup), callback);
 

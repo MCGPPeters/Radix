@@ -97,7 +97,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
                                         @class(new[] { "form-control" }),
                                         id(new[] { "idInput" }),
                                         bind.input(
-                                            (NodeId)11, model.InventoryItemId,
+                                            model.InventoryItemId,
                                             id => model.InventoryItemId = id)
                                     },
                                     Array.Empty<Node>()
@@ -119,7 +119,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
                                     new[]
                                     {
                                         @class(new[] { "form-control" }), id(new[] { "nameInput" }), bind.input(
-                                            (NodeId)18, model.InventoryItemName,
+                                            model.InventoryItemName,
                                             name => model.InventoryItemName = name)
                                     },
                                     Array.Empty<Node>()
@@ -134,7 +134,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
                                     new Attribute[]
                                     {
                                         @class(new[] { "form-control" }), id(new[] { "countInput" }), bind.input(
-                                            (NodeId)25, model.InventoryItemCount,
+                                            model.InventoryItemCount,
                                             count => model.InventoryItemCount = count)
                                     },
                                     Array.Empty<Node>()
@@ -263,7 +263,6 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
     {
         Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
 
-        // for testing purposes make the aggregate block the current thread while processing
         var inventoryItem = await context.Create<Item>();
 
         try
@@ -273,7 +272,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
         catch (ValidationErrorException e)
         {
             model.Errors = e.Reasons.Select(r => new Error { Message = r.ToString() });
-            await JSRuntime.InvokeAsync<string>("toast", Array.Empty<object>());
+            await JSRuntime.InvokeAsync<string>("toast", []);
         }
 
         NavigationManager.NavigateTo("/");

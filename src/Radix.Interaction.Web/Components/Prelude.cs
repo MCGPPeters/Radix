@@ -20,7 +20,7 @@ public static class Prelude
                 switch (node)
                 {
 
-                    case Text(var id, var text):
+                    case Text(var text, var id):
                         builder.AddContent(id, text);
                         break;
                     case HtmlString(var html, var id):

@@ -82,7 +82,7 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
         instance.Handle =  command =>
         {
             return command
-                .Select(async cmd => (await Handle(instance, cmd)))
+                .Select(async cmd => await Handle(instance, cmd))
                 .Traverse(id => id);
         };
         return instance;
@@ -123,7 +123,7 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
                     i.Handle = command =>
                     {
                         return command
-                            .Select(async cmd => (await Handle(i, cmd)))
+                            .Select(async cmd => await Handle(i, cmd))
                             .Traverse(id => id);
                     };
                     return i;
