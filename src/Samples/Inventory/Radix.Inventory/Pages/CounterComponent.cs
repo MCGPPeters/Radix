@@ -1,15 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radix.Blazor.Inventory.Interface.Logic;
-using Radix.Data;
-using Radix.Domain.Data;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
-using Radix.Inventory.Domain;
-using Radix.Inventory.Domain.Data.Commands;
-using Radix.Inventory.Domain.Data.Events;
-using Radix.Tests;
-using Attribute = Radix.Interaction.Data.Attribute;
 
 namespace Radix.Inventory.Pages;
 
@@ -18,15 +11,15 @@ public class CounterComponent : Component<CounterModel, IncrementCommand>
 {
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override async ValueTask<CounterModel> Update(CounterModel model, IncrementCommand command)
-        {
-            model.Count++;
+    public override async ValueTask<CounterModel> Update(CounterModel model, IncrementCommand command)
+    {
+        model.Count++;
 
-            return model;
+        return model;
 
-        }
+    }
 
-    protected override Node View(CounterModel model, Action<IncrementCommand> dispatch) =>
+    public override Node View(CounterModel model, Func<IncrementCommand, Task> dispatch) =>
         concat
         (
             [
@@ -34,10 +27,7 @@ public class CounterComponent : Component<CounterModel, IncrementCommand>
                 (
                     [],
                     [
-                        text
-                        (
-                            "Counter"
-                        )
+                        "Counter"
                     ]
 
                 ),
@@ -45,17 +35,13 @@ public class CounterComponent : Component<CounterModel, IncrementCommand>
                 (
                     [],
                     [
-                        text
-                        (
-                            model.Count.ToString()
-                        )
+                        model.Count.ToString()
                     ]
                 ),
                 button
                 (
-
                    [
-                            @class(new []{"btn", "btn-primary"}),
+                            @class(new[] { "btn", "btn-primary" }),
                             on.click
                             (
                                 args =>
@@ -64,8 +50,6 @@ public class CounterComponent : Component<CounterModel, IncrementCommand>
                                     dispatch(validCommand);
                                 }
                             )
-
-
                     ],
                     [
                         text
@@ -75,7 +59,7 @@ public class CounterComponent : Component<CounterModel, IncrementCommand>
                     ]
                 )
 
-                
+
             ]
         );
 }

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
@@ -10,8 +11,6 @@ using Radix.Inventory.Domain;
 using Radix.Inventory.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
-using Attribute = Radix.Interaction.Data.Attribute;
-using script = Radix.Web.Html.Data.Names.Elements.script;
 
 namespace Radix.Interaction.Web.Demo.Pages;
 
@@ -26,25 +25,21 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
 
     private static Node FormatErrorMessages(IEnumerable<Error>? errors)
     {
-        Node node = new Empty();
+        Node node = empty();
         if (errors is not null)
         {
             node =
                 ul
                 (
-            Array.Empty<Attribute>(),
+                    [],
                     errors.Select(error =>
-                        (Node)li
+                        li
                         (
-                            Array.Empty<Attribute>(),
-                            new[]
-                            {
-                            text
-                            (
-                                error.ToString()
-                            )
-                            }
-
+                            [],
+                            [
+                                text(error.ToString())
+                            ]
+                                
                         )
                     ).ToArray()
                 );
@@ -53,7 +48,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
         return node;
     }
 
-    protected override Node View(AddItemModel model, Action<Validated<InventoryCommand>> dispatch) =>
+    public override Node View(AddItemModel model, Func<Validated<InventoryCommand>, Task> dispatch) =>
         section
         (
             [],
@@ -62,7 +57,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                 (
                     [],
                     [
-                        "Add new item"
+                        text("Add new item")
                     ]
                 ),
                 div
@@ -77,7 +72,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                                 @for(["idInput"])
                             ],
                             [
-                                "Id"
+                                text("Id")
                             ]
                         ),
                         input
@@ -95,7 +90,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                                 @for(["nameInput"])
                             ],
                             [
-                                "Name"
+                                text("Name")
                             ]
                         ),
                         input
@@ -113,7 +108,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                                 @for(["countInput"])
                             ],
                             [
-                                "Count"
+                                text("Count")
                             ]
                         ),
                         input
@@ -148,7 +143,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                             })
                     ],
                     [
-                        "Ok"
+                        text("Ok")
                     ]
                 ),
                 navLinkMatchAll
@@ -158,7 +153,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                         href(["/"])
                     ],
                     [
-                        "Cancel"
+                        text("Cancel")
                     ]
                 ),
                 div
@@ -190,14 +185,14 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                                                 @class(["me-auto"])
                                             ],
                                             [
-                                                "Invalid input"
+                                                text("Invalid input")
                                             ]
                                         ),
                                         small
                                         (
                                             [],
                                             [
-                                                DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture)
+                                                text(DateTimeOffset.UtcNow.ToString(CultureInfo.CurrentUICulture))
                                             ]
                                         ),
                                         button
@@ -230,7 +225,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
             ]
         );
 
-    protected override async ValueTask<AddItemModel> Update(AddItemModel model, Validated<InventoryCommand> command)
+    public override async ValueTask<AddItemModel> Update(AddItemModel model, Validated<InventoryCommand> command)
     {
         Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
 

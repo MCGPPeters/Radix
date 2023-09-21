@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using Radix.Data;
 
 namespace Radix.Interaction.Web.Demo.Pages;
 
@@ -8,7 +9,8 @@ namespace Radix.Interaction.Web.Demo.Pages;
 [RenderModeServer]
 public class Counter : Component<CounterModel, CounterCommand>
 {
-    protected override Node View(CounterModel model, Action<CounterCommand> dispatch) =>
+    public override Node View(CounterModel model, Func<CounterCommand, Task> dispatch) =>
+
         div
         (
             [],
@@ -21,14 +23,14 @@ public class Counter : Component<CounterModel, CounterCommand>
                         on.click(_ => dispatch(new Increment()))
                     ],
                     [
-                        "+"
+                        text("+")
                     ]
                 ),
                 div
                 (
                     [],
                     [
-                       model.Count.ToString()
+                       text(model.Count.ToString())
                     ]
                 ),
                 button
@@ -38,17 +40,17 @@ public class Counter : Component<CounterModel, CounterCommand>
                         @class(["btn", "btn-primary"]),
                         on.click
                         (
-                            _ => dispatch(new Decrement())
+                             _ => dispatch(new Decrement())
                         )
                     ],
                     [
-                        "-"
+                        text("-")
                     ]
                 )
             ]
         );
 
-    protected override async ValueTask<CounterModel> Update(CounterModel model, CounterCommand command) =>
+    public override async ValueTask<CounterModel> Update(CounterModel model, CounterCommand command) =>
             command switch
             {
                 Increment => model with { Count = model.Count + 1 },

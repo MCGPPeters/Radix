@@ -57,7 +57,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
         return node;
     }
 
-    protected override Node View(AddItemModel model, Action<Validated<InventoryCommand>> dispatch) =>
+    public override Node View(AddItemModel model, Func<Validated<InventoryCommand>, Task> dispatch) =>
         concat
                 (
                     new Node[]
@@ -259,7 +259,7 @@ public class AddInventoryItemComponent : Component<AddItemModel, Validated<Inven
                             }
                         )
                     });
-    protected override async ValueTask<AddItemModel> Update(AddItemModel model, Validated<InventoryCommand> command)
+    public override async ValueTask<AddItemModel> Update(AddItemModel model, Validated<InventoryCommand> command)
     {
         Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
 

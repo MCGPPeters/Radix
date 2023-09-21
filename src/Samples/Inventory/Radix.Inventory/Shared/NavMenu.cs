@@ -1,4 +1,5 @@
-﻿using Radix.Interaction;
+﻿using System.Runtime.InteropServices.JavaScript;
+using Radix.Interaction;
 using Radix.Interaction.Data;
 using Radix.Interaction.Web.Components;
 using static System.Array;
@@ -20,7 +21,7 @@ public class NavMenu : Component<NavMenuModel, object>
         collapseNavMenu = !collapseNavMenu;
     }
 
-    protected override Node View(NavMenuModel model, Action<object> dispatch) =>
+    public override Node View(NavMenuModel model, Func<object, Task> dispatch) =>
         concat
             (
                 new Node[]
@@ -228,5 +229,5 @@ public class NavMenu : Component<NavMenuModel, object>
                     )
                 }
             );
-    protected override async ValueTask<NavMenuModel> Update(NavMenuModel model, object command) => model;
+    public override async ValueTask<NavMenuModel> Update(NavMenuModel model, object command) => model;
 }

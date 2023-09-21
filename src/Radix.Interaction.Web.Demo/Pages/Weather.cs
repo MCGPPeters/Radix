@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Runtime.InteropServices.JavaScript;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace Radix.Interaction.Web.Demo.Pages;
 
 [Route("/weather")]
 [StreamRendering(true)]
-public class Weather : Component<WeatherModel, WeatherCommand>
+public class Weather : Component<WeatherModel>
 {        
 
 
@@ -28,7 +29,7 @@ public class Weather : Component<WeatherModel, WeatherCommand>
         }).ToArray();
     }
 
-    protected override Node View(WeatherModel model, Action<WeatherCommand> dispatch) =>
+    public override Node Render() =>
         concat(
                 [
                     component<PageTitle>
@@ -52,7 +53,7 @@ public class Weather : Component<WeatherModel, WeatherCommand>
                             text("This component demonstrates showing data from the server.")
                         ]
                     ),
-                    model.Forecasts is null
+                    Model.Forecasts is null
                     ?
                         p
                         (
@@ -118,7 +119,7 @@ public class Weather : Component<WeatherModel, WeatherCommand>
                                 (
                                     []
                                     ,
-                                    model.Forecasts.Select(
+                                    Model.Forecasts.Select(
                                         forecast =>
                                             tr
                                             (
@@ -161,7 +162,6 @@ public class Weather : Component<WeatherModel, WeatherCommand>
 
                     ]
                 );
-    protected override async ValueTask<WeatherModel> Update(WeatherModel model, WeatherCommand command) => model;
 }
 
 public record WeatherModel

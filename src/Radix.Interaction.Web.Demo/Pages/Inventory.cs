@@ -7,10 +7,10 @@ namespace Radix.Interaction.Web.Demo.Pages;
 [Route("/inventory")]
 public class Inventory : Component<InventoryModel, ItemCommand>
 {
-    protected override async ValueTask<InventoryModel> Update(InventoryModel model, ItemCommand command) => model;
+    public override async ValueTask<InventoryModel> Update(InventoryModel model, ItemCommand command) => model;
         
 
-    protected override Node View(InventoryModel model, Action<ItemCommand> dispatch) =>
+    public override Node View(InventoryModel model, Func<ItemCommand, Task> dispatch) =>
         section
         (
             [],

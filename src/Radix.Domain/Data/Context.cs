@@ -1,5 +1,6 @@
 using Radix.Control.Validated;
 using Radix.Data;
+using Radix.Domain.Aggregate;
 using Radix.Domain.Data.Aggregate;
 using Radix.Math.Pure.Logic.Order.Intervals;
 using Radix.Tests;
@@ -31,7 +32,7 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
     public async Task<Instance<TState, TCommand, TEvent>> Create<TState>(Guid aggregateId)
         where TState : Aggregate<TState, TCommand, TEvent>
         =>
-            await Get<TState>(new Address { Id = (Id)aggregateId, TenantId = (TenantId)"" }, new MinimumVersion());
+            await Get<TState>(new Address { Id = (Radix.Domain.Aggregate.Id)aggregateId, TenantId = (TenantId)"" }, new MinimumVersion());
 
     /// <summary>
     /// Create a new instance of an aggregate, where the aggregate uses specialized events and commands within the context for the aggregate
@@ -102,7 +103,7 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
             await theirEvents.AggregateAsync(instance.State, (state, @event) => TState.Apply(state, @event.Value));
         Version theirVersion = await theirEvents.MaxAsync(@event => @event.Version);
         var appendEventsResult = await TEventStore.AppendEvents(EventStoreSettings, instance.Address.TenantId, stream,
-            theirVersion ?? new MinimumVersion(), eventsToAppend);
+            theirVersion, eventsToAppend);
         switch (appendEventsResult)
         {
             case Error<ExistingVersion, AppendEventsError>(var error):
@@ -120,9 +121,9 @@ public record Context<TCommand, TEvent, TEventStore, TEventStoreSettings>
                     {
                         State = newState, Version = version, History = instance.History.Concat(eventsToAppend),
                     };
-                    i.Handle = command =>
+                    i.Handle = cmd =>
                     {
-                        return command
+                        return cmd
                             .Select(async cmd => await Handle(i, cmd))
                             .Traverse(id => id);
                     };

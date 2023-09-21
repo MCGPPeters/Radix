@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Runtime.InteropServices.JavaScript;
+using Microsoft.AspNetCore.Components;
 using Radix.Blazor.Inventory.Interface.Logic;
 using static Radix.Interaction.Web.Components.Components;
 using Radix.Data;
@@ -14,9 +15,9 @@ namespace Radix.Inventory.Pages;
 [Route("/")]
 public class IndexComponent : Component<IndexModel, Validated<ItemCommand>>
 {
-    protected override async ValueTask<IndexModel> Update(IndexModel model, Validated<ItemCommand> command) => model;
+    public override async ValueTask<IndexModel> Update(IndexModel model, Validated<ItemCommand> command) => model;
 
-    protected override Node View(IndexModel model, Action<Validated<ItemCommand>> dispatch) =>
+    public override Node View(IndexModel model, Func<Validated<ItemCommand>, Task> dispatch) =>
             
             concat
             (

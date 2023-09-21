@@ -29,7 +29,7 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
 
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
-    protected override Node View(DeactivateInventoryItemModel model, Action<Validated<InventoryCommand>> dispatch) =>
+    public override Node View(DeactivateInventoryItemModel model, Func<Validated<InventoryCommand>, Task> dispatch) =>
         concat
                 (
                     new Node[]
@@ -252,12 +252,12 @@ public class DeactivateInventoryItemComponent : Component<DeactivateInventoryIte
     }
 
 
-    protected override async ValueTask<DeactivateInventoryItemModel> Update(DeactivateInventoryItemModel model, Validated<InventoryCommand> command)
+    public override async ValueTask<DeactivateInventoryItemModel> Update(DeactivateInventoryItemModel model, Validated<InventoryCommand> command)
     {
         Context<InventoryCommand, InventoryEvent, InMemoryEventStore, InMemoryEventStoreSettings> context = new() { EventStoreSettings = new InMemoryEventStoreSettings() };
 
         // for testing purposes make the aggregate block the current thread while processing
-        var inventoryItem = await context.Get<Item>(new Address() { Id = (Radix.Domain.Data.Aggregate.Id)Id });
+        var inventoryItem = await context.Get<Item>(new Address() { Id = (Radix.Domain.Aggregate.Id)Id });
         var result = await inventoryItem.Handle(command);
 
         async void HandleReasons(Reason[] reasons)

@@ -1,4 +1,6 @@
-﻿using Radix.Interaction.Data;
+﻿
+using Radix.Interaction.Data;
+using Radix.Interaction;
 
 namespace Radix.Web.Html.Data.Names.Attributes;
 
@@ -278,8 +280,8 @@ public partial struct referrerpolicy: AttributeName { }
 [Literal]
 public partial struct rel: AttributeName { }
 
-//[Literal(StringRepresentation = "required")]
-//public partial struct @required : AttributeName { }
+[Literal(StringRepresentation = "required")]
+public partial struct _required : AttributeName { }
 
 
 [Literal]

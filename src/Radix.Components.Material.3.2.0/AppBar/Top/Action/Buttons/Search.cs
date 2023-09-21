@@ -8,6 +8,6 @@ public class Search : Button<SearchButtonModel, SearchButtonCommand>
     {
         // OnClick = async _ => await JSRuntime.InvokeAsync<object>("showSearchBar", Array.Empty<object>());
     }
-    protected override async ValueTask<SearchButtonModel> Update(SearchButtonModel model, SearchButtonCommand command) => model;
+    public override async ValueTask<SearchButtonModel> Update(SearchButtonModel model, SearchButtonCommand command) => model;
 
     }

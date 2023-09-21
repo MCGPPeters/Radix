@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Radix.Interaction;
 using Radix.Interaction.Data;
+using Radix.Interaction.Web;
 using Radix.Interaction.Web.Components;
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top.Action;
@@ -13,7 +14,7 @@ public abstract class Button<TModel, TCommand> : Component<TModel, TCommand>, Bu
 {
     [Parameter] public EventCallback OnClick { get; set; }
 
-    protected override Node View(TModel model, Action<TCommand> dispatch) =>
+    public override Node View(TModel model, Func<TCommand, Task> dispatch) =>
         button
         (
             [

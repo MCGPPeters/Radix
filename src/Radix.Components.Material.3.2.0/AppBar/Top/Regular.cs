@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -6,13 +7,13 @@ using Microsoft.VisualBasic;
 using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
 using Radix.Data;
 using Radix.Interaction;
-using Radix.Interaction.Components;
-using Radix.Interaction.Components.Nodes;
+
 using Radix.Interaction.Data;
-using Radix.Interaction.Web.Components;
-using Radix.Interaction.Web.Components.Nodes;
+using Radix.Interaction.Web;
+using static Radix.Interaction.Web.Elements;
+using static Radix.Interaction.Web.Attributes;
+
 using Attribute = Radix.Interaction.Data.Attribute;
-using span = Radix.Web.Html.Data.Names.Elements.span;
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top;
 
@@ -34,19 +35,18 @@ public class Regular : Component<RegularModel, RegularCommand>
 
 
 
-    protected override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand command) => model;
-    protected override Node View(RegularModel model, Action<RegularCommand> dispatch)
+    public override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand command) => model;
+    public override Node View(RegularModel model, Func<RegularCommand, Task> dispatch)
     {
         var hasSearch = model.ActionButtons.Any(button => button is Search);
 
         return
             header
             (
-                new Attribute[]
-                {
-                        @class(new []{AppBarCssClassName, "show"}),
-                        id(new []{model.Id})
-                },
+                [
+                    @class(new []{AppBarCssClassName, "show"}),
+                    id(new []{model.Id})
+                ],
                 new[]
                 {
                         script
@@ -126,7 +126,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                             })
                 });
     }
-private Node SearchBar(RegularModel model, Action<RegularCommand> dispatch) =>
+private Node SearchBar(RegularModel model, Func<RegularCommand, Task> dispatch) =>
         form
         (
             new Attribute []

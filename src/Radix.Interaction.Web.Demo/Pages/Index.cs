@@ -4,35 +4,25 @@ using Microsoft.AspNetCore.Components.Web;
 namespace Radix.Interaction.Web.Demo.Pages;
 
 [Route("/")]
-public class Index : Component<IndexModel, IndexCommand>
+public class Index : Component
 {
-
-    protected override async ValueTask<IndexModel> Update(IndexModel model, IndexCommand command) => model;
-    protected override Node View(IndexModel model, Action<IndexCommand> dispatch) =>
+    public override Node Render() =>
         concat(
             [
                 component<PageTitle>
                 (
                     [],
                     [
-                        "Home"
+                        text("Home")
                     ]
                 ),
                 h1
                 (
                     [],
                     [
-                        "Home"
+                        text("Home")
                     ]
                 ),
-                "Welcome to your new app."
+                text("Welcome to your new app.")
             ]);
-}
-
-public record IndexCommand
-{
-}
-
-public record IndexModel
-{
 }

@@ -1,7 +1,8 @@
 ﻿
+using System.Runtime.InteropServices.JavaScript;
 using Radix.Interaction;
 using Radix.Interaction.Data;
-using Radix.Interaction.Web.Components;
+using Radix.Interaction.Web;
 using Radix.Web.Css.Data;
 using Radix.Web.Css.Data.Dimensions;
 using Radix.Web.Css.Data.Units.Length.Absolute;
@@ -19,9 +20,9 @@ namespace Radix.Components.Material._3._2._0.Card
 
         private const string PrimaryActionCssClassName = "mdc-card__primary-action";
 
-        protected override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand _) => model;
-        
-        protected override Node View(RegularModel model, Action<RegularCommand> dispatch)
+        public override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand _) => model;
+
+        public override Node View(RegularModel model, Func<RegularCommand, Task> dispatch)
         {
 
             model = model with
