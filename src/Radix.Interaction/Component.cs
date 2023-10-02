@@ -16,7 +16,7 @@ public static class Component
                 builder.OpenComponent(nodeId, typeof(T));
                 foreach (Data.Attribute attribute in attributes)
                 {
-                    attribute()(component, builder);
+                    attribute(component, builder);
                 }
 
                 if (children.Length > 0)

@@ -2,8 +2,8 @@
 
 public record AddItemModel
 {
-    public string InventoryItemName { get; set; } = "";
-    public int InventoryItemCount { get; set; }
-    public long InventoryItemId { get; set; }
-    public IEnumerable<Error>? Errors { get; set; }
+    public string InventoryItemName { get; init; } = "";
+    public int InventoryItemCount { get; init; }
+    public long InventoryItemId { get; init; }
+    public IEnumerable<Error> Errors { get; init; } = new List<Error>();
 }

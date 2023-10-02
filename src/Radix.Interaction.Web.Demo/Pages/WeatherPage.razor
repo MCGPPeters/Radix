@@ -1,0 +1,3 @@
+﻿@page "/weather"
+@attribute [StreamRendering(true)]
+<Weather @rendermode="@RenderMode.Server" Model="new WeatherModel()"></Weather>

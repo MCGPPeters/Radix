@@ -11,7 +11,7 @@ public static class Attribute
 {
     public static Data.Attribute Create<T>(string[] values, [CallerLineNumber] int nodeId = 0)
         where T : Literal<T>, AttributeName
-        => () =>
+        =>
         (_, builder)
             =>
         {
@@ -21,7 +21,7 @@ public static class Attribute
         };
 
     public static Data.Attribute Create(string name, object[] values, [CallerLineNumber] int nodeId = 0)
-        => () =>
+        =>
             (_, builder)
                 =>
             {

@@ -1,8 +1,5 @@
 ﻿using System.Globalization;
-using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.JSInterop;
 using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Data;
@@ -12,16 +9,13 @@ using Radix.Inventory.Domain.Data;
 using Radix.Inventory.Domain.Data.Commands;
 using Radix.Inventory.Domain.Data.Events;
 
-namespace Radix.Interaction.Web.Demo.Pages;
+namespace Radix.Interaction.Web.Demo.Shared;
 
-[Route("/Add")]
-[RenderModeServer]
-public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
+public class AddInventoryItem : Component<AddItemModel, Validated<InventoryCommand>>
 {
     [Inject] IJSRuntime JSRuntime { get; init; } = null!;
 
     [Inject] NavigationManager NavigationManager { get; init; } = null!;
-
 
     private static Node FormatErrorMessages(IEnumerable<Error>? errors)
     {
@@ -39,7 +33,6 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                             [
                                 text(error.ToString())
                             ]
-                                
                         )
                     ).ToArray()
                 );
@@ -48,8 +41,9 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
         return node;
     }
 
-    public override Node View(AddItemModel model, Func<Validated<InventoryCommand>, Task> dispatch) =>
-        section
+    public override Node[] View(AddItemModel model, Func<Validated<InventoryCommand>, Task> dispatch) =>
+        [
+            section
         (
             [],
             [
@@ -78,11 +72,12 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                         input
                         (
                             [
-                                @class(["form-control"]),   
+                                @class(["form-control"]),
                                 id(["idInput"]),
-                                bind.input(model.InventoryItemId, id => model.InventoryItemId = id)
-                            ],
-                            []
+                                bind.input(model.InventoryItemId, id => Model = model with { InventoryItemId = id })
+                                ],
+
+                                []
                         ),
                         label
                         (
@@ -98,7 +93,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                             [
                                 @class(["form-control"]),
                                 id(["nameInput"]),
-                                bind.input(model.InventoryItemName, name => model.InventoryItemName = name)
+                                bind.input(model.InventoryItemName, name => Model = Model with { InventoryItemName = name })
                             ],
                             []
                         ),
@@ -116,9 +111,11 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                             [
                                 @class(["form-control"]),
                                 id(["countInput"]),
-                                bind.input(model.InventoryItemCount, count => model.InventoryItemCount = count)
-                            ]
-                            ,
+                                bind.input(model.InventoryItemCount, count => Model = Model with
+                                {
+                                    InventoryItemCount = count
+                                })
+                            ],
                             []
                         )
                     ]
@@ -150,7 +147,7 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                 (
                     [
                         @class(["btn", "btn-secondary"]),
-                        href(["/"])
+                        href(["/inventory"])
                     ],
                     [
                         text("Cancel")
@@ -200,8 +197,8 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                                             [
                                                 type(["button"]),
                                                 @class(["btn-close"]),
-                                                attribute("data-bs-dismiss",["toast"]),
-                                                attribute("aria-label",["Close"])
+                                                attribute("data-bs-dismiss", ["toast"]),
+                                                attribute("aria-label", ["Close"])
                                             ],
                                             [
                                             ]
@@ -221,9 +218,8 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
                         )
                     ]
                 )
-
             ]
-        );
+        )];
 
     public override async ValueTask<AddItemModel> Update(AddItemModel model, Validated<InventoryCommand> command)
     {
@@ -236,10 +232,10 @@ public class AddItem : Component<AddItemModel, Validated<InventoryCommand>>
         switch (result)
         {
             case Valid<Instance<Item, InventoryCommand, InventoryEvent>>:
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/inventory");
                 break;
             case Invalid<Instance<Item, InventoryCommand, InventoryEvent>>(var reasons):
-                model.Errors = reasons.Select(r => new Error { Message = r.ToString() });
+                model = model with { Errors = reasons.Select(r => new Error { Message = r.ToString() }) };
                 await JSRuntime.InvokeAsync<string>("toast", []);
                 break;
         }

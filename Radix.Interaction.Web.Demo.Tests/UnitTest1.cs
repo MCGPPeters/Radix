@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Radix.Interaction.Web.Demo.Pages;
+using Radix.Interaction.Web.Demo.Shared;
+using Counter = Radix.Interaction.Web.Demo.Shared.Counter;
 
 namespace Radix.Interaction.Web.Demo.Tests;
 
@@ -31,18 +33,25 @@ public class CounterComponentTest
         Assert.Equal(8, model.Count);
     }
 
-    [Fact(DisplayName = "Given the count is 9, when incrementing, the count should be decreased by 1")]
+    [Fact(DisplayName = "The Index HTML should be correct")]
     public async Task Test3()
     {
-        var index = new Pages.Index();
+        IServiceCollection services = new ServiceCollection();
+        services.AddLogging();
 
-        var view = index.Render();
+        IServiceProvider serviceProvider = services.BuildServiceProvider();
+        ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 
-        var tree = new RenderTreeBuilder();
+        await using var htmlRenderer = new HtmlRenderer(serviceProvider, loggerFactory);
 
-        //tree.GetFrames().Array[0].;
+        var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var output = await htmlRenderer.RenderComponentAsync<Pages.Index>();
 
-        //Assert.Equal("", output.ToHtmlString());
+            return output.ToHtmlString();
+        });
+
+        Assert.Equal("<h1>Home</h1>Welcome to your new app.", html);
     }
 }
 

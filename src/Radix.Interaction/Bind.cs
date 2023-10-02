@@ -12,7 +12,7 @@ public static class bind
     private const string ChangeEventName = "change";
 
     private static Data.Attribute binder<T>(int nodeId, string name, T currentValue, Action<T> callback, CultureInfo cultureInfo)
-        => () =>
+        => 
         (component, builder) =>
         {
             builder.AddAttribute(nodeId, "on" + name, EventCallback.Factory.CreateBinder(component, callback, currentValue, cultureInfo));
@@ -24,3 +24,4 @@ public static class bind
     public static Data.Attribute change<T>(T value, Action<T> callback, CultureInfo cultureInfo = default!, [CallerLineNumber] int nodeId = 0) =>
         binder(nodeId, ChangeEventName, value, callback, cultureInfo);
 }
+

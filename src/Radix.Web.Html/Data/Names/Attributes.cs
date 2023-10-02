@@ -33,6 +33,9 @@ public partial struct alt : AttributeName { }
 [Literal(StringRepresentation = "aria-label")]
 public partial struct ariaLabel : AttributeName { }
 
+[Literal(StringRepresentation = "aria-hidden")]
+public partial struct ariaHidden : AttributeName { }
+
 [Literal]
 public partial struct async : AttributeName { }
 

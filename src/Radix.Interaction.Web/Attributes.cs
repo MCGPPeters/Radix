@@ -23,6 +23,7 @@ public static class Attributes
     public static Data.Attribute alt(string[] values, [CallerLineNumber] int nodeId = 0) => Create<alt>(values, nodeId);
 
     public static Data.Attribute aria_label(string[] values, [CallerLineNumber] int nodeId = 0) => Create<ariaLabel>(values, nodeId);
+    public static Data.Attribute aria_hidden(string[] values, [CallerLineNumber] int nodeId = 0) => Create<ariaHidden>(values, nodeId);
 
     public static Data.Attribute async(string[] values, [CallerLineNumber] int nodeId = 0) => Create<async>(values, nodeId);
 

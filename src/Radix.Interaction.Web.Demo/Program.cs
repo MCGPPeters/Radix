@@ -1,17 +1,10 @@
-using Radix.Blazor.Inventory.Interface.Logic;
 using Radix.Interaction.Web.Demo;
-using Radix.Interaction.Web.Demo.Pages;
-using CounterModel = Radix.Interaction.Web.Demo.Pages.CounterModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents().AddServerComponents().AddWebAssemblyComponents();
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<WeatherModel>();
-builder.Services.AddSingleton<CounterModel>();
-builder.Services.AddSingleton<InventoryModel>();
-builder.Services.AddSingleton<AddItemModel>();
 
 var app = builder.Build();
 

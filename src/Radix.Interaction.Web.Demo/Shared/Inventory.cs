@@ -2,49 +2,50 @@
 using Radix.Inventory.Domain.Data.Commands;
 using Microsoft.AspNetCore.Components;
 
-namespace Radix.Interaction.Web.Demo.Pages;
+namespace Radix.Interaction.Web.Demo.Shared;
 
-[Route("/inventory")]
 public class Inventory : Component<InventoryModel, ItemCommand>
 {
     public override async ValueTask<InventoryModel> Update(InventoryModel model, ItemCommand command) => model;
-        
 
-    public override Node View(InventoryModel model, Func<ItemCommand, Task> dispatch) =>
-        section
-        (
-            [],
-            [
-                navLinkMatchAll
-                (
-                    [
-                        @class(["btn", "btn-primary"]),
-                        href(["Add"])
-                    ],
-                    [
-                        text
-                        (
-                            "Add"
-                        )
-                    ]
-                ),
-                h1
-                (
-                    [],
-                    [
-                        text
-                        (
-                            "All items"
-                        )
-                    ]
-                ),
-                table
-                (
-                    [],
-                    GetInventoryItemNodes(model.Items)
-                )
-            ]
-        );
+
+    public override Node[] View(InventoryModel model, Func<ItemCommand, Task> dispatch) =>
+        [
+            section
+            (
+                [],
+                [
+                    navLinkMatchAll
+                    (
+                        [
+                            @class(["btn", "btn-primary"]),
+                            href(["Add"])
+                        ],
+                        [
+                            text
+                            (
+                                "Add"
+                            )
+                        ]
+                    ),
+                    h1
+                    (
+                        [],
+                        [
+                            text
+                            (
+                                "All items"
+                            )
+                        ]
+                    ),
+                    table
+                    (
+                        [],
+                        GetInventoryItemNodes(model.Items)
+                    )
+                ]
+            )
+        ];
 
     private static Node[] GetInventoryItemNodes(IEnumerable<ItemModel>? inventoryItems) =>
         inventoryItems?
@@ -55,24 +56,24 @@ public class Inventory : Component<InventoryModel, ItemCommand>
                     [
                         td
                         (
-                        [],
-                        [
-                            navLinkMatchAll
-                            (
-                                [
-                                    href([$"/Details/{inventoryItem.Id}"])
-                                ],
-                                [
-                                    text
-                                    (
-                                        inventoryItem.Name ?? string.Empty
-                                    )
-                                ]
-                            )
-                        ]
-                    ),
-                    // conditional output
-                    inventoryItem.Activated
+                            [],
+                            [
+                                navLinkMatchAll
+                                (
+                                    [
+                                        href([$"/Details/{inventoryItem.Id}"])
+                                    ],
+                                    [
+                                        text
+                                        (
+                                            inventoryItem.Name ?? string.Empty
+                                        )
+                                    ]
+                                )
+                            ]
+                        ),
+                        // conditional output
+                        inventoryItem.Activated
                     ?
                         td
                         (

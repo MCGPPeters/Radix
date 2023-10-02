@@ -6,39 +6,77 @@ using Radix.Interaction.Data;
 
 namespace Radix.Interaction.Web;
 
+/// <summary>
+/// Base for components that do not have a model, or interaction based on MVU.
+/// </summary>
 public abstract class Component : ComponentBase
 {
-    public abstract Node Render();
 
+    /// <summary>
+    /// Build an array of Nodes that need to be rendered
+    /// </summary>
+    /// <returns>An array of Node delegates that instruct the <see cref="RenderTreeBuilder"/> which content to add</returns>
+    public abstract Node[] Render();
+
+    /// <inheritdoc />
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         base.BuildRenderTree(builder);
-        Render()(this, builder);
+        var nodes = Render();
+        foreach (Node node in nodes)
+        {
+            node(this, builder);
+        }
     }
 }
 
+/// <summary>
+/// A component that has an underlying model that represents the state of the component
+/// </summary>
+/// <typeparam name="TModel"></typeparam>
 public abstract class Component<TModel> : Component
     where TModel : notnull
 {
+    /// <summary>
+    /// Checks wetter or not the component should be rendered. The default implementation
+    /// checks if the model has changed and returns true only when that is the case
+    /// </summary>
+    /// <param name="oldModel"></param>
+    /// <param name="newModel"></param>
+    /// <returns>Wetter or not the component should be rendered</returns>
     protected virtual bool ShouldRender(TModel oldModel, TModel newModel)
-        => !oldModel.Equals(newModel);
+    {
+        return !oldModel.Equals(newModel);
+    }
 
-    [Inject] public TModel Model { get; set; } = default!;
-
+    [Parameter] public TModel Model { get; set; } = default!;
 }
 
+/// <summary>
+/// Base class for building components that support the MVU pattern
+/// </summary>
+/// <typeparam name="TModel">The type of the model</typeparam>
+/// <typeparam name="TCommand">The base type of the commands the component can handle</typeparam>
 public abstract class Component<TModel, TCommand> : Component<TModel>
+    where TModel : notnull
 {
-    internal TModel PreviousModel { get; set; } = default!;
-
+    /// <summary>
+    /// Contains the logic for rendering the view and possible (user) interaction
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="dispatch"></param>
+    /// <returns></returns>
     [Pure]
-    public abstract Node View(TModel model, Func<TCommand, Task> dispatch);
+    public abstract Node[] View(TModel model, Func<TCommand, Task> dispatch);
 
+    /// <summary>
+    /// Contains the logic for updating the model given a command
+    /// </summary>
+    /// <param name="model">The model containing the state the command should act on</param>
+    /// <param name="command"></param>
+    /// <returns>The model that was potentially updated</returns>
     [Pure]
     public abstract ValueTask<TModel> Update(TModel model, TCommand command);
-
-    protected override bool ShouldRender() =>
-        ShouldRender(PreviousModel, Model);
 
     private async Task Dispatch(TCommand command)
     {
@@ -47,11 +85,9 @@ public abstract class Component<TModel, TCommand> : Component<TModel>
     }
 
     /// <inheritdoc />
-    public override Node Render()
-    {
-        PreviousModel = Model;
-        return View(Model, Dispatch);
-    }
+    public override Node[] Render() =>
+        View(Model, Dispatch);
+    
 }
 
 
