@@ -43,6 +43,11 @@ public partial struct mousedown : EventName
 }
 
 [Literal]
+public partial struct mouseup : EventName
+{
+}
+
+[Literal]
 public partial struct click : EventName
 {
 }
@@ -59,6 +64,16 @@ public partial struct wheel : EventName
 
 [Literal]
 public partial struct mousewheel : EventName
+{
+}
+
+[Literal]
+public partial struct mouseleave : EventName
+{
+}
+
+[Literal]
+public partial struct mouseenter : EventName
 {
 }
 
@@ -89,6 +104,11 @@ public partial struct dragover : EventName
 
 [Literal]
 public partial struct dragstart : EventName
+{
+}
+
+[Literal]
+public partial struct dragend : EventName
 {
 }
 
@@ -164,6 +184,11 @@ public partial struct beforepaste : EventName
 
 [Literal]
 public partial struct copy : EventName
+{
+}
+
+[Literal]
+public partial struct cut : EventName
 {
 }
 

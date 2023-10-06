@@ -5,60 +5,64 @@ using Radix.Web.Html.Data;
 using Radix.Web.Html.Data.Names;
 using Radix.Web.Html.Data.Names.Events;
 using static Radix.Interaction.Event;
+using ErrorEventArgs = Microsoft.AspNetCore.Components.Web.ErrorEventArgs;
 // ReSharper disable InconsistentNaming
 
 namespace Radix.Interaction.Web;
 
 public static class on
 {
-    public static Data.Attribute focus(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<focus>(callback, nodeId);
+    public static Data.Attribute focus(Action<FocusEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<focus, FocusEventArgs>(callback, nodeId);
 
     public static Data.Attribute blur(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<blur>(callback, nodeId);
 
-    public static Data.Attribute focusin(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<focusin>(callback, nodeId);
+    public static Data.Attribute focusin(Action<FocusEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<focusin, FocusEventArgs>(callback, nodeId);
 
-    public static Data.Attribute focusout(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<focusout>(callback, nodeId);
+    public static Data.Attribute focusout(Action<FocusEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<focusout, FocusEventArgs>(callback, nodeId);
 
     public static Data.Attribute mouseover(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mouseover, MouseEventArgs>(callback, nodeId);
 
-    public static Data.Attribute mouseout(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mouseout>(callback, nodeId);
+    public static Data.Attribute mouseout(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mouseout, MouseEventArgs>(callback, nodeId);
 
-    public static Data.Attribute mousemove(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mousemove>(callback, nodeId);
+    public static Data.Attribute mousemove(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mousemove, MouseEventArgs>(callback, nodeId);
 
-    public static Data.Attribute mousedown(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mousedown>(callback, nodeId);
+    public static Data.Attribute mousedown(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mousedown, MouseEventArgs>(callback, nodeId);
+    public static Data.Attribute mouseup(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mouseup, MouseEventArgs>(callback, nodeId);
+    public static Data.Attribute mousewheel(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mousewheel, MouseEventArgs>(callback, nodeId);
+    public static Data.Attribute mouseleave(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mouseleave, MouseEventArgs>(callback, nodeId);
+    public static Data.Attribute mouseenter(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mouseenter, MouseEventArgs>(callback, nodeId);
 
     /// <summary>
     /// 
     /// </summary>
     public static Data.Attribute click(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<click, MouseEventArgs>(callback, nodeId);
 
-    public static Data.Attribute dblclick(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dblclick>(callback, nodeId);
+    public static Data.Attribute dblclick(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dblclick, MouseEventArgs>(callback, nodeId);
 
-    public static Data.Attribute wheel(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<wheel>(callback, nodeId);
+    public static Data.Attribute wheel(Action<WheelEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<wheel, WheelEventArgs>(callback, nodeId);
 
-    public static Data.Attribute mousewheel(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<mousewheel>(callback, nodeId);
+    public static Data.Attribute contextmenu(Action<MouseEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<contextmenu, MouseEventArgs>(callback, nodeId);
 
-    public static Data.Attribute contextmenu(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<contextmenu>(callback, nodeId);
+    public static Data.Attribute drag(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<drag, DragEventArgs>(callback, nodeId);
 
-    public static Data.Attribute drag(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<drag>(callback, nodeId);
+    public static Data.Attribute dragenter(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragenter, DragEventArgs>(callback, nodeId);
 
-    public static Data.Attribute dragenter(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragenter>(callback, nodeId);
+    public static Data.Attribute dragleave(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragleave, DragEventArgs>(callback, nodeId);
 
-    public static Data.Attribute dragleave(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragleave>(callback, nodeId);
+    public static Data.Attribute dragover(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragover, DragEventArgs>(callback, nodeId);
 
-    public static Data.Attribute dragover(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragover>(callback, nodeId);
+    public static Data.Attribute dragstart(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragstart, DragEventArgs>(callback, nodeId);
+    public static Data.Attribute dragend(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragend, DragEventArgs>(callback, nodeId);
 
-    public static Data.Attribute dragstart(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<dragstart>(callback, nodeId);
+    public static Data.Attribute drop(Action<DragEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<drop, DragEventArgs>(callback, nodeId);
 
-    public static Data.Attribute drop(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<drop>(callback, nodeId);
+    public static Data.Attribute keydown(Action<KeyboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<keydown, KeyboardEventArgs>(callback, nodeId);
 
-    public static Data.Attribute keydown(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<keydown>(callback, nodeId);
+    public static Data.Attribute keyup(Action<KeyboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<keyup, KeyboardEventArgs>(callback, nodeId);
+    public static Data.Attribute keypress(Action<KeyboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<keypress, KeyboardEventArgs>(callback, nodeId);
 
-    public static Data.Attribute keyup(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<keyup>(callback, nodeId);
-    public static Data.Attribute keypress(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<keypress>(callback, nodeId);
-
-    public static Data.Attribute change(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<change>(callback, nodeId);
-    public static Data.Attribute input(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<input>(callback, nodeId);
+    public static Data.Attribute change(Action<ChangeEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<change, ChangeEventArgs>(callback, nodeId);
+    public static Data.Attribute input(Action<ChangeEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<input, ChangeEventArgs>(callback, nodeId);
     public static Data.Attribute reset(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<reset>(callback, nodeId);
     public static Data.Attribute select(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<select>(callback, nodeId);
     public static Data.Attribute selectstart(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<selectstart>(callback, nodeId);
@@ -71,39 +75,40 @@ public static class on
     public static Data.Attribute beforecut(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<beforecut>(callback, nodeId);
     public static Data.Attribute beforepaste(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<beforepaste>(callback, nodeId);
 
-    public static Data.Attribute copy(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<copy>(callback, nodeId);
-    public static Data.Attribute paste(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<paste>(callback, nodeId);
+    public static Data.Attribute copy(Action<ClipboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<copy, ClipboardEventArgs>(callback, nodeId);
+    public static Data.Attribute cut(Action<ClipboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<cut, ClipboardEventArgs>(callback, nodeId);
+    public static Data.Attribute paste(Action<ClipboardEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<paste, ClipboardEventArgs>(callback, nodeId);
     public static Data.Attribute touchcancel(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchcancel>(callback, nodeId);
 
-    public static Data.Attribute touchend(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchend>(callback, nodeId);
+    public static Data.Attribute touchend(Action<TouchEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchend, TouchEventArgs>(callback, nodeId);
 
-    public static Data.Attribute touchmove(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchmove>(callback, nodeId);
+    public static Data.Attribute touchmove(Action<TouchEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchmove, TouchEventArgs>(callback, nodeId);
 
-    public static Data.Attribute touchstart(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchstart>(callback, nodeId);
+    public static Data.Attribute touchstart(Action<TouchEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchstart, TouchEventArgs>(callback, nodeId);
 
-    public static Data.Attribute touchenter(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchenter>(callback, nodeId);
+    public static Data.Attribute touchenter(Action<TouchEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchenter, TouchEventArgs>(callback, nodeId);
 
-    public static Data.Attribute touchleave(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchleave>(callback, nodeId);
+    public static Data.Attribute touchleave(Action<TouchEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<touchleave, TouchEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointercapture(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointercapture>(callback, nodeId);
+    public static Data.Attribute pointercapture(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointercapture, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute lostpointercapture(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<lostpointercapture>(callback, nodeId);
+    public static Data.Attribute lostpointercapture(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<lostpointercapture, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointercancel(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointercancel>(callback, nodeId);
+    public static Data.Attribute pointercancel(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointercancel, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointerdown(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerdown>(callback, nodeId);
+    public static Data.Attribute pointerdown(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerdown, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointerenter(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerenter>(callback, nodeId);
+    public static Data.Attribute pointerenter(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerenter, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointerleave(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerleave>(callback, nodeId);
+    public static Data.Attribute pointerleave(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerleave, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointermove(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointermove>(callback, nodeId);
+    public static Data.Attribute pointermove(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointermove, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointerout(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerout>(callback, nodeId);
+    public static Data.Attribute pointerout(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerout, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointerover(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerover>(callback, nodeId);
+    public static Data.Attribute pointerover(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerover, PointerEventArgs>(callback, nodeId);
 
-    public static Data.Attribute pointerup(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerup>(callback, nodeId);
+    public static Data.Attribute pointerup(Action<PointerEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<pointerup, PointerEventArgs>(callback, nodeId);
 
     public static Data.Attribute canplay(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<canplay>(callback, nodeId);
     public static Data.Attribute canplaythrough(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<canplaythrough>(callback, nodeId);
@@ -127,17 +132,17 @@ public static class on
     public static Data.Attribute volumechange(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<volumechange>(callback, nodeId);
 
     public static Data.Attribute waiting(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<waiting>(callback, nodeId);
-    public static Data.Attribute loadstart(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<loadstart>(callback, nodeId);
+    public static Data.Attribute loadstart(Action<ProgressEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<loadstart, ProgressEventArgs>(callback, nodeId);
 
-    public static Data.Attribute timeout(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<timeout>(callback, nodeId);
+    public static Data.Attribute timeout(Action<ProgressEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<timeout, ProgressEventArgs>(callback, nodeId);
 
     public static Data.Attribute abort(Action<ProgressEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<abort, ProgressEventArgs>(callback, nodeId);
-    public static Data.Attribute load(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<load>(callback, nodeId);
-    public static Data.Attribute loadend(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<loadend>(callback, nodeId);
+    public static Data.Attribute load(Action<ProgressEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<load, ProgressEventArgs>(callback, nodeId);
+    public static Data.Attribute loadend(Action<ProgressEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<loadend, ProgressEventArgs>(callback, nodeId);
 
     public static Data.Attribute progress(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<progress>(callback, nodeId);
 
-    public static Data.Attribute error(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<error>(callback, nodeId);
+    public static Data.Attribute error(Action<ErrorEventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<error, ErrorEventArgs>(callback, nodeId);
     public static Data.Attribute activate(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<activate, EventArgs>(callback, nodeId);
     public static Data.Attribute beforeactivate(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0) => Create<beforeactivate>(callback, nodeId);
 
