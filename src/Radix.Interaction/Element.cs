@@ -9,10 +9,13 @@ using Radix.Math.Pure.Logic;
 
 namespace Radix.Interaction;
 
+/// <summary>
+/// Provides factory methods for creating element nodes
+/// </summary>
 public static class Element
 {
     public static Data.Node Create<T>(Data.Attribute[] attributes, Data.Node[] children, object? key = null,
-        [CallerLineNumber] int nodeId = 0) where T : Literal<T>, ElementName
+        int nodeId = 0) where T : Literal<T>, ElementName
         => (component, builder)
             =>
         {
@@ -29,23 +32,10 @@ public static class Element
                 child(component, builder);
             }
 
-            //builder.AddElementReferenceCapture(int.MaxValue,
-            //    elementReference => element.ElementReference = elementReference);
-
             builder.CloseElement();
         };
 
-    public static Data.Node Create<T>(Data.Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0)
+    public static Data.Node Create<T>(Data.Node[] children, object? key = null, int nodeId = 0)
         where T : Literal<T>, ElementName =>
             Create<T>([], children, key, nodeId);
-
-    public static Data.Node Create<T>(Data.Attribute[] attributes, object? key = null, [CallerLineNumber] int nodeId = 0)
-        where T : Literal<T>, ElementName =>
-            Create<T>(attributes, [], key, nodeId);
-        
-    public static void a(object component, RenderTreeBuilder builder)
-    {
-        builder.OpenElement(1, "a");
-        builder.CloseElement();
-    }
 }

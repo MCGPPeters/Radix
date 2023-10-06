@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Radix.Web.Html.Data.Names.Attributes;
 using static Radix.Interaction.Attribute;
+// ReSharper disable InconsistentNaming
 
 namespace Radix.Interaction.Web;
 
@@ -91,6 +92,12 @@ public static class Attributes
 
     public static Data.Attribute high(string[] values, [CallerLineNumber] int nodeId = 0) => Create<high>(values, nodeId);
 
+    /// <summary>
+    /// Hypertext reference (yes, that is what it stands for) attribute
+    /// </summary>
+    /// <param name="values"></param>
+    /// <param name="nodeId"></param>
+    /// <returns></returns>
     public static Data.Attribute href(string[] values, [CallerLineNumber] int nodeId = 0) => Create<href>(values, nodeId);
 
     public static Data.Attribute hreflang(string[] values, [CallerLineNumber] int nodeId = 0) => Create<hreflang>(values, nodeId);

@@ -1,4 +1,6 @@
-﻿namespace Radix.Interaction.Web.Demo.Shared;
+﻿using Microsoft.AspNetCore.Components.Web;
+
+namespace Radix.Interaction.Web.Demo.Shared;
 
 public class Counter : Component<CounterModel, CounterCommand>
 {

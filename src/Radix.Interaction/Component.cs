@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Radix.Interaction.Data;
 
 namespace Radix.Interaction;
@@ -7,13 +8,14 @@ namespace Radix.Interaction;
 public static class Component
 {
 
-    public static Data.Node Create<T>(Data.Attribute[] attributes, Node[] children, [CallerLineNumber] int nodeId = 0)
-        where T : IComponent 
-            => (component, builder) =>
-
+    public static Data.Node Create<T>(Data.Attribute[] attributes, Data.Node[] children, object? key = null, 
+        [CallerLineNumber] int nodeId = 0) where T : IComponent
+        => (component, builder) =>
             {
                 builder.OpenRegion(nodeId);
-                builder.OpenComponent(nodeId, typeof(T));
+                builder.OpenComponent<T>(nodeId);
+                builder.SetKey(key);
+
                 foreach (Data.Attribute attribute in attributes)
                 {
                     attribute(component, builder);

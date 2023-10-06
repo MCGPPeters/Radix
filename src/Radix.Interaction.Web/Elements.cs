@@ -7,6 +7,7 @@ using static Radix.Interaction.Element;
 using Radix.Interaction.Data;
 
 using System.Runtime.CompilerServices;
+// ReSharper disable InconsistentNaming
 
 
 namespace Radix.Interaction.Web;
@@ -17,17 +18,20 @@ public static class Elements
 
     public static Node a(Data.Attribute[] attributes, Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) =>
         Create<a>(attributes, children, key, nodeId);
+    public static Node a(Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) =>
+        Create<a>(children, key, nodeId);
+
     public static Node abbr(Data.Attribute[] attributes, Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<abbr>(attributes, children, key, nodeId);
    //public static Node abbr(Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<abbr>(children, key, nodeId);
-    public static Node abbr(Data.Attribute[] attributes, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<abbr>(attributes, key, nodeId); 
+    public static Node abbr(Data.Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<abbr>(children, key, nodeId); 
 
     public static Node address(Data.Attribute[] attributes, Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<address>(attributes, children, key, nodeId);
    //public static Node address(Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<address>(children, key, nodeId);
-    public static Node address(Data.Attribute[] attributes, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<address>(attributes, key, nodeId); 
+    public static Node address(Data.Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<address>(children, key, nodeId); 
 
     public static Node area(Data.Attribute[] attributes, Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<area>(attributes, children, key, nodeId);
    //public static Node area(Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<area>(children, key, nodeId);
-    public static Node area(Data.Attribute[] attributes, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<area>(attributes, key, nodeId); 
+    public static Node area(Data.Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<area>(children, key, nodeId); 
 
     public static Node article(Data.Attribute[] attributes, Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<article>(attributes, children, key, nodeId);
     public static Node article(Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) => Create<article>(children, key, nodeId);

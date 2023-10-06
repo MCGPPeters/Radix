@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 
 namespace Radix.Interaction;
 
+/// <summary>
+/// Provides factory methods for creating attributes
+/// </summary>
 public static class Attribute
 {
-    public static Data.Attribute Create<T>(string[] values, [CallerLineNumber] int nodeId = 0)
+    public static Data.Attribute Create<T>(string[] values, int nodeId = 0)
         where T : Literal<T>, AttributeName
         =>
         (_, builder)
@@ -20,7 +23,7 @@ public static class Attribute
 
         };
 
-    public static Data.Attribute Create(string name, object[] values, [CallerLineNumber] int nodeId = 0)
+    public static Data.Attribute Create(string name, object[] values, int nodeId = 0)
         =>
             (_, builder)
                 =>
@@ -29,4 +32,10 @@ public static class Attribute
                     builder.AddAttribute(nodeId, name, values.Aggregate((current, next) => $"{current} {next}"));
 
             };
+
+    public static void foo()
+    {
+        var x = new[] { 1, 2, 3, 4, 5 };
+        var y = new List<int>(){ 1, 2, 3, 4, 5};
+    }
 }

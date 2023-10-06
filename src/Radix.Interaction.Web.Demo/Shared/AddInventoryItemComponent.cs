@@ -45,11 +45,9 @@ public class AddInventoryItem : Component<AddItemModel, Validated<InventoryComma
         [
             section
         (
-            [],
             [
                 h1
                 (
-                    [],
                     [
                         text("Add new item")
                     ]

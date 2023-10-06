@@ -37,18 +37,6 @@ public abstract class Component : ComponentBase
 public abstract class Component<TModel> : Component
     where TModel : notnull
 {
-    /// <summary>
-    /// Checks wetter or not the component should be rendered. The default implementation
-    /// checks if the model has changed and returns true only when that is the case
-    /// </summary>
-    /// <param name="oldModel"></param>
-    /// <param name="newModel"></param>
-    /// <returns>Wetter or not the component should be rendered</returns>
-    protected virtual bool ShouldRender(TModel oldModel, TModel newModel)
-    {
-        return !oldModel.Equals(newModel);
-    }
-
     [Parameter] public TModel Model { get; set; } = default!;
 }
 

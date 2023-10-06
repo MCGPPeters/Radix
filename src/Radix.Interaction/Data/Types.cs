@@ -20,9 +20,3 @@ public delegate void Node(object parentComponent, RenderTreeBuilder builder);
 /// <param name="parentComponent"></param>
 /// <param name="builder"></param>
 public delegate void Attribute(object parentComponent, RenderTreeBuilder builder);
-
-public delegate Node Element(Attribute[] attributes, Node[] children, [CallerLineNumber] int nodeId = 0);
-
-public delegate Node Component<in T>(Attribute[] attributes, Node[] children, [CallerLineNumber] int nodeId = 0);
-
-public delegate Attribute Event(Action<EventArgs> callback, [CallerLineNumber] int nodeId = 0);

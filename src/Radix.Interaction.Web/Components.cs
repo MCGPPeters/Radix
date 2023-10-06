@@ -8,7 +8,7 @@ namespace Radix.Interaction.Web;
 
 public static class Components
 {
-    public static Data.Node component<T>(Data.Attribute[] attributes, Node[] children, [CallerLineNumber] int nodeId = 0) where T : IComponent => Create<T>(attributes, children, nodeId);
+    public static Data.Node component<T>(Data.Attribute[] attributes, Node[] children, object? key = null, [CallerLineNumber] int nodeId = 0) where T : IComponent => Create<T>(attributes, children, key, nodeId);
 
     public static Data.Node navLinkMatchAll(Data.Attribute[] attributes, Node[] children, [CallerLineNumber] int nodeId = 0) => navLink(NavLinkMatch.All, attributes, children, nodeId);
 

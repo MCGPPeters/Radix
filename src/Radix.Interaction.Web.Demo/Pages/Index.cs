@@ -18,7 +18,6 @@ public class Index : Component
                 ),
                 h1
                 (
-                    [],
                     [
                         text("Home")
                     ]

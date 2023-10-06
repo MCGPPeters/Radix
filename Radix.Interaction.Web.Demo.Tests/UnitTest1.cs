@@ -51,7 +51,7 @@ public class CounterComponentTest
             return output.ToHtmlString();
         });
 
-        Assert.Equal("<h1>Home</h1>Welcome to your new app.", html);
+        Assert.Equal("<h1>Home</h1>Welcome to your new app.<div class=\"alert alert-secondary mt-4\"><span class=\"oi oi-pencil me-2\" aria-hidden=\"true\"></span><strong>How is Blazor working for you? </strong><span class=\"text-nowrap\">Please take our <a href=\"https://go.microsoft.com/fwlink/?linkid=2186158\" class=\"font-weight-bold link-dark\">brief survey</a> and tell us what you think.</span></div>", html);
     }
 }
 
