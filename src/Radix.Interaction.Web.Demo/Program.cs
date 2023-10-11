@@ -3,7 +3,7 @@ using Radix.Interaction.Web.Demo;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents().AddServerComponents().AddWebAssemblyComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddWebAssemblyComponents();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -20,6 +20,6 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-app.MapRazorComponents<App>().AddWebAssemblyRenderMode().AddServerRenderMode();
+app.MapRazorComponents<App>().AddWebAssemblyRenderMode().AddInteractiveServerRenderMode();
 
 app.Run();
