@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Domain.EventStoreDB",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Interaction.Web.Demo", "src\Radix.Interaction.Web.Demo\Radix.Interaction.Web.Demo.csproj", "{7FDDB766-E59F-4467-8341-83D1BD77662B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Interaction.Web.Demo.Tests", "Radix.Interaction.Web.Demo.Tests\Radix.Interaction.Web.Demo.Tests.csproj", "{10CAFE20-5335-4CC6-AA66-543471BF7701}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Interaction.Web.Demo.Tests", "src\Radix.Interaction.Web.Demo.Tests\Radix.Interaction.Web.Demo.Tests.csproj", "{10CAFE20-5335-4CC6-AA66-543471BF7701}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

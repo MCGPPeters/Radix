@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Radix.Interaction.Web.Demo\Radix.Interaction.Web.Demo.csproj" />
+    <ProjectReference Include="..\Radix.Interaction.Web.Demo\Radix.Interaction.Web.Demo.csproj" />
   </ItemGroup>
 
 </Project>
