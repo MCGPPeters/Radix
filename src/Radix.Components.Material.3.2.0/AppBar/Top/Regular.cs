@@ -1,19 +1,18 @@
 ﻿
-using System.Runtime.InteropServices.JavaScript;
+
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Html;
 using Microsoft.JSInterop;
-using Microsoft.VisualBasic;
+
 using Radix.Components.Material._3._2._0.AppBar.Top.Action.Buttons;
-using Radix.Data;
+
 using Radix.Interaction;
 
-using Radix.Interaction.Data;
 using Radix.Interaction.Web;
-using static Radix.Interaction.Web.Elements;
-using static Radix.Interaction.Web.Attributes;
+
 
 using Attribute = Radix.Interaction.Data.Attribute;
+
 
 namespace Radix.Components.Material._3._2._0.AppBar.Top;
 
@@ -36,7 +35,7 @@ public class Regular : Component<RegularModel, RegularCommand>
 
 
     public override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand command) => model;
-    public override Node View(RegularModel model, Func<RegularCommand, Task> dispatch)
+    public override Node[] View(RegularModel model, Func<RegularCommand, Task> dispatch)
     {
         var hasSearch = model.ActionButtons.Any(button => button is Search);
 
@@ -47,13 +46,11 @@ public class Regular : Component<RegularModel, RegularCommand>
                     @class(new []{AppBarCssClassName, "show"}),
                     id(new []{model.Id})
                 ],
-                new[]
-                {
+                [
                         script
                         (
-                            Array.Empty<Attribute>(),
-                            new Node[]
-                            {
+                            [],
+                            [
                                 new HtmlString
                                 (
                                     $$"""
@@ -61,17 +58,16 @@ public class Regular : Component<RegularModel, RegularCommand>
                                         function hideSearchBar() { document.querySelector('.mdc-top-app-bar').classList.remove('search-show') }                           
                                     """
                                 )
-                            }
+                            ]
                         ),
                         Styles(), div
                         (
-                            new Attribute[] {@class(new[] {"mdc-top-app-bar__row"})},
+                            [@class(["mdc-top-app-bar__row"])],
 
-                            new Node[]
-                            {
+                            [
                                 hasSearch
                                     ? SearchBar(model, dispatch)
-                                    : new Empty(),
+                                    : [],
                                 section
                                 (
                                     new Attribute[]
@@ -82,8 +78,7 @@ public class Regular : Component<RegularModel, RegularCommand>
                                     new Node[]
                                     {
                                         model.NavigationButton is not null
-                                            ? new Component(model.NavigationButton.GetType(),
-                                                Enumerable.Empty<Interaction.Data.Attribute<object>>())
+                                            ? component<Navigation.Button>([], [])
                                             : new Empty(),
                                         span
                                         (
@@ -123,8 +118,8 @@ public class Regular : Component<RegularModel, RegularCommand>
                                         )
                                     }
                                 )
-                            })
-                });
+                            ])
+                ]);
     }
 private Node SearchBar(RegularModel model, Func<RegularCommand, Task> dispatch) =>
         form

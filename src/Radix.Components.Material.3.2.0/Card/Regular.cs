@@ -22,7 +22,7 @@ namespace Radix.Components.Material._3._2._0.Card
 
         public override async ValueTask<RegularModel> Update(RegularModel model, RegularCommand _) => model;
 
-        public override Node View(RegularModel model, Func<RegularCommand, Task> dispatch)
+        public override Node[] View(RegularModel model, Func<RegularCommand, Task> dispatch)
         {
 
             model = model with

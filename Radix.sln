@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "src\Rad
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.PlayWright", "src\Radix.PlayWright\Radix.PlayWright.csproj", "{5E815109-68C8-454E-A91D-0AD7E5461DCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Components.Material.3.2.0", "src\Radix.Components.Material.3.2.0\Radix.Components.Material.3.2.0.csproj", "{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Web.Css", "src\Radix.Web.Css\Radix.Web.Css.csproj", "{205F2460-BD19-4FF6-9D0A-CD215AA09800}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Web.Html", "src\Radix.Web.Html\Radix.Web.Html.csproj", "{DCD1A6B1-DC43-461F-9AE5-D797B5DB51D7}"
@@ -139,18 +137,6 @@ Global
 		{5E815109-68C8-454E-A91D-0AD7E5461DCB}.Release|x64.Build.0 = Release|Any CPU
 		{5E815109-68C8-454E-A91D-0AD7E5461DCB}.Release|x86.ActiveCfg = Release|Any CPU
 		{5E815109-68C8-454E-A91D-0AD7E5461DCB}.Release|x86.Build.0 = Release|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x64.Build.0 = Debug|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Debug|x86.Build.0 = Debug|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x64.ActiveCfg = Release|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x64.Build.0 = Release|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x86.ActiveCfg = Release|Any CPU
-		{2C8B6325-999B-4D4D-8013-C6D5C0F7CA7B}.Release|x86.Build.0 = Release|Any CPU
 		{205F2460-BD19-4FF6-9D0A-CD215AA09800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{205F2460-BD19-4FF6-9D0A-CD215AA09800}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{205F2460-BD19-4FF6-9D0A-CD215AA09800}.Debug|x64.ActiveCfg = Debug|Any CPU

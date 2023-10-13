@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FsCheck.XUnit" Version="3.0.0-beta2" />
+    <PackageReference Include="FsCheck.XUnit" Version="3.0.0-rc1" />
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0-preview-23424-02" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0-preview-23503-02" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0-2.final" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing.XUnit" Version="1.1.1" />
     <PackageReference Include="XPlot.Plotly" Version="4.0.6" />
     <PackageReference Include="xunit" Version="2.5.0-pre.11" />
