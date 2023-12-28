@@ -1,5 +1,8 @@
 ﻿namespace Radix.Math.Applied.Optimization;
 
+/// <summary>
+///     Provides methods for selecting elements from sequences.
+/// </summary>
 public static class Selection
 {
     /// <summary>

@@ -19,4 +19,10 @@ public readonly partial record struct Probability : IComparable<Probability>
     public static Probability operator +(Probability p, Probability q) => new(p.Value + q.Value);
 }
 
-public delegate Distribution<T> Spread<T>(IEnumerable<T> ts) where T : notnull;
+/// <summary>
+/// The spread of a distribution is the difference between the largest and the smallest value in the distribution.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="ts"></param>
+/// <returns></returns>
+public delegate Distribution<T> Spread<T>(IEnumerable<T> ts);

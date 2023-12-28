@@ -1,3 +1,7 @@
 ﻿namespace Radix.Math.Applied.Optimization.Control;
 
-public readonly record struct Return(double Value);
+[Alias<double>]
+public partial record struct Return : IComparable
+{
+    public int CompareTo(object? obj) => Value.CompareTo(obj);
+}

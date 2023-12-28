@@ -2,30 +2,61 @@
 
 public static class Sampling
 {
-    public static IEnumerable<T> Scan<T>(this Distribution<T> distribution, Probability target) where T : notnull
+    /// <summary>
+    ///   Scan a distribution for a target probability
+    /// </summary>
+    /// <typeparam name="T">
+    ///     The type of the random variable
+    /// </typeparam>
+    /// <param name="distribution">
+    ///     The distribution
+    /// </param>
+    /// <param name="target">
+    ///     The target probability
+    /// </param>
+    /// <returns>
+    ///     A sequence of random values from the distribution
+    /// </returns>
+    public static IEnumerable<T> Scan<T>(this Distribution<T> distribution, Probability target)
     {
         Random? random = new();
-        int maxValue = distribution.EventProbabilities.Length - 1;
+        int maxValue = distribution.OutcomeProbabilities.Length;
         while (true)
         {
             int row = random.Next(0, maxValue);
-            (Event<T> @event, Probability probability) = distribution.EventProbabilities[row];
+            (Outcome<T> outcome, Probability probability) = distribution.OutcomeProbabilities[row];
             if (target <= probability)
             {
-                yield return @event.Value;
+                yield return outcome;
             }
         }
     }
 
-    public static Random<T> Choose<T>(this Distribution<T> distribution) where T : notnull
+    /// <summary>
+    ///    Choose a random value from a distribution
+    /// </summary>
+    /// <typeparam name="T">
+    ///     The type of the random variable
+    /// </typeparam>
+    /// <param name="distribution">
+    ///     The distribution
+    /// </param>
+    /// <returns>
+    ///     A random value from the distribution
+    /// </returns>
+    public static Random<T> Choose<T>(this Distribution<T> distribution)
     {
         Random? random = new();
         Probability probability = (Probability)random.NextDouble();
         // don't scan for a target larger than the maximum probability in the distribution
-        Probability target = probability <= distribution.Max ? probability : distribution.Max;
+        Probability target = 
+            probability <= distribution.Max 
+                ? probability 
+                : distribution.Max;
+        Random<T> choose = Scan(distribution, target)
+            .Select(x => new Random<T>(x))
+            .First();
         return
-            Scan(distribution, target)
-                .Select(x => new Random<T>(x))
-                .First();
+            choose;
     }
 }
