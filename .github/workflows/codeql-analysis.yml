@@ -54,10 +54,10 @@ jobs:
       with:
         dotnet-version: '6.0'
         include-prerelease: True
-    - name: Setup .NET 8
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '8.0'
+        dotnet-version: '9.0'
         include-prerelease: True
     - name: Install dependencies
       run: dotnet restore .
