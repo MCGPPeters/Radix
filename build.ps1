@@ -50,4 +50,4 @@ docker run --rm --name $tag `
  -e GIT_COMMIT_ID=$gitCommitId `
  --network host `
  $tag `
- dotnet run --project ./src/Build/Build.csproj -c Release -- $args
+ dotnet run --project ./Build/Build.csproj -c Release -- $args

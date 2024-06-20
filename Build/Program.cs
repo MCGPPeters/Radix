@@ -59,13 +59,13 @@ internal class Program
         var nugetVersion = Environment.GetEnvironmentVariable("NUGET_VERSION");
         var gitCommitId = Environment.GetEnvironmentVariable("GIT_COMMIT_ID");
         var ignore = new[] { ".github", "Build" };
-        var projects = Directory.GetDirectories("./src")
+        var projects = Directory.GetDirectories(".")
             .Where(d => !ignore.Contains(d))
             .Select(d => new DirectoryInfo(d).Name);
 
         foreach (var project in projects)
         {
-            var packableProjects = Directory.GetFiles($"./src/{project}/", "*.csproj", SearchOption.AllDirectories);
+            var packableProjects = Directory.GetFiles($"./{project}/", "*.csproj", SearchOption.AllDirectories);
             var packTarget = $"{project}-pack";
             Target(packTarget, DependsOn(Clean),
                 packableProjects,

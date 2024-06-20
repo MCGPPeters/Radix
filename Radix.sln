@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31512.422
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix", "src\Radix\Radix.csproj", "{EC4C0B3B-7189-4D0B-AC0A-32BBB870B389}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix", "Radix\Radix.csproj", "{EC4C0B3B-7189-4D0B-AC0A-32BBB870B389}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Domain", "src\Samples\Inventory\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Domain", "Samples\Inventory\Radix.Inventory.Domain\Radix.Inventory.Domain.csproj", "{CB833BC8-00F9-4A17-B905-7F56B29A8800}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Interface.Logic", "src\Samples\Inventory\Radix.Inventory.Interface.Logic\Radix.Inventory.Interface.Logic.csproj", "{C30E2BB1-098F-4F4A-BDD4-B83145D2443F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Inventory.Interface.Logic", "Samples\Inventory\Radix.Inventory.Interface.Logic\Radix.Inventory.Interface.Logic.csproj", "{C30E2BB1-098F-4F4A-BDD4-B83145D2443F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{0785E614-5D3E-4C4E-82F7-9112B0BC662F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{8D7BEBDC-917D-45F9-95AE-6763EF63B3C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "src\Radix.Generators\Radix.Generators.csproj", "{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators", "Radix.Generators\Radix.Generators.csproj", "{2C1267AE-B11D-4BAD-9555-CF5E8E59BB7C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.PlayWright", "src\Radix.PlayWright\Radix.PlayWright.csproj", "{5E815109-68C8-454E-A91D-0AD7E5461DCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.PlayWright", "Radix.PlayWright\Radix.PlayWright.csproj", "{5E815109-68C8-454E-A91D-0AD7E5461DCB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{931C9732-6CEF-49E6-A597-B78B0FCA6B52}"
 	ProjectSection(SolutionItems) = preProject
@@ -27,23 +27,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Radix.props = Radix.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "src\Build\Build.csproj", "{E26ED3BC-7732-4B7C-86F6-CCE177E990EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "Build\Build.csproj", "{E26ED3BC-7732-4B7C-86F6-CCE177E990EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Domain", "src\Radix.Domain\Radix.Domain.csproj", "{E3B3CE04-29AE-4F81-A7A5-87D60DFED45B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Domain", "Radix.Domain\Radix.Domain.csproj", "{E3B3CE04-29AE-4F81-A7A5-87D60DFED45B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Infrastructure.Azure", "src\Radix.Infrastructure.Azure\Radix.Infrastructure.Azure.csproj", "{AF03BE89-D352-45FA-B36B-2A98286E3D8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Infrastructure.Azure", "Radix.Infrastructure.Azure\Radix.Infrastructure.Azure.csproj", "{AF03BE89-D352-45FA-B36B-2A98286E3D8E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Infrastructure.Azure.Tests", "src\Radix.Infrastructure.Azure.Tests\Radix.Infrastructure.Azure.Tests.csproj", "{664D7444-5D99-4977-923A-E442DE35DA09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Infrastructure.Azure.Tests", "Radix.Infrastructure.Azure.Tests\Radix.Infrastructure.Azure.Tests.csproj", "{664D7444-5D99-4977-923A-E442DE35DA09}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests", "src\Radix.Tests\Radix.Tests.csproj", "{749CAB14-6647-40B0-AB7C-AF8E1CB526F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Tests", "Radix.Tests\Radix.Tests.csproj", "{749CAB14-6647-40B0-AB7C-AF8E1CB526F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators.Console", "src\Radix.Generators.Console\Radix.Generators.Console.csproj", "{E5AF1851-528B-4772-A4E0-EFFF9698050B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators.Console", "Radix.Generators.Console\Radix.Generators.Console.csproj", "{E5AF1851-528B-4772-A4E0-EFFF9698050B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Domain.EventStoreDB", "src\Radix.Domain.EventStoreDB\Radix.Domain.EventStoreDB.csproj", "{0D7E5C0A-ECD9-456C-9F13-939F0A4E98DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Domain.EventStoreDB", "Radix.Domain.EventStoreDB\Radix.Domain.EventStoreDB.csproj", "{0D7E5C0A-ECD9-456C-9F13-939F0A4E98DC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DB9F6FB9-D699-49AE-B550-36BE7DC495DA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Gymnasium", "src\Radix.Gymnasium\Radix.Gymnasium.csproj", "{1A946005-D932-42BC-8317-B231C780A80D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Gymnasium", "Radix.Gymnasium\Radix.Gymnasium.csproj", "{1A946005-D932-42BC-8317-B231C780A80D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Radix.Generators.Attributes", "Radix.Generators.Attributes\Radix.Generators.Attributes.csproj", "{C10F9730-5B92-457B-ACDF-253066AA86BE}"
 EndProject

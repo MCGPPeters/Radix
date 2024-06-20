@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Radix.Generators.Attributes\Radix.Generators.Attributes.csproj" />
+    <ProjectReference Include="..\Radix.Generators.Attributes\Radix.Generators.Attributes.csproj" />
   </ItemGroup>
 
   <ItemGroup>
