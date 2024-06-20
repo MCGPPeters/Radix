@@ -1,4 +1,6 @@
-﻿namespace Radix.Math.Applied.Optimization.Control;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Math.Applied.Optimization.Control;
 
 /// <summary>
 ///     A reward (at time step t) is a scalar value or feedback signal

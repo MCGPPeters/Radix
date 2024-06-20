@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Css.Data.Units.Angle;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Web.Css.Data.Units.Angle;
 
 /// <summary>
 /// Represents an angle in degrees. One full circle is 360deg. Examples: 0deg, 90deg, 14.23deg.

@@ -1,4 +1,4 @@
-﻿namespace Radix;
+﻿namespace Radix.Generators.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
 public class LiteralAttribute : Attribute

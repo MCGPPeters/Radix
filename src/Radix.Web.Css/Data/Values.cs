@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Css.Data;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Web.Css.Data;
 
 //public interface Declaration
 //{

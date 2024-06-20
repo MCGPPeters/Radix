@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Css.Data.Units.Time;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Web.Css.Data.Units.Time;
 
 /// <summary>
 /// Represents the number of dots per inch. Screens typically contains 72 or 96 dots per inch, but the dpi for printed documents is usually much greater. As 1 inch is 2.54 cm, 1dpi ≈ 0.39dpcm.

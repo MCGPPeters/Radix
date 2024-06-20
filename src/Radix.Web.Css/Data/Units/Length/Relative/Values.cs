@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Css.Data.Units.Length.Relative;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Web.Css.Data.Units.Length.Relative;
 
 /// <summary>
 /// Font size of the parent, in the case of typographical properties like font-size, and font size of the element itself, in the case of other properties like width.

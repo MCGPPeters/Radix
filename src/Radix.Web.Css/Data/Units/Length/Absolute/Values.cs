@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Css.Data.Units.Length.Absolute;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Web.Css.Data.Units.Length.Absolute;
 
 /// <summary>
 /// Centimeters, 1cm = 37.8px = 25.2/64in

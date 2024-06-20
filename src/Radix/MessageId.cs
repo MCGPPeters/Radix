@@ -1,3 +1,5 @@
+using Radix.Generators.Attributes;
+
 namespace Radix;
 
 [Alias<Guid>]

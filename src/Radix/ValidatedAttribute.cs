@@ -24,7 +24,7 @@ public class ValidatedMemberAttribute<T, V> : Attribute where V : Validity<T>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class ValidatedPropertyAttribute<T, V> : Attribute where V : Validity<T>
 {
-    
+
 }
 
 public class StringLength : ValidatedAttribute<string, LengthIsInClosedInterval>

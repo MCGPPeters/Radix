@@ -1,5 +1,6 @@
 namespace Radix.Interaction.Web.Demo
 {
+    
     public class WeatherForecast
     {
         public DateOnly Date { get; set; }

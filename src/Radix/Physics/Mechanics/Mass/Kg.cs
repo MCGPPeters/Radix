@@ -1,7 +1,10 @@
-﻿namespace Radix.Physics.Mechanics.Mass;
+﻿//using Radix.Generators.Attributes;
 
-[Literal]
-public partial record struct Kg : Unit<Kg>
-{
+//namespace Radix.Physics.Mechanics.Mass;
+
+
+//[Literal]
+//public readonly partial record struct Kg : Unit<Kg>
+//{
     
-}
+//}

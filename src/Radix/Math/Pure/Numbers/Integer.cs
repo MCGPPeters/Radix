@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Radix.Generators.Attributes;
 using Radix.Math.Pure.Numbers;
 
 namespace Radix.Math.Pure.Numbers;

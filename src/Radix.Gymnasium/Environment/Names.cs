@@ -1,3 +1,5 @@
+using Radix.Generators.Attributes;
+
 namespace Radix.Gymnasium;
 
 public static partial class Environment

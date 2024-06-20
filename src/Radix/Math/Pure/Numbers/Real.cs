@@ -1,4 +1,6 @@
-﻿namespace Radix.Math.Pure.Numbers;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Math.Pure.Numbers;
 
 [Alias<double>]
 public partial struct Real : Order<Real>, Number

@@ -1,4 +1,6 @@
-﻿namespace Radix.Web.Css.Data.Units.Time;
+﻿using Radix.Generators.Attributes;
+
+namespace Radix.Web.Css.Data.Units.Time;
 
 /// <summary>
 /// Represents a time in seconds. Examples: 0s, 1.5s, -60s.

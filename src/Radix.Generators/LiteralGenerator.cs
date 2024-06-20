@@ -14,29 +14,37 @@ public class LiteralGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-
-        if(context.SyntaxReceiver is not SyntaxReceiver receiver) return;
+        if (context.SyntaxReceiver is not SyntaxReceiver receiver) return;
 
         foreach (var candidate in receiver.CandidateTypes)
         {
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
-            var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.LiteralAttribute");
-            var attributes = typeSymbol!.GetAttributes().Where(attribute => attribute.AttributeClass!.Name.Equals(attributeSymbol!.Name));
-            foreach (var normalizedSourceCodeText in from attribute in attributes
-                                                     let stringRepresentation = attribute.NamedArguments.Any() ? attribute.NamedArguments[0].Value.Value!.ToString() : ""
-                                                     let classSource = ProcessType(typeSymbol, candidate, stringRepresentation)// fix text formating according to default ruleset
-                                                     let normalizedSourceCodeText
-                                                                         = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8)
-                                                     select normalizedSourceCodeText)
+            var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.Generators.LiteralAttribute");
+            if (typeSymbol is not null && attributeSymbol is not null)
             {
-                context.AddSource(
-                                                                         $"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_literal",
-                                                                         normalizedSourceCodeText);
+                var attributes = typeSymbol.GetAttributes().Where(attribute =>
+                {
+                    return attribute.AttributeClass is not null && attribute.AttributeClass.Name.Equals(attributeSymbol.Name);
+                });
+
+                foreach (var attribute in attributes)
+                {
+                    var stringRepresentation = attribute.NamedArguments.Any()
+                        ? attribute.NamedArguments[0].Value.Value?.ToString() ?? ""
+                        : "";
+
+                    var classSource = ProcessType(typeSymbol, candidate, stringRepresentation);
+                    var normalizedSourceCodeText = CSharpSyntaxTree.ParseText(classSource)
+                        .GetRoot()
+                        .NormalizeWhitespace()
+                        .GetText(Encoding.UTF8);
+
+                    context.AddSource($"{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}_literal", normalizedSourceCodeText);
+                }
             }
         }
     }
-
 
     public void Initialize(GeneratorInitializationContext context)
     {

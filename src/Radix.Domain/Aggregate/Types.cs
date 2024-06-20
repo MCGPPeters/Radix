@@ -1,6 +1,7 @@
 ﻿using Radix.Domain.Data;
 using Radix.Domain.Data.Aggregate;
 using Radix.Domain;
+using Radix.Generators.Attributes;
 
 namespace Radix.Domain.Aggregate;
 

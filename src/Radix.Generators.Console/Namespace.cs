@@ -1,4 +1,5 @@
 ﻿using Radix.Data.String.Validity;
+using Radix.Generators.Attributes;
 
 namespace Radix.Generators.Console;
 
@@ -8,3 +9,21 @@ namespace Radix.Generators.Console;
 [Validated<string, IsNotNullOrEmpty>]
 [StringLength(6, 50)]
 public readonly partial record struct Namespace { };
+
+
+[Configuration]
+
+public class Foo
+{
+    public int MyProperty { get; set; }
+
+    public string Mama { get; set; }
+
+    public Bar Bar { get; set; }
+}
+
+public class Bar
+{
+    public int MyProperty { get; set; }
+}
+

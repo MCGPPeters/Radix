@@ -46,7 +46,7 @@ public class CounterComponentTest
 
         var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
         {
-            var output = await htmlRenderer.RenderComponentAsync<Pages.Index>();
+            var output = await htmlRenderer.RenderComponentAsync<Counter>();
 
             return output.ToHtmlString();
         });
