@@ -24,14 +24,16 @@ public class ParsedGenerator : ISourceGenerator
             var attributes = typeSymbol!.GetAttributes().Where(attribute => attribute.AttributeClass!.Name.Equals(attributeSymbol!.Name));
             foreach (var attribute in attributes)
             {
-                Console.WriteLine($"{attribute.AttributeClass!.TypeArguments[1].ContainingNamespace.Name}.{attribute.AttributeClass.TypeArguments[1].Name}");
-                var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
-                // fix text formating according to default ruleset
-                var normalizedSourceCodeText
-                    = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
-                context.AddSource(
-                    $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
-                    normalizedSourceCodeText);
+                if (attribute.AttributeClass is not null)
+                {
+                    var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
+                    // fix text formating according to default ruleset
+                    var normalizedSourceCodeText
+                        = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
+                    context.AddSource(
+                        $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
+                       normalizedSourceCodeText);
+                }
             }
         }
     }

@@ -94,7 +94,10 @@ public class ValidatedGenerator : ISourceGenerator
         return $"{attribute.AttributeClass?.BaseType?.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}";
     }
 
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
     public void Initialize(GeneratorInitializationContext context)
     {
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
@@ -105,7 +108,7 @@ public class ValidatedGenerator : ISourceGenerator
     /// </summary>
     /// <param name="valueTypeName">The typename of the value to validate (the aliased type)</param>
     /// <param name="validityTypeNames">The type names of the validity instances holding the validator functions</param>
-    /// <param name="typeSymbol">The symbol of the type to which the Validated attributes were added
+    /// <param name="typeSymbol">The symbol of the type to which the Validated attributes were added</param>
     /// <param name="typeDeclarationSyntax">The declaration syntax of the type to which the Validated attributes were added</param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException"></exception>
