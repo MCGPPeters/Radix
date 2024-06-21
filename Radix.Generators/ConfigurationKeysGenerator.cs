@@ -15,41 +15,41 @@ public class ConfigurationKeysGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         //Debugger.Launch();
-        var classDeclarations = context.SyntaxProvider
+        var declarations = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax classDecl && classDecl.AttributeLists.Count > 0,
-                transform: (syntaxContext, _) => (classDecl: (ClassDeclarationSyntax)syntaxContext.Node, model: syntaxContext.SemanticModel))
-            .Where(pair => HasConfigurationAttribute(pair.classDecl, pair.model));
+                predicate: (syntaxNode, _) => syntaxNode is TypeDeclarationSyntax typeDecl && typeDecl.AttributeLists.Count > 0,
+                transform: (syntaxContext, _) => (typeDecl: (TypeDeclarationSyntax)syntaxContext.Node, model: syntaxContext.SemanticModel))
+            .Where(pair => HasConfigurationAttribute(pair.typeDecl, pair.model));
 
-        var compilationAndClasses = context.CompilationProvider.Combine(classDeclarations.Collect());
+        var compilationAndDeclarations = context.CompilationProvider.Combine(declarations.Collect());
 
-        context.RegisterSourceOutput(compilationAndClasses, static (sourceProductionContext, source) =>
+        context.RegisterSourceOutput(compilationAndDeclarations, static (sourceProductionContext, source) =>
         {
-            var (compilation, classes) = source;
-            foreach (var (classSyntax, model) in classes.Distinct())
+            var (compilation, declarations) = source;
+            foreach (var (typeSyntax, model) in declarations.Distinct())
             {
-                var className = classSyntax.Identifier.Text;
-                var typeSymbol = model.GetDeclaredSymbol(classSyntax);
+                var className = typeSyntax.Identifier.Text;
+                var typeSymbol = model.GetDeclaredSymbol(typeSyntax);
                 var namespaceName = typeSymbol?.ContainingNamespace.ToDisplayString() ?? "global";
                 var configurationKeysClassName = className + "ConfigurationKeys";
                 var hintName = $"{configurationKeysClassName}_{Guid.NewGuid()}.g.cs";
-                var sourceCode = GenerateConfigurationKeysClass(compilation, namespaceName, className, configurationKeysClassName, classSyntax, model);
+                var sourceCode = GenerateConfigurationKeysClass(compilation, namespaceName, className, configurationKeysClassName, typeSyntax, model);
                 sourceProductionContext.AddSource(hintName, SourceText.From(sourceCode, Encoding.UTF8));
             }
         });
     }
 
-    private static bool HasConfigurationAttribute(ClassDeclarationSyntax classSyntax, SemanticModel model)
+    private static bool HasConfigurationAttribute(TypeDeclarationSyntax typeSyntax, SemanticModel model)
     {
-        var classSymbol = model.GetDeclaredSymbol(classSyntax);
-        if (classSymbol is not null)
+        var typeSymbol = model.GetDeclaredSymbol(typeSyntax);
+        if (typeSymbol is not null)
         {
-            return classSymbol.GetAttributes().Any(ad => ad.AttributeClass is not null ? ad.AttributeClass.ToDisplayString() == "Radix.Generators.Attributes.ConfigurationAttribute" : false);
+            return typeSymbol.GetAttributes().Any(ad => ad.AttributeClass is not null && ad.AttributeClass.ToDisplayString() == "Radix.Generators.Attributes.ConfigurationAttribute");
         }
         return false;
     }
 
-    private static string GenerateConfigurationKeysClass(Compilation compilation, string namespaceName, string className, string configurationKeysClassName, ClassDeclarationSyntax classSyntax, SemanticModel model)
+    private static string GenerateConfigurationKeysClass(Compilation compilation, string namespaceName, string className, string configurationKeysClassName, TypeDeclarationSyntax classSyntax, SemanticModel model)
     {
         var stringBuilder = new StringBuilder();
         // Header comment indicating the code is auto-generated

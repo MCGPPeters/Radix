@@ -12,17 +12,7 @@ public readonly partial record struct Namespace { };
 
 
 [Configuration]
-public class Foo
+public class PostgresSettings
 {
-    public int MyProperty { get; set; }
-
-    public string Mama { get; set; }
-
-    public Bar Bar { get; set; }
+    public required string ConnectionString { get; init; }
 }
-
-public class Bar
-{
-    public int Boor { get; set; }
-}
-
