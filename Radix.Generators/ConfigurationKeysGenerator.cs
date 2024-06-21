@@ -14,7 +14,7 @@ public class ConfigurationKeysGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Debugger.Launch();
+        //Debugger.Launch();
         var classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax classDecl && classDecl.AttributeLists.Count > 0,
@@ -42,7 +42,11 @@ public class ConfigurationKeysGenerator : IIncrementalGenerator
     private static bool HasConfigurationAttribute(ClassDeclarationSyntax classSyntax, SemanticModel model)
     {
         var classSymbol = model.GetDeclaredSymbol(classSyntax);
-        return classSymbol is not null ? classSymbol.GetAttributes().Any(ad => ad.AttributeClass is not null ? ad.AttributeClass.ToDisplayString() == "Radix.ConfigurationAttribute" : false) : false;
+        if (classSymbol is not null)
+        {
+            return classSymbol.GetAttributes().Any(ad => ad.AttributeClass is not null ? ad.AttributeClass.ToDisplayString() == "Radix.Generators.Attributes.ConfigurationAttribute" : false);
+        }
+        return false;
     }
 
     private static string GenerateConfigurationKeysClass(Compilation compilation, string namespaceName, string className, string configurationKeysClassName, ClassDeclarationSyntax classSyntax, SemanticModel model)

@@ -12,7 +12,6 @@ public readonly partial record struct Namespace { };
 
 
 [Configuration]
-
 public class Foo
 {
     public int MyProperty { get; set; }
@@ -24,6 +23,6 @@ public class Foo
 
 public class Bar
 {
-    public int MyProperty { get; set; }
+    public int Boor { get; set; }
 }
 
