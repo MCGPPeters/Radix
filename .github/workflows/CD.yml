@@ -1,0 +1,38 @@
+name: CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          fetch-depth: 0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    - name: Install GitVersioning
+      run: dotnet tool install --global nbgv
+    - name: Set version
+      id: version
+      run: echo "::set-output name=VERSION::$(nbgv get-version -v AssemblyInformationalVersion)"
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Pack
+      run: dotnet pack --configuration Release --output ./nupkg /p:PackageVersion=${{ steps.version.outputs.VERSION }}
+    - name: Publish to NuGet
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+    - name: Publish to GitHub Packages
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.PUSH_GITHUB_PACKAGES }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
