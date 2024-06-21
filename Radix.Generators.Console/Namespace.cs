@@ -12,7 +12,7 @@ public readonly partial record struct Namespace { };
 
 
 [Configuration]
-public class PostgresSettings
+public record  PostgresSettings
 {
     public required string ConnectionString { get; init; }
 }

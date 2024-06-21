@@ -76,7 +76,7 @@ public class ConfigurationKeysGenerator : IIncrementalGenerator
 
         var classSymbol = model.GetDeclaredSymbol(classSyntax);
 
-        GenerateConfigurationKeysForType(stringBuilder, classSymbol!, className);
+        GenerateConfigurationKeysForType(stringBuilder, classSymbol!, className, []);
 
         stringBuilder.AppendLine("    }");
         stringBuilder.AppendLine("}");
@@ -85,10 +85,20 @@ public class ConfigurationKeysGenerator : IIncrementalGenerator
     }
 
 
-    private static void GenerateConfigurationKeysForType(StringBuilder stringBuilder, INamedTypeSymbol classSymbol, string parentPath)
+    private static void GenerateConfigurationKeysForType(StringBuilder stringBuilder, INamedTypeSymbol classSymbol, string parentPath, HashSet<INamedTypeSymbol> processedTypes)
     {
+        if (!processedTypes.Add(classSymbol))
+        {
+            // This type is already being processed, skip to avoid recursion
+            return;
+        }
+
         foreach (var property in classSymbol.GetMembers().OfType<IPropertySymbol>())
         {
+            // Skip compiler-generated properties, like for records
+            if (property.IsImplicitlyDeclared)
+                continue;
+
             var propertyName = property.Name;
             var propertyPath = $"{parentPath}:{propertyName}";
 
@@ -100,9 +110,11 @@ public class ConfigurationKeysGenerator : IIncrementalGenerator
 
             if (property.Type.TypeKind == TypeKind.Class && property.Type.SpecialType != SpecialType.System_String)
             {
-                GenerateConfigurationKeysForType(stringBuilder, (INamedTypeSymbol)property.Type, propertyPath);
+                GenerateConfigurationKeysForType(stringBuilder, (INamedTypeSymbol)property.Type, propertyPath, processedTypes);
             }
         }
+
+        processedTypes.Remove(classSymbol);
     }
 
 }
