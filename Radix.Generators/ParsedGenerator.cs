@@ -21,22 +21,23 @@ public class ParsedGenerator : ISourceGenerator
             var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
             var typeSymbol = ModelExtensions.GetDeclaredSymbol(model, candidate);
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("Radix.ParsedAttribute`2");
-            var attributes = typeSymbol!.GetAttributes().Where(attribute => attribute.AttributeClass!.Name.Equals(attributeSymbol!.Name));
+            if (typeSymbol == null) continue; // Check for null
+
+            var attributes = typeSymbol.GetAttributes().Where(attribute => attribute.AttributeClass?.Name.Equals(attributeSymbol?.Name) == true);
             foreach (var attribute in attributes)
             {
-                if (attribute.AttributeClass is not null)
+                if (attribute.AttributeClass is not null && attribute.AttributeClass.TypeArguments.Length >= 2)
                 {
                     var classSource = ProcessType(attribute.AttributeClass.TypeArguments[0].Name, $"{attribute.AttributeClass.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}", typeSymbol, candidate);
-                    // fix text formating according to default ruleset
-                    var normalizedSourceCodeText
-                        = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
+                    var normalizedSourceCodeText = CSharpSyntaxTree.ParseText(classSource).GetRoot().NormalizeWhitespace().GetText(Encoding.UTF8);
                     context.AddSource(
-                        $"Validated{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
-                       normalizedSourceCodeText);
+                        $"Parsed{typeSymbol.ContainingNamespace.ToDisplayString()}_{typeSymbol.Name}",
+                        normalizedSourceCodeText);
                 }
             }
         }
     }
+
 
 
     public void Initialize(GeneratorInitializationContext context)
@@ -100,6 +101,7 @@ namespace {namespaceName}
     {{
         public static Validated<{typeSymbol.Name}> Create(string? value)
         {{
+            if (value is null) return new Invalid<{{typeSymbol.Name}}>(""Value cannot be null."");
             var result = from validated in {validityType}.Parse(value, $""The value provided for {typeSymbol.Name}, '{{value}}',  is not valid"")
                          select new {typeSymbol.Name}(validated);
             return result;
@@ -109,7 +111,7 @@ namespace {namespaceName}
         public {valueType} {propertyName} {{ get; }}
         private {typeSymbol.Name}({valueType} value)
         {{
-            {propertyName} = value;
+            {propertyName} = value ?? throw new ArgumentNullException(nameof(value));
         }}
 
         public override string ToString() => {propertyName}.ToString();
