@@ -33,6 +33,6 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration Release --output ./nupkg /p:PackageVersion=${{ steps.version.outputs.VERSION }}
     - name: Publish to NuGet
-      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGETORG_API_KEY }} --source https://api.nuget.org/v3/index.json
     - name: Publish to GitHub Packages
-      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.PUSH_GITHUB_PACKAGES }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.PACKAGE_PUSH_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
